@@ -1,0 +1,13 @@
+version: '3'
+services:
+    app:
+        build:
+            dockerfile: ./Dockerfile
+            context: .
+        command: yarn start
+        volumes:
+            - ./:/usr/src/app/
+        ports:
+            - '9090:9090'
+        environment:
+            - TEST=www.google.com

@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"module": "CommonJS",
+		"target": "ES6",
+		"baseUrl": ".",
+		"paths": {
+			"@ecs/*": ["./src/engine/*"]
+		},
+		"lib": ["es2015", "DOM", "ES7"],
+		"moduleResolution": "Node",
+		"esModuleInterop": true
+	},
+	"exclude": ["node_modules"]
+}
