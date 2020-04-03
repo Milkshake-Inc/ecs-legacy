@@ -2,8 +2,8 @@ import Vector2 from '../math/Vector2';
 
 export default class MathHelper {
 	public static clamp(value: number, min: number, max: number): number {
-		var min = Math.min(min, max);
-		var max = Math.max(min, max);
+		min = Math.min(min, max);
+		max = Math.max(min, max);
 
 		return value < min ? min : value > max ? max : value;
 	}
@@ -16,8 +16,8 @@ export default class MathHelper {
 	}
 
 	public static hermite(valueA: number, tangentA: number, valueB: number, tangentB: number, amount: number): number {
-		var amountCubed = amount * amount * amount;
-		var amountSquared = amount * amount;
+		const amountCubed = amount * amount * amount;
+		const amountSquared = amount * amount;
 
 		if (amount == 0) return valueA;
 		if (amount == 1) return valueB;
@@ -34,7 +34,7 @@ export default class MathHelper {
 		return toMin + ((value - fromMin) * (toMax - toMin)) / (fromMax - fromMin);
 	}
 
-	public static deadzone(value: number, deadzone: number = 0.3): number {
+	public static deadzone(value: number, deadzone = 0.3): number {
 		if (value > deadzone) {
 			return MathHelper.map(deadzone, 1, 0, 1, value);
 		} else if (value < -deadzone) {
@@ -75,7 +75,7 @@ export default class MathHelper {
 	}
 
 	public static lerpAngle(start: number, end: number, percent: number): number {
-		var d: number = end - start;
+		let d: number = end - start;
 
 		if (d > Math.PI) d = d - 2 * Math.PI;
 		if (d < -Math.PI) d = d + 2 * Math.PI;
@@ -84,7 +84,7 @@ export default class MathHelper {
 	}
 
 	public static unwrapRadian(radian: number): number {
-		var twoPI: number = 2.0 * Math.PI;
+		const twoPI: number = 2.0 * Math.PI;
 
 		radian = radian % twoPI;
 
@@ -102,7 +102,7 @@ export default class MathHelper {
 		return (angle * Math.PI) / 180;
 	}
 
-	public static vectAngle(radians: number, length: number = 0): { x: number; y: number } {
+	public static vectAngle(radians: number, length = 0): { x: number; y: number } {
 		return {
 			x: Math.cos(radians) * length,
 			y: Math.sin(radians) * length

@@ -87,7 +87,7 @@ export class Engine {
 	 * @param priority Value indicating the priority of updating system in update loop. Lower priority
 	 *  means sooner update.
 	 */
-	public addSystem(system: System, priority: number = 0): Engine {
+	public addSystem(system: System, priority = 0): Engine {
 		system.priority = priority;
 		if (this._systems.length === 0) {
 			this._systems[0] = system;

@@ -256,4 +256,4 @@ export type ComponentUpdateHandler = (entity: Entity, component: any) => void;
 /**
  * Entity ids enumerator
  */
-let entityId: number = 1;
+let entityId = 1;

@@ -32,7 +32,7 @@ import { ReactionSystem } from './ReactionSystem';
  * }
  */
 export abstract class IterativeSystem extends ReactionSystem {
-	private _removed: boolean = false;
+	private _removed = false;
 
 	protected constructor(query: Query) {
 		super(query);
@@ -48,7 +48,7 @@ export abstract class IterativeSystem extends ReactionSystem {
 	}
 
 	protected updateEntities(dt: number) {
-		for (let entity of this.query.entities) {
+		for (const entity of this.query.entities) {
 			if (this._removed) return;
 			this.updateEntity(entity, dt);
 		}

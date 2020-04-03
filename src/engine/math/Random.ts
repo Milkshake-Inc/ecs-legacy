@@ -1,5 +1,5 @@
 export default class Random {
-	public static bool(chance: number = 0.5): boolean {
+	public static bool(chance = 0.5): boolean {
 		return Math.random() > chance;
 	}
 

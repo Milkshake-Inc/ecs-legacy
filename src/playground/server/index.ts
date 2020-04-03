@@ -10,7 +10,7 @@ class PlaygroundEngine extends TickerEngine {
 		return performance.now();
 	}
 
-	public update(deltaTsime: number) {}
+	public update(deltaTime: number) {}
 }
 
 new PlaygroundEngine();

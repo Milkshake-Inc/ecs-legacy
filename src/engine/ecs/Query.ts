@@ -156,7 +156,7 @@ export class Query {
 }
 
 function hasAll(entity: Entity, components: number[]): boolean {
-	for (let componentId of components) {
+	for (const componentId of components) {
 		if (entity.components.get(componentId) === undefined) {
 			return false;
 		}
@@ -181,7 +181,7 @@ export class QueryBuilder {
 	 * @param components List of component classes
 	 */
 	public contains(...components: Class<any>[]): QueryBuilder {
-		for (let component of components) {
+		for (const component of components) {
 			const componentId = getComponentId(component, true)!;
 			if (this._components.indexOf(componentId) === -1) {
 				this._components[this._components.length] = componentId;

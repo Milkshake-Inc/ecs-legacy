@@ -2,35 +2,19 @@
 	"name": "playground",
 	"version": "1.0.0",
 	"license": "BSD-3-Clause",
-	"devDependencies": {
-		"copy-webpack-plugin": "^5.1.1",
-		"html-webpack-plugin": "^4.0.4",
-		"nodemon-webpack-plugin": "^4.3.1",
-		"ts-loader": "^6.2.2",
-		"typescript": "^3.7.5",
-		"webpack": "^4.42.1",
-		"webpack-cli": "^3.3.11",
-		"webpack-dev-server": "^3.10.3",
-		"webpack-merge": "^4.2.2",
-		"webpack-node-externals": "^1.7.2",
-		"webpackbar": "^4.0.0"
-	},
 	"scripts": {
-		"build:server": "webpack --config webpack.server.js",
 		"build:client": "webpack --config webpack.client.js",
-		"watch:server": "webpack --config webpack.server.js --watch",
-		"watch:client": "webpack --config webpack.client.js --watch",
+		"build:server": "webpack --config webpack.server.js",
+		"commit": "yarn lint && git-cz",
+		"lint": "prettier --write . && eslint --fix src/**/*.ts",
 		"start": "webpack --config webpack.dev.js --watch --info-verbosity none",
-		"prettier": "prettier --write ./"
+		"watch:client": "webpack --config webpack.client.js --watch",
+		"watch:server": "webpack --config webpack.server.js --watch"
 	},
-	"dependencies": {
-		"chalk": "^4.0.0",
-		"commitizen": "^4.0.3",
-		"cz-gitmoji": "^0.0.7",
-		"pixi.js": "^5.2.1",
-		"prettier": "^2.0.2",
-		"typed-signals": "^1.0.5",
-		"webpack-plugin-serve": "^0.12.1"
+	"config": {
+		"commitizen": {
+			"path": "cz-gitmoji"
+		}
 	},
 	"prettier": {
 		"arrowParens": "avoid",
@@ -50,9 +34,30 @@
 		"useTabs": true,
 		"vueIndentScriptAndStyle": false
 	},
-	"config": {
-		"commitizen": {
-			"path": "cz-gitmoji"
-		}
+	"dependencies": {
+		"pixi.js": "^5.2.1",
+		"typed-signals": "^1.0.5"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^2.26.0",
+		"@typescript-eslint/parser": "^2.26.0",
+		"chalk": "^4.0.0",
+		"commitizen": "^4.0.3",
+		"copy-webpack-plugin": "^5.1.1",
+		"cz-gitmoji": "^0.0.7",
+		"eslint": "^6.8.0",
+		"eslint-plugin-spellcheck": "^0.0.14",
+		"html-webpack-plugin": "^4.0.4",
+		"nodemon-webpack-plugin": "^4.3.1",
+		"prettier": "^2.0.2",
+		"ts-loader": "^6.2.2",
+		"typescript": "^3.7.5",
+		"webpack": "^4.42.1",
+		"webpack-cli": "^3.3.11",
+		"webpack-dev-server": "^3.10.3",
+		"webpack-merge": "^4.2.2",
+		"webpack-node-externals": "^1.7.2",
+		"webpack-plugin-serve": "^0.12.1",
+		"webpackbar": "^4.0.0"
 	}
 }

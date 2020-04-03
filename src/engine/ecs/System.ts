@@ -9,7 +9,7 @@ export abstract class System {
 	 * Gets a priority of the system
 	 * It should be initialized before adding to the system
 	 */
-	public priority: number = 0;
+	public priority = 0;
 
 	/**
 	 * Updates system

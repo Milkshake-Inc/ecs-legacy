@@ -6,7 +6,7 @@ type QueryPattern = (entity: Entity) => boolean;
 
 export const all = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {
-		for (let component of components) {
+		for (const component of components) {
 			if (!entity.has(component)) {
 				return false;
 			}
@@ -18,7 +18,7 @@ export const all = (...components: Class<any>[]): QueryPattern => {
 
 export const any = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {
-		for (let component of components) {
+		for (const component of components) {
 			if (entity.has(component)) {
 				return true;
 			}
@@ -30,7 +30,7 @@ export const any = (...components: Class<any>[]): QueryPattern => {
 
 export const not = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {
-		for (let component of components) {
+		for (const component of components) {
 			if (entity.has(component)) {
 				return false;
 			}

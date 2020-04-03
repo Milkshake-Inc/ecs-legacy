@@ -13,7 +13,7 @@ export default class RenderSystem extends IterativeSystem {
 
 	displayObjects: Map<DisplayObject, PixiDisplayObject>;
 
-	constructor(width: number = 1280, height: number = 720, backgroundColor: number = 0xff0000, scale: number = 1) {
+	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
 		super(makeQuery(all(Position), any(Sprite)));
 
 		this.application = new Application({

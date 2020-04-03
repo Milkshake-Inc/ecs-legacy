@@ -14,7 +14,7 @@ const Assets = {
 
 class PixiEngine extends TickerEngine {
 	protected loader: Loader;
-	constructor(content: { [index: string]: string } = {}, tickRate: number = 60) {
+	constructor(content: { [index: string]: string } = {}, tickRate = 60) {
 		super(tickRate);
 
 		this.addSystem(new RenderSystem());
