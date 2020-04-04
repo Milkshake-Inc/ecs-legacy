@@ -24,6 +24,7 @@ export default class MovementSystem extends IterativeSystem {
 		if (input.downDown) velocity.y += moveable.speed;
 		if (input.upDown) velocity.y -= moveable.speed;
 
-		physics.velocity = velocity;
+		physics.velocity.x += velocity.x;
+		physics.velocity.y += velocity.y;
 	}
 }

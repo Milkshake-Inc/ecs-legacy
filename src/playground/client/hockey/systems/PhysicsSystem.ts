@@ -15,5 +15,7 @@ export default class PhysicsSystem extends IterativeSystem {
 
 		position.x += physics.velocity.x * dt;
 		position.y += physics.velocity.y * dt;
+
+		physics.velocity = physics.velocity.multiF(physics.friction);
 	}
 }

@@ -12,6 +12,7 @@ import MovementSystem from './systems/MovementSystem';
 import PhysicsSystem from './systems/PhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
+import Key from '@ecs/input/Key';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -38,8 +39,8 @@ export default class Hockey extends Space {
 		paddle.addComponent(Position);
 		paddle.addComponent(Sprite, { imageUrl: Assets.Paddle });
 		paddle.addComponent(Input);
-		paddle.addComponent(Moveable, { speed: 0.4 });
-		paddle.addComponent(Physics);
+		paddle.addComponent(Moveable, { speed: 0.1 });
+		paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
 		paddle.addComponent(BoundingCircle, { size: 130 });
 
 		const puck = new Entity();
