@@ -26,16 +26,20 @@ export default class CollisionSystem extends ReactionSystem {
 		super(makeQuery(all(Position, CollisionShape)));
 	}
 
+	private updateCollisionShape(entity: Entity){
+		const { x, y } = entity.get(Position);
+		const { shape } = entity.get(CollisionShape);
+
+		shape.pos.x = x;
+		shape.pos.y = y;
+	}
+
 	public updateFixed(deltaTime: number) {
-		super.update(deltaTime);
+		super.updateFixed(deltaTime);
 
 		// Update all collision shapes position
 		for (const entity of this.entities) {
-			const { x, y } = entity.get(Position);
-			const { shape } = entity.get(CollisionShape);
-
-			shape.pos.x = x;
-			shape.pos.y = y;
+			this.updateCollisionShape(entity);
 		}
 
 		for (const entityA of this.entities) {

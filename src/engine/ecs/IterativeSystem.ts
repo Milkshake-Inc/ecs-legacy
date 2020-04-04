@@ -38,8 +38,12 @@ export abstract class IterativeSystem extends ReactionSystem {
 		super(query);
 	}
 
-	public updateFixed(dt: number) {
+	public update(dt: number) {
 		this.updateEntities(dt);
+	}
+
+	public updateFixed(dt: number) {
+		this.updateEntitiesFixed(dt);
 	}
 
 	public onRemovedFromEngine(engine: Engine) {
@@ -54,6 +58,13 @@ export abstract class IterativeSystem extends ReactionSystem {
 		}
 	}
 
+	protected updateEntitiesFixed(dt: number) {
+		for (const entity of this.query.entities) {
+			if (this._removed) return;
+			this.updateEntityFixed(entity, dt);
+		}
+	}
+
 	/**
 	 * Update entity
 	 *
@@ -61,4 +72,14 @@ export abstract class IterativeSystem extends ReactionSystem {
 	 * @param dt Delta time in seconds
 	 */
 	protected abstract updateEntity(entity: Entity, dt: number): void;
+
+	/**
+	 * Update Fixed entity
+	 *
+	 * @param entity Entity to update
+	 * @param dt Delta time in seconds
+	 */
+	protected updateEntityFixed(entity: Entity, dt: number): void {
+
+	}
 }
