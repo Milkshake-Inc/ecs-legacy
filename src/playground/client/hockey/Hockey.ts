@@ -12,7 +12,8 @@ import MovementSystem from './systems/MovementSystem';
 import PhysicsSystem from './systems/PhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import Key from '@ecs/input/Key';
+import CollisionSystem from './systems/CollisionSystem';
+import Collidable from './components/Collidable';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -30,6 +31,7 @@ export default class Hockey extends Space {
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem());
 		this.addSystem(new BoundsSystem({ width: 1280, height: 720 }));
+		this.addSystem(new CollisionSystem());
 
 		const background = new Entity();
 		background.addComponent(Position);
@@ -42,12 +44,14 @@ export default class Hockey extends Space {
 		paddle.addComponent(Moveable, { speed: 0.1 });
 		paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
 		paddle.addComponent(BoundingCircle, { size: 130 });
+		paddle.addComponent(Collidable);
 
 		const puck = new Entity();
 		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
 		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
 		puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true });
 		puck.addComponent(BoundingCircle, { size: 80 });
+		puck.addComponent(Collidable);
 
 		this.addEntities(background, paddle, puck);
 	}
