@@ -4,53 +4,45 @@ import Position from '@ecs/plugins/Position';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import TickerEngine from '@ecs/TickerEngine';
-import { Loader } from 'pixi.js';
+import Space from '@ecs/plugins/space/Space';
 
 const Assets = {
 	Stars: 'assets/placeholder/stars.png',
 	Moon: 'assets/placeholder/moon.png',
-	World: 'assets/placeholder/world.png'
+	World: 'assets/placeholder/world.png',
+	Egg: 'assets/pong/egg.png',
+	Pong: 'assets/pong/lobby.png',
+	Ra: 'assets/pong/ra.png'
 };
 
 class PixiEngine extends TickerEngine {
-	protected loader: Loader;
-	constructor(content: { [index: string]: string } = {}, tickRate = 60) {
+	protected spaces: Map<string, Space>;
+
+	constructor(tickRate = 60) {
 		super(tickRate);
 
 		this.addSystem(new RenderSystem());
 
-		this.loader = Loader.shared;
-
-		try {
-			this.loader.add(Object.values(content));
-		} catch (e) {
-			console.warn(e);
-		}
-
-		this.preload().then(() => {
-			this.setup();
-		});
+		this.spaces = new Map();
 	}
 
-	protected async preload() {
-		return new Promise(resolve => {
-			this.loader.load(resolve);
-		});
+	public getSpace(spaceName: string) {
+		return this.spaces.get(spaceName);
 	}
 
-	protected setup() {}
+	public registerSpaces(...spaces: Space[]) {
+		spaces.forEach(v => this.spaces.set(v.name, v));
+	}
 
 	protected getTime(): number {
 		return performance.now();
 	}
 }
 
-class PlaygroundEngine extends PixiEngine {
-	constructor() {
-		super(Assets, 60);
-	}
-
+class MainMenu extends Space {
 	setup() {
+		console.log('setting up main menu');
+
 		const background = new Entity();
 		background.addComponent(Position);
 		background.addComponent(Sprite, {
@@ -71,6 +63,38 @@ class PlaygroundEngine extends PixiEngine {
 	}
 }
 
-new PlaygroundEngine();
+class Pong extends Space {
+	setup() {
+		console.log('setting up pong');
+
+		const background = new Entity();
+		background.addComponent(Position);
+		background.addComponent(Sprite, {
+			imageUrl: Assets.Stars,
+			anchor: Vector2.ZERO
+		});
+		this.addEntity(background);
+
+		const moon = new Entity();
+		moon.add(new Position(600, 180));
+		moon.add(new Sprite(Assets.Moon));
+		this.addEntity(moon);
+
+		const earth = new Entity();
+		earth.add(new Position(1280 / 2, 1000));
+		earth.add(new Sprite(Assets.World));
+		this.addEntity(earth);
+	}
+}
+
+const engine = new PixiEngine();
+engine.registerSpaces(new MainMenu(engine, 'mainMenu'), new Pong(engine, 'pong'));
+
+engine.getSpace('mainMenu').open();
+
+setTimeout(() => {
+	engine.getSpace('mainMenu').close();
+	engine.getSpace('pong').open();
+}, 5000);
 
 console.log('🎉 Client');
