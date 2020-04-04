@@ -1,12 +1,10 @@
 import { Engine } from '@ecs/ecs/Engine';
-import { Loader } from 'pixi.js';
 import { Entity } from '@ecs/ecs/Entity';
 import SpaceTag from './components/SpaceTag';
 
 export default class Space extends Engine {
 	public readonly name: string;
 
-	private loader = Loader.shared;
 	private worldEngine: Engine;
 	private loaded = false;
 	private visible = false;
@@ -29,6 +27,7 @@ export default class Space extends Engine {
 			this.clear();
 			await this.preload();
 			this.setup();
+			this.loaded = true;
 		}
 
 		this.show();
@@ -42,23 +41,14 @@ export default class Space extends Engine {
 		}
 	}
 
-	protected setup() {}
-
-	private async preload(content: { [index: string]: string } = {}) {
-		this.loader.add(Object.values(content));
-
-		await new Promise(resolve => {
-			this.loader.load(resolve);
-		});
-
-		this.loaded = true;
-	}
-
 	public clear() {
 		this.loaded = false;
-		this.loader.reset();
 		super.clear();
 	}
+
+	protected async preload(): Promise<any> {}
+
+	protected setup() {}
 
 	private show() {
 		if (this.visible) return;
