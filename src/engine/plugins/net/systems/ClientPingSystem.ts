@@ -16,10 +16,13 @@ export default class ClientPingSystem extends IterativeSystem {
 	}
 
 	public update(deltaTime: number) {
+
 		if (this.tickInitialized) {
 			this.serverTime += deltaTime;
 			this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
 		}
+
+		super.update(deltaTime);
 	}
 
 	protected updateEntity(entity: Entity): void {
@@ -48,7 +51,11 @@ export default class ClientPingSystem extends IterativeSystem {
 						`Client estimated RTT: ${this.rtt} ServerTime: ${packet.serverTime} Estimated ServerTime: ${this.serverTime}`
 					);
 
-					console.log(`⏱ Server time diff ${this.serverTime - newServerTime}`);
+					if(this.serverTime) {
+						console.log(`⏱ Server time diff ${this.serverTime - newServerTime}`);
+					} else {
+						console.log(`⏱ Server time set ${newServerTime}`);
+					}
 
 					if (!this.tickInitialized) {
 						this.serverTime = newServerTime;

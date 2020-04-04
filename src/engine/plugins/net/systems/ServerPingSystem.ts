@@ -20,6 +20,8 @@ export default class ServerPingSystem extends IterativeSystem {
 	}
 
 	public update(deltaTime: number) {
+		super.update(deltaTime);
+
 		this.serverTime += deltaTime;
 		this.timeSinceLastPing += deltaTime;
 		this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
