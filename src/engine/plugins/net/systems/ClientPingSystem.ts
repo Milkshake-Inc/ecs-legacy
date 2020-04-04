@@ -16,7 +16,6 @@ export default class ClientPingSystem extends IterativeSystem {
 	}
 
 	public update(deltaTime: number) {
-
 		if (this.tickInitialized) {
 			this.serverTime += deltaTime;
 			this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
@@ -51,7 +50,7 @@ export default class ClientPingSystem extends IterativeSystem {
 						`Client estimated RTT: ${this.rtt} ServerTime: ${packet.serverTime} Estimated ServerTime: ${this.serverTime}`
 					);
 
-					if(this.serverTime) {
+					if (this.serverTime) {
 						console.log(`⏱ Server time diff ${this.serverTime - newServerTime}`);
 					} else {
 						console.log(`⏱ Server time set ${newServerTime}`);

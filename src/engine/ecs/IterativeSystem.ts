@@ -79,7 +79,5 @@ export abstract class IterativeSystem extends ReactionSystem {
 	 * @param entity Entity to update
 	 * @param dt Delta time in seconds
 	 */
-	protected updateEntityFixed(entity: Entity, dt: number): void {
-
-	}
+	protected updateEntityFixed(entity: Entity, dt: number): void {}
 }

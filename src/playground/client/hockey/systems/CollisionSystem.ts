@@ -26,7 +26,7 @@ export default class CollisionSystem extends ReactionSystem {
 		super(makeQuery(all(Position, CollisionShape)));
 	}
 
-	private updateCollisionShape(entity: Entity){
+	private updateCollisionShape(entity: Entity) {
 		const { x, y } = entity.get(Position);
 		const { shape } = entity.get(CollisionShape);
 
@@ -83,7 +83,7 @@ export default class CollisionSystem extends ReactionSystem {
 			entityAComponents.position.y -= response.overlapV.y;
 			entityAComponents.position.x -= response.overlapV.x;
 
-			this.updateCollisionShape(entityA)
+			this.updateCollisionShape(entityA);
 
 			if (response.overlapV.x < 0 || response.overlapV.x > 0) {
 				velocity.x = -inverseAngle.x;
