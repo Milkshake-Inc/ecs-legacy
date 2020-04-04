@@ -2,9 +2,19 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
-import { Application, BaseTexture, Container, DisplayObject as PixiDisplayObject, Sprite as PixiSprite, Texture } from 'pixi.js';
+import {
+	Application,
+	BaseTexture,
+	Container,
+	DisplayObject as PixiDisplayObject,
+	Sprite as PixiSprite,
+	BitmapText as PixiBitmapText,
+	Text as PixiText,
+	Texture
+} from 'pixi.js';
 import DisplayObject from '../components/DisplayObject';
 import Sprite from '../components/Sprite';
+import BitmapText from '../components/BitmapText';
 
 export default class RenderSystem extends IterativeSystem {
 	public application: Application;
@@ -14,7 +24,7 @@ export default class RenderSystem extends IterativeSystem {
 	displayObjects: Map<DisplayObject, PixiDisplayObject>;
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
-		super(makeQuery(all(Position), any(Sprite)));
+		super(makeQuery(all(Position), any(Sprite, BitmapText)));
 
 		this.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
@@ -60,6 +70,16 @@ export default class RenderSystem extends IterativeSystem {
 			pixiSprite.tint = sprite.tint;
 			pixiSprite.anchor.set(sprite.anchor.x, sprite.anchor.y);
 		}
+
+		if (entity.has(BitmapText)) {
+			const sprite = entity.get(BitmapText);
+			const pixiSprite = this.displayObjects.get(sprite) as PixiBitmapText;
+
+			pixiSprite.text = sprite.text;
+			pixiSprite.tint = sprite.tint;
+
+			genericDisplayObjectUpdate(pixiSprite, sprite);
+		}
 	}
 
 	entityAdded = (snapshot: EntitySnapshot) => {
@@ -69,6 +89,22 @@ export default class RenderSystem extends IterativeSystem {
 
 			this.displayObjects.set(sprite, pixiSprite);
 			this.container.addChild(pixiSprite);
+
+			this.updateEntity(snapshot.entity);
+		}
+
+		if (snapshot.has(BitmapText)) {
+			const bitmapText = snapshot.get(BitmapText);
+
+			const pixiBitmapText = new PixiText(bitmapText.text, {
+				fontFamily: bitmapText.font,
+				fontSize: bitmapText.size,
+				fill: bitmapText.tint
+			} as PIXI.TextStyle);
+			pixiBitmapText.roundPixels = true;
+
+			this.displayObjects.set(bitmapText, pixiBitmapText);
+			this.container.addChild(pixiBitmapText);
 
 			this.updateEntity(snapshot.entity);
 		}

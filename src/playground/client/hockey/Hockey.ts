@@ -15,6 +15,10 @@ import MovementSystem from './systems/MovementSystem';
 import PhysicsSystem from './systems/PhysicsSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 import { Puck } from './components/Puck';
+import BitmapText from '@ecs/plugins/render/components/BitmapText';
+import Color from '@ecs/math/Color';
+import Score from './components/Score';
+import HudSystem, { Hud } from './systems/HudSystem';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -24,6 +28,8 @@ const Assets = {
 };
 
 export default class Hockey extends Space {
+	private score: Score;
+
 	protected async preload() {
 		return LoadPixiAssets(Assets);
 	}
@@ -49,8 +55,12 @@ export default class Hockey extends Space {
 		puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true, friction: 0.99, maxVelocity: 0.5 });
 		puck.addComponent(CollisionShape, { shape: CollisionShape.Circle(80 / 2) });
 		puck.addComponent(Puck);
+		puck.add((this.score = new Score()));
 
-		this.addEntities(background, redPaddle, bluePaddle, puck, ...this.createWalls());
+		const hud = this.hud();
+		this.addSystem(new HudSystem(hud));
+
+		this.addEntities(background, redPaddle, bluePaddle, puck, hud.redScore, hud.blueScore, ...this.createWalls());
 	}
 
 	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }) {
@@ -62,6 +72,7 @@ export default class Hockey extends Space {
 		paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
 		paddle.addComponent(BoundingCircle, { size: 130 });
 		paddle.addComponent(CollisionShape, { shape: CollisionShape.Circle(130 / 2) });
+		paddle.addComponent(Score);
 
 		return paddle;
 	}
@@ -92,5 +103,17 @@ export default class Hockey extends Space {
 		leftBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
+	}
+
+	hud(): Hud {
+		const redScore = new Entity();
+		redScore.addComponent(Position, { x: 50, y: 50 });
+		redScore.addComponent(BitmapText, { text: '0', tint: Color.Red, size: 50 });
+
+		const blueScore = new Entity();
+		blueScore.addComponent(Position, { x: 1280 - 80, y: 50 });
+		blueScore.addComponent(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
+
+		return { redScore, blueScore };
 	}
 }

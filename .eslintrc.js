@@ -33,7 +33,9 @@ module.exports = {
 					'collidable',
 					'pos',
 					'Opcode',
-					'rtt'
+					'rtt',
+					'hud',
+					'Arial'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

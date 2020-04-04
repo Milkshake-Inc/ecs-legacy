@@ -10,6 +10,7 @@ export default class ServerPingSystem extends IterativeSystem {
 	private serverTime = 0;
 	private serverTick = 0;
 	private serverTickRateMs: number = 1000 / 60;
+	private serverPingInterval = 10000;
 	private timeSinceLastPing = 0;
 	private server: GeckosServer;
 
@@ -23,7 +24,7 @@ export default class ServerPingSystem extends IterativeSystem {
 		this.timeSinceLastPing += deltaTime;
 		this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
 
-		if (this.timeSinceLastPing >= 1000) {
+		if (this.timeSinceLastPing >= this.serverPingInterval) {
 			this.timeSinceLastPing = 0;
 			this.server.emit('message', {
 				opcode: PacketOpcode.SERVER_SYNC_PING,
