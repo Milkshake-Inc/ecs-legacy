@@ -83,6 +83,8 @@ export default class CollisionSystem extends ReactionSystem {
 			entityAComponents.position.y -= response.overlapV.y;
 			entityAComponents.position.x -= response.overlapV.x;
 
+			this.updateCollisionShape(entityA)
+
 			if (response.overlapV.x < 0 || response.overlapV.x > 0) {
 				velocity.x = -inverseAngle.x;
 			}
