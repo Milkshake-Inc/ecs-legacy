@@ -39,12 +39,10 @@ export default abstract class TickerEngine extends Engine {
 
 		this.accumulator += frameTime * this.timeMultiplier;
 
-		const totalDelta = this.accumulator;
-
 		// If client need to catch up more than 1min, skip updateFixed while loop
-		if(this.accumulator > 1000 * 60) {
+		if (this.accumulator > 1000 * 60) {
 			this.accumulator = this.tickRateMs;
-			console.log("⚠ Client has over 1min of frames to catch up. Skipping `updateFixed`")
+			console.log('⚠ Client has over 1min of frames to catch up. Skipping `updateFixed`');
 		}
 
 		while (this.accumulator >= this.tickRateMs) {
@@ -52,7 +50,7 @@ export default abstract class TickerEngine extends Engine {
 			this.accumulator -= this.tickRateMs;
 		}
 
-		this.update(totalDelta);
+		this.update(frameTime);
 
 		this.currentTime = newTime;
 	}
