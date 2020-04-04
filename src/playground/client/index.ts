@@ -3,6 +3,8 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import Hockey from './hockey/Hockey';
 import Splash from './splash/Splash';
+import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
+import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -11,6 +13,8 @@ class PixiEngine extends TickerEngine {
 		super(tickRate);
 
 		this.addSystem(new RenderSystem());
+		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
+		this.addSystem(new ClientPingSystem());
 
 		this.spaces = new Map();
 	}
