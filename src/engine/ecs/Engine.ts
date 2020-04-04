@@ -60,6 +60,11 @@ export class Engine {
 		return this;
 	}
 
+	public addEntities(...entity: Entity[]): Engine {
+		entity.forEach((entity) => this.addEntity(entity));
+		return this;
+	}
+
 	/**
 	 * Remove entity from engine
 	 * If engine not contains entity - it does nothing.

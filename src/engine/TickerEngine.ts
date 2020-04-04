@@ -18,7 +18,7 @@ export default abstract class TickerEngine extends Engine {
 		this.tickRate = tickRate;
 		this.updateRate = updateRate;
 
-		this.tickRateMs = 10000 / tickRate;
+		this.tickRateMs = 1000 / tickRate;
 		this.updateRateMs = 1000 / updateRate;
 
 		this.currentTime = this.getTime();
