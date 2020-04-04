@@ -61,7 +61,7 @@ export class Engine {
 	}
 
 	public addEntities(...entity: Entity[]): Engine {
-		entity.forEach((entity) => this.addEntity(entity));
+		entity.forEach(entity => this.addEntity(entity));
 		return this;
 	}
 

@@ -24,36 +24,36 @@ export default class BoundsSystem extends IterativeSystem {
 		if (position.x - boundsWidth / 2 < 0) {
 			position.x = boundsWidth / 2;
 
-            if (physics.bounce) {
-                physics.velocity.x *= -1;
-            }
+			if (physics.bounce) {
+				physics.velocity.x *= -1;
+			}
 		}
 
 		// Right
 		if (position.x + boundsWidth / 2 > this.bounds.width) {
-            position.x = this.bounds.width - boundsWidth / 2;
+			position.x = this.bounds.width - boundsWidth / 2;
 
-            if (physics.bounce) {
-                physics.velocity.x *= -1;
-            }
-        }
+			if (physics.bounce) {
+				physics.velocity.x *= -1;
+			}
+		}
 
 		// Top
 		if (position.y - boundsHeight / 2 < 0) {
-            position.y = boundsHeight / 2;
+			position.y = boundsHeight / 2;
 
-            if (physics.bounce) {
-                physics.velocity.y *= -1;
-            }
-        }
+			if (physics.bounce) {
+				physics.velocity.y *= -1;
+			}
+		}
 
 		// Bottom
 		if (position.y + boundsHeight / 2 > this.bounds.height) {
-            position.y = this.bounds.height - boundsHeight / 2;
+			position.y = this.bounds.height - boundsHeight / 2;
 
-            if (physics.bounce) {
-                physics.velocity.y *= -1;
-            }
-        }
+			if (physics.bounce) {
+				physics.velocity.y *= -1;
+			}
+		}
 	}
 }

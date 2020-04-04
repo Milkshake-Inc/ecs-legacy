@@ -6,10 +6,10 @@ import SpaceTag from './components/SpaceTag';
 export default class Space extends Engine {
 	public readonly name: string;
 
-	protected loader = Loader.shared;
-	protected worldEngine: Engine;
-	protected loaded = false;
-	protected visible = false;
+	private loader = Loader.shared;
+	private worldEngine: Engine;
+	private loaded = false;
+	private visible = false;
 
 	constructor(engine: Engine, name: string) {
 		super();

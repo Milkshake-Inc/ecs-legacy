@@ -25,7 +25,11 @@ module.exports = {
 					'png',
 					'preload',
 					'antialias',
-					'args'
+					'args',
+					'moveable',
+					'Moveable',
+					'keyup',
+					'keydown'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

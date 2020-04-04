@@ -1,5 +1,3 @@
 export default class Moveable {
-	constructor(
-		public speed: number = 1,
-	) {}
+	constructor(public speed: number = 1) {}
 }

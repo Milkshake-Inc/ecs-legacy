@@ -5,6 +5,7 @@ import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import TickerEngine from '@ecs/TickerEngine';
 import Space from '@ecs/plugins/space/Space';
+import Hockey from './hockey/Hockey';
 
 const Assets = {
 	Stars: 'assets/placeholder/stars.png',
@@ -41,8 +42,6 @@ class PixiEngine extends TickerEngine {
 
 class MainMenu extends Space {
 	setup() {
-		console.log('setting up main menu');
-
 		const background = new Entity();
 		background.addComponent(Position);
 		background.addComponent(Sprite, {
@@ -63,38 +62,13 @@ class MainMenu extends Space {
 	}
 }
 
-class Pong extends Space {
-	setup() {
-		console.log('setting up pong');
-
-		const background = new Entity();
-		background.addComponent(Position);
-		background.addComponent(Sprite, {
-			imageUrl: Assets.Stars,
-			anchor: Vector2.ZERO
-		});
-		this.addEntity(background);
-
-		const moon = new Entity();
-		moon.add(new Position(600, 180));
-		moon.add(new Sprite(Assets.Moon));
-		this.addEntity(moon);
-
-		const earth = new Entity();
-		earth.add(new Position(1280 / 2, 1000));
-		earth.add(new Sprite(Assets.World));
-		this.addEntity(earth);
-	}
-}
-
 const engine = new PixiEngine();
-engine.registerSpaces(new MainMenu(engine, 'mainMenu'), new Pong(engine, 'pong'));
+engine.registerSpaces(new MainMenu(engine, 'mainMenu'), new Hockey(engine, 'hockey'));
 
 engine.getSpace('mainMenu').open();
 
 setTimeout(() => {
 	engine.getSpace('mainMenu').close();
-	engine.getSpace('pong').open();
-}, 5000);
-
+	engine.getSpace('hockey').open();
+}, 2000);
 console.log('🎉 Client');
