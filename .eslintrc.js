@@ -30,7 +30,8 @@ module.exports = {
 					'Moveable',
 					'keyup',
 					'keydown',
-					'collidable'
+					'collidable',
+					'pos'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

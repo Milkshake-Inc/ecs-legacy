@@ -2,22 +2,41 @@ import { Entity } from '@ecs/ecs/Entity';
 import { ReactionSystem } from '@ecs/ecs/ReactionSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import BoundingCircle from '../components/BoundingCircle';
 import Physics from '../components/Physics';
+import { Circle, Polygon, Response, Box, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle, Vector } from 'sat';
+import Vector2 from '@ecs/math/Vector2';
+import { Puck } from '../components/Puck';
 
-type Circle = {
-	x: number;
-	y: number;
-	radius: number;
-};
+type Shapes = Circle | Polygon;
+
+export class CollisionShape {
+	public static Circle(size: number) {
+		return new Circle(undefined, size);
+	}
+
+	public static Box(width: number, height: number) {
+		return new Box(undefined, width, height).toPolygon();
+	}
+
+	constructor(public shape: Shapes) {}
+}
 
 export default class CollisionSystem extends ReactionSystem {
 	constructor() {
-		super(makeQuery(all(Position, BoundingCircle, Physics)));
+		super(makeQuery(all(Position, CollisionShape)));
 	}
 
-	public update(deltaTime: number) {
+	public updateFixed(deltaTime: number) {
 		super.update(deltaTime);
+
+		// Update all collision shapes position
+		for (const entity of this.entities) {
+			const { x, y } = entity.get(Position);
+			const { shape } = entity.get(CollisionShape);
+
+			shape.pos.x = x;
+			shape.pos.y = y;
+		}
 
 		for (const entityA of this.entities) {
 			for (const entityB of this.entities) {
@@ -32,42 +51,51 @@ export default class CollisionSystem extends ReactionSystem {
 		const entityAComponents = this.getEntityComponents(entityA);
 		const entityBComponents = this.getEntityComponents(entityB);
 
-		const collision = this.collideCircle(
-			{
-				x: entityAComponents.position.x,
-				y: entityAComponents.position.y,
-				radius: entityAComponents.bounding.size
-			},
-			{
-				x: entityBComponents.position.x,
-				y: entityBComponents.position.y,
-				radius: entityBComponents.bounding.size
-			}
-		);
+		let collision = false;
+		const response: Response = new Response();
+		response.clear();
 
-		if (collision) {
-			console.log('Collision');
-			entityAComponents.physics.velocity.x *= -1;
-			entityAComponents.physics.velocity.y *= -1;
+		const shapeA = entityAComponents.collision.shape;
+		const shapeB = entityBComponents.collision.shape;
+
+		if (shapeA instanceof Circle && shapeB instanceof Circle) {
+			collision = testCircleCircle(shapeA, shapeB, response);
+		} else if (shapeA instanceof Polygon && shapeB instanceof Polygon) {
+			collision = testPolygonPolygon(shapeA, shapeB, response);
+		} else if (shapeA instanceof Circle && shapeB instanceof Polygon) {
+			collision = testCirclePolygon(shapeA, shapeB, response);
+		} else if (shapeA instanceof Polygon && shapeB instanceof Circle) {
+			collision = testPolygonCircle(shapeA, shapeB, response);
+		} else {
+			throw 'Unsupported collision';
+		}
+
+		// Hack ATM - Collision response - Should move to own system
+		if (collision && response && entityA.has(Puck) && entityA.has(Physics)) {
+			const velocity = new Vector2(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y);
+			const inverseAngle = new Vector(velocity.x, velocity.y).projectN(response.overlapN);
+			inverseAngle.normalize().scale(velocity.magnitude() * 1.2);
+
+			entityAComponents.position.y -= response.overlapV.y;
+			entityAComponents.position.x -= response.overlapV.x;
+
+			if (response.overlapV.x < 0 || response.overlapV.x > 0) {
+				velocity.x = -inverseAngle.x;
+			}
+
+			if (response.overlapV.y < 0 || response.overlapV.y > 0) {
+				velocity.y = -inverseAngle.y;
+			}
+
+			entityAComponents.physics.velocity.set(velocity.x, velocity.y);
 		}
 	}
 
 	private getEntityComponents(entity: Entity) {
 		return {
 			position: entity.get(Position),
-			bounding: entity.get(BoundingCircle),
+			collision: entity.get(CollisionShape),
 			physics: entity.get(Physics)
 		};
-	}
-
-	collideCircle(circle1: Circle, circle2: Circle) {
-		const distanceX = circle1.x - circle2.x;
-		const distanceY = circle1.y - circle2.y;
-
-		const radiiSum = circle1.radius / 2 + circle2.radius / 2;
-
-		if (distanceX * distanceX + distanceY * distanceY <= radiiSum * radiiSum) return true;
-
-		return false;
 	}
 }

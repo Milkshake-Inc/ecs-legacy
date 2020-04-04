@@ -17,5 +17,8 @@ export default class PhysicsSystem extends IterativeSystem {
 		position.y += physics.velocity.y * dt;
 
 		physics.velocity = physics.velocity.multiF(physics.friction);
+
+		if (physics.velocity.x > physics.maxVelocity) physics.velocity.x = physics.maxVelocity;
+		if (physics.velocity.y > physics.maxVelocity) physics.velocity.y = physics.maxVelocity;
 	}
 }
