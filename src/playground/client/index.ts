@@ -1,6 +1,6 @@
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
-import TickerEngine from '@ecs/TickerEngine';
 import Space from '@ecs/plugins/space/Space';
+import TickerEngine from '@ecs/TickerEngine';
 import Hockey from './hockey/Hockey';
 import Splash from './splash/Splash';
 
@@ -26,6 +26,15 @@ class PixiEngine extends TickerEngine {
 	protected getTime(): number {
 		return performance.now();
 	}
+
+	protected buildCallback(callback: () => void) {
+		const handleAnimationFrame = () => {
+			callback();
+			requestAnimationFrame(handleAnimationFrame);
+		};
+
+		requestAnimationFrame(handleAnimationFrame);
+	}
 }
 
 const engine = new PixiEngine();
@@ -36,5 +45,6 @@ engine.getSpace('splash').open();
 setTimeout(() => {
 	engine.getSpace('splash').close();
 	engine.getSpace('hockey').open();
-}, 2000);
+}, 500);
+
 console.log('🎉 Client');
