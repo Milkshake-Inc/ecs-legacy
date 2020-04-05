@@ -9,7 +9,7 @@ export default class PhysicsSystem extends IterativeSystem {
 		super(new QueryBuilder().contains(Position, Physics).build());
 	}
 
-	protected updateEntity(entity: Entity, dt: number) {
+	protected updateEntityFixed(entity: Entity, dt: number) {
 		const position = entity.get(Position);
 		const physics = entity.get(Physics);
 

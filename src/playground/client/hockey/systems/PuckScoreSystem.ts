@@ -20,7 +20,7 @@ export default class PuckScoreSystem extends IterativeSystem {
 		this.spawnVelocity = spawnVelocity;
 	}
 
-	protected updateEntity(entity: Entity, dt: number) {
+	protected updateEntityFixed(entity: Entity, dt: number) {
 		const position = entity.get(Position);
 		const score = entity.get(Score);
 

@@ -24,6 +24,4 @@ export default class HudSystem extends IterativeSystem {
 			this.hud.redScore.get(BitmapText).text = score.red.toString();
 		}
 	}
-
-	public update(dt: number) {}
 }
