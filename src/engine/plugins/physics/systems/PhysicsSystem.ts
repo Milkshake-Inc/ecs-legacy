@@ -2,8 +2,7 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { World } from 'matter-js';
-import { Engine } from '@ecs/ecs/Engine';
+import { World, Engine } from 'matter-js';
 import { PhysicsBody } from '../components/PhysicsBody';
 
 export default class PhysicsSystem extends IterativeSystem {
@@ -13,8 +12,8 @@ export default class PhysicsSystem extends IterativeSystem {
 	constructor() {
 		super(makeQuery(all(Position, PhysicsBody)));
 
-		this.engine = new Engine();
-		this.world = World.create({});
+		this.engine = Engine.create();
+		this.world = this.engine.world;
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
@@ -41,7 +40,6 @@ export default class PhysicsSystem extends IterativeSystem {
 
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
-
-		this.engine.update(dt);
+		Engine.update(this.engine, dt);
 	}
 }
