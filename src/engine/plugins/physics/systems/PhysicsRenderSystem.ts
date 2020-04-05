@@ -23,6 +23,7 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 		this.world = physicsSystem.world;
 
 		this.graphics = new Graphics();
+		this.graphics.zIndex = 7;
 
 		const entity = new Entity();
 		entity.addComponent(Position);

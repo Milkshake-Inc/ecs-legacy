@@ -39,6 +39,7 @@ export default class RenderSystem extends IterativeSystem {
 
 		this.application.stage.addChild((this.container = new Container()));
 		this.container.scale.set(scale, scale);
+		this.container.sortableChildren = true;
 
 		this.displayObjects = new Map();
 
@@ -51,11 +52,7 @@ export default class RenderSystem extends IterativeSystem {
 
 			displayObject.position.set(position.x, position.y);
 			displayObject.scale.set(displayObjectData.scale.x, displayObjectData.scale.y);
-
-			// Dirty sorting stuff - remove / change
-			if (displayObjectData.index != null) {
-				this.container.setChildIndex(displayObject, this.container.children.length - 1);
-			}
+			displayObject.zIndex = position.z;
 		};
 
 		if (entity.has(Sprite)) {

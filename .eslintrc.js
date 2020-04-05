@@ -36,7 +36,8 @@ module.exports = {
 					'rtt',
 					'hud',
 					'Arial',
-					'Rect'
+					'Rect',
+					'sortable'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
