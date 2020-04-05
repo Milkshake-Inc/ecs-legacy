@@ -51,7 +51,7 @@ export default class Hockey extends Space {
 		const puck = new Entity();
 		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
 		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
-		puck.addComponent(PhysicsBody, { body: Bodies.circle(0, 0, 40, { mass: 1, restitution: 0.9 }) });
+		puck.addComponent(PhysicsBody, { body: Bodies.circle(0, 0, 40, { mass: 1, restitution: 0.9, inertia: Infinity }) });
 		puck.addComponent(Puck);
 		puck.add((this.score = new Score()));
 
@@ -68,7 +68,7 @@ export default class Hockey extends Space {
 		paddle.add(input);
 		paddle.addComponent(Moveable, { speed: 0.05 });
 		paddle.addComponent(Score);
-		paddle.addComponent(PhysicsBody, { body: Bodies.circle(spawnPosition.x, spawnPosition.y, 65, { mass: 10, frictionAir: 0.1 }) });
+		paddle.addComponent(PhysicsBody, { body: Bodies.circle(spawnPosition.x, spawnPosition.y, 65, { mass: 10, frictionAir: 0.1, inertia: Infinity }) });
 
 		return paddle;
 	}
