@@ -15,8 +15,8 @@ import Color from '@ecs/math/Color';
 import Score from './components/Score';
 import HudSystem, { Hud } from './systems/HudSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-// import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
-import { Bodies, Body } from 'matter-js';
+import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
+import { Bodies } from 'matter-js';
 import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
 // import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
 
@@ -38,7 +38,7 @@ export default class Hockey extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem());
-		// this.addSystem(new PhysicsRenderSystem(this));
+		this.addSystem(new PhysicsRenderSystem(this));
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
 		const background = new Entity();

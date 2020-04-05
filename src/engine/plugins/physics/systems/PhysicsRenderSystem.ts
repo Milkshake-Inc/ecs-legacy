@@ -1,12 +1,27 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { makeQuery } from '@ecs/utils/QueryHelper';
-import { World, Box, Circle } from 'p2';
 import { Engine } from '@ecs/ecs/Engine';
 import PhysicsSystem from './PhysicsSystem';
 import { Graphics } from 'pixi.js';
 import Color from '@ecs/math/Color';
 import Position from '@ecs/plugins/Position';
+import { World } from 'matter-js';
+
+export const Options = {
+	zIndex: 7,
+	alpha: 0.5,
+	wireFrames: false,
+	showAngleIndicator: true,
+	showAxes: true,
+
+	fillStyle: Color.Magenta,
+	lineWidth: 3,
+	strokeStyle: Color.LimeGreen,
+
+	wireFrameLineWidth: 1,
+	wireFrameStrokeStyle: Color.LimeGreen
+};
 
 export default class PhysicsRenderSystem extends IterativeSystem {
 	protected world: World;
@@ -23,7 +38,8 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 		this.world = physicsSystem.world;
 
 		this.graphics = new Graphics();
-		this.graphics.zIndex = 7;
+		this.graphics.zIndex = Options.zIndex;
+		this.graphics.alpha = Options.alpha;
 
 		const entity = new Entity();
 		entity.addComponent(Position);
@@ -35,22 +51,46 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 		super.update(dt);
 
 		this.graphics.clear();
-		this.graphics.beginFill(Color.Blue, 0.5);
-		this.graphics.lineStyle(2, Color.Green, 0.8);
 
 		for (const body of this.world.bodies) {
-			for (const shape of body.shapes) {
-				if (shape instanceof Box) {
-					this.graphics.drawRect(
-						body.position[0] - shape.width / 2,
-						body.position[1] - shape.height / 2,
-						shape.width,
-						shape.height
-					);
+			for (let k = body.parts.length > 1 ? 1 : 0; k < body.parts.length; k++) {
+				const part = body.parts[k];
+
+				if (Options.wireFrames) {
+					this.graphics.beginFill(0, 0);
+					this.graphics.lineStyle(Options.wireFrameLineWidth, Options.wireFrameStrokeStyle);
+				} else {
+					this.graphics.beginFill(Options.fillStyle);
+					this.graphics.lineStyle(Options.lineWidth, Options.strokeStyle);
 				}
 
-				if (shape instanceof Circle) {
-					this.graphics.drawCircle(body.position[0], body.position[1], shape.radius);
+				this.graphics.moveTo(part.vertices[0].x, part.vertices[0].y);
+
+				for (let j = 1; j < part.vertices.length; j++) {
+					this.graphics.lineTo(part.vertices[j].x, part.vertices[j].y);
+				}
+
+				this.graphics.lineTo(part.vertices[0].x, part.vertices[0].y);
+
+				this.graphics.endFill();
+
+				// angle indicator
+				if (Options.showAngleIndicator || Options.showAxes) {
+					this.graphics.beginFill(0, 0);
+
+					if (Options.wireFrames) {
+						this.graphics.lineStyle(Options.wireFrameLineWidth, Options.wireFrameStrokeStyle);
+					} else {
+						this.graphics.lineStyle(Options.lineWidth, Options.strokeStyle);
+					}
+
+					this.graphics.moveTo(part.position.x, part.position.y);
+					this.graphics.lineTo(
+						(part.vertices[0].x + part.vertices[part.vertices.length - 1].x) / 2,
+						(part.vertices[0].y + part.vertices[part.vertices.length - 1].y) / 2
+					);
+
+					this.graphics.endFill();
 				}
 			}
 		}
