@@ -83,42 +83,36 @@ export default class Hockey extends Space {
 
 	createWalls(): Entity[] {
 		const top = new Entity();
-		top.addComponent(Position, { x: 0, y: 0 });
-		top.addComponent(Body, { mass: 1, type: Body.STATIC });
-		top.addComponent(Box, { width: 1280, height: 10 });
-		// top.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
+		top.addComponent(Position, { x: (1280 / 2), y: (10 / 2) });
+		top.add(new Box({ width: 1280, height: 10 }));
+		top.addComponent(Body, { type: Body.STATIC });
 
 		const bottom = new Entity();
-		bottom.addComponent(Position, { x: 0, y: 720 - 10 });
-		bottom.addComponent(Body, { mass: 1, type: Body.STATIC });
-		bottom.addComponent(Box, { width: 1280, height: 10 });
-		// bottom.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
+		bottom.addComponent(Position, { x: (1280 / 2), y: 720 - (10 / 2) });
+		bottom.add(new Box({ width: 1280, height: 10 }));
+		bottom.addComponent(Body, { type: Body.STATIC });
 
 		const rightTop = new Entity();
-		rightTop.addComponent(Position, { x: 1280 - 10, y: 0 });
-		rightTop.addComponent(Body, { mass: 1, type: Body.STATIC });
-		rightTop.addComponent(Box, { width: 10, height: 192 });
-		// rightTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		rightTop.addComponent(Position, { x: 1280 - 5, y: (192 / 2) });
+		rightTop.add(new Box({ width: 10, height: 192 }));
+		rightTop.addComponent(Body, { type: Body.STATIC });
 
 		const rightBottom = new Entity();
-		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 });
-		rightBottom.addComponent(Body, { mass: 1, type: Body.STATIC });
-		rightBottom.addComponent(Box, { width: 10, height: 192 });
-		// rightBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - (192 / 2) });
+		rightBottom.add(new Box({ width: 10, height: 192 }));
+		rightBottom.addComponent(Body, { type: Body.STATIC });
 
 		const leftTop = new Entity();
-		leftTop.addComponent(Position, { x: 0, y: 0 });
-		leftTop.addComponent(Body, { mass: 1, type: Body.STATIC });
-		leftTop.addComponent(Box, { width: 10, height: 192 });
-		// leftTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		leftTop.addComponent(Position, { x: 5, y: (192 / 2) });
+		leftTop.add(new Box({ width: 10, height: 192 }));
+		leftTop.addComponent(Body, { type: Body.STATIC });
 
 		const leftBottom = new Entity();
-		leftBottom.addComponent(Position, { x: 0, y: 720 - 192 });
-		leftBottom.addComponent(Body, { mass: 1, type: Body.STATIC });
-		leftBottom.addComponent(Box, { width: 10, height: 192 });
-		// leftBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		leftBottom.addComponent(Position, { x: 5, y: 720 - (192 / 2) });
+		leftBottom.add(new Box({ width: 10, height: 192 }));
+		leftBottom.addComponent(Body, { type: Body.STATIC });
 
-		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
+		return [ top, bottom, rightTop, rightBottom, leftTop, leftBottom ];
 	}
 
 	hud(): Hud {
