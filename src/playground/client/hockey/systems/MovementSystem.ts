@@ -3,7 +3,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Input from '@ecs/plugins/input/components/Input';
 import Moveable from '../components/Moveable';
 import { makeQuery, all } from '@ecs/utils/QueryHelper';
-import { Body } from 'p2';
+import { Body } from 'matter-js';
 
 export default class MovementSystem extends IterativeSystem {
 	constructor() {
@@ -30,10 +30,7 @@ export default class MovementSystem extends IterativeSystem {
 		const down = input.downDown ? 1 : 0;
 		const up = input.upDown ? 1 : 0;
 
-		// body.applyImpulse([moveable.speed, moveable.speed], [left - right, up - down]);
-		body.velocity = [moveable.speed * (right - left), moveable.speed * (down - up)];
-
-		// body.velocity[0] += velocity.x;
-		// body.velocity[1] += velocity.y;
+		body.velocity.x = moveable.speed * (right - left);
+		body.velocity.y = moveable.speed * (down - up);
 	}
 }
