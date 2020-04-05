@@ -32,6 +32,5 @@ export default class MovementSystem extends IterativeSystem {
 		const up = input.upDown ? 1 : 0;
 
 		Body.applyForce(body, { x: 0, y: 0 }, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) });
-		// Body.setVelocity(body, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) })
 	}
 }
