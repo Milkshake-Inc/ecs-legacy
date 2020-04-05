@@ -10,7 +10,8 @@ import {
 	Sprite as PixiSprite,
 	BitmapText as PixiBitmapText,
 	Text as PixiText,
-	Texture
+	Texture,
+	Graphics
 } from 'pixi.js';
 import DisplayObject from '../components/DisplayObject';
 import Sprite from '../components/Sprite';
@@ -24,7 +25,7 @@ export default class RenderSystem extends IterativeSystem {
 	displayObjects: Map<DisplayObject, PixiDisplayObject>;
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
-		super(makeQuery(all(Position), any(Sprite, BitmapText)));
+		super(makeQuery(all(Position), any(Sprite, BitmapText, Graphics)));
 
 		this.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
@@ -80,6 +81,13 @@ export default class RenderSystem extends IterativeSystem {
 
 			genericDisplayObjectUpdate(pixiSprite, sprite);
 		}
+
+		if (entity.has(Graphics)) {
+			const graphics = entity.get(Graphics);
+			const position = entity.get(Position);
+
+			graphics.position.set(position.x, position.y);
+		}
 	}
 
 	entityAdded = (snapshot: EntitySnapshot) => {
@@ -107,6 +115,13 @@ export default class RenderSystem extends IterativeSystem {
 			this.container.addChild(pixiBitmapText);
 
 			this.updateEntity(snapshot.entity);
+		}
+
+		if (snapshot.has(Graphics)) {
+			const graphics = snapshot.get(Graphics);
+
+			// this.displayObjects.set(graphics, graphics);
+			this.container.addChild(graphics);
 		}
 	};
 

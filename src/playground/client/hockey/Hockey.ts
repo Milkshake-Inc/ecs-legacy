@@ -6,9 +6,7 @@ import Position from '@ecs/plugins/Position';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import BoundingCircle from './components/BoundingCircle';
 import Moveable from './components/Moveable';
-import BoundsSystem from './systems/BoundsSystem';
 import MovementSystem from './systems/MovementSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 import { Puck } from './components/Puck';
@@ -18,6 +16,7 @@ import Score from './components/Score';
 import HudSystem, { Hud } from './systems/HudSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import { Body, Circle, Box } from 'p2';
+import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -53,15 +52,17 @@ export default class Hockey extends Space {
 		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
 		// puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true, friction: 0.99, maxVelocity: 0.5 });
 		// puck.addComponent(CollisionShape, { shape: CollisionShape.Circle(80 / 2) });
-		puck.addComponent(Body, {});
-		puck.addComponent(Circle, { radius: 3 });
-		puck.addComponent(Puck, { damping: 0, type: Body.SLEEPY });
+		puck.addComponent(Body, { mass: 0.5, damping: 0, type: Body.SLEEPY });
+		puck.addComponent(Circle, { radius: 40 });
+		puck.addComponent(Puck);
 		puck.add((this.score = new Score()));
 
 		const hud = this.hud();
 		this.addSystem(new HudSystem(hud));
 
 		this.addEntities(background, redPaddle, bluePaddle, puck, hud.redScore, hud.blueScore, ...this.createWalls());
+
+		this.addSystem(new PhysicsRenderSystem(this));
 	}
 
 	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }) {
@@ -71,11 +72,11 @@ export default class Hockey extends Space {
 		paddle.add(input);
 		paddle.addComponent(Moveable, { speed: 0.5 });
 		// paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
-		paddle.addComponent(BoundingCircle, { size: 130 });
+		// paddle.addComponent(BoundingCircle, { size: 130 });
 		// paddle.addComponent(CollisionShape, { shape: CollisionShape.Circle(130 / 2) });
 		paddle.addComponent(Score);
 		paddle.addComponent(Body, { mass: 1, damping: 0, type: Body.SLEEPY });
-		paddle.addComponent(Circle, { radius: 130 });
+		paddle.addComponent(Circle, { radius: 65 });
 
 		return paddle;
 	}
@@ -83,36 +84,37 @@ export default class Hockey extends Space {
 	createWalls(): Entity[] {
 		const top = new Entity();
 		top.addComponent(Position, { x: 0, y: 0 });
+		top.addComponent(Body, { mass: 1, type: Body.STATIC });
 		top.addComponent(Box, { width: 1280, height: 10 });
 		// top.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
 
 		const bottom = new Entity();
 		bottom.addComponent(Position, { x: 0, y: 720 - 10 });
-		bottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		bottom.addComponent(Body, { mass: 1, type: Body.STATIC });
 		bottom.addComponent(Box, { width: 1280, height: 10 });
 		// bottom.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
 
 		const rightTop = new Entity();
 		rightTop.addComponent(Position, { x: 1280 - 10, y: 0 });
-		rightTop.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		rightTop.addComponent(Body, { mass: 1, type: Body.STATIC });
 		rightTop.addComponent(Box, { width: 10, height: 192 });
 		// rightTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const rightBottom = new Entity();
 		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 });
-		rightBottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		rightBottom.addComponent(Body, { mass: 1, type: Body.STATIC });
 		rightBottom.addComponent(Box, { width: 10, height: 192 });
 		// rightBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const leftTop = new Entity();
 		leftTop.addComponent(Position, { x: 0, y: 0 });
-		leftTop.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		leftTop.addComponent(Body, { mass: 1, type: Body.STATIC });
 		leftTop.addComponent(Box, { width: 10, height: 192 });
 		// leftTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const leftBottom = new Entity();
 		leftBottom.addComponent(Position, { x: 0, y: 720 - 192 });
-		leftBottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		leftBottom.addComponent(Body, { mass: 1, type: Body.STATIC });
 		leftBottom.addComponent(Box, { width: 10, height: 192 });
 		// leftBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 

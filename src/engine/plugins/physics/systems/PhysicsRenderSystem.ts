@@ -1,13 +1,14 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { makeQuery } from '@ecs/utils/QueryHelper';
-import { World } from 'p2';
+import { World, Box, Circle } from 'p2';
 import { Engine } from '@ecs/ecs/Engine';
 import PhysicsSystem from './PhysicsSystem';
 import { Graphics } from 'pixi.js';
 import Color from '@ecs/math/Color';
+import Position from '@ecs/plugins/Position';
 
-export default class PhysicsDebugSystem extends IterativeSystem {
+export default class PhysicsRenderSystem extends IterativeSystem {
 	protected world: World;
 	protected graphics: Graphics;
 
@@ -24,6 +25,7 @@ export default class PhysicsDebugSystem extends IterativeSystem {
 		this.graphics = new Graphics();
 
 		const entity = new Entity();
+		entity.addComponent(Position);
 		entity.add(this.graphics);
 		engine.addEntity(entity);
 	}
@@ -32,21 +34,23 @@ export default class PhysicsDebugSystem extends IterativeSystem {
 		super.update(dt);
 
 		this.graphics.clear();
-
-		this.graphics.beginFill(0, 0.3);
-		this.graphics.lineStyle(0, Color.Black, 0.8);
+		this.graphics.beginFill(Color.Blue, 0.5);
+		this.graphics.lineStyle(2, Color.Green, 0.8);
 
 		for (const body of this.world.bodies) {
 			for (const shape of body.shapes) {
-				// shape.
-				// if(staticObj.shape instanceof SAT.Polygon) {
-				// 	const points = staticObj.shape.points.map((a) => new PIXI.Point(staticObj.shape.pos.x + a.x, staticObj.shape.pos.y + a.y));
-				// 	points.push(points[0]);
-				// 	this.graphics.drawPolygon(points);
-				// }
-				// if(staticObj instanceof SAT.Circle) {
-				// 	this.graphics.drawCircle(staticObj.pos.x, staticObj.pos.y, staticObj.r);
-				// }
+				if (shape instanceof Box) {
+					this.graphics.drawRect(
+						body.position[0] - shape.width / 2,
+						body.position[1] - shape.height / 2,
+						shape.width,
+						shape.height
+					);
+				}
+
+				if (shape instanceof Circle) {
+					this.graphics.drawCircle(body.position[0], body.position[1], shape.radius);
+				}
 			}
 		}
 	}

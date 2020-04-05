@@ -39,11 +39,10 @@ export default class PuckScoreSystem extends IterativeSystem {
 	}
 
 	private resetPuck(entity: Entity) {
-		const position = entity.get(Position);
 		const body = entity.get(Body);
 
-		position.x = this.bounds.width / 2;
-		position.y = this.bounds.height / 2;
+		body.position[0] = this.bounds.width / 2;
+		body.position[1] = this.bounds.height / 2;
 
 		body.velocity[0] = Random.bool() ? -this.spawnVelocity : this.spawnVelocity;
 		body.velocity[1] = Random.bool() ? -this.spawnVelocity : this.spawnVelocity;
