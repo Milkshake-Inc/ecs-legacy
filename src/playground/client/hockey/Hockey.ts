@@ -51,14 +51,14 @@ export default class Hockey extends Space {
 		const puck = new Entity();
 		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
 		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
-		puck.add(Bodies.circle(0, 0, 40));
+		puck.addComponent(PhysicsBody, { body: Bodies.circle(0, 0, 40, { mass: 1 }) });
 		puck.addComponent(Puck);
 		puck.add((this.score = new Score()));
 
 		const hud = this.hud();
 		this.addSystem(new HudSystem(hud));
 
-		this.addEntities(background, redPaddle, bluePaddle, puck, hud.redScore, hud.blueScore);
+		this.addEntities(background, redPaddle, bluePaddle, puck, ...this.createWalls(), hud.redScore, hud.blueScore);
 	}
 
 	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }) {
@@ -66,45 +66,40 @@ export default class Hockey extends Space {
 		paddle.addComponent(Position, { x: spawnPosition.x, y: spawnPosition.y });
 		paddle.addComponent(Sprite, { imageUrl: asset });
 		paddle.add(input);
-		paddle.addComponent(Moveable, { speed: 0.5 });
+		paddle.addComponent(Moveable, { speed: 0.05 });
 		paddle.addComponent(Score);
-		paddle.addComponent(PhysicsBody, { body: Bodies.circle(0, 0, 65) });
+		paddle.addComponent(PhysicsBody, { body: Bodies.circle(spawnPosition.x, spawnPosition.y, 65, { mass: 10 }) });
 
 		return paddle;
 	}
 
-	// createWalls(): Entity[] {
-	// 	const top = new Entity();
-	// 	top.addComponent(Position, { x: 1280 / 2, y: 10 / 2 });
-	// 	top.add(Bodies.rectangle(0, 0, 1280, 10));
+	createWalls(): Entity[] {
+		const top = new Entity();
+		top.addComponent(Position, { x: 1280 / 2, y: 10 / 2 });
+		top.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 1280, 10, { isStatic: true }) });
 
-	// 	const bottom = new Entity();
-	// 	bottom.addComponent(Position, { x: 1280 / 2, y: 720 - 10 / 2 });
-	// 	bottom.add(new Box({ width: 1280, height: 10 }));
-	// 	bottom.addComponent(Body, { type: Body.STATIC });
+		const bottom = new Entity();
+		bottom.addComponent(Position, { x: 1280 / 2, y: 720 - 10 / 2 });
+		bottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 1280, 10, { isStatic: true }) });
 
-	// 	const rightTop = new Entity();
-	// 	rightTop.addComponent(Position, { x: 1280 - 5, y: 192 / 2 });
-	// 	rightTop.add(new Box({ width: 10, height: 192 }));
-	// 	rightTop.addComponent(Body, { type: Body.STATIC });
+		const rightTop = new Entity();
+		rightTop.addComponent(Position, { x: 1280 - 5, y: 192 / 2 });
+		rightTop.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
 
-	// 	const rightBottom = new Entity();
-	// 	rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 / 2 });
-	// 	rightBottom.add(new Box({ width: 10, height: 192 }));
-	// 	rightBottom.addComponent(Body, { type: Body.STATIC });
+		const rightBottom = new Entity();
+		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 / 2 });
+		rightBottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
 
-	// 	const leftTop = new Entity();
-	// 	leftTop.addComponent(Position, { x: 5, y: 192 / 2 });
-	// 	leftTop.add(new Box({ width: 10, height: 192 }));
-	// 	leftTop.addComponent(Body, { type: Body.STATIC });
+		const leftTop = new Entity();
+		leftTop.addComponent(Position, { x: 5, y: 192 / 2 });
+		leftTop.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
 
-	// 	const leftBottom = new Entity();
-	// 	leftBottom.addComponent(Position, { x: 5, y: 720 - 192 / 2 });
-	// 	leftBottom.add(new Box({ width: 10, height: 192 }));
-	// 	leftBottom.addComponent(Body, { type: Body.STATIC });
+		const leftBottom = new Entity();
+		leftBottom.addComponent(Position, { x: 5, y: 720 - 192 / 2 });
+		leftBottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
 
-	// 	return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
-	// }
+		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
+	}
 
 	hud(): Hud {
 		const redScore = new Entity();

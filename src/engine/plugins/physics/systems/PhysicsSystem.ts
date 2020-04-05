@@ -2,7 +2,7 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { World, Engine } from 'matter-js';
+import { World, Engine, Body } from 'matter-js';
 import { PhysicsBody } from '../components/PhysicsBody';
 
 export default class PhysicsSystem extends IterativeSystem {
@@ -14,6 +14,7 @@ export default class PhysicsSystem extends IterativeSystem {
 
 		this.engine = Engine.create();
 		this.world = this.engine.world;
+		this.world.gravity.y = 0;
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
@@ -28,8 +29,10 @@ export default class PhysicsSystem extends IterativeSystem {
 		const { body } = snapshot.get(PhysicsBody);
 		const position = snapshot.get(Position);
 
-		body.position.x = position.x;
-		body.position.y = position.y;
+		Body.setPosition(body, {
+			x: position.x,
+			y: position.y
+		});
 
 		World.addBody(this.world, snapshot.get(PhysicsBody).body);
 	};

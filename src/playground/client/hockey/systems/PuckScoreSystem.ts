@@ -5,7 +5,8 @@ import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
-import { Body } from 'p2';
+import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
+import { Body } from 'matter-js';
 
 export default class PuckScoreSystem extends IterativeSystem {
 	protected bounds: { width: number; height: number };
@@ -13,7 +14,7 @@ export default class PuckScoreSystem extends IterativeSystem {
 	protected spawnVelocity: number;
 
 	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
-		super(makeQuery(all(Position, Body, Puck, Score)));
+		super(makeQuery(all(Position, PhysicsBody, Puck, Score)));
 
 		this.bounds = bounds;
 		this.padding = padding;
@@ -39,12 +40,16 @@ export default class PuckScoreSystem extends IterativeSystem {
 	}
 
 	private resetPuck(entity: Entity) {
-		const body = entity.get(Body);
+		const { body } = entity.get(PhysicsBody);
 
-		body.position[0] = this.bounds.width / 2;
-		body.position[1] = this.bounds.height / 2;
+		Body.setPosition(body, {
+			x: this.bounds.width / 2,
+			y: this.bounds.height / 2
+		});
 
-		body.velocity[0] = Random.bool() ? -this.spawnVelocity : this.spawnVelocity;
-		body.velocity[1] = Random.bool() ? -this.spawnVelocity : this.spawnVelocity;
+		Body.setVelocity(body, {
+			x: Random.bool() ? -this.spawnVelocity : this.spawnVelocity,
+			y: Random.bool() ? -this.spawnVelocity : this.spawnVelocity
+		});
 	}
 }

@@ -3,16 +3,17 @@ import { Entity } from '@ecs/ecs/Entity';
 import Input from '@ecs/plugins/input/components/Input';
 import Moveable from '../components/Moveable';
 import { makeQuery, all } from '@ecs/utils/QueryHelper';
+import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
 import { Body } from 'matter-js';
 
 export default class MovementSystem extends IterativeSystem {
 	constructor() {
-		super(makeQuery(all(Input, Moveable, Body)));
+		super(makeQuery(all(Input, Moveable, PhysicsBody)));
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number) {
 		const input = entity.get(Input);
-		const body = entity.get(Body);
+		const { body } = entity.get(PhysicsBody);
 		const moveable = entity.get(Moveable);
 
 		// if (!input.rightDown && !input.leftDown && !input.downDown && !input.upDown) return;
@@ -30,7 +31,7 @@ export default class MovementSystem extends IterativeSystem {
 		const down = input.downDown ? 1 : 0;
 		const up = input.upDown ? 1 : 0;
 
-		body.velocity.x = moveable.speed * (right - left);
-		body.velocity.y = moveable.speed * (down - up);
+		Body.applyForce(body, { x: 0, y: 0 }, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) });
+		// Body.setVelocity(body, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) })
 	}
 }
