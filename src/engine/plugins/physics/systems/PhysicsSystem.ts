@@ -2,13 +2,13 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
-import { World, Body, Shape, Circle, WorldOptions } from 'p2';
+import { World, Body, Shape, Circle, Box, WorldOptions } from 'p2';
 
 export default class PhysicsSystem extends IterativeSystem {
-	protected world: World;
+	public readonly world: World;
 
 	constructor(config: WorldOptions = { gravity: [0, 0] }) {
-		super(makeQuery(all(Position, Body), any(Circle)));
+		super(makeQuery(all(Position, Body), any(Circle, Box)));
 
 		this.world = new World(config);
 	}
@@ -36,6 +36,11 @@ export default class PhysicsSystem extends IterativeSystem {
 		if (snapshot.has(Circle)) {
 			const body = snapshot.get(Body);
 			body.addShape(snapshot.get(Circle));
+		}
+
+		if (snapshot.has(Box)) {
+			const body = snapshot.get(Body);
+			body.addShape(snapshot.get(Box));
 		}
 	};
 

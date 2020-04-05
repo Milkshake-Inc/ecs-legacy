@@ -17,7 +17,7 @@ import Color from '@ecs/math/Color';
 import Score from './components/Score';
 import HudSystem, { Hud } from './systems/HudSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-import { Body, Circle } from 'p2';
+import { Body, Circle, Box } from 'p2';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -37,7 +37,7 @@ export default class Hockey extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem());
-		this.addSystem(new BoundsSystem({ width: 1280, height: 720 }));
+		// this.addSystem(new BoundsSystem({ width: 1280, height: 720 }));
 		// this.addSystem(new CollisionSystem());
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
@@ -54,8 +54,8 @@ export default class Hockey extends Space {
 		// puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true, friction: 0.99, maxVelocity: 0.5 });
 		// puck.addComponent(CollisionShape, { shape: CollisionShape.Circle(80 / 2) });
 		puck.addComponent(Body, {});
-		puck.addComponent(Circle, { radius: 5 });
-		puck.addComponent(Puck);
+		puck.addComponent(Circle, { radius: 3 });
+		puck.addComponent(Puck, { damping: 0, type: Body.SLEEPY });
 		puck.add((this.score = new Score()));
 
 		const hud = this.hud();
@@ -74,7 +74,7 @@ export default class Hockey extends Space {
 		paddle.addComponent(BoundingCircle, { size: 130 });
 		// paddle.addComponent(CollisionShape, { shape: CollisionShape.Circle(130 / 2) });
 		paddle.addComponent(Score);
-		paddle.addComponent(Body, { mass: 1, damping: 0.1 });
+		paddle.addComponent(Body, { mass: 1, damping: 0, type: Body.SLEEPY });
 		paddle.addComponent(Circle, { radius: 130 });
 
 		return paddle;
@@ -83,27 +83,38 @@ export default class Hockey extends Space {
 	createWalls(): Entity[] {
 		const top = new Entity();
 		top.addComponent(Position, { x: 0, y: 0 });
-		top.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
+		top.addComponent(Box, { width: 1280, height: 10 });
+		// top.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
 
 		const bottom = new Entity();
 		bottom.addComponent(Position, { x: 0, y: 720 - 10 });
-		bottom.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
+		bottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		bottom.addComponent(Box, { width: 1280, height: 10 });
+		// bottom.addComponent(CollisionShape, { shape: CollisionShape.Box(1280, 10) });
 
 		const rightTop = new Entity();
 		rightTop.addComponent(Position, { x: 1280 - 10, y: 0 });
-		rightTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		rightTop.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		rightTop.addComponent(Box, { width: 10, height: 192 });
+		// rightTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const rightBottom = new Entity();
 		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 });
-		rightBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		rightBottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		rightBottom.addComponent(Box, { width: 10, height: 192 });
+		// rightBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const leftTop = new Entity();
 		leftTop.addComponent(Position, { x: 0, y: 0 });
-		leftTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		leftTop.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		leftTop.addComponent(Box, { width: 10, height: 192 });
+		// leftTop.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		const leftBottom = new Entity();
 		leftBottom.addComponent(Position, { x: 0, y: 720 - 192 });
-		leftBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
+		leftBottom.addComponent(Body, { mass: 1, type: Body.SLEEPY });
+		leftBottom.addComponent(Box, { width: 10, height: 192 });
+		// leftBottom.addComponent(CollisionShape, { shape: CollisionShape.Box(10, 192) });
 
 		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
 	}
