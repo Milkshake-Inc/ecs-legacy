@@ -8,17 +8,16 @@ import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import BoundingCircle from './components/BoundingCircle';
 import Moveable from './components/Moveable';
-import Physics from './components/Physics';
 import BoundsSystem from './systems/BoundsSystem';
-import CollisionSystem, { CollisionShape } from './systems/CollisionSystem';
 import MovementSystem from './systems/MovementSystem';
-import PhysicsSystem from './systems/PhysicsSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 import { Puck } from './components/Puck';
 import BitmapText from '@ecs/plugins/render/components/BitmapText';
 import Color from '@ecs/math/Color';
 import Score from './components/Score';
 import HudSystem, { Hud } from './systems/HudSystem';
+import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
+import { Body, Circle } from 'p2';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -39,7 +38,7 @@ export default class Hockey extends Space {
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem());
 		this.addSystem(new BoundsSystem({ width: 1280, height: 720 }));
-		this.addSystem(new CollisionSystem());
+		// this.addSystem(new CollisionSystem());
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
 		const background = new Entity();
@@ -52,8 +51,10 @@ export default class Hockey extends Space {
 		const puck = new Entity();
 		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
 		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
-		puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true, friction: 0.99, maxVelocity: 0.5 });
-		puck.addComponent(CollisionShape, { shape: CollisionShape.Circle(80 / 2) });
+		// puck.addComponent(Physics, { velocity: Vector2.EQUAL(0.4), bounce: true, friction: 0.99, maxVelocity: 0.5 });
+		// puck.addComponent(CollisionShape, { shape: CollisionShape.Circle(80 / 2) });
+		puck.addComponent(Body, {});
+		puck.addComponent(Circle, { radius: 5 });
 		puck.addComponent(Puck);
 		puck.add((this.score = new Score()));
 
@@ -68,11 +69,13 @@ export default class Hockey extends Space {
 		paddle.addComponent(Position, { x: spawnPosition.x, y: spawnPosition.y });
 		paddle.addComponent(Sprite, { imageUrl: asset });
 		paddle.add(input);
-		paddle.addComponent(Moveable, { speed: 0.1 });
-		paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
+		paddle.addComponent(Moveable, { speed: 0.5 });
+		// paddle.addComponent(Physics, { bounce: true, friction: 0.8 });
 		paddle.addComponent(BoundingCircle, { size: 130 });
-		paddle.addComponent(CollisionShape, { shape: CollisionShape.Circle(130 / 2) });
+		// paddle.addComponent(CollisionShape, { shape: CollisionShape.Circle(130 / 2) });
 		paddle.addComponent(Score);
+		paddle.addComponent(Body, { mass: 1, damping: 0.1 });
+		paddle.addComponent(Circle, { radius: 130 });
 
 		return paddle;
 	}

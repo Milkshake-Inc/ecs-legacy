@@ -4,16 +4,16 @@ import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import BoundingBox from '../components/BoundingBox';
 import BoundingCircle from '../components/BoundingCircle';
-import Physics from '../components/Physics';
+import { Body } from 'p2';
 
 export default class BoundsSystem extends IterativeSystem {
 	constructor(protected bounds: { width: number; height: number }) {
-		super(makeQuery(all(Position, Physics), any(BoundingBox, BoundingCircle)));
+		super(makeQuery(all(Position, Body), any(BoundingBox, BoundingCircle)));
 	}
 
 	protected updateEntity(entity: Entity, dt: number) {
 		const position = entity.get(Position);
-		const physics = entity.get(Physics);
+		const body = entity.get(Body);
 
 		const boundsComponent = entity.has(BoundingBox) ? entity.get(BoundingBox) : entity.get(BoundingCircle);
 
@@ -22,38 +22,22 @@ export default class BoundsSystem extends IterativeSystem {
 
 		// Left
 		if (position.x - boundsWidth / 2 < 0) {
-			position.x = boundsWidth / 2;
-
-			if (physics.bounce) {
-				physics.velocity.x *= -1;
-			}
+			body.position[0] = boundsWidth / 2;
 		}
 
 		// Right
 		if (position.x + boundsWidth / 2 > this.bounds.width) {
-			position.x = this.bounds.width - boundsWidth / 2;
-
-			if (physics.bounce) {
-				physics.velocity.x *= -1;
-			}
+			body.position[0] = this.bounds.width - boundsWidth / 2;
 		}
 
 		// Top
 		if (position.y - boundsHeight / 2 < 0) {
-			position.y = boundsHeight / 2;
-
-			if (physics.bounce) {
-				physics.velocity.y *= -1;
-			}
+			body.position[1] = boundsHeight / 2;
 		}
 
 		// Bottom
 		if (position.y + boundsHeight / 2 > this.bounds.height) {
-			position.y = this.bounds.height - boundsHeight / 2;
-
-			if (physics.bounce) {
-				physics.velocity.y *= -1;
-			}
+			body.position[1] = this.bounds.height - boundsHeight / 2;
 		}
 	}
 }
