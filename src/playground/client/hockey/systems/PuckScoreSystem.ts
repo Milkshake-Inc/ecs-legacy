@@ -5,8 +5,7 @@ import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
-import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
-import { Body } from 'matter-js';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 
 export default class PuckScoreSystem extends IterativeSystem {
 	protected bounds: { width: number; height: number };
@@ -40,16 +39,16 @@ export default class PuckScoreSystem extends IterativeSystem {
 	}
 
 	private resetPuck(entity: Entity) {
-		const { body } = entity.get(PhysicsBody);
+		const body = entity.get(PhysicsBody);
 
-		Body.setPosition(body, {
+		body.position = {
 			x: this.bounds.width / 2,
 			y: this.bounds.height / 2
-		});
+		};
 
-		Body.setVelocity(body, {
+		body.velocity = {
 			x: Random.bool() ? -this.spawnVelocity : this.spawnVelocity,
 			y: Random.bool() ? -this.spawnVelocity : this.spawnVelocity
-		});
+		};
 	}
 }

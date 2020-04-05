@@ -5,7 +5,6 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import Physics from '../components/Physics';
 import { Circle, Polygon, Response, Box, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle, Vector } from 'sat';
 import Vector2 from '@ecs/math/Vector2';
-import { Puck } from '../components/Puck';
 
 type Shapes = Circle | Polygon;
 
@@ -75,7 +74,7 @@ export default class CollisionSystem extends ReactionSystem {
 		}
 
 		// Hack ATM - Collision response - Should move to own system
-		if (collision && response && entityA.has(Puck) && entityA.has(Physics)) {
+		if (collision && response && entityA.has(Physics)) {
 			const velocity = new Vector2(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y);
 			const inverseAngle = new Vector(velocity.x, velocity.y).projectN(response.overlapN);
 			inverseAngle.normalize().scale(velocity.magnitude() * 1.2);

@@ -16,9 +16,7 @@ import Score from './components/Score';
 import HudSystem, { Hud } from './systems/HudSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
-import { Bodies } from 'matter-js';
-import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
-// import { PhysicsBody } from '@ecs/plugins/physics/components/PhysicsBody';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -26,6 +24,14 @@ const Assets = {
 	BluePaddle: 'assets/hockey/blue.png',
 	Puck: 'assets/hockey/puck.png'
 };
+
+// http://www.iforce2d.net/b2dtut/collision-filtering
+enum CollisionCategory {
+	Wall = 1,
+	Goal,
+	Player,
+	Puck
+}
 
 export default class Hockey extends Space {
 	private score: Score;
@@ -37,7 +43,7 @@ export default class Hockey extends Space {
 	setup() {
 		this.addSystem(new InputSystem());
 		this.addSystem(new MovementSystem());
-		this.addSystem(new PhysicsSystem());
+		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
 		this.addSystem(new PhysicsRenderSystem(this));
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
@@ -48,57 +54,85 @@ export default class Hockey extends Space {
 		const redPaddle = this.createPaddle(Assets.RedPaddle, Input.WASD(), { x: 100, y: 720 / 2 });
 		const bluePaddle = this.createPaddle(Assets.BluePaddle, Input.ARROW(), { x: 1280 - 100, y: 720 / 2 });
 
-		const puck = new Entity();
-		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
-		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
-		puck.addComponent(PhysicsBody, { body: Bodies.circle(0, 0, 40, { mass: 1, restitution: 0.9, inertia: Infinity }) });
-		puck.addComponent(Puck);
-		puck.add((this.score = new Score()));
-
 		const hud = this.hud();
 		this.addSystem(new HudSystem(hud));
 
-		this.addEntities(background, redPaddle, bluePaddle, puck, ...this.createWalls(), hud.redScore, hud.blueScore);
+		this.addEntities(background, redPaddle, bluePaddle, this.createPuck(), ...this.createWalls(), hud.redScore, hud.blueScore);
 	}
 
-	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }) {
+	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }): Entity {
 		const paddle = new Entity();
-		paddle.addComponent(Position, { x: spawnPosition.x, y: spawnPosition.y });
+		paddle.addComponent(Position, spawnPosition);
 		paddle.addComponent(Sprite, { imageUrl: asset });
 		paddle.add(input);
 		paddle.addComponent(Moveable, { speed: 0.05 });
 		paddle.addComponent(Score);
-		paddle.addComponent(PhysicsBody, { body: Bodies.circle(spawnPosition.x, spawnPosition.y, 65, { mass: 10, frictionAir: 0.1, inertia: Infinity }) });
+		paddle.addComponent(PhysicsBody, {
+			body: PhysicsBody.circle(65, {
+				mass: 10,
+				frictionAir: 0.1,
+				inertia: Infinity,
+				collisionFilter: { category: CollisionCategory.Player }
+			})
+		});
 
 		return paddle;
 	}
 
+	createPuck(): Entity {
+		const puck = new Entity();
+		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
+		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
+		puck.addComponent(PhysicsBody, {
+			body: PhysicsBody.circle(40, {
+				mass: 1,
+				restitution: 0.9,
+				inertia: Infinity,
+				collisionFilter: { category: CollisionCategory.Puck, mask: CollisionCategory.Wall | CollisionCategory.Player }
+			})
+		});
+		puck.addComponent(Puck);
+		puck.add((this.score = new Score()));
+		return puck;
+	}
+
 	createWalls(): Entity[] {
-		const top = new Entity();
-		top.addComponent(Position, { x: 1280 / 2, y: 10 / 2 });
-		top.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 1280, 10, { isStatic: true }) });
+		const top = this.createWall(1280 / 2, 10 / 2, 1280, 10);
+		const bottom = this.createWall(1280 / 2, 720 - 10 / 2, 1280, 10);
+		const rightTop = this.createWall(1280 - 5, 192 / 2, 10, 192);
+		const rightBottom = this.createWall(1280 - 5, 720 - 192 / 2, 10, 192);
+		const leftTop = this.createWall(5, 192 / 2, 10, 192);
+		const leftBottom = this.createWall(5, 720 - 192 / 2, 10, 192);
 
-		const bottom = new Entity();
-		bottom.addComponent(Position, { x: 1280 / 2, y: 720 - 10 / 2 });
-		bottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 1280, 10, { isStatic: true }) });
+		const rightGoal = this.createGoal(1280 - 5, 192 + 336 / 2);
+		const leftGoal = this.createGoal(5, 192 + 336 / 2);
 
-		const rightTop = new Entity();
-		rightTop.addComponent(Position, { x: 1280 - 5, y: 192 / 2 });
-		rightTop.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
+		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom, leftGoal, rightGoal];
+	}
 
-		const rightBottom = new Entity();
-		rightBottom.addComponent(Position, { x: 1280 - 10, y: 720 - 192 / 2 });
-		rightBottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
+	createWall(x: number, y: number, width: number, height): Entity {
+		const wall = new Entity();
+		wall.addComponent(Position, { x, y });
+		wall.addComponent(PhysicsBody, {
+			body: PhysicsBody.rectangle(width, height, {
+				isStatic: true,
+				collisionFilter: { category: CollisionCategory.Wall, mask: CollisionCategory.Player | CollisionCategory.Puck }
+			})
+		});
+		return wall;
+	}
 
-		const leftTop = new Entity();
-		leftTop.addComponent(Position, { x: 5, y: 192 / 2 });
-		leftTop.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
+	createGoal(x: number, y: number): Entity {
+		const goal = new Entity();
+		goal.addComponent(Position, { x, y });
+		goal.addComponent(PhysicsBody, {
+			body: PhysicsBody.rectangle(10, 336, {
+				isStatic: true,
+				collisionFilter: { category: CollisionCategory.Goal, mask: CollisionCategory.Player }
+			})
+		});
 
-		const leftBottom = new Entity();
-		leftBottom.addComponent(Position, { x: 5, y: 720 - 192 / 2 });
-		leftBottom.addComponent(PhysicsBody, { body: Bodies.rectangle(0, 0, 10, 192, { isStatic: true }) });
-
-		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom];
+		return goal;
 	}
 
 	hud(): Hud {

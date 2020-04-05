@@ -37,7 +37,10 @@ module.exports = {
 					'hud',
 					'Arial',
 					'Rect',
-					'sortable'
+					'sortable',
+					'Chamferable',
+					'Collinear',
+					'Centre'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
