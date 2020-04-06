@@ -2,7 +2,7 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { World, Engine, Body } from 'matter-js';
+import { World, Engine } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
 
 export default class PhysicsSystem extends IterativeSystem {
