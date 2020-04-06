@@ -2,8 +2,9 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { World, Engine } from 'matter-js';
+import { Body, Engine, Events, World } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
+import { CollisionEvent } from './PhysicsCollisionSystem';
 
 export default class PhysicsSystem extends IterativeSystem {
 	public readonly engine: Engine;
@@ -15,6 +16,20 @@ export default class PhysicsSystem extends IterativeSystem {
 		this.engine = Engine.create();
 		this.world = this.engine.world;
 		this.world.gravity = gravity;
+
+		Events.on(this.engine, 'collisionStart', event => {
+			event.pairs.forEach(pair => {
+				const entityA = this.entityFromBody(pair.bodyA);
+				const entityB = this.entityFromBody(pair.bodyB);
+
+				entityA.get(PhysicsBody).collisions.push(new CollisionEvent(entityA, entityB));
+				entityB.get(PhysicsBody).collisions.push(new CollisionEvent(entityB, entityA));
+			});
+		});
+	}
+
+	private entityFromBody(body: Body): Entity {
+		return this.entities.find(entity => entity.get(PhysicsBody).body == body);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
@@ -42,6 +57,7 @@ export default class PhysicsSystem extends IterativeSystem {
 	};
 
 	public updateFixed(dt: number) {
+		this.entities.forEach(entity => (entity.get(PhysicsBody).collisions = []));
 		super.updateFixed(dt);
 		Engine.update(this.engine, dt);
 	}

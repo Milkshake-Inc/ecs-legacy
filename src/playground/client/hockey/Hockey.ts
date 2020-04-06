@@ -1,22 +1,25 @@
 import { Entity } from '@ecs/ecs/Entity';
+import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
+import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import Position from '@ecs/plugins/Position';
+import BitmapText from '@ecs/plugins/render/components/BitmapText';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import Moveable from './components/Moveable';
+import { Paddle } from './components/Paddle';
+import { Puck } from './components/Puck';
+import Score from './components/Score';
+import { Wall } from './components/Wall';
+import HudSystem, { Hud } from './systems/HudSystem';
 import MovementSystem from './systems/MovementSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
-import { Puck } from './components/Puck';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
-import Color from '@ecs/math/Color';
-import Score from './components/Score';
-import HudSystem, { Hud } from './systems/HudSystem';
-import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import { PuckSoundSystem } from './systems/PuckSoundSystem';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -46,6 +49,7 @@ export default class Hockey extends Space {
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
 		this.addSystem(new PhysicsRenderSystem(this));
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
+		this.addSystem(new PuckSoundSystem());
 
 		const background = new Entity();
 		background.add(Position);
@@ -67,6 +71,7 @@ export default class Hockey extends Space {
 		paddle.add(input);
 		paddle.add(Moveable, { speed: 0.05 });
 		paddle.add(Score);
+		paddle.add(Paddle);
 		paddle.add(
 			PhysicsBody.circle(65, {
 				mass: 10,
@@ -119,6 +124,7 @@ export default class Hockey extends Space {
 				collisionFilter: { category: CollisionCategory.Wall, mask: CollisionCategory.Player | CollisionCategory.Puck }
 			})
 		);
+		wall.add(Wall);
 		return wall;
 	}
 

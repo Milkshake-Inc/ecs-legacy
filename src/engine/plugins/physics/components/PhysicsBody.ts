@@ -1,11 +1,12 @@
 import { Body, Bodies, IBodyDefinition, IChamferableBodyDefinition } from 'matter-js';
+import { CollisionEvent } from '../systems/PhysicsCollisionSystem';
 
 type Readonly<T> = {
 	readonly [P in keyof T]: T[P];
 };
 
 export default class PhysicsBody {
-	constructor(public body: Readonly<Body>) {}
+	constructor(public body: Readonly<Body>, public collisions: CollisionEvent[] = []) {}
 
 	public static circle(radius: number, options?: IBodyDefinition, maxSides?: number): PhysicsBody {
 		return new PhysicsBody(Bodies.circle(0, 0, radius, options, maxSides));

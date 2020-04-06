@@ -3,5 +3,5 @@ export type Class<T> = {
 };
 
 export const isClass = <T>(value: T | Class<T>): value is Class<T> => {
-	return typeof value === 'function' && /^class\s/.test(Function.prototype.toString.call(value));
+	return (value as any).prototype !== undefined;
 };
