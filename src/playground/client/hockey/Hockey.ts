@@ -48,8 +48,8 @@ export default class Hockey extends Space {
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
 		const background = new Entity();
-		background.addComponent(Position);
-		background.addComponent(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
+		background.add(Position);
+		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
 
 		const redPaddle = this.createPaddle(Assets.RedPaddle, Input.WASD(), { x: 100, y: 720 / 2 });
 		const bluePaddle = this.createPaddle(Assets.BluePaddle, Input.ARROW(), { x: 1280 - 100, y: 720 / 2 });
@@ -62,36 +62,36 @@ export default class Hockey extends Space {
 
 	createPaddle(asset: string, input: Input, spawnPosition: { x: number; y: number }): Entity {
 		const paddle = new Entity();
-		paddle.addComponent(Position, spawnPosition);
-		paddle.addComponent(Sprite, { imageUrl: asset });
+		paddle.add(Position, spawnPosition);
+		paddle.add(Sprite, { imageUrl: asset });
 		paddle.add(input);
-		paddle.addComponent(Moveable, { speed: 0.05 });
-		paddle.addComponent(Score);
-		paddle.addComponent(PhysicsBody, {
-			body: PhysicsBody.circle(65, {
+		paddle.add(Moveable, { speed: 0.05 });
+		paddle.add(Score);
+		paddle.add(
+			PhysicsBody.circle(65, {
 				mass: 10,
 				frictionAir: 0.1,
 				inertia: Infinity,
 				collisionFilter: { category: CollisionCategory.Player }
 			})
-		});
+		);
 
 		return paddle;
 	}
 
 	createPuck(): Entity {
 		const puck = new Entity();
-		puck.addComponent(Position, { x: 1280 / 2, y: 720 / 2 });
-		puck.addComponent(Sprite, { imageUrl: Assets.Puck });
-		puck.addComponent(PhysicsBody, {
-			body: PhysicsBody.circle(40, {
+		puck.add(Position, { x: 1280 / 2, y: 720 / 2 });
+		puck.add(Sprite, { imageUrl: Assets.Puck });
+		puck.add(
+			PhysicsBody.circle(40, {
 				mass: 1,
 				restitution: 0.9,
 				inertia: Infinity,
 				collisionFilter: { category: CollisionCategory.Puck, mask: CollisionCategory.Wall | CollisionCategory.Player }
 			})
-		});
-		puck.addComponent(Puck);
+		);
+		puck.add(Puck);
 		puck.add((this.score = new Score()));
 		return puck;
 	}
@@ -112,37 +112,37 @@ export default class Hockey extends Space {
 
 	createWall(x: number, y: number, width: number, height): Entity {
 		const wall = new Entity();
-		wall.addComponent(Position, { x, y });
-		wall.addComponent(PhysicsBody, {
-			body: PhysicsBody.rectangle(width, height, {
+		wall.add(Position, { x, y });
+		wall.add(
+			PhysicsBody.rectangle(width, height, {
 				isStatic: true,
 				collisionFilter: { category: CollisionCategory.Wall, mask: CollisionCategory.Player | CollisionCategory.Puck }
 			})
-		});
+		);
 		return wall;
 	}
 
 	createGoal(x: number, y: number): Entity {
 		const goal = new Entity();
-		goal.addComponent(Position, { x, y });
-		goal.addComponent(PhysicsBody, {
-			body: PhysicsBody.rectangle(10, 336, {
+		goal.add(Position, { x, y });
+		goal.add(
+			PhysicsBody.rectangle(10, 336, {
 				isStatic: true,
 				collisionFilter: { category: CollisionCategory.Goal, mask: CollisionCategory.Player }
 			})
-		});
+		);
 
 		return goal;
 	}
 
 	hud(): Hud {
 		const redScore = new Entity();
-		redScore.addComponent(Position, { x: 50, y: 50 });
-		redScore.addComponent(BitmapText, { text: '0', tint: Color.Red, size: 50 });
+		redScore.add(Position, { x: 50, y: 50 });
+		redScore.add(BitmapText, { text: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
-		blueScore.addComponent(Position, { x: 1280 - 80, y: 50 });
-		blueScore.addComponent(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
+		blueScore.add(Position, { x: 1280 - 80, y: 50 });
+		blueScore.add(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };
 	}

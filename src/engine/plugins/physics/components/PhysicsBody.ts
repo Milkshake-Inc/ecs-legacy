@@ -7,20 +7,20 @@ type Readonly<T> = {
 export default class PhysicsBody {
 	constructor(public body: Readonly<Body>) {}
 
-	public static circle(radius: number, options?: IBodyDefinition, maxSides?: number): Body {
-		return Bodies.circle(0, 0, radius, options, maxSides);
+	public static circle(radius: number, options?: IBodyDefinition, maxSides?: number): PhysicsBody {
+		return new PhysicsBody(Bodies.circle(0, 0, radius, options, maxSides));
 	}
 
-	public static polygon(sides: number, radius: number, options?: IChamferableBodyDefinition): Body {
-		return Bodies.polygon(0, 0, sides, radius, options);
+	public static polygon(sides: number, radius: number, options?: IChamferableBodyDefinition): PhysicsBody {
+		return new PhysicsBody(Bodies.polygon(0, 0, sides, radius, options));
 	}
 
-	public static rectangle(width: number, height: number, options?: IChamferableBodyDefinition): Body {
-		return Bodies.rectangle(0, 0, width, height, options);
+	public static rectangle(width: number, height: number, options?: IChamferableBodyDefinition): PhysicsBody {
+		return new PhysicsBody(Bodies.rectangle(0, 0, width, height, options));
 	}
 
-	public static trapezoid(width: number, height: number, slope: number, options?: IChamferableBodyDefinition): Body {
-		return Bodies.trapezoid(0, 0, width, height, slope, options);
+	public static trapezoid(width: number, height: number, slope: number, options?: IChamferableBodyDefinition): PhysicsBody {
+		return new PhysicsBody(Bodies.trapezoid(0, 0, width, height, slope, options));
 	}
 
 	public static fromVertices(
@@ -29,8 +29,8 @@ export default class PhysicsBody {
 		flagInternal?: boolean,
 		removeCollinear?: number,
 		minimumArea?: number
-	): Body {
-		return Bodies.fromVertices(0, 0, vertexSets, options, flagInternal, removeCollinear, minimumArea);
+	): PhysicsBody {
+		return new PhysicsBody(Bodies.fromVertices(0, 0, vertexSets, options, flagInternal, removeCollinear, minimumArea));
 	}
 
 	public applyForce(position: { x: number; y: number }, force: { x: number; y: number }): void {

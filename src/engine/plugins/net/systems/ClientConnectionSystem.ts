@@ -30,7 +30,7 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		}
 
 		this.session = new Entity();
-		this.session.addComponent(Session, { id: this.socket.id, socket: this.socket });
+		this.session.add(Session, { id: this.socket.id, socket: this.socket });
 		this.engine.addEntity(this.session);
 
 		this.socket.on('message', this.handleMessage.bind(this));

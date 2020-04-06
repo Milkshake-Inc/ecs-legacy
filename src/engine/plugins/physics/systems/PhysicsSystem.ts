@@ -26,13 +26,13 @@ export default class PhysicsSystem extends IterativeSystem {
 	}
 
 	entityAdded = (snapshot: EntitySnapshot) => {
-		const { body } = snapshot.get(PhysicsBody);
+		const body = snapshot.get(PhysicsBody);
 		const position = snapshot.get(Position);
 
-		Body.setPosition(body, {
+		body.position = {
 			x: position.x,
 			y: position.y
-		});
+		};
 
 		World.addBody(this.world, snapshot.get(PhysicsBody).body);
 	};

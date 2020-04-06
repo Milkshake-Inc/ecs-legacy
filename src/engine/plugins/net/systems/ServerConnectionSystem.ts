@@ -25,7 +25,7 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Socket connected ${socket.id}`);
 
 		const session = new Entity();
-		session.addComponent(Session, { id: socket.id, socket: socket });
+		session.add(Session, { id: socket.id, socket: socket });
 		this.engine.addEntity(session);
 
 		socket.on('message', data => this.handleMessage(session, data as any));

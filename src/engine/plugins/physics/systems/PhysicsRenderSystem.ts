@@ -42,7 +42,7 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 		this.graphics.alpha = Options.alpha;
 
 		const entity = new Entity();
-		entity.addComponent(Position);
+		entity.add(Position);
 		entity.add(this.graphics);
 		engine.addEntity(entity);
 	}
