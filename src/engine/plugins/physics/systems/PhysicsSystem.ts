@@ -33,11 +33,13 @@ export default class PhysicsSystem extends IterativeSystem {
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
-		const { body } = entity.get(PhysicsBody);
+		const physicsBody = entity.get(PhysicsBody);
 		const position = entity.get(Position);
 
-		position.x = body.position.x;
-		position.y = body.position.y;
+		physicsBody.collisions = [];
+
+		position.x = physicsBody.body.position.x;
+		position.y = physicsBody.body.position.y;
 	}
 
 	entityAdded = (snapshot: EntitySnapshot) => {
@@ -57,7 +59,6 @@ export default class PhysicsSystem extends IterativeSystem {
 	};
 
 	public updateFixed(dt: number) {
-		this.entities.forEach(entity => (entity.get(PhysicsBody).collisions = []));
 		super.updateFixed(dt);
 		Engine.update(this.engine, dt);
 	}
