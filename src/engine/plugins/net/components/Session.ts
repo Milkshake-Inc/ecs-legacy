@@ -7,6 +7,7 @@ export default class Session {
 		public id: string,
 		public socket: ServerChannel | ClientChannel,
 		public incoming: Packet[] = [],
+		public incomingBuffer: Packet[] = [],
 		public outgoing: Packet[] = []
 	) {}
 }

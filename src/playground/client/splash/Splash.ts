@@ -18,8 +18,8 @@ export default class Splash extends Space {
 
 	setup() {
 		const background = new Entity();
-		background.addComponent(Position);
-		background.addComponent(Sprite, {
+		background.add(Position);
+		background.add(Sprite, {
 			imageUrl: Assets.Stars,
 			anchor: Vector2.ZERO
 		});

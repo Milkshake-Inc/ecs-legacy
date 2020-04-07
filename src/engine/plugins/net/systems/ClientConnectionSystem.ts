@@ -5,6 +5,7 @@ import Session from '../components/Session';
 import { Packet } from '../components/Packet';
 import geckosClient, { ClientChannel } from '@geckos.io/client/lib/client';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { encode, decode } from '@msgpack/msgpack';
 
 export default class ClientConnectionSystem extends IterativeSystem {
 	private engine: Engine;
@@ -30,10 +31,10 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		}
 
 		this.session = new Entity();
-		this.session.addComponent(Session, { id: this.socket.id, socket: this.socket });
+		this.session.add(Session, { id: this.socket.id, socket: this.socket });
 		this.engine.addEntity(this.session);
 
-		this.socket.on('message', this.handleMessage.bind(this));
+		this.socket.onRaw(data => this.handleMessage(decode(data as ArrayBuffer) as Packet));
 
 		console.log(`🔌 Socket connected ${this.socket.id}`);
 	}
@@ -49,13 +50,13 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		this.session.get(Session).incoming.push(packet);
 	}
 
-	protected updateEntity(entity: Entity): void {}
-
 	public update(deltaTime: number) {
 		if (!this.session) return;
 		const session = this.session.get(Session);
-		session.outgoing.forEach(packet => session.socket.emit('message', packet));
+		session.outgoing.forEach(packet => session.socket.raw.emit(encode(packet)));
 		session.outgoing = [];
 		session.incoming = [];
+		// session.incoming = session.incomingBuffer;
+		// session.incomingBuffer = [];
 	}
 }

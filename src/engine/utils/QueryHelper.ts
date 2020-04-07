@@ -2,7 +2,7 @@ import { Entity } from '../ecs/Entity';
 import { Query } from '../ecs/Query';
 import { Class } from './Class';
 
-type QueryPattern = (entity: Entity) => boolean;
+export type QueryPattern = (entity: Entity) => boolean;
 
 export const all = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {

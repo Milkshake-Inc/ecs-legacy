@@ -1,6 +1,6 @@
 import { getComponentId } from './ComponentId';
 import { Signal } from 'typed-signals';
-import { Class } from '../utils/Class';
+import { Class, isClass } from '../utils/Class';
 
 /**
  * Represents an entity - "faceless" object, which only have a `id`.
@@ -70,7 +70,7 @@ export class Entity {
 	 *  .add(new View())
 	 *  .add(new Velocity());
 	 */
-	public add<T extends K, K extends any>(component: T, resolveClass?: Class<K>): Entity {
+	public addComponent<T extends K, K extends any>(component: T, resolveClass?: Class<K>): Entity {
 		let componentClass = component ? component.constructor : undefined;
 		if (!component || !componentClass) {
 			throw new Error("Component instance mustn't be null and must be an instance of the class");
@@ -95,12 +95,14 @@ export class Entity {
 		return this;
 	}
 
-	public addComponent<T>(componentType: Class<T>, data: Partial<T> = {}) {
-		const component = new componentType();
+	public add<T>(componentType: Class<T> | T, data: Partial<T> = {}) {
+		const component = isClass(componentType) ? new componentType() : componentType;
 
 		Object.assign(component, data);
 
-		this.add(component);
+		this.addComponent(component);
+
+		return this;
 	}
 
 	/**

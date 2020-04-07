@@ -151,7 +151,7 @@ export class Query {
 	private updateHelper(entity: Entity, component: any) {
 		this._helper.clear();
 		this._helper.copyFrom(entity);
-		this._helper.add(component);
+		this._helper.addComponent(component);
 	}
 }
 

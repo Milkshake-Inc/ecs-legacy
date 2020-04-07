@@ -17,7 +17,7 @@ export default class Space extends Engine {
 	}
 
 	public addEntity(entity: Entity) {
-		entity.addComponent(SpaceTag, { spaceName: this.name });
+		entity.add(SpaceTag, { spaceName: this.name });
 		return super.addEntity(entity);
 	}
 

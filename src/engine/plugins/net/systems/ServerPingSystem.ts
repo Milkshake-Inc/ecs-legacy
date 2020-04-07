@@ -1,10 +1,10 @@
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { GeckosServer } from '@geckos.io/server/lib/server';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import ServerConnectionSystem from './ServerConnectionSystem';
 
 export default class ServerPingSystem extends IterativeSystem {
 	private serverTime = 0;
@@ -12,11 +12,11 @@ export default class ServerPingSystem extends IterativeSystem {
 	private serverTickRateMs: number = 1000 / 60;
 	private serverPingInterval = 10000;
 	private timeSinceLastPing = 0;
-	private server: GeckosServer;
+	private connections: ServerConnectionSystem;
 
-	constructor(server: GeckosServer) {
+	constructor(connections: ServerConnectionSystem) {
 		super(makeQuery(any(Session)));
-		this.server = server;
+		this.connections = connections;
 	}
 
 	public update(deltaTime: number) {
@@ -28,7 +28,8 @@ export default class ServerPingSystem extends IterativeSystem {
 
 		if (this.timeSinceLastPing >= this.serverPingInterval) {
 			this.timeSinceLastPing = 0;
-			this.server.emit('message', {
+
+			this.connections.broadcast({
 				opcode: PacketOpcode.SERVER_SYNC_PING,
 				serverTime: performance.now()
 			});

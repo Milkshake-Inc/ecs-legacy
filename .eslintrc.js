@@ -35,7 +35,12 @@ module.exports = {
 					'Opcode',
 					'rtt',
 					'hud',
-					'Arial'
+					'Arial',
+					'Rect',
+					'sortable',
+					'Chamferable',
+					'Collinear',
+					'Centre'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
