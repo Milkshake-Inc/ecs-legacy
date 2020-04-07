@@ -1,7 +1,10 @@
+import { Entity } from '@ecs/ecs/Entity';
+
 export enum PacketOpcode {
 	SERVER_SYNC_PING,
 	CLIENT_SYNC_PONG,
-	SERVER_SYNC_RESULT
+	SERVER_SYNC_RESULT,
+	WORLD
 }
 
 export type ServerSyncPing = {
@@ -24,4 +27,9 @@ export type ServerSyncResult = {
 	serverTickRateMs: number;
 };
 
-export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult;
+export type WorldUpdate = {
+	opcode: PacketOpcode.WORLD;
+	entities: Entity[];
+};
+
+export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldUpdate;

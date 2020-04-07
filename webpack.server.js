@@ -15,7 +15,8 @@ const config = {
 	},
 	plugins: [
 		new NodemonPlugin({
-			quiet: true
+			quiet: true,
+			nodeArgs: ['--inspect']
 		}),
 		new WebpackBar({
 			name: 'Server',
