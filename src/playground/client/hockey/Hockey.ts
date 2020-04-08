@@ -48,8 +48,8 @@ export default class Hockey extends Space {
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
 		this.addSystem(new PhysicsRenderSystem(this));
-		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
-		this.addSystem(new PuckSoundSystem());
+		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }, 50, 0.5, this));
+		this.addSystem(new PuckSoundSystem(this));
 
 		const background = new Entity();
 		background.add(Position);

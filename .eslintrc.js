@@ -40,7 +40,9 @@ module.exports = {
 					'sortable',
 					'Chamferable',
 					'Collinear',
-					'Centre'
+					'Centre',
+					'sfx',
+					'wav'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

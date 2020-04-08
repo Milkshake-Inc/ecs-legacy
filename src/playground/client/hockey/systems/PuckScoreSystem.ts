@@ -6,13 +6,15 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import { Engine } from '@ecs/ecs/Engine';
+import { Sound } from '@ecs/plugins/sounds/components/Sound';
 
 export default class PuckScoreSystem extends IterativeSystem {
 	protected bounds: { width: number; height: number };
 	protected padding: number;
 	protected spawnVelocity: number;
 
-	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
+	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5, protected engine: Engine) {
 		super(makeQuery(all(Position, PhysicsBody, Puck, Score)));
 
 		this.bounds = bounds;
@@ -39,6 +41,16 @@ export default class PuckScoreSystem extends IterativeSystem {
 	}
 
 	private resetPuck(entity: Entity) {
+		this.engine.addEntity(
+			new Entity().add(
+				Sound.from({
+					url: 'assets/sfx/score.wav',
+					autoPlay: true,
+					speed: Random.float(0.8, 1.2)
+				})
+			)
+		);
+
 		const body = entity.get(PhysicsBody);
 
 		body.position = {
