@@ -1,6 +1,6 @@
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { Entity } from '@ecs/ecs/Entity';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 
@@ -24,13 +24,13 @@ export default class ClientPingSystem extends IterativeSystem {
 		super.update(deltaTime);
 	}
 
-	protected updateEntity(entity: Entity): void {
+	protected entityAdded = (entity: EntitySnapshot) => {
 		const session = entity.get(Session);
 
-		session.incoming.forEach(packet => {
+		session.socket.handleImmediate(packet => {
 			switch (packet.opcode) {
 				case PacketOpcode.SERVER_SYNC_PING: {
-					session.outgoing.push({
+					session.socket.sendImmediate({
 						opcode: PacketOpcode.CLIENT_SYNC_PONG,
 						clientTime: performance.now(),
 						serverTime: packet.serverTime
@@ -64,5 +64,5 @@ export default class ClientPingSystem extends IterativeSystem {
 				}
 			}
 		});
-	}
+	};
 }

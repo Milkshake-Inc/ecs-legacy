@@ -5,7 +5,7 @@ import { makeQuery, any } from '@ecs/utils/QueryHelper';
 import Session from '../components/Session';
 import { Packet } from '../components/Packet';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { encode, decode } from '@msgpack/msgpack';
+import Socket from '../utils/Socket';
 
 export default class ServerConnectionSystem extends IterativeSystem {
 	private engine: Engine;
@@ -22,9 +22,10 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Server started!`);
 	}
 
-	public broadcast(packet: Packet) {
+	public broadcast(packet: Packet, immediate = false) {
 		for (const entity of this.query.entities) {
-			entity.get(Session).outgoing.push(packet);
+			const socket = entity.get(Session).socket;
+			immediate ? socket.sendImmediate(packet) : socket.send(packet);
 		}
 	}
 
@@ -32,10 +33,9 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Socket connected ${socket.id}`);
 
 		const session = new Entity();
-		session.add(Session, { id: socket.id, socket: socket });
+		session.add(Session, { id: socket.id, socket: new Socket(socket) });
 		this.engine.addEntity(session);
 
-		socket.onRaw(data => this.handleMessage(session, decode(data as ArrayBuffer) as Packet));
 		socket.onDisconnect(() => this.handleDisconnection(session));
 	}
 
@@ -45,17 +45,7 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		this.engine.removeEntity(entity);
 	}
 
-	protected handleMessage(entity: Entity, packet: Packet) {
-		entity.get(Session).incoming.push(packet);
-		// entity.get(Session).incomingBuffer.push(packet);
-	}
-
 	protected updateEntity(entity: Entity): void {
-		const session = entity.get(Session);
-		session.outgoing.forEach(packet => session.socket.raw.emit(encode(packet)));
-		session.outgoing = [];
-		session.incoming = [];
-		// session.incoming = session.incomingBuffer;
-		// session.incomingBuffer = [];
+		entity.get(Session)?.socket.update();
 	}
 }

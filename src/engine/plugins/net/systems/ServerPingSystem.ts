@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { EntitySnapshot } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import ServerConnectionSystem from './ServerConnectionSystem';
@@ -29,23 +29,31 @@ export default class ServerPingSystem extends IterativeSystem {
 		if (this.timeSinceLastPing >= this.serverPingInterval) {
 			this.timeSinceLastPing = 0;
 
-			this.connections.broadcast({
-				opcode: PacketOpcode.SERVER_SYNC_PING,
-				serverTime: performance.now()
-			});
+			this.connections.broadcast(
+				{
+					opcode: PacketOpcode.SERVER_SYNC_PING,
+					serverTime: performance.now()
+				},
+				true
+			);
 
 			console.log(`⏱ Sending ping`);
 		}
 	}
 
-	protected updateEntity(entity: Entity): void {
+	protected entityAdded = (entity: EntitySnapshot) => {
 		const session = entity.get(Session);
-		session.incoming.forEach(packet => {
+		session.socket.sendImmediate({
+			opcode: PacketOpcode.SERVER_SYNC_PING,
+			serverTime: performance.now()
+		});
+
+		session.socket.handleImmediate(packet => {
 			switch (packet.opcode) {
 				case PacketOpcode.CLIENT_SYNC_PONG: {
 					const rtt = performance.now() - packet.serverTime;
 					console.log(`⏱ Server estimated RTT: ${rtt}`);
-					session.outgoing.push({
+					session.socket.sendImmediate({
 						opcode: PacketOpcode.SERVER_SYNC_RESULT,
 						clientTime: packet.clientTime,
 						serverTime: this.serverTime,
@@ -54,14 +62,6 @@ export default class ServerPingSystem extends IterativeSystem {
 					});
 				}
 			}
-		});
-	}
-
-	protected entityAdded = (entity: EntitySnapshot) => {
-		const session = entity.get(Session);
-		session.outgoing.push({
-			opcode: PacketOpcode.SERVER_SYNC_PING,
-			serverTime: performance.now()
 		});
 	};
 }

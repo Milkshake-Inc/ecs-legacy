@@ -1,13 +1,5 @@
-import { ServerChannel } from '@geckos.io/server';
-import { ClientChannel } from '@geckos.io/client';
-import { Packet } from './Packet';
+import Socket from '../utils/Socket';
 
 export default class Session {
-	constructor(
-		public id: string,
-		public socket: ServerChannel | ClientChannel,
-		public incoming: Packet[] = [],
-		public incomingBuffer: Packet[] = [],
-		public outgoing: Packet[] = []
-	) {}
+	constructor(public id: string, public socket: Socket) {}
 }
