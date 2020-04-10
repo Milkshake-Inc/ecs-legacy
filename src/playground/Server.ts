@@ -8,7 +8,7 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
-import Hockey from './spaces/Hockey';
+import Hockey, { WorldSnapshot, WorldSnapshotEntity } from './spaces/Hockey';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 
 export class NetEngine extends TickerEngine {
@@ -64,35 +64,24 @@ class ServerHockey extends Hockey {
 	setup() {
 		super.setup();
 
-		this.addSystem(new SnapshotCompositorSystem(this.connections, this.generateSnapshot.bind(this)));
+		this.addSystem(new SnapshotCompositorSystem<WorldSnapshot>(this.connections, this.generateSnapshot.bind(this)));
 	}
 
-	generateSnapshot() {
-		const entitySnapshot = (entity: Entity) => {
-			let snapshot = {};
+	generateSnapshot(): WorldSnapshot {
+		const entitySnapshot = (entity: Entity): WorldSnapshotEntity => {
+			const position = entity.get(Position);
+			const physics = entity.get(PhysicsBody);
 
-			if (entity.get(Position)) {
-				snapshot = {
-					...snapshot,
-					position: entity.get(Position)
-				};
-			}
-
-			if (entity.has(PhysicsBody)) {
-				const physics = entity.get(PhysicsBody);
-
-				snapshot = {
-					...snapshot,
-					physics: {
-						velocity: {
-							x: physics.body.velocity.x,
-							y: physics.body.velocity.y
-						}
-					}
-				};
-			}
-
-			return snapshot;
+			return {
+				position: {
+					x: position.x,
+					y: position.y
+				},
+				velocity: {
+					x: physics.body.velocity.x,
+					y: physics.body.velocity.y
+				}
+			};
 		};
 
 		return {
