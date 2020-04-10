@@ -1,22 +1,27 @@
+import { Entity } from '@ecs/ecs/Entity';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import Color from '@ecs/math/Color';
+import Vector2 from '@ecs/math/Vector2';
+import Input from '@ecs/plugins/input/components/Input';
+import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import { PacketOpcode, WorldUpdate } from '@ecs/plugins/net/components/Packet';
+import Session from '@ecs/plugins/net/components/Session';
+import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
+import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
+import Position from '@ecs/plugins/Position';
+import BitmapText from '@ecs/plugins/render/components/BitmapText';
+import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
-import Hockey, { PlayerColor } from './spaces/Hockey';
-import Splash from './spaces/Splash';
-import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
-import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import { Entity } from '@ecs/ecs/Entity';
-import Position from '@ecs/plugins/Position';
-import Sprite from '@ecs/plugins/render/components/Sprite';
-import Vector2 from '@ecs/math/Vector2';
-import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
-import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import { any, makeQuery } from '@ecs/utils/QueryHelper';
+import Hockey, { PlayerColor, WorldSnapshot, WorldSnapshotEntity } from './spaces/Hockey';
+import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
-import Input from '@ecs/plugins/input/components/Input';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
-import Color from '@ecs/math/Color';
+import { PuckSoundSystem } from './systems/PuckSoundSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -60,6 +65,25 @@ const Assets = {
 	Puck: 'assets/hockey/puck.png'
 };
 
+class WorldSnapshotHandlerSystem<T extends {}> extends IterativeSystem {
+	protected connection: ClientConnectionSystem;
+	protected processSnapshot: (snapshot: T) => void;
+
+	constructor(connection: ClientConnectionSystem, processSnapshot: (snapshot: T) => void) {
+		super(makeQuery(any(Session)));
+
+		this.connection = connection;
+		this.processSnapshot = processSnapshot;
+	}
+
+	updateEntity(entity: Entity) {
+		const session = entity.get(Session);
+		const worldSnapshotsPackets = session.socket.handle<WorldUpdate<WorldSnapshot>>(PacketOpcode.WORLD);
+
+		worldSnapshotsPackets.forEach(this.processSnapshot.bind(this));
+	}
+}
+
 class ClientHockey extends Hockey {
 	protected async preload() {
 		return LoadPixiAssets(Assets);
@@ -83,6 +107,30 @@ class ClientHockey extends Hockey {
 		this.addSystem(new HudSystem(hud));
 
 		this.addEntities(hud.redScore, hud.blueScore);
+
+		const connectionSystem = this.getSystem(ClientConnectionSystem);
+
+		this.addSystem(new WorldSnapshotHandlerSystem(connectionSystem, this.processSnapshot.bind(this)));
+	}
+
+	processSnapshot({ snapshot }: WorldUpdate<WorldSnapshot>) {
+		const processEntity = (entity: Entity, snapshot: WorldSnapshotEntity) => {
+			const physics = entity.get(PhysicsBody);
+
+			physics.position = {
+				x: snapshot.position.x,
+				y: snapshot.position.y
+			};
+
+			physics.velocity = {
+				x: snapshot.velocity.x,
+				y: snapshot.velocity.y
+			};
+		};
+
+		processEntity(this.redPaddle, snapshot.redPaddle);
+		processEntity(this.bluePaddle, snapshot.bluePaddle);
+		processEntity(this.puck, snapshot.puck);
 	}
 
 	createPaddle(player: PlayerColor, spawnPosition: { x: number; y: number }): Entity {
