@@ -1,7 +1,7 @@
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { EntitySnapshot } from '@ecs/ecs/Entity';
+import { EntitySnapshot, Entity } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import ServerConnectionSystem from './ServerConnectionSystem';
@@ -19,9 +19,11 @@ export default class ServerPingSystem extends IterativeSystem {
 		this.connections = connections;
 	}
 
-	public update(deltaTime: number) {
-		super.update(deltaTime);
+	public get tick() {
+		return this.serverTick;
+	}
 
+	public update(deltaTime: number) {
 		this.serverTime += deltaTime;
 		this.timeSinceLastPing += deltaTime;
 		this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
@@ -39,6 +41,14 @@ export default class ServerPingSystem extends IterativeSystem {
 
 			console.log(`⏱ Sending ping`);
 		}
+
+		super.update(deltaTime);
+	}
+
+	protected updateEntity(entity: Entity, dt: number): void {
+		const session = entity.get(Session);
+		session.serverTick = this.serverTick;
+		session.serverTime = this.serverTime;
 	}
 
 	protected entityAdded = (entity: EntitySnapshot) => {

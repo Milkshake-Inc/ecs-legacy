@@ -13,6 +13,7 @@ import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
 import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import Session from '@ecs/plugins/net/components/Session';
+import { InputHistory } from '@ecs/plugins/input/components/Input';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -71,19 +72,17 @@ class ServerHockey extends Hockey {
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 
 		this.addSystem(
-			new PlayerSpawnSystem((session: Session, entity: Entity) => {
+			new PlayerSpawnSystem(entity => {
 				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
+				entity.add(InputHistory);
 			})
 		);
 	}
 
 	handlePlayerInput(entity: Entity, packet: PlayerInput) {
-		const physics = entity.get(PhysicsBody);
-		if (!physics) return;
-
-		// Apply input to physics
-		// const input = this.redPaddle.get(Input)
-		// Object.assign(input, packet.input);
+		const inputHistory = entity.get(InputHistory);
+		if (!inputHistory) return;
+		inputHistory.inputs[packet.tick] = packet.input;
 	}
 
 	generateSnapshot(): Snapshot {
