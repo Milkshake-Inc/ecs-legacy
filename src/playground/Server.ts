@@ -4,7 +4,7 @@ import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSys
 import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import Space from '@ecs/plugins/space/Space';
-import Hockey from './hockey/Hockey';
+import Hockey from './spaces/Hockey';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
