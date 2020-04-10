@@ -1,64 +1,55 @@
+import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Input from '@ecs/plugins/input/components/Input';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import Position from '@ecs/plugins/Position';
-import Sprite from '@ecs/plugins/render/components/Sprite';
 import Space from '@ecs/plugins/space/Space';
-import { NetEngine } from '..';
-import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
-import WorldUpdateSystem from './systems/WorldUpdateSystem';
-
-const Assets = {
-	Background: 'assets/hockey/background.png',
-	RedPaddle: 'assets/hockey/red.png',
-	BluePaddle: 'assets/hockey/blue.png',
-	Puck: 'assets/hockey/puck.png'
-};
+import Moveable from '../components/Moveable';
+import { Paddle } from '../components/Paddle';
+import { Puck } from '../components/Puck';
+import Score from '../components/Score';
+import { Wall } from '../components/Wall';
+import MovementSystem from '../systems/MovementSystem';
+import PuckScoreSystem from '../systems/PuckScoreSystem';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
-enum CollisionCategory {
+export enum CollisionCategory {
 	Wall = 1,
 	Goal,
 	Player,
 	Puck
 }
 
-const PlayerConfig = [
-	{
-		spawnPoint: { x: 100, y: 720 / 2 },
-		asset: Assets.RedPaddle
-	},
-	{
-		spawnPoint: { x: 1280 - 100, y: 720 / 2 },
-		asset: Assets.BluePaddle
-	}
-];
+export enum PlayerColor {
+	Red,
+	Blue
+}
 
 export default class Hockey extends Space {
-	private net: NetEngine;
-	private connected = 0;
+	private score: Score;
+	protected isServer: boolean;
 
-	constructor(net: NetEngine) {
-		super(net, 'hockey');
-		this.net = net;
+	constructor(engine: Engine) {
+		super(engine, 'hockey');
 	}
 
 	setup() {
+		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
-		this.addSystem(new PlayerSpawnSystem(id => this.createPaddle(id)));
-		this.addSystem(new WorldUpdateSystem(this.net.connections));
+		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
-		this.addEntities(this.createPuck(), ...this.createWalls());
+		const redPaddle = this.createPaddle(PlayerColor.Red, { x: 100, y: 720 / 2 });
+		const bluePaddle = this.createPaddle(PlayerColor.Blue, { x: 1280 - 100, y: 720 / 2 });
+
+		this.addEntities(redPaddle, bluePaddle, this.createPuck(), ...this.createWalls());
 	}
 
-	createPaddle(id: string): Entity {
-		const playerConfig = PlayerConfig[this.connected++ % 2];
-
+	createPaddle(player: PlayerColor, spawnPosition: { x: number; y: number }): Entity {
 		const paddle = new Entity();
-		paddle.add(Position, playerConfig.spawnPoint);
-		paddle.add(Sprite, { imageUrl: playerConfig.asset });
-		paddle.add(Input.WASD());
+		paddle.add(Position, spawnPosition);
+		paddle.add(Moveable, { speed: 0.05 });
+		paddle.add(Score);
+		paddle.add(Paddle);
 		paddle.add(
 			PhysicsBody.circle(65, {
 				mass: 10,
@@ -74,7 +65,6 @@ export default class Hockey extends Space {
 	createPuck(): Entity {
 		const puck = new Entity();
 		puck.add(Position, { x: 1280 / 2, y: 720 / 2 });
-		puck.add(Sprite, { imageUrl: Assets.Puck });
 		puck.add(
 			PhysicsBody.circle(40, {
 				mass: 1,
@@ -83,6 +73,8 @@ export default class Hockey extends Space {
 				collisionFilter: { category: CollisionCategory.Puck, mask: CollisionCategory.Wall | CollisionCategory.Player }
 			})
 		);
+		puck.add(Puck);
+		puck.add((this.score = new Score()));
 		return puck;
 	}
 
@@ -109,7 +101,7 @@ export default class Hockey extends Space {
 				collisionFilter: { category: CollisionCategory.Wall, mask: CollisionCategory.Player | CollisionCategory.Puck }
 			})
 		);
-		// wall.add(Wall);
+		wall.add(Wall);
 		return wall;
 	}
 
