@@ -1,5 +1,3 @@
-import { Entity } from '@ecs/ecs/Entity';
-
 export enum PacketOpcode {
 	SERVER_SYNC_PING,
 	CLIENT_SYNC_PONG,

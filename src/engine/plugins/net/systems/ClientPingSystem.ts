@@ -1,6 +1,6 @@
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { EntitySnapshot } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 

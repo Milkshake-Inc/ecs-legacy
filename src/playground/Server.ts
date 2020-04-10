@@ -9,6 +9,7 @@ import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
 import Hockey from './spaces/Hockey';
+import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -40,20 +41,30 @@ export class NetEngine extends TickerEngine {
 }
 
 class SnapshotCompositorSystem<T extends {}> extends System {
-	constructor(protected generateSnapshot: () => T) {
+	constructor(protected connections: ServerConnectionSystem, protected generateSnapshot: () => T) {
 		super();
 	}
 
 	updateFixed(deltaTime: number) {
-		console.log(this.generateSnapshot());
+		this.connections.broadcast({
+			opcode: PacketOpcode.WORLD,
+			snapshot: this.generateSnapshot()
+		});
 	}
 }
 
 class ServerHockey extends Hockey {
+	private connections: ServerConnectionSystem;
+
+	constructor(engine: NetEngine) {
+		super(engine);
+		this.connections = engine.connections;
+	}
+
 	setup() {
 		super.setup();
 
-		this.addSystem(new SnapshotCompositorSystem(this.generateSnapshot.bind(this)));
+		this.addSystem(new SnapshotCompositorSystem(this.connections, this.generateSnapshot.bind(this)));
 	}
 
 	generateSnapshot() {
