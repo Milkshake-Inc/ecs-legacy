@@ -20,12 +20,12 @@ export default class MovementSystem extends IterativeSystem {
 		// must be server
 		if (!input) {
 			const history = entity.get(InputHistory);
-			if (!history[session.serverTick]) {
+			if (!history.inputs[session.serverTick]) {
 				return;
 			}
 
 			// set input from player history
-			input = history[session.serverTick];
+			input = history.inputs[session.serverTick];
 		}
 
 		const left = input.leftDown ? 1 : 0;

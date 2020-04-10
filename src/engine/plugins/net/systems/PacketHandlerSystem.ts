@@ -31,6 +31,6 @@ export class WorldSnapshotHandlerSystem<T extends {}> extends PacketHandlerSyste
 
 export class PlayerInputHandlerSystem extends PacketHandlerSystem<PlayerInput> {
 	constructor(handler: (entity: Entity, packet: PlayerInput) => void) {
-		super(PacketOpcode.WORLD, handler);
+		super(PacketOpcode.PLAYER_INPUT, handler);
 	}
 }
