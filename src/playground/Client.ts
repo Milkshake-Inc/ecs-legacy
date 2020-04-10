@@ -1,10 +1,17 @@
+import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
+import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
+import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
+import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
+import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
 import Position from '@ecs/plugins/Position';
@@ -14,14 +21,11 @@ import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
-import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
-import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
-import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -66,6 +70,15 @@ const Assets = {
 };
 
 class ClientHockey extends Hockey {
+	protected sessionQuery: Query;
+
+	constructor(engine: Engine) {
+		super(engine);
+
+		this.sessionQuery = makeQuery(all(Session));
+		this.worldEngine.addQuery(this.sessionQuery);
+	}
+
 	protected async preload() {
 		return LoadPixiAssets(Assets);
 	}
@@ -94,12 +107,6 @@ class ClientHockey extends Hockey {
 		);
 
 		this.addSystem(new ClientInputSenderSystem());
-
-		this.addSystem(
-			new PlayerSpawnSystem(entity => {
-				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
-			})
-		);
 	}
 
 	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
@@ -117,8 +124,41 @@ class ClientHockey extends Hockey {
 			};
 		};
 
-		// processEntity(this.redPaddle, snapshot.redPaddle);
-		// processEntity(this.bluePaddle, snapshot.bluePaddle);
+		snapshot.paddles.forEach(snapshotPaddle => {
+			const localPaddle = this.paddleQuery.entities.find(entity => {
+				if (entity.has(Session)) {
+					const session = entity.get(Session);
+					return session.id == snapshotPaddle.sessionId;
+				}
+
+				if (entity.has(RemoteSession)) {
+					const session = entity.get(RemoteSession);
+					return session.id == snapshotPaddle.sessionId;
+				}
+
+				return false;
+			});
+
+			if (!localPaddle) {
+				const localEntity = this.sessionQuery.entities.find(entity => {
+					return entity.get(Session).id == snapshotPaddle.sessionId;
+				});
+
+				if (localEntity) {
+					console.log('Creating local player');
+					this.createPaddle(localEntity, PlayerColor.Red, { x: 100, y: 100 });
+					localEntity.add(Input.WASD());
+					this.worldEngine.addEntity(localEntity);
+				} else {
+					const newEntity = new Entity();
+					console.log('Creating remote player!');
+					newEntity.add(RemoteSession, { id: snapshotPaddle.sessionId });
+					this.createPaddle(newEntity, PlayerColor.Blue, snapshotPaddle.position);
+					this.worldEngine.addEntity(newEntity);
+				}
+			}
+		});
+
 		processEntity(this.puck, snapshot.puck);
 	}
 
@@ -126,7 +166,7 @@ class ClientHockey extends Hockey {
 		super.createPaddle(entity, player, spawnPosition);
 
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
-		entity.add(player == PlayerColor.Red ? Input.WASD() : Input.ARROW());
+
 	}
 
 	createPuck(): Entity {

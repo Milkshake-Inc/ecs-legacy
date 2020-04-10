@@ -5,7 +5,7 @@ import SpaceTag from './components/SpaceTag';
 export default class Space extends Engine {
 	public readonly name: string;
 
-	private worldEngine: Engine;
+	protected worldEngine: Engine;
 	private loaded = false;
 	private visible = false;
 
