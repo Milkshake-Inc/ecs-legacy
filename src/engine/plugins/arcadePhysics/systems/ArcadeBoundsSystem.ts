@@ -2,9 +2,9 @@ import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
-import BoundingBox from '../components/BoundingBox';
-import BoundingCircle from '../components/BoundingCircle';
-import Physics from '../components/Physics';
+import BoundingBox from '../components/ArcadeBoundingBox';
+import BoundingCircle from '../components/ArcadeBoundingCircle';
+import Physics from '../components/ArcadePhysics';
 
 export default class BoundsSystem extends IterativeSystem {
 	constructor(protected bounds: { width: number; height: number }) {

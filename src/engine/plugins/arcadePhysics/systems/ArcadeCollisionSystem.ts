@@ -2,7 +2,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import { ReactionSystem } from '@ecs/ecs/ReactionSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import Physics from '../components/Physics';
+import Physics from '../components/ArcadePhysics';
 import { Circle, Polygon, Response, Box, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle, Vector } from 'sat';
 import Vector2 from '@ecs/math/Vector2';
 
