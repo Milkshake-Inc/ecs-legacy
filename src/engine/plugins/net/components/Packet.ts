@@ -27,9 +27,9 @@ export type ServerSyncResult = {
 	serverTickRateMs: number;
 };
 
-export type WorldUpdate = {
+export type WorldUpdate<T = {}> = {
 	opcode: PacketOpcode.WORLD;
-	entities: Entity[];
+	snapshot: T;
 };
 
 export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldUpdate;
