@@ -25,6 +25,17 @@ export enum PlayerColor {
 	Blue
 }
 
+export type WorldSnapshotEntity = {
+	position: { x: number; y: number };
+	velocity: { x: number; y: number };
+};
+
+export type WorldSnapshot = {
+	redPaddle: WorldSnapshotEntity;
+	bluePaddle: WorldSnapshotEntity;
+	puck: WorldSnapshotEntity;
+};
+
 export default class Hockey extends Space {
 	private score: Score;
 
