@@ -23,3 +23,7 @@ export default class Input {
 		public fireDown: boolean = false
 	) {}
 }
+
+export class InputHistory {
+	constructor(public inputs: { [tick: number]: Input } = {}) {}
+}

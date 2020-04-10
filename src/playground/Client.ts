@@ -22,7 +22,6 @@ import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandl
 import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
-import Session from '@ecs/plugins/net/components/Session';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -97,7 +96,7 @@ class ClientHockey extends Hockey {
 		this.addSystem(new ClientInputSenderSystem());
 
 		this.addSystem(
-			new PlayerSpawnSystem((session: Session, entity: Entity) => {
+			new PlayerSpawnSystem(entity => {
 				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
 			})
 		);
@@ -128,8 +127,6 @@ class ClientHockey extends Hockey {
 
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
 		entity.add(player == PlayerColor.Red ? Input.WASD() : Input.ARROW());
-
-		return entity;
 	}
 
 	createPuck(): Entity {
