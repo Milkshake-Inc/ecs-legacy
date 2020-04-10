@@ -1,8 +1,11 @@
+import Input from '@ecs/plugins/input/components/Input';
+
 export enum PacketOpcode {
 	SERVER_SYNC_PING,
 	CLIENT_SYNC_PONG,
 	SERVER_SYNC_RESULT,
-	WORLD
+	WORLD,
+	PLAYER_INPUT
 }
 
 export type ServerSyncPing = {
@@ -25,9 +28,15 @@ export type ServerSyncResult = {
 	serverTickRateMs: number;
 };
 
-export type WorldUpdate<T = {}> = {
+export type WorldSnapshot<T = {}> = {
 	opcode: PacketOpcode.WORLD;
 	snapshot: T;
 };
 
-export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldUpdate;
+export type PlayerInput = {
+	opcode: PacketOpcode.PLAYER_INPUT;
+	tick: number;
+	input: Input;
+};
+
+export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldSnapshot | PlayerInput;
