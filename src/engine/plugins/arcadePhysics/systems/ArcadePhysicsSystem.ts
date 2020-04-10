@@ -1,4 +1,4 @@
-import Physics from '../components/Physics';
+import Physics from '../components/ArcadePhysics';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Entity } from '@ecs/ecs/Entity';
 import Position from '@ecs/plugins/Position';
