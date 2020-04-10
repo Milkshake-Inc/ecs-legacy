@@ -18,7 +18,8 @@ module.exports = {
 	output: {
 		path: path.resolve(__dirname, 'bin')
 	},
-	stats: 'errors-only'
+	stats: 'errors-only',
+	devtool: 'source-map'
 };
 
 function resolveTsconfigPathsToAlias({ tsconfigPath = './tsconfig.json', webpackConfigBasePath = __dirname } = {}) {
