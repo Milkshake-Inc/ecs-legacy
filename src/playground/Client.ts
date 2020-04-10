@@ -20,6 +20,9 @@ import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
+import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
+import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
+import Session from '@ecs/plugins/net/components/Session';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -90,6 +93,14 @@ class ClientHockey extends Hockey {
 		this.addSystem(
 			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
 		);
+
+		this.addSystem(new ClientInputSenderSystem());
+
+		this.addSystem(
+			new PlayerSpawnSystem((session: Session, entity: Entity) => {
+				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
+			})
+		);
 	}
 
 	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
@@ -107,18 +118,18 @@ class ClientHockey extends Hockey {
 			};
 		};
 
-		processEntity(this.redPaddle, snapshot.redPaddle);
-		processEntity(this.bluePaddle, snapshot.bluePaddle);
+		// processEntity(this.redPaddle, snapshot.redPaddle);
+		// processEntity(this.bluePaddle, snapshot.bluePaddle);
 		processEntity(this.puck, snapshot.puck);
 	}
 
-	createPaddle(player: PlayerColor, spawnPosition: { x: number; y: number }): Entity {
-		const paddle = super.createPaddle(player, spawnPosition);
+	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
+		super.createPaddle(entity, player, spawnPosition);
 
-		paddle.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
-		paddle.add(player == PlayerColor.Red ? Input.WASD() : Input.ARROW());
+		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
+		entity.add(player == PlayerColor.Red ? Input.WASD() : Input.ARROW());
 
-		return paddle;
+		return entity;
 	}
 
 	createPuck(): Entity {

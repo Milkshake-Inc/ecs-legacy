@@ -31,20 +31,20 @@ export type SnapshotEntity = {
 };
 
 export type Snapshot = {
-	redPaddle: SnapshotEntity;
-	bluePaddle: SnapshotEntity;
+	paddles: (SnapshotEntity & { sessionId: string })[];
 	puck: SnapshotEntity;
 };
 
 export default class Hockey extends Space {
 	private score: Score;
 
-	protected redPaddle: Entity;
-	protected bluePaddle: Entity;
+	protected paddles: Entity[];
 	protected puck: Entity;
 
 	constructor(engine: Engine) {
 		super(engine, 'hockey');
+
+		this.paddles = [];
 	}
 
 	setup() {
@@ -52,20 +52,17 @@ export default class Hockey extends Space {
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
-		this.redPaddle = this.createPaddle(PlayerColor.Red, { x: 100, y: 720 / 2 });
-		this.bluePaddle = this.createPaddle(PlayerColor.Blue, { x: 1280 - 100, y: 720 / 2 });
 		this.puck = this.createPuck();
 
-		this.addEntities(this.redPaddle, this.bluePaddle, this.puck, ...this.createWalls());
+		this.addEntities(this.puck, ...this.createWalls());
 	}
 
-	createPaddle(player: PlayerColor, spawnPosition: { x: number; y: number }): Entity {
-		const paddle = new Entity();
-		paddle.add(Position, spawnPosition);
-		paddle.add(Moveable, { speed: 0.05 });
-		paddle.add(Score);
-		paddle.add(Paddle);
-		paddle.add(
+	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
+		entity.add(Position, spawnPosition);
+		entity.add(Moveable, { speed: 0.05 });
+		entity.add(Score);
+		entity.add(Paddle);
+		entity.add(
 			PhysicsBody.circle(65, {
 				mass: 10,
 				frictionAir: 0.1,
@@ -73,8 +70,6 @@ export default class Hockey extends Space {
 				collisionFilter: { category: CollisionCategory.Player }
 			})
 		);
-
-		return paddle;
 	}
 
 	createPuck(): Entity {

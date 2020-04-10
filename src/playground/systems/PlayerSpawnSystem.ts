@@ -5,17 +5,18 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Player } from '../components/Player';
 
 export default class PlayerSpawnSystem extends IterativeSystem {
-	private playerGenerator: (id: string) => Entity;
+	private playerGenerator: (session: Session, entity: Entity) => void;
 
-	constructor(playerGenerator: (id: string) => Entity) {
+	constructor(playerGenerator: (session: Session, entity: Entity) => void) {
 		super(makeQuery(all(Session), not(Player)));
 		this.playerGenerator = playerGenerator;
 	}
 
 	updateEntity(entity: Entity) {
 		const session = entity.get(Session);
-		entity.copyFrom(this.playerGenerator(session.id));
-		entity.add(session);
+
+		this.playerGenerator(session, entity);
+
 		entity.add(Player);
 	}
 }

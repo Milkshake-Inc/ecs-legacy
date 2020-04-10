@@ -8,9 +8,11 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
-import Hockey, { Snapshot, SnapshotEntity } from './spaces/Hockey';
+import Hockey, { Snapshot, SnapshotEntity, PlayerColor } from './spaces/Hockey';
 import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
 import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
+import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
+import Session from '@ecs/plugins/net/components/Session';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -67,13 +69,21 @@ class ServerHockey extends Hockey {
 
 		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
+
+		this.addSystem(
+			new PlayerSpawnSystem((session: Session, entity: Entity) => {
+				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
+			})
+		);
 	}
 
 	handlePlayerInput(entity: Entity, packet: PlayerInput) {
 		const physics = entity.get(PhysicsBody);
 		if (!physics) return;
 
-		// apply input to physics
+		// Apply input to physics
+		// const input = this.redPaddle.get(Input)
+		// Object.assign(input, packet.input);
 	}
 
 	generateSnapshot(): Snapshot {
@@ -93,9 +103,18 @@ class ServerHockey extends Hockey {
 			};
 		};
 
+		const paddleSnapshot = (entity: Entity): SnapshotEntity & { sessionId: string } => {
+			const session = entity.get(Session);
+			const paddleSnap = entitySnapshot(entity);
+
+			return {
+				sessionId: session.id,
+				...paddleSnap
+			};
+		};
+
 		return {
-			redPaddle: entitySnapshot(this.redPaddle),
-			bluePaddle: entitySnapshot(this.bluePaddle),
+			paddles: this.paddles.map(paddleSnapshot),
 			puck: entitySnapshot(this.puck)
 		};
 	}
