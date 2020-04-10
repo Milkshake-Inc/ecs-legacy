@@ -124,19 +124,36 @@ class ClientHockey extends Hockey {
 			};
 		};
 
+		const getSessionId = (entity: Entity): string => {
+			if (entity.has(Session)) {
+				const session = entity.get(Session);
+				return session.id;
+			}
+
+			if (entity.has(RemoteSession)) {
+				const session = entity.get(RemoteSession);
+				return session.id;
+			}
+
+			return "";
+		}
+
+		this.paddleQuery.entities.filter((localPaddle) => {
+			const sessionId = getSessionId(localPaddle);
+
+			const hasLocalPaddleInSnapshot = snapshot.paddles.find((snapshot) => snapshot.sessionId == sessionId);
+
+			if(!hasLocalPaddleInSnapshot) {
+				// We should remove from local
+				console.log("Player no longer in snapshot - Removing");
+				this.worldEngine.removeEntity(localPaddle);
+			}
+		})
+
 		snapshot.paddles.forEach(snapshotPaddle => {
 			const localPaddle = this.paddleQuery.entities.find(entity => {
-				if (entity.has(Session)) {
-					const session = entity.get(Session);
-					return session.id == snapshotPaddle.sessionId;
-				}
-
-				if (entity.has(RemoteSession)) {
-					const session = entity.get(RemoteSession);
-					return session.id == snapshotPaddle.sessionId;
-				}
-
-				return false;
+				const sessionId = getSessionId(entity);
+				return sessionId == snapshotPaddle.sessionId;
 			});
 
 			if (!localPaddle) {
@@ -156,6 +173,18 @@ class ClientHockey extends Hockey {
 					this.createPaddle(newEntity, PlayerColor.Blue, snapshotPaddle.position);
 					this.worldEngine.addEntity(newEntity);
 				}
+			} else {
+				const body = localPaddle.get(PhysicsBody);
+
+				body.position = {
+					x: snapshotPaddle.position.x,
+					y: snapshotPaddle.position.y
+				};
+
+				body.velocity = {
+					x: snapshotPaddle.velocity.x,
+					y: snapshotPaddle.velocity.y,
+				};
 			}
 		});
 
