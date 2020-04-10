@@ -13,7 +13,6 @@ import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderS
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
-import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
 import Position from '@ecs/plugins/Position';
 import BitmapText from '@ecs/plugins/render/components/BitmapText';
 import Sprite from '@ecs/plugins/render/components/Sprite';
@@ -94,7 +93,7 @@ class ClientHockey extends Hockey {
 
 		super.setup();
 
-		this.addSystem(new PhysicsRenderSystem(this));
+		// this.addSystem(new PhysicsRenderSystem(this));
 		this.addSystem(new PuckSoundSystem());
 
 		const hud = this.hud();
@@ -135,20 +134,20 @@ class ClientHockey extends Hockey {
 				return session.id;
 			}
 
-			return "";
-		}
+			return '';
+		};
 
-		this.paddleQuery.entities.filter((localPaddle) => {
+		this.paddleQuery.entities.filter(localPaddle => {
 			const sessionId = getSessionId(localPaddle);
 
-			const hasLocalPaddleInSnapshot = snapshot.paddles.find((snapshot) => snapshot.sessionId == sessionId);
+			const hasLocalPaddleInSnapshot = snapshot.paddles.find(snapshot => snapshot.sessionId == sessionId);
 
-			if(!hasLocalPaddleInSnapshot) {
+			if (!hasLocalPaddleInSnapshot) {
 				// We should remove from local
-				console.log("Player no longer in snapshot - Removing");
+				console.log('Player no longer in snapshot - Removing');
 				this.worldEngine.removeEntity(localPaddle);
 			}
-		})
+		});
 
 		snapshot.paddles.forEach(snapshotPaddle => {
 			const localPaddle = this.paddleQuery.entities.find(entity => {
@@ -174,6 +173,8 @@ class ClientHockey extends Hockey {
 					this.worldEngine.addEntity(newEntity);
 				}
 			} else {
+				// const locallyControlled = localPaddle.has(Session);
+
 				const body = localPaddle.get(PhysicsBody);
 
 				body.position = {
@@ -183,7 +184,7 @@ class ClientHockey extends Hockey {
 
 				body.velocity = {
 					x: snapshotPaddle.velocity.x,
-					y: snapshotPaddle.velocity.y,
+					y: snapshotPaddle.velocity.y
 				};
 			}
 		});
@@ -195,7 +196,6 @@ class ClientHockey extends Hockey {
 		super.createPaddle(entity, player, spawnPosition);
 
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
-
 	}
 
 	createPuck(): Entity {
