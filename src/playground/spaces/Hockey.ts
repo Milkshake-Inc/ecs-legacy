@@ -27,7 +27,10 @@ export enum PlayerColor {
 
 export default class Hockey extends Space {
 	private score: Score;
-	protected isServer: boolean;
+
+	protected redPaddle: Entity;
+	protected bluePaddle: Entity;
+	protected puck: Entity;
 
 	constructor(engine: Engine) {
 		super(engine, 'hockey');
@@ -38,10 +41,11 @@ export default class Hockey extends Space {
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
-		const redPaddle = this.createPaddle(PlayerColor.Red, { x: 100, y: 720 / 2 });
-		const bluePaddle = this.createPaddle(PlayerColor.Blue, { x: 1280 - 100, y: 720 / 2 });
+		this.redPaddle = this.createPaddle(PlayerColor.Red, { x: 100, y: 720 / 2 });
+		this.bluePaddle = this.createPaddle(PlayerColor.Blue, { x: 1280 - 100, y: 720 / 2 });
+		this.puck = this.createPuck();
 
-		this.addEntities(redPaddle, bluePaddle, this.createPuck(), ...this.createWalls());
+		this.addEntities(this.redPaddle, this.bluePaddle, this.puck, ...this.createWalls());
 	}
 
 	createPaddle(player: PlayerColor, spawnPosition: { x: number; y: number }): Entity {
