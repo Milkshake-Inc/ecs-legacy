@@ -1,6 +1,6 @@
 import { PacketOpcode } from '../components/Packet';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { EntitySnapshot } from '@ecs/ecs/Entity';
+import { EntitySnapshot, Entity } from '@ecs/ecs/Entity';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 
@@ -22,6 +22,12 @@ export default class ClientPingSystem extends IterativeSystem {
 		}
 
 		super.update(deltaTime);
+	}
+
+	protected updateEntity(entity: Entity, dt: number): void {
+		const session = entity.get(Session);
+		session.serverTime = this.serverTime;
+		session.serverTick = this.serverTick;
 	}
 
 	protected entityAdded = (entity: EntitySnapshot) => {

@@ -1,11 +1,8 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import { PacketOpcode, WorldUpdate } from '@ecs/plugins/net/components/Packet';
-import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
@@ -17,11 +14,12 @@ import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import { any, makeQuery } from '@ecs/utils/QueryHelper';
-import Hockey, { PlayerColor, WorldSnapshot, WorldSnapshotEntity } from './spaces/Hockey';
+import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
+import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -65,25 +63,6 @@ const Assets = {
 	Puck: 'assets/hockey/puck.png'
 };
 
-class WorldSnapshotHandlerSystem<T extends {}> extends IterativeSystem {
-	protected connection: ClientConnectionSystem;
-	protected processSnapshot: (snapshot: T) => void;
-
-	constructor(connection: ClientConnectionSystem, processSnapshot: (snapshot: T) => void) {
-		super(makeQuery(any(Session)));
-
-		this.connection = connection;
-		this.processSnapshot = processSnapshot;
-	}
-
-	updateEntity(entity: Entity) {
-		const session = entity.get(Session);
-		const worldSnapshotsPackets = session.socket.handle<WorldUpdate<WorldSnapshot>>(PacketOpcode.WORLD);
-
-		worldSnapshotsPackets.forEach(this.processSnapshot.bind(this));
-	}
-}
-
 class ClientHockey extends Hockey {
 	protected async preload() {
 		return LoadPixiAssets(Assets);
@@ -108,13 +87,13 @@ class ClientHockey extends Hockey {
 
 		this.addEntities(hud.redScore, hud.blueScore);
 
-		const connectionSystem = this.getSystem(ClientConnectionSystem);
-
-		this.addSystem(new WorldSnapshotHandlerSystem(connectionSystem, this.processSnapshot.bind(this)));
+		this.addSystem(
+			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
+		);
 	}
 
-	processSnapshot({ snapshot }: WorldUpdate<WorldSnapshot>) {
-		const processEntity = (entity: Entity, snapshot: WorldSnapshotEntity) => {
+	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
+		const processEntity = (entity: Entity, snapshot: SnapshotEntity) => {
 			const physics = entity.get(PhysicsBody);
 
 			physics.position = {

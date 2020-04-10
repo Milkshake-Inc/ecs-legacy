@@ -8,8 +8,9 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
-import Hockey, { WorldSnapshot, WorldSnapshotEntity } from './spaces/Hockey';
-import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
+import Hockey, { Snapshot, SnapshotEntity } from './spaces/Hockey';
+import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
+import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -64,11 +65,19 @@ class ServerHockey extends Hockey {
 	setup() {
 		super.setup();
 
-		this.addSystem(new SnapshotCompositorSystem<WorldSnapshot>(this.connections, this.generateSnapshot.bind(this)));
+		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
+		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 	}
 
-	generateSnapshot(): WorldSnapshot {
-		const entitySnapshot = (entity: Entity): WorldSnapshotEntity => {
+	handlePlayerInput(entity: Entity, packet: PlayerInput) {
+		const physics = entity.get(PhysicsBody);
+		if (!physics) return;
+
+		// apply input to physics
+	}
+
+	generateSnapshot(): Snapshot {
+		const entitySnapshot = (entity: Entity): SnapshotEntity => {
 			const position = entity.get(Position);
 			const physics = entity.get(PhysicsBody);
 
