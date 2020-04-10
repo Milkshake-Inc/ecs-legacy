@@ -1,5 +1,8 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { System } from '@ecs/ecs/System';
+import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
+import Session from '@ecs/plugins/net/components/Session';
+import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
 import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
@@ -8,11 +11,8 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
-import Hockey, { Snapshot, SnapshotEntity, PlayerColor } from './spaces/Hockey';
-import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
-import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
+import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
-import Session from '@ecs/plugins/net/components/Session';
 import { InputHistory } from '@ecs/plugins/input/components/Input';
 
 export class NetEngine extends TickerEngine {
@@ -113,7 +113,7 @@ class ServerHockey extends Hockey {
 		};
 
 		return {
-			paddles: this.paddles.map(paddleSnapshot),
+			paddles: this.paddleQuery.entities.map(paddleSnapshot),
 			puck: entitySnapshot(this.puck)
 		};
 	}

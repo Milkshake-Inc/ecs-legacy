@@ -11,6 +11,8 @@ import Score from '../components/Score';
 import { Wall } from '../components/Wall';
 import MovementSystem from '../systems/MovementSystem';
 import PuckScoreSystem from '../systems/PuckScoreSystem';
+import { Query } from '@ecs/ecs/Query';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {
@@ -38,13 +40,14 @@ export type Snapshot = {
 export default class Hockey extends Space {
 	private score: Score;
 
-	protected paddles: Entity[];
+	protected paddleQuery: Query;
 	protected puck: Entity;
 
 	constructor(engine: Engine) {
 		super(engine, 'hockey');
 
-		this.paddles = [];
+		this.paddleQuery = makeQuery(all(Paddle));
+		engine.addQuery(this.paddleQuery);
 	}
 
 	setup() {
