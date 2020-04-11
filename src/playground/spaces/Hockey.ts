@@ -32,15 +32,35 @@ export type SnapshotEntity = {
 	velocity: { x: number; y: number };
 };
 
-export type Snapshot = {
-	paddles: (SnapshotEntity & { sessionId: string; color: PlayerColor })[];
-	puck: SnapshotEntity;
+export type PaddleSnapshotEntity = SnapshotEntity & {
+	sessionId: string;
+	color: PlayerColor;
 };
 
-export default class Hockey extends Space {
-	private score: Score;
+export type Snapshot = {
+	paddles: PaddleSnapshotEntity[];
+	puck: SnapshotEntity;
+	scores: {
+		red: number;
+		blue: number;
+	};
+};
 
+export const PlayerConfig = [
+	{
+		spawnPoint: { x: 100, y: 720 / 2 },
+		color: PlayerColor.Red
+	},
+	{
+		spawnPoint: { x: 1280 - 100, y: 720 / 2 },
+		color: PlayerColor.Blue
+	}
+];
+
+export default class Hockey extends Space {
 	protected paddleQuery: Query;
+	protected scoreQuery: Query;
+
 	protected puck: Entity;
 
 	constructor(engine: Engine) {
@@ -48,14 +68,18 @@ export default class Hockey extends Space {
 
 		this.paddleQuery = makeQuery(all(Paddle));
 		engine.addQuery(this.paddleQuery);
+
+		this.scoreQuery = makeQuery(all(Score));
+		engine.addQuery(this.scoreQuery);
 	}
 
 	setup() {
 		this.addSystem(new MovementSystem());
 		this.addSystem(new PhysicsSystem({ x: 0, y: 0, scale: 0 }));
-		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
 		this.puck = this.createPuck();
+
+		this.addEntity(new Entity().add(Score));
 
 		this.addEntities(this.puck, ...this.createWalls());
 	}
@@ -63,7 +87,6 @@ export default class Hockey extends Space {
 	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		entity.add(Position, spawnPosition);
 		entity.add(Moveable, { speed: 0.05 });
-		entity.add(Score);
 		entity.add(Paddle, { color: player });
 		entity.add(
 			PhysicsBody.circle(65, {
@@ -87,7 +110,6 @@ export default class Hockey extends Space {
 			})
 		);
 		puck.add(Puck);
-		puck.add((this.score = new Score()));
 		return puck;
 	}
 

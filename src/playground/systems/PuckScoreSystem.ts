@@ -6,14 +6,22 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import { Engine } from '@ecs/ecs/Engine';
+import { Query } from '@ecs/ecs/Query';
 
 export default class PuckScoreSystem extends IterativeSystem {
+	protected scoreQuery: Query;
+
 	protected bounds: { width: number; height: number };
 	protected padding: number;
 	protected spawnVelocity: number;
 
-	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
-		super(makeQuery(all(Position, PhysicsBody, Puck, Score)));
+	constructor(engine: Engine, bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
+		super(makeQuery(all(Position, PhysicsBody, Puck)));
+
+		// On added to engine better?
+		this.scoreQuery = makeQuery(all(Score));
+		engine.addQuery(this.scoreQuery);
 
 		this.bounds = bounds;
 		this.padding = padding;
@@ -22,7 +30,8 @@ export default class PuckScoreSystem extends IterativeSystem {
 
 	protected updateEntityFixed(entity: Entity, dt: number) {
 		const position = entity.get(Position);
-		const score = entity.get(Score);
+
+		const score = this.scoreQuery.entities[0].get(Score);
 
 		if (position.x > this.bounds.width + this.padding) {
 			score.red++;

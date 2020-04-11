@@ -25,6 +25,7 @@ import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import Score from './components/Score';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -161,7 +162,7 @@ class ClientHockey extends Hockey {
 
 				if (localEntity) {
 					console.log('Creating local player');
-					this.createPaddle(localEntity, snapshotPaddle.color, { x: 100, y: 100 });
+					this.createPaddle(localEntity, snapshotPaddle.color, snapshotPaddle.position);
 					localEntity.add(Input.WASD());
 					this.worldEngine.addEntity(localEntity);
 				} else {
@@ -177,6 +178,10 @@ class ClientHockey extends Hockey {
 		});
 
 		processEntity(this.puck, snapshot.puck);
+
+		const score = this.scoreQuery.entities[0].get(Score);
+
+		Object.assign(score, snapshot.scores);
 	}
 
 	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
