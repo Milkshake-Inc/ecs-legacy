@@ -1,11 +1,11 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { System } from '@ecs/ecs/System';
 import { InputHistory } from '@ecs/plugins/input/components/Input';
-import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
+import { PlayerInput } from '@ecs/plugins/net/components/Packet';
 import Session from '@ecs/plugins/net/components/Session';
 import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
 import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
+import { SnapshotCompositorSystem } from '@ecs/plugins/net/systems/ServerSnapshotCompositorSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import Position from '@ecs/plugins/Position';
 import Space from '@ecs/plugins/space/Space';
@@ -29,7 +29,7 @@ export class NetEngine extends TickerEngine {
 		this.server = geckosServer();
 
 		this.addSystem((this.connections = new ServerConnectionSystem(this, this.server)), 1000); // has to be low priority so systems get packets before the queue is cleared
-		this.addSystem(new ServerPingSystem(this.connections));
+		this.addSystem(new ServerPingSystem(this.tickRate, this.connections));
 
 		this.server.listen();
 	}
@@ -44,19 +44,6 @@ export class NetEngine extends TickerEngine {
 
 	protected getTime(): number {
 		return performance.now();
-	}
-}
-
-class SnapshotCompositorSystem<T extends {}> extends System {
-	constructor(protected connections: ServerConnectionSystem, protected generateSnapshot: () => T) {
-		super();
-	}
-
-	updateFixed(deltaTime: number) {
-		this.connections.broadcast({
-			opcode: PacketOpcode.WORLD,
-			snapshot: this.generateSnapshot()
-		});
 	}
 }
 

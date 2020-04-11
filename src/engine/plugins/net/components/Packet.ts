@@ -30,6 +30,7 @@ export type ServerSyncResult = {
 
 export type WorldSnapshot<T = {}> = {
 	opcode: PacketOpcode.WORLD;
+	tick: number;
 	snapshot: T;
 };
 
