@@ -91,6 +91,8 @@ class ClientHockey extends Hockey {
 
 		this.addEntities(background);
 
+		this.addSystem(new ClientInputSenderSystem());
+
 		super.setup();
 
 		// this.addSystem(new PhysicsRenderSystem(this));
@@ -104,8 +106,6 @@ class ClientHockey extends Hockey {
 		this.addSystem(
 			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
 		);
-
-		this.addSystem(new ClientInputSenderSystem());
 	}
 
 	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
@@ -143,7 +143,6 @@ class ClientHockey extends Hockey {
 			const hasLocalPaddleInSnapshot = snapshot.paddles.find(snapshot => snapshot.sessionId == sessionId);
 
 			if (!hasLocalPaddleInSnapshot) {
-				// We should remove from local
 				console.log('Player no longer in snapshot - Removing');
 				this.worldEngine.removeEntity(localPaddle);
 			}
@@ -173,19 +172,7 @@ class ClientHockey extends Hockey {
 					this.worldEngine.addEntity(newEntity);
 				}
 			} else {
-				// const locallyControlled = localPaddle.has(Session);
-
-				const body = localPaddle.get(PhysicsBody);
-
-				body.position = {
-					x: snapshotPaddle.position.x,
-					y: snapshotPaddle.position.y
-				};
-
-				body.velocity = {
-					x: snapshotPaddle.velocity.x,
-					y: snapshotPaddle.velocity.y
-				};
+				processEntity(localPaddle, snapshotPaddle);
 			}
 		});
 

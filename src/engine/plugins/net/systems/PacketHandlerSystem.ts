@@ -15,7 +15,7 @@ export class PacketHandlerSystem<T extends Packet> extends IterativeSystem {
 		this.handler = handler;
 	}
 
-	updateEntity(entity: Entity) {
+	updateEntityFixed(entity: Entity) {
 		const session = entity.get(Session);
 		const packets = session.socket.handle<T>(this.opcode);
 
