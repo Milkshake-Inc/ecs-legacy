@@ -20,19 +20,26 @@ export default class MovementSystem extends IterativeSystem {
 		// must be server
 		if (!input) {
 			const history = entity.get(InputHistory);
-			if (!history.inputs[session.serverTick]) {
-				return;
-			}
 
-			// set input from player history
-			input = history.inputs[session.serverTick];
+			if (history.inputs[session.serverTick]) {
+				// set input from player history
+				input = history.inputs[session.serverTick];
+			} else {
+				// Set the last sent input & reuse that
+				const keys = Object.keys(history.inputs);
+				const frame = keys.pop();
+				input = history.inputs[frame];
+				console.warn(`⚠️  Missing player input - using last input ${frame}`);
+			}
 		}
 
-		const left = input.leftDown ? 1 : 0;
-		const right = input.rightDown ? 1 : 0;
-		const down = input.downDown ? 1 : 0;
-		const up = input.upDown ? 1 : 0;
+		if (input) {
+			const left = input.leftDown ? 1 : 0;
+			const right = input.rightDown ? 1 : 0;
+			const down = input.downDown ? 1 : 0;
+			const up = input.upDown ? 1 : 0;
 
-		body.applyForce({ x: 0, y: 0 }, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) });
+			body.applyForce({ x: 0, y: 0 }, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) });
+		}
 	}
 }
