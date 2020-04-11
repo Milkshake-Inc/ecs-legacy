@@ -28,18 +28,30 @@ export default class PhysicsSystem extends IterativeSystem {
 		});
 	}
 
-	private entityFromBody(body: Body): Entity {
-		return this.entities.find(entity => entity.get(PhysicsBody).body == body);
+	public updateFixed(dt: number) {
+		this.clearCollisions();
+
+		Engine.update(this.engine, dt);
+
+		super.updateFixed(dt);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
 		const physicsBody = entity.get(PhysicsBody);
 		const position = entity.get(Position);
 
-		physicsBody.collisions = [];
-
 		position.x = physicsBody.body.position.x;
 		position.y = physicsBody.body.position.y;
+	}
+
+	private entityFromBody(body: Body): Entity {
+		return this.entities.find(entity => entity.get(PhysicsBody).body == body);
+	}
+
+	private clearCollisions() {
+		this.entities.forEach(entity => {
+			entity.get(PhysicsBody).collisions = [];
+		});
 	}
 
 	entityAdded = (snapshot: EntitySnapshot) => {
@@ -57,9 +69,4 @@ export default class PhysicsSystem extends IterativeSystem {
 	entityRemoved = (snapshot: EntitySnapshot) => {
 		World.remove(this.world, snapshot.get(PhysicsBody).body);
 	};
-
-	public updateFixed(dt: number) {
-		super.updateFixed(dt);
-		Engine.update(this.engine, dt);
-	}
 }
