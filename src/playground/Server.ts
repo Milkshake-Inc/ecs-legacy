@@ -14,6 +14,7 @@ import { performance } from 'perf_hooks';
 import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import { InputHistory } from '@ecs/plugins/input/components/Input';
+import { Paddle } from './components/Paddle';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -73,7 +74,8 @@ class ServerHockey extends Hockey {
 
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
-				this.createPaddle(entity, PlayerColor.Red, { x: 100, y: 100 });
+				const color: PlayerColor = this.paddleQuery.entities.length % 2;
+				this.createPaddle(entity, color, { x: 100, y: 100 });
 				entity.add(InputHistory);
 			})
 		);
@@ -102,12 +104,14 @@ class ServerHockey extends Hockey {
 			};
 		};
 
-		const paddleSnapshot = (entity: Entity): SnapshotEntity & { sessionId: string } => {
+		const paddleSnapshot = (entity: Entity): SnapshotEntity & { sessionId: string; color: PlayerColor } => {
 			const session = entity.get(Session);
+			const paddle = entity.get(Paddle);
 			const paddleSnap = entitySnapshot(entity);
 
 			return {
 				sessionId: session.id,
+				color: paddle.color,
 				...paddleSnap
 			};
 		};

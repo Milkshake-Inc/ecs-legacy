@@ -33,7 +33,7 @@ export type SnapshotEntity = {
 };
 
 export type Snapshot = {
-	paddles: (SnapshotEntity & { sessionId: string })[];
+	paddles: (SnapshotEntity & { sessionId: string; color: PlayerColor })[];
 	puck: SnapshotEntity;
 };
 
@@ -64,7 +64,7 @@ export default class Hockey extends Space {
 		entity.add(Position, spawnPosition);
 		entity.add(Moveable, { speed: 0.05 });
 		entity.add(Score);
-		entity.add(Paddle);
+		entity.add(Paddle, { color: player });
 		entity.add(
 			PhysicsBody.circle(65, {
 				mass: 10,
