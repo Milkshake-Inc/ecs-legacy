@@ -54,16 +54,22 @@ export default class PhysicsSystem extends IterativeSystem {
 		});
 	}
 
-	entityAdded = (snapshot: EntitySnapshot) => {
-		const body = snapshot.get(PhysicsBody);
-		const position = snapshot.get(Position);
+	entityAdded = ({ entity }: EntitySnapshot) => {
+		const body = entity.get(PhysicsBody);
+		const position = entity.get(Position);
 
 		body.position = {
 			x: position.x,
 			y: position.y
 		};
 
-		World.addBody(this.world, snapshot.get(PhysicsBody).body);
+		const alreadyHaveBody = this.world.bodies.includes(entity.get(PhysicsBody).body);
+
+		if (alreadyHaveBody) {
+			console.warn('Tried adding body twice');
+		}
+
+		World.addBody(this.world, entity.get(PhysicsBody).body);
 	};
 
 	entityRemoved = (snapshot: EntitySnapshot) => {
