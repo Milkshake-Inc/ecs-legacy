@@ -1,5 +1,6 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { System } from '@ecs/ecs/System';
+import { InputHistory } from '@ecs/plugins/input/components/Input';
 import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
 import Session from '@ecs/plugins/net/components/Session';
 import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
@@ -11,10 +12,11 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { performance } from 'perf_hooks';
-import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
-import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
-import { InputHistory } from '@ecs/plugins/input/components/Input';
 import { Paddle } from './components/Paddle';
+import Score from './components/Score';
+import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotEntity } from './spaces/Hockey';
+import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
+import PuckScoreSystem from './systems/PuckScoreSystem';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -72,10 +74,12 @@ class ServerHockey extends Hockey {
 		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 
+		this.addSystem(new PuckScoreSystem(this.worldEngine, { width: 1280, height: 720 }));
+
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
-				const color: PlayerColor = this.paddleQuery.entities.length % 2;
-				this.createPaddle(entity, color, { x: 100, y: 100 });
+				const config = PlayerConfig[this.paddleQuery.entities.length % 2];
+				this.createPaddle(entity, config.color, config.spawnPoint);
 				entity.add(InputHistory);
 			})
 		);
@@ -104,7 +108,7 @@ class ServerHockey extends Hockey {
 			};
 		};
 
-		const paddleSnapshot = (entity: Entity): SnapshotEntity & { sessionId: string; color: PlayerColor } => {
+		const paddleSnapshot = (entity: Entity): PaddleSnapshotEntity => {
 			const session = entity.get(Session);
 			const paddle = entity.get(Paddle);
 			const paddleSnap = entitySnapshot(entity);
@@ -116,9 +120,12 @@ class ServerHockey extends Hockey {
 			};
 		};
 
+		const score = this.scoreQuery.entities[0].get(Score);
+
 		return {
 			paddles: this.paddleQuery.entities.map(paddleSnapshot),
-			puck: entitySnapshot(this.puck)
+			puck: entitySnapshot(this.puck),
+			scores: score
 		};
 	}
 }
