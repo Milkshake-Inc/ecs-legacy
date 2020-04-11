@@ -29,6 +29,10 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		}
 	}
 
+	public disconnect(entity: Entity) {
+		this.handleDisconnection(entity);
+	}
+
 	protected handleConnection(socket: ServerChannel) {
 		console.log(`🔌 Socket connected ${socket.id}`);
 

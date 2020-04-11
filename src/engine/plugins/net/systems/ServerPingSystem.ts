@@ -10,7 +10,7 @@ export default class ServerPingSystem extends IterativeSystem {
 	private serverTime = 0;
 	private serverTick = 0;
 	private serverTickRateMs: number = 1000 / 60;
-	private serverPingInterval = 10000;
+	private serverPingInterval = 5000;
 	private timeSinceLastPing = 0;
 	private connections: ServerConnectionSystem;
 
@@ -49,6 +49,12 @@ export default class ServerPingSystem extends IterativeSystem {
 		const session = entity.get(Session);
 		session.serverTick = this.serverTick;
 		session.serverTime = this.serverTime;
+
+		if (session.lastPongResponse != -1 && performance.now() - session.lastPongResponse > this.serverPingInterval + 1000) {
+			console.log('Disconnecting player');
+			// We should send a disconnect packet to player...
+			this.connections.disconnect(entity);
+		}
 	}
 
 	protected entityAdded = (entity: EntitySnapshot) => {
@@ -61,6 +67,7 @@ export default class ServerPingSystem extends IterativeSystem {
 		session.socket.handleImmediate(packet => {
 			switch (packet.opcode) {
 				case PacketOpcode.CLIENT_SYNC_PONG: {
+					session.lastPongResponse = performance.now();
 					const rtt = performance.now() - packet.serverTime;
 					console.log(`⏱ Server estimated RTT: ${rtt}`);
 					session.socket.sendImmediate({
