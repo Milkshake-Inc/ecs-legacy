@@ -1,31 +1,22 @@
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { Query } from '@ecs/ecs/Query';
+import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
-import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import { EntitySnapshot, Entity } from '@ecs/ecs/Entity';
-import Session from '../components/Session';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import ServerConnectionSystem from './ServerConnectionSystem';
 import { ServerPingState } from '../components/ServerPingState';
-import { Engine } from '@ecs/ecs/Engine';
+import Session from '../components/Session';
+import { ServerConnectionState } from './ServerConnectionSystem';
 
-export default class ServerPingSystem extends IterativeSystem {
-	private connections: ServerConnectionSystem;
+type SeverPingSystemQueries = {
+	connection: Query;
+};
 
-	private state: ServerPingState;
-
-	constructor(tickRate: number, connections: ServerConnectionSystem, pingInterval = 5000) {
-		super(makeQuery(any(Session)));
-
-		// Maybe this constructor should force required vars
-		this.state = new ServerPingState();
-		this.state.serverTickRateMs = 1000 / tickRate;
-		this.state.serverPingInterval = pingInterval;
-
-		this.connections = connections;
-	}
-
-	public onAddedToEngine(engine: Engine) {
-		engine.addEntity(new Entity().add(this.state));
+export default class ServerPingSystem extends StatefulIterativeSystem<ServerPingState, SeverPingSystemQueries> {
+	constructor(tickRate: number, pingInterval = 5000) {
+		super(makeQuery(any(Session)), new ServerPingState(tickRate, pingInterval), {
+			connection: makeQuery(all(ServerConnectionState))
+		});
 	}
 
 	public update(deltaTime: number) {
@@ -36,7 +27,9 @@ export default class ServerPingSystem extends IterativeSystem {
 		if (this.state.timeSinceLastPing >= this.state.serverPingInterval) {
 			this.state.timeSinceLastPing = 0;
 
-			this.connections.broadcast(
+			const { broadcast } = this.queries.connection.first.get(ServerConnectionState);
+
+			broadcast(
 				{
 					opcode: PacketOpcode.SERVER_SYNC_PING,
 					serverTime: performance.now()
@@ -57,9 +50,11 @@ export default class ServerPingSystem extends IterativeSystem {
 
 		// Disconnect players that don't respond to ping
 		if (session.lastPongResponse != -1 && performance.now() - session.lastPongResponse > this.state.serverPingInterval + 1000) {
-			console.log('Disconnecting player');
+			console.log('Disconnecting player ' + (performance.now() - session.lastPongResponse));
+			console.log(this.state.serverPingInterval);
 			// We should send a disconnect packet to player...
-			this.connections.disconnect(entity);
+			const { disconnect } = this.queries.connection.first.get(ServerConnectionState);
+			disconnect(entity);
 		}
 	}
 
