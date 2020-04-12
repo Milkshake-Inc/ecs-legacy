@@ -4,18 +4,28 @@ import { Engine } from '@ecs/ecs/Engine';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
 import Session from '../components/Session';
 import { Packet } from '../components/Packet';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Socket from '../utils/Socket';
+import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
 
-export default class ServerConnectionSystem extends IterativeSystem {
+export class ServerConnectionState {
+	broadcast: ServerConnectionSystem['broadcast'];
+	disconnect: ServerConnectionSystem['disconnect'];
+
+	constructor() {}
+}
+
+export default class ServerConnectionSystem extends StatefulIterativeSystem<ServerConnectionState> {
 	private engine: Engine;
 	private server: GeckosServer;
 
 	constructor(engine: Engine, server: GeckosServer) {
-		super(makeQuery(any(Session)));
+		super(makeQuery(any(Session)), new ServerConnectionState());
 
 		this.engine = engine;
 		this.server = server;
+
+		this.state.broadcast = this.broadcast.bind(this);
+		this.state.disconnect = this.disconnect.bind(this);
 
 		this.server.onConnection(this.handleConnection.bind(this));
 
