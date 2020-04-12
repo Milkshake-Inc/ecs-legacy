@@ -29,7 +29,7 @@ export class NetEngine extends TickerEngine {
 		this.server = geckosServer();
 
 		this.addSystem((this.connections = new ServerConnectionSystem(this, this.server)), 1000); // has to be low priority so systems get packets before the queue is cleared
-		this.addSystem(new ServerPingSystem(this.tickRate, this.connections));
+		this.addSystem(new ServerPingSystem(this.tickRate));
 
 		this.server.listen();
 	}
