@@ -13,6 +13,7 @@ import { Puck } from '../components/Puck';
 import Score from '../components/Score';
 import { Wall } from '../components/Wall';
 import MovementSystem from '../systems/MovementSystem';
+import { Name } from '../components/Name';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {
@@ -34,6 +35,7 @@ export type SnapshotEntity = {
 
 export type PaddleSnapshotEntity = SnapshotEntity & {
 	sessionId: string;
+	name: string;
 	color: PlayerColor;
 };
 
@@ -82,10 +84,11 @@ export default class Hockey extends Space {
 		this.addEntities(this.puck, ...this.createWalls());
 	}
 
-	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
+	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		entity.add(Position, spawnPosition);
 		entity.add(Moveable, { speed: 0.05 });
 		entity.add(Paddle, { color: player });
+		entity.add(Name, { name });
 		entity.add(
 			PhysicsBody.circle(65, {
 				mass: 10,

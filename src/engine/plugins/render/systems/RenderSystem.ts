@@ -76,6 +76,9 @@ export default class RenderSystem extends IterativeSystem {
 
 			pixiSprite.text = sprite.text;
 			pixiSprite.tint = sprite.tint;
+			pixiSprite.align = sprite.align;
+			(pixiSprite.anchor as any).x = sprite.anchor.x;
+			(pixiSprite.anchor as any).y = sprite.anchor.y;
 
 			genericDisplayObjectUpdate(pixiSprite, sprite);
 		}
@@ -94,7 +97,7 @@ export default class RenderSystem extends IterativeSystem {
 			const pixiEmitter = this.emitters.get(emitter) as PixiParticleEmitter;
 			const emitterContainer = pixiEmitter.parent;
 
-			pixiEmitter.updateSpawnPos(position.x, position.y);
+			pixiEmitter.updateSpawnPos(position.x + emitter.offset.x, position.y + emitter.offset.y);
 			pixiEmitter.emit = emitter.emit;
 			emitterContainer.scale.set(emitter.scale.x, emitter.scale.y);
 			emitterContainer.zIndex = position.z;
@@ -116,7 +119,8 @@ export default class RenderSystem extends IterativeSystem {
 			const pixiBitmapText = new PixiText(bitmapText.text, {
 				fontFamily: bitmapText.font,
 				fontSize: bitmapText.size,
-				fill: bitmapText.tint
+				fill: bitmapText.tint,
+				align: bitmapText.align
 			} as PIXI.TextStyle);
 			pixiBitmapText.roundPixels = true;
 
