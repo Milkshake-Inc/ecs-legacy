@@ -169,13 +169,13 @@ class ClientHockey extends Hockey {
 
 				if (localEntity) {
 					console.log('Creating local player');
-					this.createPaddle(localEntity, snapshotPaddle.color, snapshotPaddle.position);
+					this.createPaddle(localEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
 					localEntity.add(Input.BOTH());
 				} else {
 					const newEntity = new Entity();
 					console.log('Creating remote player!');
 					newEntity.add(RemoteSession, { id: snapshotPaddle.sessionId });
-					this.createPaddle(newEntity, snapshotPaddle.color, snapshotPaddle.position);
+					this.createPaddle(newEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
 					this.worldEngine.addEntity(newEntity);
 				}
 			} else {
@@ -189,10 +189,11 @@ class ClientHockey extends Hockey {
 		Object.assign(score, snapshot.scores);
 	}
 
-	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
-		super.createPaddle(entity, player, spawnPosition);
+	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
+		super.createPaddle(entity, name, player, spawnPosition);
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
-		entity.add(SparksTrail());
+		entity.add(SparksTrail(), { offset: Vector2.EQUAL(-50) });
+		entity.add(BitmapText, { text: name });
 	}
 
 	createPuck(): Entity {
@@ -205,11 +206,11 @@ class ClientHockey extends Hockey {
 
 	hud(): Hud {
 		const redScore = new Entity();
-		redScore.add(Position, { x: 1280 / 2 - 80, y: 5, z: 10 });
+		redScore.add(Position, { x: 1280 / 2 - 50, y: 30, z: 10 });
 		redScore.add(BitmapText, { text: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
-		blueScore.add(Position, { x: 1280 / 2 + 50, y: 5, z: 10 });
+		blueScore.add(Position, { x: 1280 / 2 + 50, y: 30, z: 10 });
 		blueScore.add(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };

@@ -17,6 +17,8 @@ import Score from './components/Score';
 import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
+import { allRandom } from 'dog-names';
+import { Name } from './components/Name';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -66,7 +68,7 @@ class ServerHockey extends Hockey {
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
 				const config = PlayerConfig[this.paddleQuery.entities.length % 2];
-				this.createPaddle(entity, config.color, config.spawnPoint);
+				this.createPaddle(entity, allRandom(), config.color, config.spawnPoint);
 				entity.add(InputHistory);
 			})
 		);
@@ -98,10 +100,12 @@ class ServerHockey extends Hockey {
 		const paddleSnapshot = (entity: Entity): PaddleSnapshotEntity => {
 			const session = entity.get(Session);
 			const paddle = entity.get(Paddle);
+			const name = entity.get(Name).name;
 			const paddleSnap = entitySnapshot(entity);
 
 			return {
 				sessionId: session.id,
+				name,
 				color: paddle.color,
 				...paddleSnap
 			};
