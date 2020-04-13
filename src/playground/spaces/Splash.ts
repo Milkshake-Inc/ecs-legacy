@@ -6,7 +6,7 @@ import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import Vector2 from '@ecs/math/Vector2';
 
 const Assets = {
-	SplashBackground: 'assets/splash/background.png',
+	SplashBackground: 'assets/splash/background.png'
 };
 
 export default class Splash extends Space {
@@ -19,7 +19,7 @@ export default class Splash extends Space {
 		background.add(Position);
 		background.add(Sprite, {
 			imageUrl: Assets.SplashBackground,
-			anchor: Vector2.ZERO,
+			anchor: Vector2.ZERO
 		});
 		this.addEntity(background);
 	}

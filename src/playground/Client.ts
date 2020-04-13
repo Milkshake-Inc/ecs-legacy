@@ -26,7 +26,6 @@ import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import Score from './components/Score';
-import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
 import { SparksTrail } from './components/Emitters';
 
 class PixiEngine extends TickerEngine {
@@ -68,7 +67,8 @@ const Assets = {
 	Background: 'assets/hockey/background.png',
 	RedPaddle: 'assets/hockey/red.png',
 	BluePaddle: 'assets/hockey/blue.png',
-	Puck: 'assets/hockey/puck.png'
+	Puck: 'assets/hockey/puck.png',
+	Scoreboard: 'assets/hockey/scoreboard.png'
 };
 
 class ClientHockey extends Hockey {
@@ -99,18 +99,21 @@ class ClientHockey extends Hockey {
 
 		this.addSystem(new PuckSoundSystem());
 
-		const hud = this.hud();
-		this.addSystem(new HudSystem(hud));
-
-		this.addEntities(hud.redScore, hud.blueScore);
-
 		this.addEntity(new Entity().add(Score));
 
 		this.addSystem(
 			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
 		);
 
-		this.addSystem(new PhysicsRenderSystem());
+		const scoreboard = new Entity();
+		scoreboard.add(Position, { x: 1280 / 2, z: 10 });
+		scoreboard.add(Sprite, { imageUrl: Assets.Scoreboard, anchor: new Vector2(0.5, 0) });
+		this.addEntities(scoreboard);
+
+		const hud = this.hud();
+		this.addEntities(hud.redScore, hud.blueScore);
+
+		this.addSystem(new HudSystem(hud));
 	}
 
 	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
@@ -202,11 +205,11 @@ class ClientHockey extends Hockey {
 
 	hud(): Hud {
 		const redScore = new Entity();
-		redScore.add(Position, { x: 50, y: 50 });
+		redScore.add(Position, { x: 1280 / 2 - 80, y: 5, z: 10 });
 		redScore.add(BitmapText, { text: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
-		blueScore.add(Position, { x: 1280 - 80, y: 50 });
+		blueScore.add(Position, { x: 1280 / 2 + 50, y: 5, z: 10 });
 		blueScore.add(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };
