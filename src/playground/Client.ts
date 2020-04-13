@@ -167,7 +167,7 @@ class ClientHockey extends Hockey {
 				if (localEntity) {
 					console.log('Creating local player');
 					this.createPaddle(localEntity, snapshotPaddle.color, snapshotPaddle.position);
-					localEntity.add(Input.WASD());
+					localEntity.add(Input.BOTH());
 					this.worldEngine.addEntity(localEntity);
 				} else {
 					const newEntity = new Entity();
