@@ -50,6 +50,7 @@ export default class PuckScoreSystem extends StatefulIterativeSystem<Score, Puck
 
 		if (serverEmpty && (score.blue != 0 || score.red != 0)) {
 			this.resetScore();
+			this.resetPuck(entity);
 			console.log('No players - reset score');
 		}
 	}
