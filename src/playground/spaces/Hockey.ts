@@ -79,8 +79,6 @@ export default class Hockey extends Space {
 
 		this.puck = this.createPuck();
 
-		this.addEntity(new Entity().add(Score));
-
 		this.addEntities(this.puck, ...this.createWalls());
 	}
 

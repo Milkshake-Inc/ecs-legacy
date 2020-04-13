@@ -1,32 +1,27 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { Query } from '@ecs/ecs/Query';
 import Random from '@ecs/math/Random';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { Paddle } from '../components/Paddle';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
-import { Engine } from '@ecs/ecs/Engine';
-import { Query } from '@ecs/ecs/Query';
-import { Paddle } from '../components/Paddle';
 
-export default class PuckScoreSystem extends IterativeSystem {
-	protected scoreQuery: Query;
-	protected paddlesQuery: Query;
+type PuckScoreSystemQueries = {
+	paddles: Query;
+};
 
+export default class PuckScoreSystem extends StatefulIterativeSystem<Score, PuckScoreSystemQueries> {
 	protected bounds: { width: number; height: number };
 	protected padding: number;
 	protected spawnVelocity: number;
 
-	constructor(engine: Engine, bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
-		super(makeQuery(all(Position, PhysicsBody, Puck)));
-
-		// On added to engine better?
-		this.scoreQuery = makeQuery(all(Score));
-		engine.addQuery(this.scoreQuery);
-
-		this.paddlesQuery = makeQuery(all(Paddle));
-		engine.addQuery(this.paddlesQuery);
+	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
+		super(makeQuery(all(Position, PhysicsBody, Puck)), new Score(), {
+			paddles: makeQuery(all(Paddle))
+		});
 
 		this.bounds = bounds;
 		this.padding = padding;
@@ -36,9 +31,9 @@ export default class PuckScoreSystem extends IterativeSystem {
 	protected updateEntityFixed(entity: Entity, dt: number) {
 		const position = entity.get(Position);
 
-		const score = this.scoreQuery.entities[0].get(Score);
-		const serverEmpty = this.paddlesQuery.entities.length == 0;
-		const canScore = this.paddlesQuery.entities.length > 1;
+		const score = this.state;
+		const serverEmpty = this.queries.paddles.entities.length == 0;
+		const canScore = this.queries.paddles.entities.length > 0;
 
 		if (position.x > this.bounds.width + this.padding) {
 			if (canScore) score.red++;
@@ -54,9 +49,8 @@ export default class PuckScoreSystem extends IterativeSystem {
 		}
 
 		if (serverEmpty && (score.blue != 0 || score.red != 0)) {
-			score.blue = 0;
-			score.red = 0;
-			console.log('No players reseting');
+			this.resetScore();
+			console.log('No players - reset score');
 		}
 	}
 
@@ -72,5 +66,10 @@ export default class PuckScoreSystem extends IterativeSystem {
 			x: Random.bool() ? -this.spawnVelocity : this.spawnVelocity,
 			y: Random.bool() ? -this.spawnVelocity : this.spawnVelocity
 		};
+	}
+
+	private resetScore() {
+		this.state.red = 0;
+		this.state.blue = 0;
 	}
 }

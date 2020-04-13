@@ -61,7 +61,7 @@ class ServerHockey extends Hockey {
 		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 
-		this.addSystem(new PuckScoreSystem(this.worldEngine, { width: 1280, height: 720 }));
+		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
