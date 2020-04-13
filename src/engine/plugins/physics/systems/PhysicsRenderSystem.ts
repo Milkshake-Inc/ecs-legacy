@@ -27,9 +27,11 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 	protected world: World;
 	protected graphics: Graphics;
 
-	constructor(engine: Engine) {
+	constructor() {
 		super(makeQuery());
+	}
 
+	onAddedToEngine(engine: Engine) {
 		const physicsSystem = engine.getSystem(PhysicsSystem);
 		if (!physicsSystem) {
 			throw new Error('no physics system in engine');

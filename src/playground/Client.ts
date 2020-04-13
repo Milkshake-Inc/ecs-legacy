@@ -26,6 +26,7 @@ import Splash from './spaces/Splash';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import Score from './components/Score';
+import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -96,7 +97,6 @@ class ClientHockey extends Hockey {
 
 		super.setup();
 
-		// this.addSystem(new PhysicsRenderSystem(this));
 		this.addSystem(new PuckSoundSystem());
 
 		const hud = this.hud();
@@ -107,6 +107,8 @@ class ClientHockey extends Hockey {
 		this.addSystem(
 			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
 		);
+
+		this.addSystem(new PhysicsRenderSystem());
 	}
 
 	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
