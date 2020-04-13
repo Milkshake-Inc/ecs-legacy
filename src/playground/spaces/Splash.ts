@@ -1,14 +1,12 @@
-import Space from '@ecs/plugins/space/Space';
-import Position from '@ecs/plugins/Position';
 import { Entity } from '@ecs/ecs/Entity';
-import Vector2 from '@ecs/math/Vector2';
+import Position from '@ecs/plugins/Position';
 import Sprite from '@ecs/plugins/render/components/Sprite';
+import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
+import Vector2 from '@ecs/math/Vector2';
 
 const Assets = {
-	Stars: 'assets/splash/stars.png',
-	Moon: 'assets/splash/moon.png',
-	World: 'assets/splash/world.png'
+	SplashBackground: 'assets/splash/background.png',
 };
 
 export default class Splash extends Space {
@@ -20,19 +18,9 @@ export default class Splash extends Space {
 		const background = new Entity();
 		background.add(Position);
 		background.add(Sprite, {
-			imageUrl: Assets.Stars,
-			anchor: Vector2.ZERO
+			imageUrl: Assets.SplashBackground,
+			anchor: Vector2.ZERO,
 		});
 		this.addEntity(background);
-
-		const moon = new Entity();
-		moon.add(new Position(200, 180));
-		moon.add(new Sprite(Assets.Moon));
-		this.addEntity(moon);
-
-		const earth = new Entity();
-		earth.add(new Position(1280 / 2, 1000));
-		earth.add(new Sprite(Assets.World));
-		this.addEntity(earth);
 	}
 }

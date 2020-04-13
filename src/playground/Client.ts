@@ -221,6 +221,6 @@ engine.getSpace('splash').open();
 setTimeout(() => {
 	engine.getSpace('splash').close();
 	engine.getSpace('hockey').open();
-}, 500);
+}, 1000);
 
 console.log('🎉 Client');
