@@ -42,7 +42,8 @@ module.exports = {
 					'Collinear',
 					'Centre',
 					'Stateful',
-					'Decomp'
+					'Decomp',
+					'func'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
