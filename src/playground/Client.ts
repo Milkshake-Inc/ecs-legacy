@@ -183,8 +183,7 @@ class ClientHockey extends Hockey {
 
 		processEntity(this.puck, snapshot.puck);
 
-		const score = this.scoreQuery.entities[0].get(Score);
-
+		const score = this.scoreQuery.first.get(Score);
 		Object.assign(score, snapshot.scores);
 	}
 
