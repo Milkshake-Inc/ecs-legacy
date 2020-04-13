@@ -29,7 +29,7 @@ export default class MovementSystem extends IterativeSystem {
 				const keys = Object.keys(history.inputs);
 				const frame = keys.pop();
 				input = history.inputs[frame];
-				console.warn(`⚠️  Missing player input - using last input ${frame}`);
+				// console.warn(`⚠️  Missing player input - using last input ${frame}`);
 			}
 		}
 
