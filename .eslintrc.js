@@ -41,7 +41,8 @@ module.exports = {
 					'Chamferable',
 					'Collinear',
 					'Centre',
-					'Stateful'
+					'Stateful',
+					'Decomp'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

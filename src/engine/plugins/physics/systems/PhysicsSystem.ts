@@ -5,6 +5,9 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Body, Engine, Events, World } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
 import { CollisionEvent } from './PhysicsCollisionSystem';
+import { injectPolyDecomp } from '../utils/PhysicsUtils';
+
+injectPolyDecomp();
 
 export default class PhysicsSystem extends IterativeSystem {
 	public readonly engine: Engine;
@@ -45,7 +48,11 @@ export default class PhysicsSystem extends IterativeSystem {
 	}
 
 	private entityFromBody(body: Body): Entity {
-		return this.entities.find(entity => entity.get(PhysicsBody).body == body);
+		return this.entities.find(entity => {
+			const physicsBody = entity.get(PhysicsBody);
+
+			return physicsBody.body == body || physicsBody.parts.includes(body);
+		});
 	}
 
 	private clearCollisions() {

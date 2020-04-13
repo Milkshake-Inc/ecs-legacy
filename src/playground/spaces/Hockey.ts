@@ -1,18 +1,18 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { Query } from '@ecs/ecs/Query';
+import MathHelper from '@ecs/math/MathHelper';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import Position from '@ecs/plugins/Position';
 import Space from '@ecs/plugins/space/Space';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import Moveable from '../components/Moveable';
 import { Paddle } from '../components/Paddle';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
 import { Wall } from '../components/Wall';
 import MovementSystem from '../systems/MovementSystem';
-import PuckScoreSystem from '../systems/PuckScoreSystem';
-import { Query } from '@ecs/ecs/Query';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {
@@ -124,7 +124,57 @@ export default class Hockey extends Space {
 		const rightGoal = this.createGoal(1280 - 5, 192 + 336 / 2);
 		const leftGoal = this.createGoal(5, 192 + 336 / 2);
 
-		return [top, bottom, rightTop, rightBottom, leftTop, leftBottom, leftGoal, rightGoal];
+		const dist = 30;
+
+		const topLeftCorner = this.createCorner(dist, dist, 180);
+		const topRightCorner = this.createCorner(1280 - dist, dist, 270);
+		const bottomRightCorner = this.createCorner(1280 - dist, 720 - dist, 0);
+		const bottomLeftCorner = this.createCorner(dist, 720 - dist, 90);
+
+		return [
+			top,
+			bottom,
+			rightTop,
+			rightBottom,
+			leftTop,
+			leftBottom,
+			leftGoal,
+			rightGoal,
+			topLeftCorner,
+			topRightCorner,
+			bottomRightCorner,
+			bottomLeftCorner
+		];
+	}
+
+	createCorner(x: number, y: number, rotation = 0, angle = 90, size = 100, amount = 10) {
+		const anglePerAmount = angle / amount;
+
+		const points = [];
+
+		const halfAngle = angle / 2;
+
+		for (let index = 0; index < amount + 1; index++) {
+			points.push({
+				x: Math.cos(MathHelper.toRadians(rotation + index * anglePerAmount)) * size,
+				y: Math.sin(MathHelper.toRadians(rotation + index * anglePerAmount)) * size
+			});
+		}
+
+		points.push({
+			x: Math.cos(MathHelper.toRadians(rotation + halfAngle)) * (size * 1.5),
+			y: Math.sin(MathHelper.toRadians(rotation + halfAngle)) * (size * 1.5)
+		});
+
+		return new Entity()
+			.add(Position, { x, y })
+			.add(Wall)
+			.add(
+				PhysicsBody.fromVertices(points, {
+					isStatic: true,
+					collisionFilter: { category: CollisionCategory.Wall, mask: CollisionCategory.Player | CollisionCategory.Puck }
+				})
+			);
 	}
 
 	createWall(x: number, y: number, width: number, height): Entity {
