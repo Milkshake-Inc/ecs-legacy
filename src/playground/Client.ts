@@ -168,13 +168,11 @@ class ClientHockey extends Hockey {
 					console.log('Creating local player');
 					this.createPaddle(localEntity, snapshotPaddle.color, snapshotPaddle.position);
 					localEntity.add(Input.BOTH());
-					this.worldEngine.addEntity(localEntity);
 				} else {
 					const newEntity = new Entity();
 					console.log('Creating remote player!');
 					newEntity.add(RemoteSession, { id: snapshotPaddle.sessionId });
 					this.createPaddle(newEntity, snapshotPaddle.color, snapshotPaddle.position);
-					this.worldEngine.addEntity(newEntity);
 				}
 			} else {
 				processEntity(localPaddle, snapshotPaddle);
