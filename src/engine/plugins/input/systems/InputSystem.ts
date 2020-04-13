@@ -23,11 +23,11 @@ export class InputSystem extends IterativeSystem {
 	protected updateEntity(entity: Entity, dt: number) {
 		const input = entity.get(Input);
 
-		input.rightDown = this.keyboard.isDown(input.rightKeybinding);
-		input.leftDown = this.keyboard.isDown(input.leftKeybinding);
+		input.rightDown = this.keyboard.isEitherDown(input.rightKeybinding);
+		input.leftDown = this.keyboard.isEitherDown(input.leftKeybinding);
 
-		input.upDown = this.keyboard.isDown(input.upKeybinding);
-		input.downDown = this.keyboard.isDown(input.downKeybinding);
+		input.upDown = this.keyboard.isEitherDown(input.upKeybinding);
+		input.downDown = this.keyboard.isEitherDown(input.downKeybinding);
 
 		input.jumpDown = this.keyboard.isDown(Key.SPACEBAR) || this.keyboard.isDown(Key.W);
 		input.fireDown = this.keyboard.isDown(Key.E);
