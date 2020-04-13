@@ -27,6 +27,7 @@ import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import Score from './components/Score';
 import PhysicsRenderSystem from '@ecs/plugins/physics/systems/PhysicsRenderSystem';
+import { SparksTrail } from './components/Emitters';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -90,7 +91,6 @@ class ClientHockey extends Hockey {
 		const background = new Entity();
 		background.add(Position);
 		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
-
 		this.addEntities(background);
 
 		this.addSystem(new ClientInputSenderSystem());
@@ -188,8 +188,8 @@ class ClientHockey extends Hockey {
 
 	createPaddle(entity: Entity, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		super.createPaddle(entity, player, spawnPosition);
-
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
+		entity.add(SparksTrail());
 	}
 
 	createPuck(): Entity {

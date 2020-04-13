@@ -16,16 +16,19 @@ import {
 import DisplayObject from '../components/DisplayObject';
 import Sprite from '../components/Sprite';
 import BitmapText from '../components/BitmapText';
+import ParticleEmitter from '../components/ParticleEmitter';
+import { Emitter as PixiParticleEmitter } from 'pixi-particles';
 
 export default class RenderSystem extends IterativeSystem {
 	public application: Application;
 
 	public container: Container;
 
-	displayObjects: Map<DisplayObject, PixiDisplayObject>;
+	protected displayObjects: Map<DisplayObject, PixiDisplayObject> = new Map();
+	protected emitters: Map<ParticleEmitter, PixiParticleEmitter> = new Map();
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
-		super(makeQuery(all(Position), any(Sprite, BitmapText, Graphics)));
+		super(makeQuery(all(Position), any(Sprite, BitmapText, Graphics, ParticleEmitter)));
 
 		this.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
@@ -40,8 +43,6 @@ export default class RenderSystem extends IterativeSystem {
 		this.application.stage.addChild((this.container = new Container()));
 		this.container.scale.set(scale, scale);
 		this.container.sortableChildren = true;
-
-		this.displayObjects = new Map();
 
 		document.body.appendChild(this.application.view);
 	}
@@ -85,21 +86,32 @@ export default class RenderSystem extends IterativeSystem {
 
 			graphics.position.set(position.x, position.y);
 		}
+
+		if (entity.has(ParticleEmitter)) {
+			const emitter = entity.get(ParticleEmitter);
+			const position = entity.get(Position);
+
+			const pixiEmitter = this.emitters.get(emitter) as PixiParticleEmitter;
+			const emitterContainer = pixiEmitter.parent;
+
+			pixiEmitter.updateSpawnPos(position.x, position.y);
+			pixiEmitter.emit = emitter.emit;
+			emitterContainer.scale.set(emitter.scale.x, emitter.scale.y);
+			emitterContainer.zIndex = position.z;
+		}
 	}
 
-	entityAdded = (snapshot: EntitySnapshot) => {
-		if (snapshot.has(Sprite)) {
-			const sprite = snapshot.get(Sprite);
+	onComponentAdded = (entity: Entity) => {
+		if (entity.has(Sprite) && !this.displayObjects.has(entity.get(Sprite))) {
+			const sprite = entity.get(Sprite);
 			const pixiSprite = new PixiSprite(new Texture(BaseTexture.from(sprite.imageUrl), sprite.frame));
 
 			this.displayObjects.set(sprite, pixiSprite);
 			this.container.addChild(pixiSprite);
-
-			this.updateEntity(snapshot.entity);
 		}
 
-		if (snapshot.has(BitmapText)) {
-			const bitmapText = snapshot.get(BitmapText);
+		if (entity.has(BitmapText) && !this.displayObjects.has(entity.get(BitmapText))) {
+			const bitmapText = entity.get(BitmapText);
 
 			const pixiBitmapText = new PixiText(bitmapText.text, {
 				fontFamily: bitmapText.font,
@@ -110,30 +122,73 @@ export default class RenderSystem extends IterativeSystem {
 
 			this.displayObjects.set(bitmapText, pixiBitmapText);
 			this.container.addChild(pixiBitmapText);
-
-			this.updateEntity(snapshot.entity);
 		}
 
-		if (snapshot.has(Graphics)) {
-			const graphics = snapshot.get(Graphics);
+		if (entity.has(Graphics) && !this.container.children.includes(entity.get(Graphics))) {
+			const graphics = entity.get(Graphics);
 
-			// this.displayObjects.set(graphics, graphics);
 			this.container.addChild(graphics);
 		}
+
+		if (entity.has(ParticleEmitter) && !this.emitters.has(entity.get(ParticleEmitter))) {
+			const emitter = entity.get(ParticleEmitter);
+			const pixiParticleContainer = new Container();
+			const pixiEmitter = new PixiParticleEmitter(
+				pixiParticleContainer,
+				emitter.textures.map(t => Texture.from(t)),
+				emitter.config
+			);
+
+			this.emitters.set(emitter, pixiEmitter);
+			this.container.addChild(pixiParticleContainer);
+		}
+
+		this.updateEntity(entity);
+	};
+
+	entityAdded = (snapshot: EntitySnapshot) => {
+		snapshot.entity.onComponentAdded.connect(this.onComponentAdded.bind(this));
+		this.onComponentAdded(snapshot.entity);
 	};
 
 	entityRemoved = (snapshot: EntitySnapshot) => {
+		snapshot.entity.onComponentRemoved.disconnect(this.onComponentAdded.bind(this));
+
 		if (snapshot.has(Sprite)) {
 			const sprite = snapshot.get(Sprite);
 
 			this.container.removeChild(this.displayObjects.get(sprite));
 			this.displayObjects.delete(sprite);
 		}
+
+		if (snapshot.has(BitmapText)) {
+			const text = snapshot.get(BitmapText);
+
+			this.container.removeChild(this.displayObjects.get(text));
+			this.displayObjects.delete(text);
+		}
+
+		if (snapshot.has(Graphics)) {
+			const graphics = snapshot.get(Graphics);
+
+			this.container.removeChild(graphics);
+		}
+
+		if (snapshot.has(ParticleEmitter)) {
+			const emitter = snapshot.get(ParticleEmitter);
+
+			this.container.removeChild(this.emitters.get(emitter).parent);
+			this.emitters.delete(emitter);
+		}
 	};
 
 	public update(dt: number) {
 		super.update(dt);
 		this.application.render();
+
+		for (const emitter of this.emitters.values()) {
+			emitter.update(dt * 0.001);
+		}
 	}
 
 	onRemovedFromEngine() {
