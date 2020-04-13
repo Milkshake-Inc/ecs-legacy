@@ -105,6 +105,7 @@ export default class Hockey extends Space {
 			PhysicsBody.circle(40, {
 				mass: 1,
 				restitution: 0.9,
+				frictionAir: 0.005,
 				inertia: Infinity,
 				collisionFilter: { category: CollisionCategory.Puck, mask: CollisionCategory.Wall | CollisionCategory.Player }
 			})
