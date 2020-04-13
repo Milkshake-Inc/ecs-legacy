@@ -104,6 +104,8 @@ class ClientHockey extends Hockey {
 
 		this.addEntities(hud.redScore, hud.blueScore);
 
+		this.addEntity(new Entity().add(Score));
+
 		this.addSystem(
 			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
 		);
