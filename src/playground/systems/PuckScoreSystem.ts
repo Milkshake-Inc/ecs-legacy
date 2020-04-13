@@ -8,9 +8,11 @@ import Score from '../components/Score';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import { Engine } from '@ecs/ecs/Engine';
 import { Query } from '@ecs/ecs/Query';
+import { Paddle } from '../components/Paddle';
 
 export default class PuckScoreSystem extends IterativeSystem {
 	protected scoreQuery: Query;
+	protected paddlesQuery: Query;
 
 	protected bounds: { width: number; height: number };
 	protected padding: number;
@@ -23,6 +25,9 @@ export default class PuckScoreSystem extends IterativeSystem {
 		this.scoreQuery = makeQuery(all(Score));
 		engine.addQuery(this.scoreQuery);
 
+		this.paddlesQuery = makeQuery(all(Paddle));
+		engine.addQuery(this.paddlesQuery);
+
 		this.bounds = bounds;
 		this.padding = padding;
 		this.spawnVelocity = spawnVelocity;
@@ -32,18 +37,26 @@ export default class PuckScoreSystem extends IterativeSystem {
 		const position = entity.get(Position);
 
 		const score = this.scoreQuery.entities[0].get(Score);
+		const serverEmpty = this.paddlesQuery.entities.length == 0;
+		const canScore = this.paddlesQuery.entities.length > 1;
 
 		if (position.x > this.bounds.width + this.padding) {
-			score.red++;
+			if (canScore) score.red++;
 			this.resetPuck(entity);
 		}
 		if (position.x < 0 - this.padding) {
-			score.blue++;
+			if (canScore) score.blue++;
 			this.resetPuck(entity);
 		}
 
 		if (position.y < 0 || position.y > this.bounds.height) {
 			this.resetPuck(entity);
+		}
+
+		if (serverEmpty && (score.blue != 0 || score.red != 0)) {
+			score.blue = 0;
+			score.red = 0;
+			console.log('No players reseting');
 		}
 	}
 
