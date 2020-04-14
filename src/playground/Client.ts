@@ -3,16 +3,11 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
-import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import { WorldSnapshot } from '@ecs/plugins/net/components/Packet';
-import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
-import { WorldSnapshotHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import Position from '@ecs/plugins/Position';
 import BitmapText from '@ecs/plugins/render/components/BitmapText';
 import Sprite from '@ecs/plugins/render/components/Sprite';
@@ -21,12 +16,13 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import Hockey, { PlayerColor, Snapshot, SnapshotEntity } from './spaces/Hockey';
+import { SparksTrail } from './components/Emitters';
+import Score from './components/Score';
+import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
+import { HockeySnapshotSyncSystem } from './systems/HockeySnapshotSyncSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import Score from './components/Score';
-import { SparksTrail } from './components/Emitters';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -71,7 +67,7 @@ const Assets = {
 	Scoreboard: 'assets/hockey/scoreboard.png'
 };
 
-class ClientHockey extends Hockey {
+export class ClientHockey extends Hockey {
 	protected sessionQuery: Query;
 
 	constructor(engine: Engine) {
@@ -101,9 +97,7 @@ class ClientHockey extends Hockey {
 
 		this.addEntity(new Entity().add(Score));
 
-		this.addSystem(
-			new WorldSnapshotHandlerSystem<Snapshot>((e, p) => this.processSnapshot(p))
-		);
+		this.addSystem(new HockeySnapshotSyncSystem(this.worldEngine, this.createPaddle.bind(this)));
 
 		const scoreboard = new Entity();
 		scoreboard.add(Position, { x: 1280 / 2, z: 10 });
@@ -114,79 +108,6 @@ class ClientHockey extends Hockey {
 		this.addEntities(hud.redScore, hud.blueScore);
 
 		this.addSystem(new HudSystem(hud));
-	}
-
-	processSnapshot({ snapshot }: WorldSnapshot<Snapshot>) {
-		const processEntity = (entity: Entity, snapshot: SnapshotEntity) => {
-			const physics = entity.get(PhysicsBody);
-
-			physics.position = {
-				x: snapshot.position.x,
-				y: snapshot.position.y
-			};
-
-			physics.velocity = {
-				x: snapshot.velocity.x,
-				y: snapshot.velocity.y
-			};
-		};
-
-		const getSessionId = (entity: Entity): string => {
-			if (entity.has(Session)) {
-				const session = entity.get(Session);
-				return session.id;
-			}
-
-			if (entity.has(RemoteSession)) {
-				const session = entity.get(RemoteSession);
-				return session.id;
-			}
-
-			return '';
-		};
-
-		this.paddleQuery.entities.filter(localPaddle => {
-			const sessionId = getSessionId(localPaddle);
-
-			const hasLocalPaddleInSnapshot = snapshot.paddles.find(snapshot => snapshot.sessionId == sessionId);
-
-			if (!hasLocalPaddleInSnapshot) {
-				console.log('Player no longer in snapshot - Removing');
-				this.worldEngine.removeEntity(localPaddle);
-			}
-		});
-
-		snapshot.paddles.forEach(snapshotPaddle => {
-			const localPaddle = this.paddleQuery.entities.find(entity => {
-				const sessionId = getSessionId(entity);
-				return sessionId == snapshotPaddle.sessionId;
-			});
-
-			if (!localPaddle) {
-				const localEntity = this.sessionQuery.entities.find(entity => {
-					return entity.get(Session).id == snapshotPaddle.sessionId;
-				});
-
-				if (localEntity) {
-					console.log('Creating local player');
-					this.createPaddle(localEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
-					localEntity.add(Input.BOTH());
-				} else {
-					const newEntity = new Entity();
-					console.log('Creating remote player!');
-					newEntity.add(RemoteSession, { id: snapshotPaddle.sessionId });
-					this.createPaddle(newEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
-					this.worldEngine.addEntity(newEntity);
-				}
-			} else {
-				processEntity(localPaddle, snapshotPaddle);
-			}
-		});
-
-		processEntity(this.puck, snapshot.puck);
-
-		const score = this.scoreQuery.first.get(Score);
-		Object.assign(score, snapshot.scores);
 	}
 
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
