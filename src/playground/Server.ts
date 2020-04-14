@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { InputHistory } from '@ecs/plugins/input/components/Input';
+import Input, { InputHistory } from '@ecs/plugins/input/components/Input';
 import { PlayerInput } from '@ecs/plugins/net/components/Packet';
 import Session from '@ecs/plugins/net/components/Session';
 import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
@@ -69,15 +69,29 @@ class ServerHockey extends Hockey {
 			new PlayerSpawnSystem(entity => {
 				const config = PlayerConfig[this.paddleQuery.entities.length % 2];
 				this.createPaddle(entity, allRandom(), config.color, config.spawnPoint);
+				entity.add(Input);
 				entity.add(InputHistory);
 			})
 		);
 	}
 
-	handlePlayerInput(entity: Entity, packet: PlayerInput) {
+	handlePlayerInput(entity: Entity, { tick, input }: PlayerInput) {
+		const { serverTick } = entity.get(Session);
 		const inputHistory = entity.get(InputHistory);
-		if (!inputHistory) return;
-		inputHistory.inputs[packet.tick] = packet.input;
+
+		const clientAhead = tick - serverTick;
+
+		// console.log(id + " " + clientAhead + " Client: " + tick + " Server: " + serverTick);
+
+		if (clientAhead < 1) {
+			console.log('Client sending old input packets');
+		}
+
+		if (!inputHistory) {
+			console.log('No player input history');
+		} else {
+			inputHistory.inputs[tick] = input;
+		}
 	}
 
 	generateSnapshot(): Snapshot {

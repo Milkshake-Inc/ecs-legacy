@@ -11,10 +11,13 @@ import { Paddle } from '../components/Paddle';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
 import { ClientHockey } from '../Client';
-import { Snapshot as HockeySnapshot, SnapshotEntity } from '../spaces/Hockey';
+import { Snapshot as HockeySnapshot, SnapshotEntity, PaddleSnapshotEntity } from '../spaces/Hockey';
+import Position from '@ecs/plugins/Position';
+import { Player } from '../components/Player';
 
 const generateHockeyWorldSnapshotQueries = () => {
 	return {
+		input: makeQuery(all(Input)),
 		sessions: makeQuery(all(Session)),
 		paddles: makeQuery(all(Paddle)),
 		puck: makeQuery(all(Puck)),
@@ -23,15 +26,32 @@ const generateHockeyWorldSnapshotQueries = () => {
 };
 
 export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<typeof generateHockeyWorldSnapshotQueries>> {
+	private playerHistory: Omit<PaddleSnapshotEntity, 'color' | 'sessionId' | 'name'>[];
+
 	constructor(protected engine: Engine, protected createPaddle: ClientHockey['createPaddle']) {
 		super(makeQuery(any(Session)), generateHockeyWorldSnapshotQueries());
+
+		this.playerHistory = [];
 	}
 
 	updateEntityFixed(entity: Entity) {
 		const session = entity.get(Session);
-		const packets = session.socket.handle<WorldSnapshot<HockeySnapshot>>(PacketOpcode.WORLD);
 
+		// Handle world packets
+		const packets = session.socket.handle<WorldSnapshot<HockeySnapshot>>(PacketOpcode.WORLD);
 		packets.forEach(packet => this.updateSnapshot(packet));
+
+		if (entity.has(Player)) {
+			const position = entity.get(Position);
+			const physicsBody = entity.get(PhysicsBody);
+
+			this.playerHistory[session.serverTick] = {
+				position: { ...position },
+				velocity: { ...physicsBody.velocity }
+			};
+
+			// console.log(this.playerHistory[session.serverTick]);
+		}
 	}
 
 	updateSnapshot({ snapshot, tick }: WorldSnapshot<HockeySnapshot>) {
@@ -99,6 +119,54 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 			} else {
 				processEntity(localPaddle, snapshotPaddle);
 			}
+			// const remoteTick = tick; // Hack not sure why one behind
+			// const localSnapshot = this.playerHistory[remoteTick];
+
+			// if(localSnapshot && localPaddle.has(Session)) {
+
+			// 	if(snapshotPaddle.input) {
+			// 		const inputOutOfSync = snapshotPaddle.input.upDown != localSnapshot.input.upDown
+			// 		|| snapshotPaddle.input.downDown != localSnapshot.input.downDown
+			// 		|| snapshotPaddle.input.rightDown != localSnapshot.input.rightDown
+			// 		|| snapshotPaddle.input.leftDown != localSnapshot.input.leftDown;
+
+			// 		if(inputOutOfSync) {
+			// 			console.log("Input - out of sync");
+			// 		} else {
+			// 			if(localSnapshot.input?.upDown) {
+			// 				// debugger;
+			// 			}
+			// 		}
+			// 	} else {
+			// 		console.log("Snapshot doesn't have input for this frame?!")
+			// 	}
+
+			// const positionOutOfSync =
+			// 	Math.round(snapshotPaddle.position.x) != Math.round(localSnapshot.position.x) ||
+			// 	Math.round(snapshotPaddle.position.y) != Math.round(localSnapshot.position.y);
+
+			// if(positionOutOfSync) {
+			// 	const lastFrame = remoteTick ;
+			// 	const lastFrameSnapshot = this.playerHistory[lastFrame];
+
+			// 	console.log(lastFrameSnapshot.position.x + " vs " + localSnapshot.position.x);
+
+			// 	console.log("Position - out of sync");
+			// }
+
+			// if(pressedArrow) {
+			// 	console.log("next frame");
+			// 	debugger;
+			// } else {
+			// 	if(snapshotPaddle.input?.upDown) {
+			// 		pressedArrow = true;
+			// 		console.log("snapped press arrow");
+			// 		debugger;
+			// 	}
+			// }
+			// }
+
+			// }
 		});
 
 		processEntity(this.queries.puck.first, snapshot.puck);
@@ -107,3 +175,5 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 		Object.assign(score, snapshot.scores);
 	}
 }
+
+// const pressedArrow = false;
