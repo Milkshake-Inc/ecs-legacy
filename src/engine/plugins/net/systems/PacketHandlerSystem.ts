@@ -1,7 +1,7 @@
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Session from '../components/Session';
 import { any, makeQuery } from '@ecs/utils/QueryHelper';
-import { Entity } from '@ecs/ecs/Entity';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { PacketOpcode, Packet, WorldSnapshot, PlayerInput } from '../components/Packet';
 
 export class PacketHandlerSystem<T extends Packet> extends IterativeSystem {
@@ -15,12 +15,16 @@ export class PacketHandlerSystem<T extends Packet> extends IterativeSystem {
 		this.handler = handler;
 	}
 
-	updateEntityFixed(entity: Entity) {
+	protected entityAdded = (entity: EntitySnapshot) => {
 		const session = entity.get(Session);
-		const packets = session.socket.handle<T>(this.opcode);
+		session.socket.handleImmediate(packet => {
+			if (packet.opcode == this.opcode) {
+				this.handler(entity.entity, packet as T);
+			}
+		});
+	};
 
-		packets.forEach(p => this.handler(entity, p));
-	}
+	// TODO: Need to remove handleImmediate
 }
 
 export class WorldSnapshotHandlerSystem<T extends {}> extends PacketHandlerSystem<WorldSnapshot<T>> {
