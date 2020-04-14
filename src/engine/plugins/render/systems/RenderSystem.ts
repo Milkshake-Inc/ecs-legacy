@@ -1,5 +1,4 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import {
@@ -11,40 +10,54 @@ import {
 	BitmapText as PixiBitmapText,
 	Text as PixiText,
 	Texture,
-	Graphics
+	Graphics,
+	RenderTexture
 } from 'pixi.js';
 import DisplayObject from '../components/DisplayObject';
 import Sprite from '../components/Sprite';
 import BitmapText from '../components/BitmapText';
 import ParticleEmitter from '../components/ParticleEmitter';
 import { Emitter as PixiParticleEmitter } from 'pixi-particles';
+import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import RenderState from '../components/RenderState';
+import { Query } from '@ecs/ecs/Query';
+import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
 
-export default class RenderSystem extends IterativeSystem {
-	public application: Application;
+type Queries = {
+	cameraState: Query;
+};
 
-	public container: Container;
-
+export default class RenderSystem extends StatefulIterativeSystem<RenderState, Queries> {
+	protected defaultRenderSprite: PixiSprite;
 	protected displayObjects: Map<DisplayObject, PixiDisplayObject> = new Map();
 	protected emitters: Map<ParticleEmitter, PixiParticleEmitter> = new Map();
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
-		super(makeQuery(all(Position), any(Sprite, BitmapText, Graphics, ParticleEmitter)));
+		super(
+			makeQuery(all(Position), any(Sprite, BitmapText, Graphics, ParticleEmitter)),
+			new RenderState(
+				new Container(),
+				new Application({
+					view: <HTMLCanvasElement>document.getElementById('canvas'),
+					backgroundColor,
+					width,
+					height,
+					// resolution: window.devicePixelRatio,
+					antialias: false,
+					autoStart: false
+				})
+			),
+			{
+				cameraState: makeQuery(all(CameraRenderState))
+			}
+		);
 
-		this.application = new Application({
-			view: <HTMLCanvasElement>document.getElementById('canvas'),
-			backgroundColor,
-			width,
-			height,
-			// resolution: window.devicePixelRatio,
-			antialias: false,
-			autoStart: false
-		});
+		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width, height }))));
 
-		this.application.stage.addChild((this.container = new Container()));
-		this.container.scale.set(scale, scale);
-		this.container.sortableChildren = true;
+		this.state.container.scale.set(scale, scale);
+		this.state.container.sortableChildren = true;
 
-		document.body.appendChild(this.application.view);
+		document.body.appendChild(this.state.application.view);
 	}
 
 	protected updateEntity(entity: Entity): void {
@@ -110,7 +123,7 @@ export default class RenderSystem extends IterativeSystem {
 			const pixiSprite = new PixiSprite(new Texture(BaseTexture.from(sprite.imageUrl), sprite.frame));
 
 			this.displayObjects.set(sprite, pixiSprite);
-			this.container.addChild(pixiSprite);
+			this.state.container.addChild(pixiSprite);
 		}
 
 		if (entity.has(BitmapText) && !this.displayObjects.has(entity.get(BitmapText))) {
@@ -125,13 +138,13 @@ export default class RenderSystem extends IterativeSystem {
 			pixiBitmapText.roundPixels = true;
 
 			this.displayObjects.set(bitmapText, pixiBitmapText);
-			this.container.addChild(pixiBitmapText);
+			this.state.container.addChild(pixiBitmapText);
 		}
 
-		if (entity.has(Graphics) && !this.container.children.includes(entity.get(Graphics))) {
+		if (entity.has(Graphics) && !this.state.container.children.includes(entity.get(Graphics))) {
 			const graphics = entity.get(Graphics);
 
-			this.container.addChild(graphics);
+			this.state.container.addChild(graphics);
 		}
 
 		if (entity.has(ParticleEmitter) && !this.emitters.has(entity.get(ParticleEmitter))) {
@@ -144,7 +157,7 @@ export default class RenderSystem extends IterativeSystem {
 			);
 
 			this.emitters.set(emitter, pixiEmitter);
-			this.container.addChild(pixiParticleContainer);
+			this.state.container.addChild(pixiParticleContainer);
 		}
 
 		this.updateEntity(entity);
@@ -161,41 +174,66 @@ export default class RenderSystem extends IterativeSystem {
 		if (snapshot.has(Sprite)) {
 			const sprite = snapshot.get(Sprite);
 
-			this.container.removeChild(this.displayObjects.get(sprite));
+			this.state.container.removeChild(this.displayObjects.get(sprite));
 			this.displayObjects.delete(sprite);
 		}
 
 		if (snapshot.has(BitmapText)) {
 			const text = snapshot.get(BitmapText);
 
-			this.container.removeChild(this.displayObjects.get(text));
+			this.state.container.removeChild(this.displayObjects.get(text));
 			this.displayObjects.delete(text);
 		}
 
 		if (snapshot.has(Graphics)) {
 			const graphics = snapshot.get(Graphics);
 
-			this.container.removeChild(graphics);
+			this.state.container.removeChild(graphics);
 		}
 
 		if (snapshot.has(ParticleEmitter)) {
 			const emitter = snapshot.get(ParticleEmitter);
 
-			this.container.removeChild(this.emitters.get(emitter).parent);
+			this.state.container.removeChild(this.emitters.get(emitter).parent);
 			this.emitters.delete(emitter);
 		}
 	};
 
-	public update(dt: number) {
+	update(dt: number) {
 		super.update(dt);
-		this.application.render();
 
 		for (const emitter of this.emitters.values()) {
 			emitter.update(dt * 0.001);
 		}
+
+		this.render();
+	}
+
+	render() {
+		const cameraState = this.queries.cameraState.first?.get(CameraRenderState);
+		if (cameraState && cameraState.renderSprites.size > 0) {
+			for (const [camera, sprite] of cameraState.renderSprites) {
+				this.state.container.setTransform(
+					camera.transform.position.x,
+					camera.transform.position.y,
+					camera.transform.scale.x,
+					camera.transform.scale.y,
+					camera.transform.rotation,
+					camera.transform.skew.x,
+					camera.transform.skew.y,
+					camera.transform.pivot.x,
+					camera.transform.pivot.y
+				);
+				this.state.application.renderer.render(this.state.container, sprite.texture as RenderTexture, true);
+			}
+		} else {
+			this.state.application.renderer.render(this.state.container, this.defaultRenderSprite.texture as RenderTexture, true);
+		}
+
+		this.state.application.render();
 	}
 
 	onRemovedFromEngine() {
-		this.application.stage.removeChild(this.container);
+		this.state.application.stage.removeChild(this.state.container);
 	}
 }
