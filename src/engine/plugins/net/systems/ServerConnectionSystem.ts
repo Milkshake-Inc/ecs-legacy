@@ -60,7 +60,7 @@ export default class ServerConnectionSystem extends StatefulIterativeSystem<Serv
 		session.socket.disconnect();
 	}
 
-	protected updateEntity(entity: Entity): void {
+	protected updateEntityFixed(entity: Entity): void {
 		entity.get(Session)?.socket.update();
 	}
 }

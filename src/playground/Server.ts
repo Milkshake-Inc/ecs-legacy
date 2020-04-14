@@ -19,6 +19,8 @@ import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 import { allRandom } from 'dog-names';
 import { Name } from './components/Name';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -49,6 +51,24 @@ export class NetEngine extends TickerEngine {
 	}
 }
 
+class ServerApplyInputFromHistory extends IterativeSystem {
+	constructor() {
+		super(makeQuery(all(Session, Input, InputHistory)));
+	}
+
+	updateEntityFixed(entity: Entity, dt: number) {
+		const input = entity.get(Input);
+		const history = entity.get(InputHistory).inputs;
+		const { serverTick } = entity.get(Session);
+
+		if (history[serverTick]) {
+			Object.assign(input, history[serverTick]);
+		} else {
+			console.log("Don't have input for this frame :(");
+		}
+	}
+}
+
 class ServerHockey extends Hockey {
 	private connections: ServerConnectionSystem;
 
@@ -58,6 +78,8 @@ class ServerHockey extends Hockey {
 	}
 
 	setup() {
+		this.addSystem(new ServerApplyInputFromHistory());
+
 		super.setup();
 
 		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
@@ -84,7 +106,7 @@ class ServerHockey extends Hockey {
 		// console.log(id + " " + clientAhead + " Client: " + tick + " Server: " + serverTick);
 
 		if (clientAhead < 1) {
-			console.log('Client sending old input packets');
+			console.log('Client sending old input packets ' + clientAhead);
 		}
 
 		if (!inputHistory) {
@@ -114,6 +136,7 @@ class ServerHockey extends Hockey {
 		const paddleSnapshot = (entity: Entity): PaddleSnapshotEntity => {
 			const session = entity.get(Session);
 			const paddle = entity.get(Paddle);
+			const input = entity.get(Input);
 			const name = entity.get(Name).name;
 			const paddleSnap = entitySnapshot(entity);
 
@@ -121,7 +144,8 @@ class ServerHockey extends Hockey {
 				sessionId: session.id,
 				name,
 				color: paddle.color,
-				...paddleSnap
+				...paddleSnap,
+				input
 			};
 		};
 
