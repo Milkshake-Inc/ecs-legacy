@@ -16,7 +16,7 @@ export default class Camera {
 		public height = 720,
 		public zoom = 1,
 		public offset = new Vector2(width / 2, height / 2),
-		public scrollOptions: FollowOptions = { bounded: false, padding: 0, minZoom: 1, maxZoom: 0.01 },
+		public scrollOptions: FollowOptions = { bounded: false, padding: 100, minZoom: 1, maxZoom: 0.01 },
 		public transform = new Transform()
 	) {}
 }

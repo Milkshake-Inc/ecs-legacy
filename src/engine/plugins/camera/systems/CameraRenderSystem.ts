@@ -8,15 +8,21 @@ import RenderState from '@ecs/plugins/render/components/RenderState';
 import { Query } from '@ecs/ecs/Query';
 import CameraState from '../components/CameraRenderState';
 import CameraRenderState from '../components/CameraRenderState';
+import CameraTarget from '../components/CameraTarget';
+import Bounds from '@ecs/plugins/render/components/Bounds';
+import MathHelper from '@ecs/math/MathHelper';
+import Vector2 from '@ecs/math/Vector2';
 
 type Queries = {
 	rendererState: Query;
+	targets: Query;
 };
 
 export default class CameraRenderSystem extends StatefulIterativeSystem<CameraState, Queries> {
 	constructor() {
 		super(makeQuery(all(Camera, Position)), new CameraRenderState(), {
-			rendererState: makeQuery(all(RenderState))
+			rendererState: makeQuery(all(RenderState)),
+			targets: makeQuery(all(CameraTarget))
 		});
 	}
 
@@ -31,6 +37,54 @@ export default class CameraRenderSystem extends StatefulIterativeSystem<CameraSt
 		const camera = entity.get(Camera);
 		const position = entity.get(Position);
 
+		if (camera.scrollOptions) {
+			this.scrollTargets(camera, position);
+		}
+
+		this.renderCamera(camera, position);
+	}
+
+	public scrollTargets(camera: Camera, position: Position) {
+		const targets = this.queries.targets;
+		if (targets.length <= 0) return;
+
+		const min = Object.assign({}, targets.first.get(Position));
+		const max = Object.assign({}, targets.first.get(Position));
+		const options = camera.scrollOptions;
+
+		for (const target of targets.entities) {
+			const bounds = target.get(Bounds);
+			const position = target.get(Position);
+
+			if (options.bounded && target.has(Bounds)) {
+				if (bounds.min.x < min.x) min.x = bounds.min.x;
+				if (bounds.max.x > max.x) max.x = bounds.max.x;
+				if (bounds.min.y < min.y) min.y = bounds.min.y;
+				if (bounds.max.y > max.y) max.y = bounds.max.y;
+			} else {
+				if (position.x < min.x) min.x = position.x;
+				if (position.x > max.x) max.x = position.x;
+				if (position.y < min.y) min.y = position.y;
+				if (position.y > max.y) max.y = position.y;
+			}
+		}
+
+		const x = min.x - options.padding;
+		const y = min.y - options.padding;
+		const width = max.x - min.x + options.padding * 2;
+		const height = max.y - min.y + options.padding * 2;
+
+		// This should use camera view?
+		const widthDiff: number = camera.width / width;
+		const heightDiff: number = camera.height / height;
+
+		position.x = x + width / 2;
+		position.y = y + height / 2;
+		camera.offset = Vector2.ZERO;
+		camera.zoom = MathHelper.clamp(Math.min(widthDiff, heightDiff), options.maxZoom, options.minZoom);
+	}
+
+	public renderCamera(camera: Camera, position: Position) {
 		const sprite = this.state.renderSprites.get(camera);
 		sprite.x = camera.x;
 		sprite.y = camera.y;

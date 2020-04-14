@@ -32,18 +32,15 @@ class PixiEngine extends TickerEngine {
 	constructor(tickRate = 60) {
 		super(tickRate);
 
-		this.addSystem(new RenderSystem());
 		this.addSystem(new CameraRenderSystem());
+		this.addSystem(new RenderSystem());
 		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
 
-		const cameraLeft = new Entity();
-		cameraLeft.add(Position);
-		cameraLeft.add(Camera, { width: 1280 / 2, height: 720, zoom: 1 });
-		const cameraRight = new Entity();
-		cameraRight.add(Position, { x: 1280 / 2 });
-		cameraRight.add(Camera, { x: 1280 / 2, width: 1280 / 2, height: 720, zoom: 1 });
-		this.addEntities(cameraLeft, cameraRight);
+		const camera = new Entity();
+		camera.add(Position);
+		camera.add(Camera);
+		this.addEntities(camera);
 
 		this.spaces = new Map();
 	}
