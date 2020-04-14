@@ -19,7 +19,7 @@ export default class ServerPingSystem extends StatefulIterativeSystem<ServerPing
 		});
 	}
 
-	public update(deltaTime: number) {
+	public updateFixed(deltaTime: number) {
 		this.state.serverTime += deltaTime;
 		this.state.timeSinceLastPing += deltaTime;
 		this.state.serverTick = Math.floor(this.state.serverTime / this.state.serverTickRateMs);
@@ -40,10 +40,10 @@ export default class ServerPingSystem extends StatefulIterativeSystem<ServerPing
 			console.log(`⏱ Sending ping`);
 		}
 
-		super.update(deltaTime);
+		super.updateFixed(deltaTime);
 	}
 
-	protected updateEntity(entity: Entity, dt: number): void {
+	protected updateEntityFixed(entity: Entity, dt: number): void {
 		const session = entity.get(Session);
 		session.serverTick = this.state.serverTick;
 		session.serverTime = this.state.serverTime;

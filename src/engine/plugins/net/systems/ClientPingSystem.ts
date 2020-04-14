@@ -15,16 +15,16 @@ export default class ClientPingSystem extends IterativeSystem {
 		super(makeQuery(any(Session)));
 	}
 
-	public update(deltaTime: number) {
+	public updateFixed(deltaTime: number) {
 		if (this.tickInitialized) {
 			this.serverTime += deltaTime;
 			this.serverTick = Math.floor(this.serverTime / this.serverTickRateMs);
 		}
 
-		super.update(deltaTime);
+		super.updateFixed(deltaTime);
 	}
 
-	protected updateEntity(entity: Entity, dt: number): void {
+	protected updateEntityFixed(entity: Entity, dt: number): void {
 		const session = entity.get(Session);
 		session.serverTime = this.serverTime;
 		session.serverTick = this.serverTick;
