@@ -41,4 +41,11 @@ export default class Socket {
 		this.incoming = [];
 		this.outgoing = [];
 	}
+
+	public disconnect() {
+		if (this.socket instanceof ServerChannel) {
+			this.socket.close();
+			this.socket.eventEmitter.removeAllListeners();
+		}
+	}
 }

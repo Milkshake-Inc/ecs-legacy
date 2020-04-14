@@ -13,7 +13,7 @@ type SeverPingSystemQueries = {
 };
 
 export default class ServerPingSystem extends StatefulIterativeSystem<ServerPingState, SeverPingSystemQueries> {
-	constructor(tickRate: number, pingInterval = 5000) {
+	constructor(tickRate: number, pingInterval = 1000) {
 		super(makeQuery(any(Session)), new ServerPingState(tickRate, pingInterval), {
 			connection: makeQuery(all(ServerConnectionState))
 		});

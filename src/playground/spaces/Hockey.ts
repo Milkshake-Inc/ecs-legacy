@@ -15,7 +15,6 @@ import { Wall } from '../components/Wall';
 import MovementSystem from '../systems/MovementSystem';
 import { Name } from '../components/Name';
 import { Player } from '../components/Player';
-import Input from '@ecs/plugins/input/components/Input';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {
