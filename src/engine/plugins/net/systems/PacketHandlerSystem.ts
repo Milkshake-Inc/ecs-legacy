@@ -15,11 +15,13 @@ export class PacketHandlerSystem<T extends Packet> extends IterativeSystem {
 		this.handler = handler;
 	}
 
-	protected entityAdded = (entity: EntitySnapshot) => {
+	protected entityAdded = (snapshot: EntitySnapshot) => {
+		const entity = snapshot.entity;
 		const session = entity.get(Session);
+
 		session.socket.handleImmediate(packet => {
 			if (packet.opcode == this.opcode) {
-				this.handler(entity.entity, packet as T);
+				this.handler(entity, packet as T);
 			}
 		});
 	};

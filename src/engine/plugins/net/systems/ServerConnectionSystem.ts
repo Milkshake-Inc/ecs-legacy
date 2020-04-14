@@ -55,8 +55,9 @@ export default class ServerConnectionSystem extends StatefulIterativeSystem<Serv
 
 	protected handleDisconnection(entity: Entity) {
 		const session = entity.get(Session);
-		console.log(`🔌 Socket connected ${session.id}`);
+		console.log(`🔌 Socket disconnected ${session.id}`);
 		this.engine.removeEntity(entity);
+		session.socket.disconnect();
 	}
 
 	protected updateEntity(entity: Entity): void {
