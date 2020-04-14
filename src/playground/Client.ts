@@ -23,6 +23,8 @@ import Splash from './spaces/Splash';
 import { HockeySnapshotSyncSystem } from './systems/HockeySnapshotSyncSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
+import Camera from '@ecs/plugins/camera/components/Camera';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -31,8 +33,17 @@ class PixiEngine extends TickerEngine {
 		super(tickRate);
 
 		this.addSystem(new RenderSystem());
+		this.addSystem(new CameraRenderSystem());
 		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
+
+		const cameraLeft = new Entity();
+		cameraLeft.add(Position);
+		cameraLeft.add(Camera, { width: 1280 / 2, height: 720, zoom: 1 });
+		const cameraRight = new Entity();
+		cameraRight.add(Position, { x: 1280 / 2 });
+		cameraRight.add(Camera, { x: 1280 / 2, width: 1280 / 2, height: 720, zoom: 1 });
+		this.addEntities(cameraLeft, cameraRight);
 
 		this.spaces = new Map();
 	}

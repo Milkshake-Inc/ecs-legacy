@@ -43,7 +43,8 @@ module.exports = {
 					'Centre',
 					'Stateful',
 					'Decomp',
-					'func'
+					'func',
+					'renderer'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
