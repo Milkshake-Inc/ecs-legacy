@@ -44,13 +44,13 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 		if (entity.has(Player)) {
 			const position = entity.get(Position);
 			const physicsBody = entity.get(PhysicsBody);
+			const input = entity.get(Input);
 
 			this.playerHistory[session.serverTick] = {
 				position: { ...position },
-				velocity: { ...physicsBody.velocity }
+				velocity: { ...physicsBody.velocity },
+				input: { ...input }
 			};
-
-			// console.log(this.playerHistory[session.serverTick]);
 		}
 	}
 
@@ -95,20 +95,21 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 		});
 
 		snapshot.paddles.forEach(snapshotPaddle => {
-			const localPaddle = this.queries.paddles.entities.find(entity => {
+			const localCreatedPaddle = this.queries.paddles.entities.find(entity => {
 				const sessionId = getSessionId(entity);
 				return sessionId == snapshotPaddle.sessionId;
 			});
 
-			if (!localPaddle) {
-				const localEntity = this.queries.sessions.entities.find(entity => {
-					return entity.get(Session).id == snapshotPaddle.sessionId;
-				});
+			const localSessionEntity = this.queries.sessions.entities.find(entity => {
+				return entity.get(Session).id == snapshotPaddle.sessionId;
+			});
 
-				if (localEntity) {
+			// Paddle doesn't excist on client - create it!
+			if (!localCreatedPaddle) {
+				if (localSessionEntity) {
 					console.log('Creating local player');
-					this.createPaddle(localEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
-					localEntity.add(Input.BOTH());
+					this.createPaddle(localSessionEntity, snapshotPaddle.name, snapshotPaddle.color, snapshotPaddle.position);
+					localSessionEntity.add(Input.BOTH());
 				} else {
 					const newEntity = new Entity();
 					console.log('Creating remote player!');
@@ -117,12 +118,47 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 					this.engine.addEntity(newEntity);
 				}
 			} else {
-				processEntity(localPaddle, snapshotPaddle);
-			}
-			// const remoteTick = tick; // Hack not sure why one behind
-			// const localSnapshot = this.playerHistory[remoteTick];
+				if (localSessionEntity) {
+					// It's our player
+					const remoteTick = tick; // Hack not sure why one a head?
+					const localSnapshot = this.playerHistory[remoteTick];
 
-			// if(localSnapshot && localPaddle.has(Session)) {
+					if (snapshotPaddle?.input && localSnapshot?.input) {
+						const up = localSnapshot.input.upDown != snapshotPaddle.input.upDown;
+						const down = localSnapshot.input.downDown != snapshotPaddle.input.downDown;
+						const left = localSnapshot.input.leftDown != snapshotPaddle.input.leftDown;
+						const right = localSnapshot.input.rightDown != snapshotPaddle.input.rightDown;
+
+						if (up || down || left || right) {
+							console.log('⚠️ Input out of sync');
+						}
+					} else {
+						// console.log("Remote doesnt have input yet")
+					}
+					if (snapshotPaddle?.position && localSnapshot?.position) {
+						const localSnapshot = this.playerHistory[remoteTick]; // Three a head wtf - it's like ?
+
+						if (localSnapshot) {
+							const positionOutOfSync =
+								snapshotPaddle.position.x !== localSnapshot.position.x ||
+								snapshotPaddle.position.y !== localSnapshot.position.y;
+
+							if (positionOutOfSync) {
+								console.log(
+									`😞 Out of Sync - Server(${tick}) vs Client(${tick})
+S: UP: ${snapshotPaddle.input.upDown} UP: ${localSnapshot.input.upDown}
+S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
+								);
+							}
+						}
+					}
+				}
+
+				processEntity(localCreatedPaddle, snapshotPaddle);
+			}
+
+			// if(localSnapshot && localCreatedPaddle.has(Session)) {
+			// }
 
 			// 	if(snapshotPaddle.input) {
 			// 		const inputOutOfSync = snapshotPaddle.input.upDown != localSnapshot.input.upDown

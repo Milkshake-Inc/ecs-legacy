@@ -43,7 +43,7 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Socket disconnected`);
 	}
 
-	public update(deltaTime: number) {
+	public updateFixed(deltaTime: number) {
 		this.session?.get(Session)?.socket.update();
 	}
 }

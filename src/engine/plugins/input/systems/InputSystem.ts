@@ -14,13 +14,13 @@ export class InputSystem extends IterativeSystem {
 		this.keyboard = new Keyboard();
 	}
 
-	public update(dt: number) {
-		super.update(dt);
+	public updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.keyboard.update(dt);
 	}
 
-	protected updateEntity(entity: Entity, dt: number) {
+	protected updateEntityFixed(entity: Entity, dt: number) {
 		const input = entity.get(Input);
 
 		input.rightDown = this.keyboard.isEitherDown(input.rightKeybinding);

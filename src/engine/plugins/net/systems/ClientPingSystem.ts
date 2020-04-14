@@ -50,7 +50,7 @@ export default class ClientPingSystem extends IterativeSystem {
 
 					let newServerTime = packet.serverTime + this.rtt / 2;
 					// We push the client ahead of time HRTT + 1 Tick (Hacked to 2)
-					newServerTime += this.rtt / 2 + this.serverTickRateMs * 1;
+					newServerTime += this.rtt / 2 + this.serverTickRateMs * 2;
 
 					console.log(
 						`Client estimated RTT: ${this.rtt} ServerTime: ${packet.serverTime} Estimated ServerTime: ${this.serverTime}`
