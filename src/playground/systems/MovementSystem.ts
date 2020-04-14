@@ -7,11 +7,7 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import Moveable from '../components/Moveable';
 
 export default class MovementSystem extends IterativeSystem {
-	constructor() {
-		super(makeQuery(all(Session, Moveable, PhysicsBody, Input)));
-	}
-
-	protected updateEntityFixed(entity: Entity, dt: number) {
+	static updateEntityFixed(entity: Entity, dt: number) {
 		const body = entity.get(PhysicsBody);
 		const moveable = entity.get(Moveable);
 		const input = entity.get(Input);
@@ -24,5 +20,13 @@ export default class MovementSystem extends IterativeSystem {
 
 			body.applyForce({ x: 0, y: 0 }, { x: moveable.speed * (right - left), y: moveable.speed * (down - up) });
 		}
+	}
+
+	constructor() {
+		super(makeQuery(all(Session, Moveable, PhysicsBody, Input)));
+	}
+
+	protected updateEntityFixed(entity: Entity, dt: number) {
+		MovementSystem.updateEntityFixed(entity, dt);
 	}
 }

@@ -10,6 +10,18 @@ import { injectPolyDecomp } from '../utils/PhysicsUtils';
 injectPolyDecomp();
 
 export default class PhysicsSystem extends IterativeSystem {
+	static updateEntityFixed(entity: Entity, dt: number) {
+		Engine.update(this.engine, dt);
+
+		const physicsBody = entity.get(PhysicsBody);
+		const position = entity.get(Position);
+
+		position.x = physicsBody.body.position.x;
+		position.y = physicsBody.body.position.y;
+	}
+
+	public static engine: Engine;
+
 	public readonly engine: Engine;
 	public readonly world: World;
 
@@ -17,6 +29,10 @@ export default class PhysicsSystem extends IterativeSystem {
 		super(makeQuery(all(Position, PhysicsBody)));
 
 		this.engine = Engine.create();
+
+		// HACK
+		PhysicsSystem.engine = this.engine;
+
 		this.world = this.engine.world;
 		this.world.gravity = gravity;
 

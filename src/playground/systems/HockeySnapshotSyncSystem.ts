@@ -14,6 +14,8 @@ import { ClientHockey } from '../Client';
 import { Snapshot as HockeySnapshot, SnapshotEntity, PaddleSnapshotEntity } from '../spaces/Hockey';
 import Position from '@ecs/plugins/Position';
 import { Player } from '../components/Player';
+import MovementSystem from './MovementSystem';
+import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 
 const generateHockeyWorldSnapshotQueries = () => {
 	return {
@@ -94,6 +96,8 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 			}
 		});
 
+		processEntity(this.queries.puck.first, snapshot.puck);
+
 		snapshot.paddles.forEach(snapshotPaddle => {
 			const localCreatedPaddle = this.queries.paddles.entities.find(entity => {
 				const sessionId = getSessionId(entity);
@@ -149,12 +153,31 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 S: UP: ${snapshotPaddle.input.upDown} UP: ${localSnapshot.input.upDown}
 S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
 								);
+
+								processEntity(localCreatedPaddle, snapshotPaddle);
+								Object.assign(localCreatedPaddle.get(Input), snapshotPaddle.input);
+
+								for (
+									let currentEmulatedTick = remoteTick;
+									currentEmulatedTick < localCreatedPaddle.get(Session).serverTick;
+									currentEmulatedTick++
+								) {
+									// Apply recorded input for that frame
+									if (this.playerHistory[currentEmulatedTick]) {
+										Object.assign(localCreatedPaddle.get(Input), this.playerHistory[currentEmulatedTick].input);
+									}
+
+									MovementSystem.updateEntityFixed(localCreatedPaddle, 1000 / 60);
+									PhysicsSystem.updateEntityFixed(localCreatedPaddle, 1000 / 60);
+								}
+
+								//
 							}
 						}
 					}
 				}
 
-				processEntity(localCreatedPaddle, snapshotPaddle);
+				// console.log(localCreatedPaddle.get(Position))
 			}
 
 			// if(localSnapshot && localCreatedPaddle.has(Session)) {
@@ -204,8 +227,6 @@ S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
 
 			// }
 		});
-
-		processEntity(this.queries.puck.first, snapshot.puck);
 
 		const score = this.queries.score.first.get(Score);
 		Object.assign(score, snapshot.scores);
