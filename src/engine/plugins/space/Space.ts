@@ -37,10 +37,20 @@ export default class Space {
 		this.systems.push(systems);
 	}
 
+	public async toggle(reset = false) {
+		if (this.visible) {
+			return this.close(reset);
+		}
+		await this.open(reset);
+	}
+
 	public async open(reset = false) {
 		console.log(`🚀opening space ${this.name}`);
-		if (reset || !this.loaded) {
+		if (reset && this.loaded) {
 			this.clear();
+		}
+
+		if (!this.loaded) {
 			await this.preload();
 			this.setup();
 			this.loaded = true;

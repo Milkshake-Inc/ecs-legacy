@@ -25,6 +25,7 @@ import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
 import Camera from '@ecs/plugins/camera/components/Camera';
+import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -36,6 +37,7 @@ class PixiEngine extends TickerEngine {
 		this.addSystem(new RenderSystem());
 		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
+		this.addSystem(new DebugSystem());
 
 		const camera = new Entity();
 		camera.add(Position);

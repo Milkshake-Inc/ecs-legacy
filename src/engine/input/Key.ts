@@ -77,6 +77,7 @@ export default class Key {
 	public static readonly BACKWARD_SLASH: number = 220;
 	public static readonly CLOSED_BRACKET: number = 221;
 	public static readonly QUOTES: number = 222;
+	public static readonly BACKWARD_TICK: number = 223;
 	public static readonly BACKSPACE: number = 8;
 	public static readonly TAB: number = 9;
 	public static readonly CLEAR: number = 12;

@@ -44,7 +44,10 @@ module.exports = {
 					'Stateful',
 					'Decomp',
 					'func',
-					'renderer'
+					'renderer',
+					'ecs',
+					'dat',
+					'gui'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
