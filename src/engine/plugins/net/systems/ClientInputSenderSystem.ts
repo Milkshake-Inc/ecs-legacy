@@ -14,7 +14,7 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 		const session = entity.get(Session);
 		const input = entity.get(Input);
 
-		session.socket.send({
+		session.socket.sendImmediate({
 			opcode: PacketOpcode.PLAYER_INPUT,
 			input: input,
 			tick: session.serverTick

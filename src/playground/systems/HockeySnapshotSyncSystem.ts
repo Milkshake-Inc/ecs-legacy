@@ -138,113 +138,16 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 					} else {
 						// console.log("Remote doesnt have input yet")
 					}
-					if (snapshotPaddle?.position && localSnapshot?.position) {
-						const localSnapshot = this.playerHistory[remoteTick]; // Three a head wtf - it's like ?
-
-						if (localSnapshot) {
-							const positionOutOfSync =
-								snapshotPaddle.position.x !== localSnapshot.position.x ||
-								snapshotPaddle.position.y !== localSnapshot.position.y;
-
-							if (positionOutOfSync) {
-								console.log(
-									`😞 Out of Sync - Server(${tick}) vs Client(${tick})
-S: UP: ${snapshotPaddle.input.upDown} UP: ${localSnapshot.input.upDown}
-S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
-								);
-
-								processEntity(localCreatedPaddle, snapshotPaddle);
-								Object.assign(localCreatedPaddle.get(Input), snapshotPaddle.input);
-								const pos = localCreatedPaddle.get(PhysicsBody);
-								const positionOutOfSync =
-									snapshotPaddle.position.x !== pos.position.x ||
-									snapshotPaddle.position.y !== pos.position.y;
-
-									// debugger;
-								if (positionOutOfSync) {
-									debugger;
-									console.log(
-										`😞 Out of Sync AGAIN`
-									);
-								} else {
-									console.log("Remapped well")
-								}
-
-								console.log("Fast foward " + remoteTick + " -> " + localCreatedPaddle.get(Session).serverTick);
-
-								for (
-									let currentEmulatedTick = remoteTick;
-									currentEmulatedTick < localCreatedPaddle.get(Session).serverTick;
-									currentEmulatedTick++
-								) {
-									// Apply recorded input for that frame
-									if (this.playerHistory[currentEmulatedTick]) {
-										Object.assign(localCreatedPaddle.get(Input), this.playerHistory[currentEmulatedTick].input);
-									}
-
-									MovementSystem.updateEntityFixed(localCreatedPaddle, 1000 / 60);
-									PhysicsSystem.engineUpdate(1000 / 60);
-								}
-
-								//
-							}
-						}
-					}
 				}
-
-				// console.log(localCreatedPaddle.get(Position))
 			}
-
-			// if(localSnapshot && localCreatedPaddle.has(Session)) {
-			// }
-
-			// 	if(snapshotPaddle.input) {
-			// 		const inputOutOfSync = snapshotPaddle.input.upDown != localSnapshot.input.upDown
-			// 		|| snapshotPaddle.input.downDown != localSnapshot.input.downDown
-			// 		|| snapshotPaddle.input.rightDown != localSnapshot.input.rightDown
-			// 		|| snapshotPaddle.input.leftDown != localSnapshot.input.leftDown;
-
-			// 		if(inputOutOfSync) {
-			// 			console.log("Input - out of sync");
-			// 		} else {
-			// 			if(localSnapshot.input?.upDown) {
-			// 				// debugger;
-			// 			}
-			// 		}
-			// 	} else {
-			// 		console.log("Snapshot doesn't have input for this frame?!")
-			// 	}
-
-			// const positionOutOfSync =
-			// 	Math.round(snapshotPaddle.position.x) != Math.round(localSnapshot.position.x) ||
-			// 	Math.round(snapshotPaddle.position.y) != Math.round(localSnapshot.position.y);
-
-			// if(positionOutOfSync) {
-			// 	const lastFrame = remoteTick ;
-			// 	const lastFrameSnapshot = this.playerHistory[lastFrame];
-
-			// 	console.log(lastFrameSnapshot.position.x + " vs " + localSnapshot.position.x);
-
-			// 	console.log("Position - out of sync");
-			// }
-
-			// if(pressedArrow) {
-			// 	console.log("next frame");
-			// 	debugger;
-			// } else {
-			// 	if(snapshotPaddle.input?.upDown) {
-			// 		pressedArrow = true;
-			// 		console.log("snapped press arrow");
-			// 		debugger;
-			// 	}
-			// }
-			// }
-
-			// }
 		});
 
 		const score = this.queries.score.first.get(Score);
 		Object.assign(score, snapshot.scores);
+	}
+
+	private comparePlayerSnapshot(): void {
+
 	}
 }
 
