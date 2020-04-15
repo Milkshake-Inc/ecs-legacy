@@ -9,6 +9,8 @@ export default class Socket {
 	protected incoming: Packet[] = [];
 	protected outgoing: Packet[] = [];
 
+	private serverLagRTT = 100;
+
 	constructor(socket: ServerChannel | ClientChannel) {
 		this.socket = socket;
 		this.id = socket.id;
@@ -29,11 +31,18 @@ export default class Socket {
 	}
 
 	public sendImmediate(packet: Packet) {
-		this.socket.raw.emit(encode(packet));
+		// setTimeout(() => {
+			this.socket.raw.emit(encode(packet));
+		// }, this.socket instanceof ServerChannel ? this.serverLagRTT / 2 : 0);
+
 	}
 
 	public handleImmediate(handler: (packet: Packet) => void) {
-		this.socket.onRaw(data => handler(decode(data as ArrayBuffer) as Packet));
+		this.socket.onRaw(data => {
+			// setTimeout(() => {
+			handler(decode(data as ArrayBuffer) as Packet)
+			// }, this.serverLagRTT / 2);
+		});
 	}
 
 	public update() {

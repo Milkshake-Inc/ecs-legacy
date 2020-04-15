@@ -1,17 +1,21 @@
-import { ServerChannel, GeckosServer } from '@geckos.io/server/lib/server';
-import { Entity } from '@ecs/ecs/Entity';
 import { Engine } from '@ecs/ecs/Engine';
-import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import Session from '../components/Session';
-import { Packet } from '../components/Packet';
-import Socket from '../utils/Socket';
+import { Entity } from '@ecs/ecs/Entity';
 import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { GeckosServer, ServerChannel } from '@geckos.io/server/lib/server';
+import { Packet } from '../components/Packet';
+import Session from '../components/Session';
+import Socket from '../utils/Socket';
 
 export class ServerConnectionState {
 	broadcast: ServerConnectionSystem['broadcast'];
 	disconnect: ServerConnectionSystem['disconnect'];
 
 	constructor() {}
+}
+
+export const ServerConnectionQuery = {
+	serverConnection: makeQuery(all(ServerConnectionState))
 }
 
 export default class ServerConnectionSystem extends StatefulIterativeSystem<ServerConnectionState> {

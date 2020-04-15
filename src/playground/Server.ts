@@ -1,26 +1,25 @@
-import { Entity } from '@ecs/ecs/Entity';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { QueriesIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
 import Input, { InputHistory } from '@ecs/plugins/input/components/Input';
-import { PlayerInput } from '@ecs/plugins/net/components/Packet';
+import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
+import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
-import { PlayerInputHandlerSystem } from '@ecs/plugins/net/systems/PacketHandlerSystem';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
-import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
+import ServerPingSystem, { ServerPingStateQuery } from '@ecs/plugins/net/systems/ServerPingSystem';
 import { SnapshotCompositorSystem } from '@ecs/plugins/net/systems/ServerSnapshotCompositorSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
-import Position from '@ecs/plugins/Position';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
+import { allRandom } from 'dog-names';
 import { performance } from 'perf_hooks';
+import { Name } from './components/Name';
 import { Paddle } from './components/Paddle';
 import Score from './components/Score';
 import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotEntity } from './spaces/Hockey';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
-import { allRandom } from 'dog-names';
-import { Name } from './components/Name';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -51,20 +50,57 @@ export class NetEngine extends TickerEngine {
 	}
 }
 
-class ServerApplyInputFromHistory extends IterativeSystem {
+class ServerApplyInputFromHistory extends QueriesIterativeSystem<typeof ServerPingStateQuery> {
 	constructor() {
-		super(makeQuery(all(Session, Input, InputHistory)));
+		super(makeQuery(all(Session, Input, InputHistory)), ServerPingStateQuery);
 	}
 
 	updateEntityFixed(entity: Entity, dt: number) {
 		const input = entity.get(Input);
 		const history = entity.get(InputHistory).inputs;
-		const { serverTick } = entity.get(Session);
+		const { serverTick } = this.queries.serverPing.first.get(ServerPingState)
 
 		if (history[serverTick]) {
 			Object.assign(input, history[serverTick]);
 		} else {
 			console.log("Don't have input for this frame :(");
+		}
+	}
+}
+
+class ServerAddInputToHistory extends QueriesIterativeSystem<typeof ServerPingStateQuery> {
+	constructor() {
+		super(makeQuery(all(Session, InputHistory)), ServerPingStateQuery);
+	}
+
+	protected entityAdded = (snapshot: EntitySnapshot) => {
+		const entity = snapshot.entity;
+		const session = entity.get(Session);
+
+		session.socket.handleImmediate(packet => {
+			if (packet.opcode == PacketOpcode.PLAYER_INPUT) {
+				this.handleInputPacket(entity, packet);
+			}
+		});
+	};
+
+	protected handleInputPacket(entity: Entity, { tick, input }: PlayerInput) {
+
+		const { serverTick } = this.queries.serverPing.first.get(ServerPingState);
+		const inputHistory = entity.get(InputHistory);
+
+		const clientAhead = tick - serverTick;
+
+		// console.log(clientAhead + " Client: " + tick + " Server: " + serverTick);
+
+		if (clientAhead < 1) {
+			console.log('Client sending old input packets ' + clientAhead);
+		}
+
+		if (!inputHistory) {
+			console.log('No player input history');
+		} else {
+			inputHistory.inputs[tick] = input;
 		}
 	}
 }
@@ -82,7 +118,8 @@ class ServerHockey extends Hockey {
 
 		super.setup();
 
-		this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
+		// this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
+		this.addSystem(new ServerAddInputToHistory());
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
@@ -98,27 +135,12 @@ class ServerHockey extends Hockey {
 	}
 
 	handlePlayerInput(entity: Entity, { tick, input }: PlayerInput) {
-		const { serverTick } = entity.get(Session);
-		const inputHistory = entity.get(InputHistory);
-
-		const clientAhead = tick - serverTick;
-
-		// console.log(id + " " + clientAhead + " Client: " + tick + " Server: " + serverTick);
-
-		if (clientAhead < 1) {
-			console.log('Client sending old input packets ' + clientAhead);
-		}
-
-		if (!inputHistory) {
-			console.log('No player input history');
-		} else {
-			inputHistory.inputs[tick] = input;
-		}
+		console.log("Hii")
 	}
 
 	generateSnapshot(): Snapshot {
 		const entitySnapshot = (entity: Entity): SnapshotEntity => {
-			const position = entity.get(Position);
+			// const position = entity.get(Position);
 			const physics = entity.get(PhysicsBody);
 
 			return {
