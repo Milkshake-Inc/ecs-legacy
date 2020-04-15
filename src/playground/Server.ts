@@ -17,7 +17,7 @@ import { performance } from 'perf_hooks';
 import { Name } from './components/Name';
 import { Paddle } from './components/Paddle';
 import Score from './components/Score';
-import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotEntity } from './spaces/Hockey';
+import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotPhysicsEntity } from './spaces/Hockey';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 
@@ -139,7 +139,7 @@ class ServerHockey extends Hockey {
 	}
 
 	generateSnapshot(): Snapshot {
-		const entitySnapshot = (entity: Entity): SnapshotEntity => {
+		const entitySnapshot = (entity: Entity): SnapshotPhysicsEntity => {
 			// const position = entity.get(Position);
 			const physics = entity.get(PhysicsBody);
 

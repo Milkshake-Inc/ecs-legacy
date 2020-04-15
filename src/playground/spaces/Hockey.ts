@@ -30,12 +30,12 @@ export enum PlayerColor {
 	Blue
 }
 
-export type SnapshotEntity = {
+export type SnapshotPhysicsEntity = {
 	position: { x: number; y: number };
 	velocity: { x: number; y: number };
 };
 
-export type PaddleSnapshotEntity = SnapshotEntity & {
+export type PaddleSnapshotEntity = SnapshotPhysicsEntity & {
 	sessionId: string;
 	name: string;
 	color: PlayerColor;
@@ -44,7 +44,7 @@ export type PaddleSnapshotEntity = SnapshotEntity & {
 
 export type Snapshot = {
 	paddles: PaddleSnapshotEntity[];
-	puck: SnapshotEntity;
+	puck: SnapshotPhysicsEntity;
 	scores: {
 		red: number;
 		blue: number;
