@@ -6,18 +6,18 @@ import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '@ecs/plugins/net/components/Packet';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
+import { ClientPingStateQuery } from '@ecs/plugins/net/systems/ClientPingSystem';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
+import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { Body } from 'matter-js';
 import { ClientHockey } from '../Client';
 import { Paddle } from '../components/Paddle';
 import { Player } from '../components/Player';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
-import { PaddleSnapshotEntity, Snapshot as HockeySnapshot, SnapshotPhysicsEntity } from '../spaces/Hockey';
-import { ClientPingStateQuery } from '@ecs/plugins/net/systems/ClientPingSystem';
+import { Snapshot as HockeySnapshot, SnapshotPhysicsEntity } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
-import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-import { Body } from 'matter-js';
 
 const generateHockeyWorldSnapshotQueries = {
 	input: makeQuery(all(Input)),
@@ -106,8 +106,6 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 	}
 
 	updateSnapshot({ snapshot, tick }: WorldSnapshot<HockeySnapshot>) {
-
-
 		const getSessionId = (entity: Entity): string => {
 			if (entity.has(Session)) {
 				const session = entity.get(Session);
@@ -134,8 +132,13 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 			}
 		});
 
+
+		const perfectMatchPuck = objectIsEqual(this.puckHistory[tick], snapshot.puck);
 		// Apply physics to puck
-		applePhysicsSnapshot(this.queries.puck.first, snapshot.puck);
+		if(!perfectMatchPuck) {
+			console.log("Puck wrong");
+		}
+
 
 		snapshot.paddles.forEach(remoteSnapshot => {
 			const localCreatedPaddle = this.queries.paddles.entities.find(entity => {
@@ -167,7 +170,6 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 					const historicLocalSnapshot = this.playerHistory[remoteTick];
 
 					if (historicLocalSnapshot) {
-
 						// remoteSnapshot contains more than needed, so obj compare wont work.
 						const filteredRemoteSnapshot = {
 							input: remoteSnapshot.input,
@@ -179,11 +181,15 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 						const perfectMatch = objectIsEqual(historicLocalSnapshot, filteredRemoteSnapshot);
 
 						// Miss-match detected - apply servers snapshot to historicLocalSnapshot
-						if (!perfectMatch) {
+						if (!perfectMatch || !perfectMatchPuck) {
+
 							console.log(`🐥 Out of sync with server.`);
 
 							// Override playerHistory with remoteSnapshot
 							Object.assign(this.playerHistory[remoteTick], filteredRemoteSnapshot);
+
+							// Love puck
+							Object.assign(this.puckHistory[remoteTick], generatePhysicsSnapshot(localSessionEntity));
 
 							// Double check not needed - but for my sanity
 							const doubleCheckPerfectMatch = objectIsEqual(this.playerHistory[remoteTick], filteredRemoteSnapshot);
@@ -195,17 +201,20 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 							// Apply the *NEWLY* updated historicLocalSnapshot to the entity
 							applePhysicsSnapshot(localSessionEntity, historicLocalSnapshot);
+							applePhysicsSnapshot(this.queries.puck.first, snapshot.puck);
+
 
 							// And input from that snapshot
 							const localPlayersInput = localSessionEntity.get(Input);
 							Object.assign(localPlayersInput, historicLocalSnapshot.input);
 
 							// Should be rebuilt perectly.
-							const snapshotOfThisRebuiltFrame = generatePlayerPhysicsSnapshot(localSessionEntity)
+							const snapshotOfThisRebuiltFrame = generatePlayerPhysicsSnapshot(localSessionEntity);
 
 							const rebuiltRight = objectIsEqual(snapshotOfThisRebuiltFrame, filteredRemoteSnapshot);
 
 							if (!rebuiltRight) {
+								debugger;
 								console.error("Applied snapshot doesn't look like received!");
 							}
 
