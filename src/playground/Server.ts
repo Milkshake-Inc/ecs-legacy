@@ -123,8 +123,8 @@ class ServerHockey extends Hockey {
 
 			return {
 				position: {
-					x: position.x,
-					y: position.y
+					x: physics.body.position.x,
+					y: physics.body.position.y,
 				},
 				velocity: {
 					x: physics.body.velocity.x,

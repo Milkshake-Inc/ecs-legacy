@@ -44,12 +44,11 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<ReturnType<
 		packets.forEach(packet => this.updateSnapshot(packet));
 
 		if (entity.has(Player)) {
-			const position = entity.get(Position);
 			const physicsBody = entity.get(PhysicsBody);
 			const input = entity.get(Input);
 
 			this.playerHistory[session.serverTick] = {
-				position: { ...position },
+				position: { ...physicsBody.position },
 				velocity: { ...physicsBody.velocity },
 				input: { ...input }
 			};
@@ -156,6 +155,22 @@ S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
 
 								processEntity(localCreatedPaddle, snapshotPaddle);
 								Object.assign(localCreatedPaddle.get(Input), snapshotPaddle.input);
+								const pos = localCreatedPaddle.get(PhysicsBody);
+								const positionOutOfSync =
+									snapshotPaddle.position.x !== pos.position.x ||
+									snapshotPaddle.position.y !== pos.position.y;
+
+									// debugger;
+								if (positionOutOfSync) {
+									debugger;
+									console.log(
+										`😞 Out of Sync AGAIN`
+									);
+								} else {
+									console.log("Remapped well")
+								}
+
+								console.log("Fast foward " + remoteTick + " -> " + localCreatedPaddle.get(Session).serverTick);
 
 								for (
 									let currentEmulatedTick = remoteTick;
@@ -168,7 +183,7 @@ S: Y: ${snapshotPaddle.position.y} C: ${localSnapshot.position.y}`
 									}
 
 									MovementSystem.updateEntityFixed(localCreatedPaddle, 1000 / 60);
-									PhysicsSystem.updateEntityFixed(localCreatedPaddle, 1000 / 60);
+									PhysicsSystem.engineUpdate(1000 / 60);
 								}
 
 								//
