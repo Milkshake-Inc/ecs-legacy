@@ -14,10 +14,10 @@ export default class Input {
 	}
 
 	constructor(
-		public rightKeybinding: number[],
-		public leftKeybinding: number[],
-		public upKeybinding: number[],
-		public downKeybinding: number[],
+		public rightKeybinding: number[] = [],
+		public leftKeybinding: number[] = [],
+		public upKeybinding: number[] = [],
+		public downKeybinding: number[] = [],
 
 		public rightDown: boolean = false,
 		public leftDown: boolean = false,

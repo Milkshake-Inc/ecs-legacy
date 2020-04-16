@@ -37,7 +37,7 @@ class PixiEngine extends TickerEngine {
 		this.addSystem(new RenderSystem());
 		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
-		this.addSystem(new DebugSystem());
+		// this.addSystem(new DebugSystem());
 
 		const camera = new Entity();
 		camera.add(Position);

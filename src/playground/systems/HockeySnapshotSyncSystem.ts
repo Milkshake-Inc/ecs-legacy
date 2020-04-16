@@ -137,6 +137,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 					const newEntity = new Entity();
 					console.log('Creating remote player!');
 					newEntity.add(RemoteSession, { id: remoteSnapshot.sessionId });
+					newEntity.add(Input);
 					this.createPaddle(newEntity, remoteSnapshot.name, remoteSnapshot.color, remoteSnapshot.position);
 					this.engine.addEntity(newEntity);
 				}
@@ -158,7 +159,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 			if(!historyMatchesServer) {
 				console.log("🔌 Out of sync diff - Client diff to server");
-				console.log(diff.diffString(historicLocalSnapshot, snapshot));
+				// console.log(diff.diffString(historicLocalSnapshot, snapshot));
 
 				applySnapshot(this.queries, snapshot);
 
