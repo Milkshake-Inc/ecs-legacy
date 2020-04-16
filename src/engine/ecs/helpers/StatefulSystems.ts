@@ -3,6 +3,7 @@ import { Engine } from '../Engine';
 import { Entity } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
 import { Query } from '../Query';
+import { System } from '../System';
 
 export type Queries = { [index: string]: Query };
 
@@ -35,6 +36,26 @@ export class QueriesIterativeSystem<Q extends Queries = {}> extends IterativeSys
 
 	constructor(query: Query, queries?: Q) {
 		super(query);
+
+		this.queries = queries;
+	}
+
+	public onAddedToEngine(engine: Engine) {
+		if (this.queries) {
+			Object.values(this.queries).forEach(query => {
+				engine.addQuery(query);
+			});
+		}
+
+		super.onAddedToEngine(engine);
+	}
+}
+
+export class QueriesSystem<Q extends Queries = {}> extends System {
+	protected queries: Q;
+
+	constructor(queries?: Q) {
+		super();
 
 		this.queries = queries;
 	}

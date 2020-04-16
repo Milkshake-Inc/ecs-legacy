@@ -16,8 +16,10 @@ import { Paddle } from '../components/Paddle';
 import { Player } from '../components/Player';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
-import { Snapshot as HockeySnapshot, SnapshotPhysicsEntity } from '../spaces/Hockey';
+import { Snapshot as HockeySnapshot, SnapshotPhysicsEntity, Snapshot, PaddleSnapshotEntity, takeSnapshot, applySnapshot } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
+import { Name } from '../components/Name';
+import diff from 'json-diff';
 
 const generateHockeyWorldSnapshotQueries = {
 	input: makeQuery(all(Input)),
@@ -46,64 +48,47 @@ const generatePhysicsSnapshot = (entity: Entity) => {
 	};
 };
 
-const applePhysicsSnapshot = (entity: Entity, snapshot: SnapshotPhysicsEntity) => {
-	const physics = entity.get(PhysicsBody);
 
-	physics.position = {
-		x: snapshot.position.x,
-		y: snapshot.position.y
-	};
-
-	physics.velocity = {
-		x: snapshot.velocity.x,
-		y: snapshot.velocity.y
-	};
-};
 
 const objectIsEqual = (objectA: {}, objectB: {}) => {
 	return JSON.stringify(objectA) == JSON.stringify(objectB);
 };
 
-// const comparePhysicsSnapshot = (snapshotA: SnapshotPhysicsEntity, snapshotB: SnapshotPhysicsEntity) => {
-// 	const position = objectIsEqual(snapshotA.position, snapshotB.position);
-// 	const velocity = objectIsEqual(snapshotA.velocity, snapshotB.velocity);
-// 	return objectIsEqual(position && velocity;
-// };
+const objectIsEqualPrint = (objectA: {}, objectB: {}) => {
+	console.log(JSON.stringify(objectA));
+	console.log(JSON.stringify(objectB));
+	return objectIsEqual(objectA, objectB)
+};
+
+enum NetworkType {
+	APPLY,
+	REWIND,
+}
 
 export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof generateHockeyWorldSnapshotQueries> {
-	// Maybe this should just be WORLD_SNAPSHOTS
-	private playerHistory: (SnapshotPhysicsEntity & { input: Input })[];
-	private puckHistory: SnapshotPhysicsEntity[];
+	private snapshotHistory: Snapshot[];
 
 	constructor(protected engine: Engine, protected createPaddle: ClientHockey['createPaddle']) {
 		super(makeQuery(any(Session)), generateHockeyWorldSnapshotQueries);
 
-		this.playerHistory = [];
-		this.puckHistory = [];
-	}
-
-	get serverTick() {
-		return this.queries.pingState.first.get(ClientPingState).serverTick;
+		this.snapshotHistory = [];
 	}
 
 	updateEntityFixed(entity: Entity) {
-		const session = entity.get(Session);
-
-		if (entity.has(Player)) {
-			this.playerHistory[this.serverTick] = generatePlayerPhysicsSnapshot(entity);
-		}
-
 		// Handle world packets
+		const session = entity.get(Session);
 		const packets = session.socket.handle<WorldSnapshot<HockeySnapshot>>(PacketOpcode.WORLD);
 		packets.forEach(packet => this.updateSnapshot(packet));
 	}
 
 	updateFixed(deltaTime: number) {
-		super.updateFixed(deltaTime);
 
-		const puck = this.queries.puck.first;
-		this.puckHistory[this.serverTick] = generatePhysicsSnapshot(puck);
+
+		this.snapshotHistory[this.serverTick] = takeSnapshot(this.queries);
+
+		super.updateFixed(deltaTime);
 	}
+	private gotFirstSnapshotOnTick: number;
 
 	updateSnapshot({ snapshot, tick }: WorldSnapshot<HockeySnapshot>) {
 		const getSessionId = (entity: Entity): string => {
@@ -132,14 +117,6 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 			}
 		});
 
-
-		const perfectMatchPuck = objectIsEqual(this.puckHistory[tick], snapshot.puck);
-		// Apply physics to puck
-		if(!perfectMatchPuck) {
-			console.log("Puck wrong");
-		}
-
-
 		snapshot.paddles.forEach(remoteSnapshot => {
 			const localCreatedPaddle = this.queries.paddles.entities.find(entity => {
 				const sessionId = getSessionId(entity);
@@ -163,93 +140,130 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 					this.createPaddle(newEntity, remoteSnapshot.name, remoteSnapshot.color, remoteSnapshot.position);
 					this.engine.addEntity(newEntity);
 				}
-			} else {
-				if (localSessionEntity) {
-
-					// console.log(this.queries.puck.first?.get(PhysicsBody).body);
-					// It's our player
-					const remoteTick = tick; // Hack not sure why one a head?
-					const historicLocalSnapshot = this.playerHistory[remoteTick];
-
-					if (historicLocalSnapshot) {
-						// remoteSnapshot contains more than needed, so obj compare wont work.
-						const filteredRemoteSnapshot = {
-							input: remoteSnapshot.input,
-							position: remoteSnapshot.position,
-							velocity: remoteSnapshot.velocity
-						};
-
-						// Checks position, velocity & input match servers
-						const perfectMatch = objectIsEqual(historicLocalSnapshot, filteredRemoteSnapshot);
-
-						if(!perfectMatch) {
-							console.log("player wrong")
-						}
-
-						// Miss-match detected - apply servers snapshot to historicLocalSnapshot
-						if (!perfectMatch || !perfectMatchPuck) {
-
-							console.log(`🐥 Out of sync with server.`);
-
-							// Override playerHistory with remoteSnapshot
-							Object.assign(this.playerHistory[remoteTick], filteredRemoteSnapshot);
-
-							// Love puck
-							Object.assign(this.puckHistory[remoteTick], snapshot.puck);
-
-							// Double check not needed - but for my sanity
-							const doubleCheckPerfectMatch = objectIsEqual(this.playerHistory[remoteTick], filteredRemoteSnapshot);
-
-							console.log(doubleCheckPerfectMatch ? `👍 Applied server snapshot over clients` : `👎 Oh no.`);
-
-							// Revert time back to server snapshots tick
-							console.log(`⏪ Rewinding to tick ${remoteTick}. Fast-Forwarding to ${this.serverTick}`);
-
-							// Apply the *NEWLY* updated historicLocalSnapshot to the entity
-							applePhysicsSnapshot(localSessionEntity, historicLocalSnapshot);
-							applePhysicsSnapshot(this.queries.puck.first, this.puckHistory[remoteTick]);
-
-
-							// And input from that snapshot
-							const localPlayersInput = localSessionEntity.get(Input);
-							Object.assign(localPlayersInput, historicLocalSnapshot.input);
-
-							// Should be rebuilt perectly.
-							const snapshotOfThisRebuiltFrame = generatePlayerPhysicsSnapshot(localSessionEntity);
-
-							const rebuiltRight = objectIsEqual(snapshotOfThisRebuiltFrame, filteredRemoteSnapshot);
-
-							if (!rebuiltRight) {
-								debugger;
-								console.error("Applied snapshot doesn't look like received!");
-							}
-
-							// Since we've applied the servers results of remoteTick, we start applying updates on
-							// the ticks after (let currentEmulatedTick = remoteTick + 1)
-							for (let currentEmulatedTick = remoteTick + 1; currentEmulatedTick <= this.serverTick; currentEmulatedTick++) {
-								const currentEmulatedTickSnapshot = this.playerHistory[currentEmulatedTick];
-
-								const localPlayersInput = localSessionEntity.get(Input);
-								Object.assign(localPlayersInput, currentEmulatedTickSnapshot.input);
-
-								MovementSystem.updateEntityFixed(localSessionEntity, 1000 / 60);
-								PhysicsSystem.engineUpdate(1000 / 60);
-
-								PhysicsSystem.updateEntityFixed(localSessionEntity, 1000 / 60);
-								PhysicsSystem.updateEntityFixed(this.queries.puck.first, 1000 / 60);
-
-								// Store this newly generated snapshot from an authorative server snapshot in history
-								this.playerHistory[currentEmulatedTick] = generatePlayerPhysicsSnapshot(localSessionEntity);
-								this.puckHistory[currentEmulatedTick] = generatePhysicsSnapshot(this.queries.puck.first);
-							}
-						}
-					}
-				}
 			}
 		});
 
+		// console.log(this.queries.puck.first?.get(PhysicsBody).body);
+		// It's our player
+		const remoteTick = tick;
+		const historicLocalSnapshot = this.snapshotHistory[remoteTick];
+
+		// We didn't proccess these frames on client
+		if (remoteTick < this.gotFirstSnapshotOnTick) return;
+
+		// We have this snapshot
+		if (historicLocalSnapshot) {
+
+			const historyMatchesServer = objectIsEqual(historicLocalSnapshot, snapshot);
+
+			if(!historyMatchesServer) {
+
+				console.log(diff.diffString(historicLocalSnapshot, snapshot));
+
+				applySnapshot(this.queries, snapshot);
+
+				// Over ride the old snapshot with the servers new one
+				Object.assign(historicLocalSnapshot, takeSnapshot(this.queries));
+
+				// Check what we've applied is right
+				const appliedCorrectly = objectIsEqual(historicLocalSnapshot, snapshot);
+
+				console.log(appliedCorrectly ? `👍 Applied server snapshot over clients` : `👎 Oh no.`);
+
+				// Revert time back to server snapshots tick
+				console.log(`⏪ Rewinding to tick ${remoteTick}. Fast-Forwarding to ${this.serverTick}`);
+
+				// Since we've applied the servers results of remoteTick, we start applying updates on
+				// the ticks after (let currentEmulatedTick = remoteTick + 1)
+				for (let currentEmulatedTick = remoteTick + 1; currentEmulatedTick <= this.serverTick; currentEmulatedTick++) {
+					const currentEmulatedTickSnapshot = this.snapshotHistory[currentEmulatedTick];
+
+
+					// WE NEED TO APPLY THE PLAYERS INPUT FOR THIS FRAME
+					const localPlayerEntity = this.queries.sessions.first;
+					const localPlayerSession = localPlayerEntity.get(Session);
+					const localPlayerInput = localPlayerEntity.get(Input);
+
+					const localSnapshot = currentEmulatedTickSnapshot.paddles.find((paddle) => paddle.sessionId == localPlayerSession.id);
+
+					Object.assign(localPlayerInput, localSnapshot.input);
+
+					this.engine.getSystem(MovementSystem).updateFixed(1000 / 60);
+					PhysicsSystem.engineUpdate(1000 / 60);
+
+					// Store this newly generated snapshot from an authorative server snapshot in history
+					this.snapshotHistory[currentEmulatedTick] = takeSnapshot(this.queries);
+					// this.puckHistory[currentEmulatedTick] = generatePhysicsSnapshot(this.queries.puck.first);
+				}
+			}
+
+			// if(!appliedCorrectly) {
+				// console.log("Did't apply");
+			// }
+			// debugger;
+
+			// // Miss-match detected - apply servers snapshot to historicLocalSnapshot
+			// if (!perfectMatch || !perfectMatchPuck) {
+
+			// 	console.log(`🐥 Out of sync with server.`);
+
+			// 	// Override playerHistory with remoteSnapshot
+			// 	Object.assign(this.playerHistory[remoteTick], filteredRemoteSnapshot);
+
+			// 	// Love puck
+			// 	Object.assign(this.puckHistory[remoteTick], snapshot.puck);
+
+			// 	// Double check not needed - but for my sanity
+			// 	const doubleCheckPerfectMatch = objectIsEqual(this.playerHistory[remoteTick], filteredRemoteSnapshot);
+
+			// 	console.log(doubleCheckPerfectMatch ? `👍 Applied server snapshot over clients` : `👎 Oh no.`);
+
+			// 	// Revert time back to server snapshots tick
+			// 	console.log(`⏪ Rewinding to tick ${remoteTick}. Fast-Forwarding to ${this.serverTick}`);
+
+			// 	// Apply the *NEWLY* updated historicLocalSnapshot to the entity
+			// 	applePhysicsSnapshot(localSessionEntity, historicLocalSnapshot);
+			// 	applePhysicsSnapshot(this.queries.puck.first, this.puckHistory[remoteTick]);
+
+			// 	// And input from that snapshot
+			// 	const localPlayersInput = localSessionEntity.get(Input);
+			// 	Object.assign(localPlayersInput, historicLocalSnapshot.input);
+
+			// 	// Should be rebuilt perectly.
+			// 	const snapshotOfThisRebuiltFrame = generatePlayerPhysicsSnapshot(localSessionEntity);
+
+			// 	const rebuiltRight = objectIsEqual(snapshotOfThisRebuiltFrame, filteredRemoteSnapshot);
+
+			// 	if (!rebuiltRight) {
+			// 		debugger;
+			// 		console.error("Applied snapshot doesn't look like received!");
+			// 	}
+
+			// 	// Since we've applied the servers results of remoteTick, we start applying updates on
+			// 	// the ticks after (let currentEmulatedTick = remoteTick + 1)
+			// 	for (let currentEmulatedTick = remoteTick + 1; currentEmulatedTick <= this.serverTick; currentEmulatedTick++) {
+			// 		const currentEmulatedTickSnapshot = this.playerHistory[currentEmulatedTick];
+
+			// 		const localPlayersInput = localSessionEntity.get(Input);
+			// 		Object.assign(localPlayersInput, currentEmulatedTickSnapshot.input);
+
+			// 		MovementSystem.updateEntityFixed(localSessionEntity, 1000 / 60);
+			// 		PhysicsSystem.engineUpdate(1000 / 60);
+
+			// 		PhysicsSystem.updateEntityFixed(localSessionEntity, 1000 / 60);
+			// 		PhysicsSystem.updateEntityFixed(this.queries.puck.first, 1000 / 60);
+
+			// 		// Store this newly generated snapshot from an authorative server snapshot in history
+			// 		this.playerHistory[currentEmulatedTick] = generatePlayerPhysicsSnapshot(localSessionEntity);
+			// 		this.puckHistory[currentEmulatedTick] = generatePhysicsSnapshot(this.queries.puck.first);
+			// 	}
+			// }
+		}
+
 		const score = this.queries.score.first.get(Score);
 		Object.assign(score, snapshot.scores);
+
+		this.gotFirstSnapshotOnTick = tick;
 	}
 
 	public bodyAsJson = (body: Body) =>
@@ -273,5 +287,9 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 			diff[key] = typeof a == 'number' ? a - b : 'unknown';
 		});
 		console.table({ client: objectA, server: objectB, diff });
+	}
+
+	get serverTick() {
+		return this.queries.pingState.first.get(ClientPingState).serverTick;
 	}
 }

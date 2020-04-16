@@ -16,6 +16,8 @@ import MovementSystem from '../systems/MovementSystem';
 import { Name } from '../components/Name';
 import { Player } from '../components/Player';
 import Input from '@ecs/plugins/input/components/Input';
+import Session from '@ecs/plugins/net/components/Session';
+import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {
@@ -61,6 +63,105 @@ export const PlayerConfig = [
 		color: PlayerColor.Blue
 	}
 ];
+
+export const generateSnapshotQueries = {
+	sessions: makeQuery(all(Session)),
+	paddles: makeQuery(all(Paddle)),
+	puck: makeQuery(all(Puck)),
+	score: makeQuery(all(Score)),
+};
+
+
+
+export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot: Snapshot) => {
+	const applyEntitySnapshot = (entity: Entity, snapshot: SnapshotPhysicsEntity) => {
+		const physics = entity.get(PhysicsBody);
+
+		physics.position = {
+			x: snapshot.position.x,
+			y: snapshot.position.y
+		};
+
+		physics.velocity = {
+			x: snapshot.velocity.x,
+			y: snapshot.velocity.y
+		};
+	};
+
+	const getSessionId = (entity: Entity): string => {
+		if (entity.has(Session)) {
+			const session = entity.get(Session);
+			return session.id;
+		}
+
+		if (entity.has(RemoteSession)) {
+			const session = entity.get(RemoteSession);
+			return session.id;
+		}
+
+		return '';
+	};
+
+	const findPaddleBySessionId = (findSessionId: string) => queries.paddles.entities.find(entity => {
+		const sessionId = getSessionId(entity);
+		return sessionId == findSessionId;
+	});
+
+	applyEntitySnapshot(queries.puck.first, snapshot.puck);
+
+	snapshot.paddles.forEach((paddleSnapshot) => {
+		const localPaddle = findPaddleBySessionId(paddleSnapshot.sessionId);
+		// console.log("foUND");
+		applyEntitySnapshot(localPaddle, paddleSnapshot);
+		if(localPaddle.has(Input)) {
+			Object.assign(localPaddle.get(Input), paddleSnapshot.input);
+		}
+
+	})
+	// Hard part finding the entity?
+
+}
+
+export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot => {
+
+	const entitySnapshot = (entity: Entity): SnapshotPhysicsEntity => {
+		// const position = entity.get(Position);
+		const physics = entity.get(PhysicsBody);
+
+		return {
+			position: {
+				x: physics.body.position.x,
+				y: physics.body.position.y,
+			},
+			velocity: {
+				x: physics.body.velocity.x,
+				y: physics.body.velocity.y
+			}
+		};
+	};
+
+	const paddleSnapshot = (entity: Entity): PaddleSnapshotEntity => {
+		const session = entity.has(Session) ? entity.get(Session) : entity.get(RemoteSession); // Weird
+		const paddle = entity.get(Paddle);
+		const input = entity.get(Input);
+		const name = entity.get(Name).name;
+		const paddleSnap = entitySnapshot(entity);
+
+		return {
+			sessionId: session.id,
+			name,
+			color: paddle.color,
+			...paddleSnap,
+			input: { ...input }
+		};
+	};
+
+	return {
+		paddles: queries.paddles.entities.map(paddleSnapshot),
+		puck: entitySnapshot(queries.puck.first),
+		scores: queries.score.first.get(Score)
+	};
+}
 
 export default class Hockey extends Space {
 	protected paddleQuery: Query;

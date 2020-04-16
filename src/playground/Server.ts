@@ -6,18 +6,14 @@ import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
 import ServerPingSystem, { ServerPingStateQuery } from '@ecs/plugins/net/systems/ServerPingSystem';
-import { SnapshotCompositorSystem } from '@ecs/plugins/net/systems/ServerSnapshotCompositorSystem';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { allRandom } from 'dog-names';
 import { performance } from 'perf_hooks';
-import { Name } from './components/Name';
-import { Paddle } from './components/Paddle';
-import Score from './components/Score';
-import Hockey, { PaddleSnapshotEntity, PlayerConfig, Snapshot, SnapshotPhysicsEntity } from './spaces/Hockey';
+import Hockey, { PlayerConfig } from './spaces/Hockey';
+import { HockeyServerWorldSnapshotSystem } from './systems/HockeyServerWorldSnapshotSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 
@@ -119,7 +115,7 @@ class ServerHockey extends Hockey {
 		super.setup();
 
 		this.addSystem(new ServerAddInputToHistory());
-		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
+		this.addSystem(new HockeyServerWorldSnapshotSystem());
 
 		this.addSystem(new PuckScoreSystem({ width: 1280, height: 720 }));
 
@@ -131,48 +127,6 @@ class ServerHockey extends Hockey {
 				entity.add(InputHistory);
 			})
 		);
-	}
-
-	generateSnapshot(): Snapshot {
-		const entitySnapshot = (entity: Entity): SnapshotPhysicsEntity => {
-			// const position = entity.get(Position);
-			const physics = entity.get(PhysicsBody);
-
-			return {
-				position: {
-					x: physics.body.position.x,
-					y: physics.body.position.y,
-				},
-				velocity: {
-					x: physics.body.velocity.x,
-					y: physics.body.velocity.y
-				}
-			};
-		};
-
-		const paddleSnapshot = (entity: Entity): PaddleSnapshotEntity => {
-			const session = entity.get(Session);
-			const paddle = entity.get(Paddle);
-			const input = entity.get(Input);
-			const name = entity.get(Name).name;
-			const paddleSnap = entitySnapshot(entity);
-
-			return {
-				sessionId: session.id,
-				name,
-				color: paddle.color,
-				...paddleSnap,
-				input
-			};
-		};
-
-		const score = this.scoreQuery.entities[0].get(Score);
-
-		return {
-			paddles: this.paddleQuery.entities.map(paddleSnapshot),
-			puck: entitySnapshot(this.puck),
-			scores: score
-		};
 	}
 }
 
