@@ -119,7 +119,7 @@ export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot:
 
 	})
 	// Hard part finding the entity?
-
+	Object.assign(queries.score.first.get(Score), snapshot.scores);
 }
 
 export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot => {

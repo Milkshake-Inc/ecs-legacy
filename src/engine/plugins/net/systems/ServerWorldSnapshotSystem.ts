@@ -22,7 +22,7 @@ export abstract class ServerWorldSnapshotSystem<S extends {}, Q extends Queries>
 			opcode: PacketOpcode.WORLD,
 			tick: serverTick,
 			snapshot: this.generateSnapshot()
-		});
+		}, true);
 	}
 
 	abstract generateSnapshot(): S;
