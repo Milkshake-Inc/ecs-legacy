@@ -118,7 +118,6 @@ class ServerHockey extends Hockey {
 
 		super.setup();
 
-		// this.addSystem(new PlayerInputHandlerSystem((e, p) => this.handlePlayerInput(e, p)));
 		this.addSystem(new ServerAddInputToHistory());
 		this.addSystem(new SnapshotCompositorSystem<Snapshot>(this.connections, this.generateSnapshot.bind(this)));
 
@@ -132,10 +131,6 @@ class ServerHockey extends Hockey {
 				entity.add(InputHistory);
 			})
 		);
-	}
-
-	handlePlayerInput(entity: Entity, { tick, input }: PlayerInput) {
-		console.log("Hii")
 	}
 
 	generateSnapshot(): Snapshot {

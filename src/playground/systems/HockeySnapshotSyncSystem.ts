@@ -165,6 +165,8 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 				}
 			} else {
 				if (localSessionEntity) {
+
+					// console.log(this.queries.puck.first?.get(PhysicsBody).body);
 					// It's our player
 					const remoteTick = tick; // Hack not sure why one a head?
 					const historicLocalSnapshot = this.playerHistory[remoteTick];
@@ -180,6 +182,10 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 						// Checks position, velocity & input match servers
 						const perfectMatch = objectIsEqual(historicLocalSnapshot, filteredRemoteSnapshot);
 
+						if(!perfectMatch) {
+							console.log("player wrong")
+						}
+
 						// Miss-match detected - apply servers snapshot to historicLocalSnapshot
 						if (!perfectMatch || !perfectMatchPuck) {
 
@@ -189,7 +195,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 							Object.assign(this.playerHistory[remoteTick], filteredRemoteSnapshot);
 
 							// Love puck
-							Object.assign(this.puckHistory[remoteTick], generatePhysicsSnapshot(localSessionEntity));
+							Object.assign(this.puckHistory[remoteTick], snapshot.puck);
 
 							// Double check not needed - but for my sanity
 							const doubleCheckPerfectMatch = objectIsEqual(this.playerHistory[remoteTick], filteredRemoteSnapshot);
@@ -201,7 +207,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 							// Apply the *NEWLY* updated historicLocalSnapshot to the entity
 							applePhysicsSnapshot(localSessionEntity, historicLocalSnapshot);
-							applePhysicsSnapshot(this.queries.puck.first, snapshot.puck);
+							applePhysicsSnapshot(this.queries.puck.first, this.puckHistory[remoteTick]);
 
 
 							// And input from that snapshot
@@ -234,6 +240,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 								// Store this newly generated snapshot from an authorative server snapshot in history
 								this.playerHistory[currentEmulatedTick] = generatePlayerPhysicsSnapshot(localSessionEntity);
+								this.puckHistory[currentEmulatedTick] = generatePhysicsSnapshot(this.queries.puck.first);
 							}
 						}
 					}
