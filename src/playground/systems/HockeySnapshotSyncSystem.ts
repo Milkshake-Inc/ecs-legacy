@@ -9,13 +9,10 @@ import Session from '@ecs/plugins/net/components/Session';
 import { ClientPingStateQuery } from '@ecs/plugins/net/systems/ClientPingSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import { any, makeQuery } from '@ecs/utils/QueryHelper';
-import { Body } from 'matter-js';
+import diff from 'json-diff';
 import { ClientHockey } from '../Client';
-import Score from '../components/Score';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, Snapshot, takeSnapshot } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
-import diff from 'json-diff';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 
 const generateHockeyWorldSnapshotQueries = {
 	...generateSnapshotQueries,
