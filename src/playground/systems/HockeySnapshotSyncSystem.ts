@@ -20,7 +20,7 @@ import { Snapshot as HockeySnapshot, SnapshotPhysicsEntity, Snapshot, PaddleSnap
 import MovementSystem from './MovementSystem';
 import { Name } from '../components/Name';
 import diff from 'json-diff';
-
+import chalk from 'chalk';
 const generateHockeyWorldSnapshotQueries = {
 	input: makeQuery(all(Input)),
 	sessions: makeQuery(all(Session)),
@@ -157,7 +157,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 			const historyMatchesServer = objectIsEqual(historicLocalSnapshot, snapshot);
 
 			if(!historyMatchesServer) {
-
+				console.log("🔌 Out of sync diff - Client diff to server");
 				console.log(diff.diffString(historicLocalSnapshot, snapshot));
 
 				applySnapshot(this.queries, snapshot);
@@ -186,10 +186,12 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 					const localSnapshot = currentEmulatedTickSnapshot.paddles.find((paddle) => paddle.sessionId == localPlayerSession.id);
 
-					Object.assign(localPlayerInput, localSnapshot.input);
+					if(localSnapshot) {
+						Object.assign(localPlayerInput, { ...localSnapshot.input });
+					}
 
 					this.engine.getSystem(MovementSystem).updateFixed(1000 / 60);
-					PhysicsSystem.engineUpdate(1000 / 60);
+					this.engine.getSystem(PhysicsSystem).updateFixed(1000 / 60);
 
 					// Store this newly generated snapshot from an authorative server snapshot in history
 					this.snapshotHistory[currentEmulatedTick] = takeSnapshot(this.queries);
