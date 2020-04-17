@@ -9,6 +9,8 @@ export type Queries = { [index: string]: Query };
 
 export class StatefulIterativeSystem<StateComponent extends { [index: string]: {} } | {}, Q extends Queries = {}> extends IterativeSystem {
 	protected state: StateComponent;
+	protected stateEntity: Entity;
+
 	protected queries: Q;
 
 	constructor(query: Query, stateComponent: (() => StateComponent) | StateComponent, queries?: Q) {
@@ -19,7 +21,10 @@ export class StatefulIterativeSystem<StateComponent extends { [index: string]: {
 	}
 
 	public onAddedToEngine(engine: Engine) {
-		engine.addEntity(new Entity().add(this.state));
+		this.stateEntity = new Entity();
+		this.stateEntity.add(this.state);
+		engine.addEntity(this.stateEntity);
+		console.log(this.stateEntity)
 
 		if (this.queries) {
 			Object.values(this.queries).forEach(query => {

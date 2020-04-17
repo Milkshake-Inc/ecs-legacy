@@ -86,6 +86,7 @@ export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot:
 			x: snapshot.velocity.x,
 			y: snapshot.velocity.y
 		};
+
 	};
 
 	const getSessionId = (entity: Entity): string => {
@@ -127,7 +128,7 @@ export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot 
 	const entitySnapshot = (entity: Entity): SnapshotPhysicsEntity => {
 		// const position = entity.get(Position);
 		const physics = entity.get(PhysicsBody);
-
+		// debugger;
 		return {
 			position: {
 				x: physics.body.position.x,

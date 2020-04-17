@@ -20,7 +20,7 @@ import { SparksTrail } from './components/Emitters';
 import Score from './components/Score';
 import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
-import { HockeySnapshotSyncSystem } from './systems/HockeySnapshotSyncSystem';
+import { HockeySnapshotSyncSystem, HockeySnapshotSyncDebugSystem } from './systems/HockeySnapshotSyncSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
@@ -108,6 +108,7 @@ export class ClientHockey extends Hockey {
 		this.addEntity(new Entity().add(Score));
 
 		this.addSystem(new HockeySnapshotSyncSystem(this.worldEngine, this.createPaddle.bind(this)));
+		this.addSystem(new HockeySnapshotSyncDebugSystem());
 
 		const scoreboard = new Entity();
 		scoreboard.add(Position, { x: 1280 / 2, z: 10 });

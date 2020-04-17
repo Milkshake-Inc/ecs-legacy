@@ -101,6 +101,7 @@ export default class RenderSystem extends StatefulIterativeSystem<RenderState, Q
 			const position = entity.get(Position);
 
 			graphics.position.set(position.x, position.y);
+			graphics.zIndex = position.z;
 		}
 
 		if (entity.has(ParticleEmitter)) {

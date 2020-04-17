@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { QueriesIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { StatefulIterativeSystem, QueriesSystem } from '@ecs/ecs/helpers/StatefulSystems';
 import Input from '@ecs/plugins/input/components/Input';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '@ecs/plugins/net/components/Packet';
@@ -8,11 +8,16 @@ import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientPingStateQuery } from '@ecs/plugins/net/systems/ClientPingSystem';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-import { any, makeQuery } from '@ecs/utils/QueryHelper';
+import { any, makeQuery, all } from '@ecs/utils/QueryHelper';
 import diff from 'json-diff';
 import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, Snapshot, takeSnapshot } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
+import { Graphics } from 'pixi.js';
+import Position from '@ecs/plugins/Position';
+import Color from '@ecs/math/Color';
+
+
 
 const generateHockeyWorldSnapshotQueries = {
 	...generateSnapshotQueries,
@@ -23,16 +28,105 @@ const objectIsEqual = (objectA: {}, objectB: {}) => {
 	return JSON.stringify(objectA) == JSON.stringify(objectB);
 };
 
-export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof generateHockeyWorldSnapshotQueries> {
+class HockeySnapshotSyncState {
+	public snapshotHistory: Snapshot[];
+	public receivedServerSnapshot: number;
+	public latestAuthoritativeSnapshotTick: number;
 
-	private snapshotHistory: Snapshot[];
-	private receivedServerSnapshot: number;
-	private latestAuthoritativeSnapshotTick: number;
+	public snapshotsRewrote: number[];
+
+	constructor() {
+		this.snapshotHistory = [];
+		this.receivedServerSnapshot = 0;
+		this.latestAuthoritativeSnapshotTick = 0;
+		this.snapshotsRewrote = [];
+	}
+}
+
+// Helper func for this
+const getHockeySnapshotSyncState = {
+	snapshotState: makeQuery(all(HockeySnapshotSyncState))
+}
+
+export class HockeySnapshotSyncDebugSystem extends QueriesSystem<typeof getHockeySnapshotSyncState & typeof ClientPingStateQuery> {
+
+	private graphics: Graphics;
+
+	constructor() {
+		super({
+			...getHockeySnapshotSyncState,
+			...ClientPingStateQuery,
+		})
+	}
+
+	public onAddedToEngine(engine: Engine) {
+
+		super.onAddedToEngine(engine);
+
+		const entity = new Entity();
+		entity.add(Position, {z: 1000});
+		entity.add(this.graphics = new Graphics());
+
+
+
+		engine.addEntity(entity);
+	}
+
+	public updateFixed(deltaTime: number) {
+		this.graphics.clear();
+		this.graphics.beginFill(0x00ff00, 1);
+		this.graphics.drawRect(0, 0, 400, 50);
+
+		if(this.queries.snapshotState.first) {
+			const state = this.queries.snapshotState.first.get(HockeySnapshotSyncState);
+			const { serverTick } = this.queries.pingState.first.get(ClientPingState);
+
+			for (let index = 0; index < 400; index++) {
+				const targetTick = (serverTick - index);
+				const position = 400 - index;
+
+				if(state.snapshotsRewrote.includes(targetTick)) {
+
+					const amount = state.snapshotsRewrote.filter((a) => a == targetTick).length;
+
+					let color = Color.GreenYellow;
+
+					if(amount > 1) color = Color.Yellow;
+					if(amount > 2) color = Color.OrangeRed;
+					if(amount > 3) color = Color.Red;
+					// if(amount > 2) color = perc2color(25);
+					// if(amount > 3) color = Color.BlueViolet;
+
+					this.graphics.beginFill(color, 1);
+					this.graphics.drawRect(position, 0, 1, 50);
+				}
+
+			}
+		}
+
+	}
+}
+
+
+function perc2color(perc) {
+	let r, g, b = 0;
+	if(perc < 50) {
+		r = 255;
+		g = Math.round(5.1 * perc);
+	}
+	else {
+		g = 255;
+		r = Math.round(510 - 5.10 * perc);
+	}
+	const h = r * 0x10000 + g * 0x100 + b * 0x1;
+	return h;
+}
+
+
+export class HockeySnapshotSyncSystem extends StatefulIterativeSystem<HockeySnapshotSyncState, typeof generateHockeyWorldSnapshotQueries> {
 
 	constructor(protected engine: Engine, protected createPaddle: ClientHockey['createPaddle']) {
-		super(makeQuery(any(Session)), generateHockeyWorldSnapshotQueries);
-
-		this.snapshotHistory = [];
+		super(makeQuery(any(Session)), new HockeySnapshotSyncState(), generateHockeyWorldSnapshotQueries);
 	}
 
 	updateEntityFixed(entity: Entity) {
@@ -43,7 +137,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 	}
 
 	updateFixed(deltaTime: number) {
-		this.snapshotHistory[this.serverTick] = takeSnapshot(this.queries);
+		this.state.snapshotHistory[this.serverTick] = takeSnapshot(this.queries);
 
 		super.updateFixed(deltaTime);
 	}
@@ -104,16 +198,16 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 
 
 		const remoteTick = tick;
-		const historicLocalSnapshot = this.snapshotHistory[remoteTick];
+		const historicLocalSnapshot = this.state.snapshotHistory[remoteTick];
 
 		// We didn't proccess these frames on client
-		if (remoteTick < this.receivedServerSnapshot) {
+		if (remoteTick < this.state.receivedServerSnapshot) {
 			console.log("👴🏼 Snapshot before my time");
 			return;
 		}
 
 		// Old update
-		if (tick < this.latestAuthoritativeSnapshotTick) {
+		if (tick < this.state.latestAuthoritativeSnapshotTick) {
 			console.log("👴🏼 Received old/out-of-order packet - Ignoring.");
 			return;
 		}
@@ -126,6 +220,10 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 			if(!historyMatchesServer) {
 				console.log("🔌 Out of sync diff - Client diff to server");
 				console.log(diff.diffString(historicLocalSnapshot, snapshot));
+
+				if(this.state.snapshotsRewrote.includes(tick)) {
+					console.log("Weird")
+				}
 
 				applySnapshot(this.queries, snapshot);
 
@@ -140,7 +238,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 					console.log(diff.diffString(historicLocalSnapshot, snapshot));
 				}
 
-				this.latestAuthoritativeSnapshotTick = tick;
+				this.state.latestAuthoritativeSnapshotTick = tick;
 
 				// Revert time back to server snapshots tick
 				console.log(`⏪ Rewinding to tick ${remoteTick}. Fast-Forwarding to ${this.serverTick} (${this.serverTick - remoteTick}ticks)`);
@@ -148,7 +246,7 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 				// Since we've applied the servers results of remoteTick, we start applying updates on
 				// the ticks after (let currentEmulatedTick = remoteTick + 1)
 				for (let currentEmulatedTick = remoteTick + 1; currentEmulatedTick <= this.serverTick; currentEmulatedTick++) {
-					const currentEmulatedTickSnapshot = this.snapshotHistory[currentEmulatedTick];
+					const currentEmulatedTickSnapshot = this.state.snapshotHistory[currentEmulatedTick];
 
 					// WE NEED TO APPLY THE PLAYERS INPUT FOR THIS FRAME
 					// Bit of a hack?
@@ -167,12 +265,14 @@ export class HockeySnapshotSyncSystem extends QueriesIterativeSystem<typeof gene
 					this.engine.getSystem(PhysicsSystem).updateFixed(1000 / 60);
 
 					// Store this newly generated snapshot from an authorative server snapshot in history
-					this.snapshotHistory[currentEmulatedTick] = takeSnapshot(this.queries);
+					this.state.snapshotHistory[currentEmulatedTick] = takeSnapshot(this.queries);
+
+					this.state.snapshotsRewrote.push(currentEmulatedTick);
 				}
 			}
 		}
 
-		this.receivedServerSnapshot = tick;
+		this.state.receivedServerSnapshot = tick;
 	}
 
 	get serverTick() {
