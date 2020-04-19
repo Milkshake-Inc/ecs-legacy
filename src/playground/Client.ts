@@ -20,12 +20,13 @@ import { SparksTrail } from './components/Emitters';
 import Score from './components/Score';
 import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
-import { HockeySnapshotSyncSystem, HockeySnapshotSyncDebugSystem } from './systems/HockeySnapshotSyncSystem';
+import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
 import Camera from '@ecs/plugins/camera/components/Camera';
 import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
+import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -37,7 +38,7 @@ class PixiEngine extends TickerEngine {
 		this.addSystem(new RenderSystem());
 		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
-		// this.addSystem(new DebugSystem());
+		this.addSystem(new DebugSystem());
 
 		const camera = new Entity();
 		camera.add(Position);
@@ -107,8 +108,8 @@ export class ClientHockey extends Hockey {
 
 		this.addEntity(new Entity().add(Score));
 
-		this.addSystem(new HockeySnapshotSyncSystem(this.worldEngine, this.createPaddle.bind(this)));
-		this.addSystem(new HockeySnapshotSyncDebugSystem());
+		this.addSystem(new HockeyClientWorldSnapshotSystem(this.worldEngine, this.createPaddle.bind(this)));
+		this.addSystem(new HockeyClientSnapshotDebugSystem());
 
 		const scoreboard = new Entity();
 		scoreboard.add(Position, { x: 1280 / 2, z: 10 });

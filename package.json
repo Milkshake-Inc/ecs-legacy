@@ -50,6 +50,7 @@
 	},
 	"devDependencies": {
 		"@types/dat.gui": "^0.7.5",
+		"@types/jest": "^25.2.1",
 		"@types/matter-js": "^0.14.2",
 		"@types/sat": "^0.0.30",
 		"@typescript-eslint/eslint-plugin": "^2.26.0",
@@ -61,8 +62,10 @@
 		"eslint": "^6.8.0",
 		"eslint-plugin-spellcheck": "^0.0.14",
 		"html-webpack-plugin": "^4.0.4",
+		"jest": "^25.3.0",
 		"nodemon-webpack-plugin": "^4.3.1",
 		"prettier": "^2.0.2",
+		"ts-jest": "^25.4.0",
 		"ts-loader": "^6.2.2",
 		"typescript": "^3.7.5",
 		"webpack": "^4.42.1",

@@ -59,7 +59,7 @@ class ServerApplyInputFromHistory extends QueriesIterativeSystem<typeof ServerPi
 		if (history[serverTick]) {
 			Object.assign(input, history[serverTick]);
 		} else {
-			console.log("Don't have input for this frame :(");
+			// console.log("Don't have input for this frame :(");
 		}
 	}
 }

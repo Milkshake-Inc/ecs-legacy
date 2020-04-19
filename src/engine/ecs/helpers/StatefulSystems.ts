@@ -24,7 +24,6 @@ export class StatefulIterativeSystem<StateComponent extends { [index: string]: {
 		this.stateEntity = new Entity();
 		this.stateEntity.add(this.state);
 		engine.addEntity(this.stateEntity);
-		console.log(this.stateEntity)
 
 		if (this.queries) {
 			Object.values(this.queries).forEach(query => {

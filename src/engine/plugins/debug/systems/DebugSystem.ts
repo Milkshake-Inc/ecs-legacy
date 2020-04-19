@@ -11,6 +11,8 @@ export class DebugSystem extends IterativeSystem {
 	protected engine: Engine;
 	protected ecsGraph: ECSGraph;
 
+	private open: boolean;
+
 	constructor() {
 		super(makeQuery());
 
@@ -19,8 +21,10 @@ export class DebugSystem extends IterativeSystem {
 
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
-		if (this.keyboard.isDownOnce(Key.BACKWARD_TICK)) {
+
+		if (this.keyboard.isEitherDown([Key.BACKWARD_TICK, Key.R]) && !this.open) {
 			this.ecsGraph.toggle(true);
+			this.open = true;
 		}
 
 		this.ecsGraph.update(dt);

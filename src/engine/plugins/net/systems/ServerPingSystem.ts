@@ -12,7 +12,7 @@ export const ServerPingStateQuery = {
 }
 
 export default class ServerPingSystem extends StatefulIterativeSystem<ServerPingState, typeof ServerConnectionQuery> {
-	constructor(tickRate: number, pingInterval = 1000) {
+	constructor(tickRate: number, pingInterval = 3000) {
 		super(makeQuery(any(Session)), new ServerPingState(tickRate, pingInterval), ServerConnectionQuery);
 	}
 
@@ -33,8 +33,6 @@ export default class ServerPingSystem extends StatefulIterativeSystem<ServerPing
 				},
 				true
 			);
-
-			console.log(`⏱ Sending ping`);
 		}
 
 		super.updateFixed(deltaTime);
