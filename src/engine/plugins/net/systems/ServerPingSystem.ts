@@ -9,7 +9,7 @@ import { ServerConnectionQuery, ServerConnectionState } from './ServerConnection
 
 export const ServerPingStateQuery = {
 	serverPing: makeQuery(all(ServerPingState))
-}
+};
 
 export default class ServerPingSystem extends StatefulIterativeSystem<ServerPingState, typeof ServerConnectionQuery> {
 	constructor(tickRate: number, pingInterval = 3000) {

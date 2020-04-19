@@ -4,25 +4,29 @@ import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import { ServerConnectionQuery, ServerConnectionState } from '@ecs/plugins/net/systems/ServerConnectionSystem';
 import { ServerPingStateQuery } from '@ecs/plugins/net/systems/ServerPingSystem';
 
-export abstract class ServerWorldSnapshotSystem<S extends {}, Q extends Queries> extends QueriesSystem<typeof ServerConnectionQuery & typeof ServerPingStateQuery & Q> {
-
+export abstract class ServerWorldSnapshotSystem<S extends {}, Q extends Queries> extends QueriesSystem<
+	typeof ServerConnectionQuery & typeof ServerPingStateQuery & Q
+> {
 	constructor(query: Q) {
 		super({
 			...ServerConnectionQuery,
 			...ServerPingStateQuery,
-			...query,
-		})
+			...query
+		});
 	}
 
 	public updateFixed(deltaTime: number) {
 		const { serverTick } = this.serverPingState;
 		const { broadcast } = this.serverConnectionState;
 
-		broadcast({
-			opcode: PacketOpcode.WORLD,
-			tick: serverTick,
-			snapshot: this.generateSnapshot()
-		}, true);
+		broadcast(
+			{
+				opcode: PacketOpcode.WORLD,
+				tick: serverTick,
+				snapshot: this.generateSnapshot()
+			},
+			true
+		);
 	}
 
 	abstract generateSnapshot(): S;

@@ -3,10 +3,10 @@ import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldS
 
 export class HockeyServerWorldSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot, typeof generateSnapshotQueries> {
 	constructor() {
-		super(generateSnapshotQueries)
+		super(generateSnapshotQueries);
 	}
 
 	generateSnapshot(): Snapshot {
-		return takeSnapshot(this.queries)
+		return takeSnapshot(this.queries);
 	}
 }

@@ -8,6 +8,7 @@ import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
+import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<HockeySnapshot, typeof generateSnapshotQueries> {
 	protected engine: Engine;
@@ -70,7 +71,8 @@ export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<H
 				if (localSessionEntity) {
 					console.log('Creating local player');
 					this.createPaddle(localSessionEntity, remoteSnapshot.name, remoteSnapshot.color, remoteSnapshot.position);
-					localSessionEntity.add(Input.BOTH());
+					localSessionEntity.add(Input);
+					localSessionEntity.add(InputKeybindings.BOTH());
 				} else {
 					const newEntity = new Entity();
 					console.log('Creating remote player!');

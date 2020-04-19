@@ -68,10 +68,8 @@ export const generateSnapshotQueries = {
 	sessions: makeQuery(all(Session)),
 	paddles: makeQuery(all(Paddle)),
 	puck: makeQuery(all(Puck)),
-	score: makeQuery(all(Score)),
+	score: makeQuery(all(Score))
 };
-
-
 
 export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot: Snapshot) => {
 	const applyEntitySnapshot = (entity: Entity, snapshot: SnapshotPhysicsEntity) => {
@@ -86,7 +84,6 @@ export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot:
 			x: snapshot.velocity.x,
 			y: snapshot.velocity.y
 		};
-
 	};
 
 	const getSessionId = (entity: Entity): string => {
@@ -103,28 +100,27 @@ export const applySnapshot = (queries: typeof generateSnapshotQueries, snapshot:
 		return '';
 	};
 
-	const findPaddleBySessionId = (findSessionId: string) => queries.paddles.entities.find(entity => {
-		const sessionId = getSessionId(entity);
-		return sessionId == findSessionId;
-	});
+	const findPaddleBySessionId = (findSessionId: string) =>
+		queries.paddles.entities.find(entity => {
+			const sessionId = getSessionId(entity);
+			return sessionId == findSessionId;
+		});
 
 	applyEntitySnapshot(queries.puck.first, snapshot.puck);
 
-	snapshot.paddles.forEach((paddleSnapshot) => {
+	snapshot.paddles.forEach(paddleSnapshot => {
 		const localPaddle = findPaddleBySessionId(paddleSnapshot.sessionId);
 		// console.log("foUND");
 		applyEntitySnapshot(localPaddle, paddleSnapshot);
-		if(localPaddle.has(Input)) {
+		if (localPaddle.has(Input)) {
 			Object.assign(localPaddle.get(Input), paddleSnapshot.input);
 		}
-
-	})
+	});
 	// Hard part finding the entity?
 	Object.assign(queries.score.first.get(Score), snapshot.scores);
-}
+};
 
 export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot => {
-
 	const entitySnapshot = (entity: Entity): SnapshotPhysicsEntity => {
 		// const position = entity.get(Position);
 		const physics = entity.get(PhysicsBody);
@@ -132,7 +128,7 @@ export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot 
 		return {
 			position: {
 				x: physics.body.position.x,
-				y: physics.body.position.y,
+				y: physics.body.position.y
 			},
 			velocity: {
 				x: physics.body.velocity.x,
@@ -162,7 +158,7 @@ export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot 
 		puck: entitySnapshot(queries.puck.first),
 		scores: queries.score.first.get(Score)
 	};
-}
+};
 
 export default class Hockey extends Space {
 	protected paddleQuery: Query;

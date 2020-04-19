@@ -32,15 +32,14 @@ export default class Socket {
 
 	public sendImmediate(packet: Packet) {
 		// setTimeout(() => {
-			this.socket.raw.emit(encode(packet));
+		this.socket.raw.emit(encode(packet));
 		// }, this.socket instanceof ServerChannel ? this.serverLagRTT / 2 : 0);
-
 	}
 
 	public handleImmediate(handler: (packet: Packet) => void) {
 		this.socket.onRaw(data => {
 			// setTimeout(() => {
-			handler(decode(data as ArrayBuffer) as Packet)
+			handler(decode(data as ArrayBuffer) as Packet);
 			// }, this.serverLagRTT / 2);
 		});
 	}

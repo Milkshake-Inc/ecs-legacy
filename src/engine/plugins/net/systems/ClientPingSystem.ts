@@ -10,7 +10,6 @@ export const ClientPingStateQuery = {
 };
 
 export default class ClientPingSystem extends StatefulIterativeSystem<ClientPingState> {
-
 	constructor() {
 		super(makeQuery(any(Session)), new ClientPingState());
 	}
@@ -29,8 +28,8 @@ export default class ClientPingSystem extends StatefulIterativeSystem<ClientPing
 		const session = entity.get(Session);
 
 		// TODO Unbind this!
-		session.socket.handleImmediate((packet) => {
-			this.handlePacket(entity, session, packet)
+		session.socket.handleImmediate(packet => {
+			this.handlePacket(entity, session, packet);
 		});
 	};
 

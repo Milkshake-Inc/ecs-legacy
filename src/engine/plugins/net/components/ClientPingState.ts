@@ -9,7 +9,5 @@ export class ClientPingState {
 	// 	return 1000 / this.serverTickRate;
 	// }
 
-	constructor() {
-
-	}
+	constructor() {}
 }

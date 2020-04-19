@@ -10,7 +10,6 @@ import { injectPolyDecomp } from '../utils/PhysicsUtils';
 injectPolyDecomp();
 
 export default class PhysicsSystem extends IterativeSystem {
-
 	static engineUpdate(dt: number) {
 		Engine.update(this.engine, dt);
 	}

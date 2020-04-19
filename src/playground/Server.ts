@@ -1,6 +1,6 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { QueriesIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
-import Input, { InputHistory } from '@ecs/plugins/input/components/Input';
+import Input from '@ecs/plugins/input/components/Input';
 import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
@@ -16,6 +16,7 @@ import Hockey, { PlayerConfig } from './spaces/Hockey';
 import { HockeyServerWorldSnapshotSystem } from './systems/HockeyServerWorldSnapshotSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
+import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
@@ -54,7 +55,7 @@ class ServerApplyInputFromHistory extends QueriesIterativeSystem<typeof ServerPi
 	updateEntityFixed(entity: Entity, dt: number) {
 		const input = entity.get(Input);
 		const history = entity.get(InputHistory).inputs;
-		const { serverTick } = this.queries.serverPing.first.get(ServerPingState)
+		const { serverTick } = this.queries.serverPing.first.get(ServerPingState);
 
 		if (history[serverTick]) {
 			Object.assign(input, history[serverTick]);
@@ -81,7 +82,6 @@ class ServerAddInputToHistory extends QueriesIterativeSystem<typeof ServerPingSt
 	};
 
 	protected handleInputPacket(entity: Entity, { tick, input }: PlayerInput) {
-
 		const { serverTick } = this.queries.serverPing.first.get(ServerPingState);
 		const inputHistory = entity.get(InputHistory);
 

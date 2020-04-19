@@ -4,12 +4,13 @@ import { QueryBuilder } from '@ecs/ecs/Query';
 import Input from '../components/Input';
 import { Entity } from '@ecs/ecs/Entity';
 import Key from '@ecs/input/Key';
+import InputKeybindings from '../components/InputKeybindings';
 
 export class InputSystem extends IterativeSystem {
 	keyboard: Keyboard;
 
 	constructor() {
-		super(new QueryBuilder().contains(Input).build());
+		super(new QueryBuilder().contains(Input, InputKeybindings).build());
 
 		this.keyboard = new Keyboard();
 	}
@@ -22,12 +23,13 @@ export class InputSystem extends IterativeSystem {
 
 	protected updateEntityFixed(entity: Entity, dt: number) {
 		const input = entity.get(Input);
+		const keyBindings = entity.get(InputKeybindings);
 
-		input.rightDown = this.keyboard.isEitherDown(input.rightKeybinding);
-		input.leftDown = this.keyboard.isEitherDown(input.leftKeybinding);
+		input.rightDown = this.keyboard.isEitherDown(keyBindings.rightKeybinding);
+		input.leftDown = this.keyboard.isEitherDown(keyBindings.leftKeybinding);
 
-		input.upDown = this.keyboard.isEitherDown(input.upKeybinding);
-		input.downDown = this.keyboard.isEitherDown(input.downKeybinding);
+		input.upDown = this.keyboard.isEitherDown(keyBindings.upKeybinding);
+		input.downDown = this.keyboard.isEitherDown(keyBindings.downKeybinding);
 
 		input.jumpDown = this.keyboard.isDown(Key.SPACEBAR) || this.keyboard.isDown(Key.W);
 		input.fireDown = this.keyboard.isDown(Key.E);

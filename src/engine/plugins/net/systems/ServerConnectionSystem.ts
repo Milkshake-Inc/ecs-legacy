@@ -16,7 +16,7 @@ export class ServerConnectionState {
 
 export const ServerConnectionQuery = {
 	serverConnection: makeQuery(all(ServerConnectionState))
-}
+};
 
 export default class ServerConnectionSystem extends StatefulIterativeSystem<ServerConnectionState> {
 	private engine: Engine;
