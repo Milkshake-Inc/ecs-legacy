@@ -6,7 +6,9 @@ type Readonly<T> = {
 };
 
 export default class PhysicsBody {
-	constructor(public body: Readonly<Body>, public collisions: CollisionEvent[] = []) {}
+	constructor(public body: Body, public collisions: CollisionEvent[] = []) {
+		// body.timeScale = 0;
+	}
 
 	public static circle(radius: number, options?: IBodyDefinition, maxSides?: number): PhysicsBody {
 		return new PhysicsBody(Bodies.circle(0, 0, radius, options, maxSides));

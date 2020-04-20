@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/ecs/Entity';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { Queries, StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
 import { any, makeQuery, all } from '@ecs/utils/QueryHelper';
 import diff from 'json-diff';
@@ -47,11 +47,22 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 	abstract runSimulation(deltaTime: number): void;
 	abstract applyPlayerInput(tick: number): void;
 
-	updateEntityFixed(entity: Entity) {
+	added = false;
+
+
+	updateEntityFixed(entity: Entity, deltaTime: number) {
 		// Handle world packets
-		const session = entity.get(Session);
-		const packets = session.socket.handle<WorldSnapshot<TSnapshot>>(PacketOpcode.WORLD);
-		packets.forEach(packet => this.updateSnapshot(packet));
+		if(!this.added) {
+			const session = entity.get(Session);
+		session.socket.handleImmediate((packet) => {
+
+			if(packet.opcode == PacketOpcode.WORLD) {
+				this.updateSnapshot(packet as any);
+			}
+		});
+
+		this.added = true;
+		}
 	}
 
 	updateFixed(deltaTime: number) {
@@ -62,6 +73,10 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 
 	updateSnapshot({ snapshot, tick }: WorldSnapshot<TSnapshot>) {
 		this.createEntitiesFromSnapshot(snapshot);
+
+		// If first tick - applySnapshot()
+
+
 
 		const remoteTick = tick;
 		const historicLocalSnapshot = this.state.snapshotHistory[remoteTick];
@@ -84,7 +99,7 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 
 			if (!historyMatchesServer) {
 				console.log('🔌 Out of sync diff - Client diff to server');
-				console.log(diff.diffString(historicLocalSnapshot, snapshot));
+				console.log(diff.diffString(snapshot, historicLocalSnapshot));
 
 				if (this.state.snapshotsRewrote.includes(tick)) {
 					console.log("🤯 We've already re-written state for this frame. Why again?");
@@ -94,6 +109,8 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 
 				// Over ride the old snapshot with the servers new one
 				Object.assign(historicLocalSnapshot, this.takeSnapshot());
+
+				this.state.snapshotHistory[tick] = historicLocalSnapshot;
 
 				// Check what we've applied is right
 				const appliedCorrectly = objectIsEqual(historicLocalSnapshot, snapshot);
@@ -125,6 +142,10 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 					this.state.snapshotsRewrote.push(currentEmulatedTick);
 				}
 			}
+		} else {
+			console.log("Not on record - apply")
+			this.applySnapshot(snapshot);
+			this.state.snapshotHistory[this.serverTick] = this.takeSnapshot();
 		}
 
 		this.state.receivedServerSnapshot = tick;

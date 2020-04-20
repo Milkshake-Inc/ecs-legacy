@@ -17,6 +17,6 @@ export default class InputKeybindings {
 		public rightKeybinding: number[] = [],
 		public leftKeybinding: number[] = [],
 		public upKeybinding: number[] = [],
-		public downKeybinding: number[] = [],
+		public downKeybinding: number[] = []
 	) {}
 }

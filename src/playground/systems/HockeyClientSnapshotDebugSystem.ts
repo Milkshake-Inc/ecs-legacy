@@ -28,7 +28,7 @@ export class HockeyClientSnapshotDebugSystem extends QueriesSystem<typeof Client
 		engine.addEntity(entity);
 	}
 
-	public updateFixed(deltaTime: number) {
+	public update(deltaTime: number) {
 		this.graphics.clear();
 		this.graphics.beginFill(0x00ff00, 1);
 		this.graphics.drawRect(0, 0, 400, 50);
@@ -41,18 +41,17 @@ export class HockeyClientSnapshotDebugSystem extends QueriesSystem<typeof Client
 				const targetTick = serverTick - index;
 				const position = 400 - index;
 
+				let color = Color.White;
+
 				if (snapshotsRewrote.includes(targetTick)) {
 					const amount = snapshotsRewrote.filter(a => a == targetTick).length;
 
-					let color = Color.GreenYellow;
-
-					if (amount > 1) color = Color.Yellow;
-					if (amount > 2) color = Color.OrangeRed;
-					if (amount > 3) color = Color.Red;
-
-					this.graphics.beginFill(color, 1);
-					this.graphics.drawRect(position, 0, 1, 50);
+					if (amount == 1) color = Color.YellowGreen;
+					if (amount > 1) color = Color.Tomato;
 				}
+
+				this.graphics.beginFill(color, 1);
+				this.graphics.drawRect(position, 0, 1, 50);
 			}
 		}
 	}

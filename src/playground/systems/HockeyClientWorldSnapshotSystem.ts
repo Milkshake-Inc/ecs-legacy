@@ -9,6 +9,8 @@ import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
 import MovementSystem from './MovementSystem';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+import { Body } from 'matter-js';
+import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 
 export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<HockeySnapshot, typeof generateSnapshotQueries> {
 	protected engine: Engine;
@@ -87,9 +89,8 @@ export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<H
 
 	runSimulation(deltaTime: number) {
 		this.engine.getSystem(MovementSystem).updateFixed(deltaTime);
-
 		// Maybe this updates static objects and puts stuff out of sync?
-		this.engine.getSystem(PhysicsSystem).updateFixed(deltaTime);
+		this.engine.getSystem(PhysicsSystem).updateFixedApple(deltaTime);
 	}
 
 	applyPlayerInput(tick: number) {
