@@ -51,7 +51,8 @@ module.exports = {
 					'src',
 					'onend',
 					'autoplay',
-					'html5'
+					'html5',
+					'ogg'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

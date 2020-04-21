@@ -18,7 +18,6 @@ import { Player } from '../components/Player';
 import Input from '@ecs/plugins/input/components/Input';
 import Session from '@ecs/plugins/net/components/Session';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
-import { Body, Vector } from 'matter-js';
 
 // http://www.iforce2d.net/b2dtut/collision-filtering
 export enum CollisionCategory {

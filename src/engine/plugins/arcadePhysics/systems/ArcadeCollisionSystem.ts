@@ -3,8 +3,7 @@ import { ReactionSystem } from '@ecs/ecs/ReactionSystem';
 import Position from '@ecs/plugins/Position';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import ArcadePhysics from '../components/ArcadePhysics';
-import { Circle, Polygon, Response, Box, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle, Vector } from 'sat';
-import Vector2 from '@ecs/math/Vector2';
+import { Circle, Polygon, Response, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle } from 'sat';
 import { ArcadeCollisionShape } from '../components/ArcadeCollisionShape';
 
 export default class ArcadeCollisionSystem extends ReactionSystem {

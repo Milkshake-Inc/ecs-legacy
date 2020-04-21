@@ -31,14 +31,16 @@ export default class SoundSystem extends IterativeSystem {
 			this.sounds.set(entity, howl);
 		}
 
-		if (sound.play && !howl.playing()) {
+		if (sound.play && !sound.playing) {
 			console.log(`🔊 playing sound ${sound.src}`);
-			howl.play();
+			howl.play(sound.playSprite);
+			sound.playing = true;
 		}
 
-		if (!sound.play && howl.playing()) {
+		if (!sound.play && sound.playing) {
 			console.log(`🔊 stopping sound ${sound.src}`);
 			howl.stop();
+			sound.playing = false;
 		}
 
 		if (howl['_muted'] != sound.mute) {

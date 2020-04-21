@@ -7,6 +7,7 @@ import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
 import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
+import { getSound } from '../constants/sound';
 
 export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSystem<HockeySnapshot, typeof generateSnapshotQueries> {
 	protected engine: Engine;
@@ -28,6 +29,9 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 
 		if (snapshot.scores.red > currentState.scores.red || snapshot.scores.blue > currentState.scores.blue) {
 			console.log('Just scored');
+			const sound = new Entity();
+			sound.add(getSound('win'));
+			this.engine.addEntity(sound);
 		}
 
 		applySnapshot(this.queries, snapshot);
