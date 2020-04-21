@@ -47,7 +47,11 @@ module.exports = {
 					'renderer',
 					'ecs',
 					'dat',
-					'gui'
+					'gui',
+					'src',
+					'onend',
+					'autoplay',
+					'html5'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

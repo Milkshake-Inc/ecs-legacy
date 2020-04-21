@@ -3,9 +3,6 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
-import Camera from '@ecs/plugins/camera/components/Camera';
-import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
-import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
@@ -26,6 +23,11 @@ import Splash from './spaces/Splash';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
+import Camera from '@ecs/plugins/camera/components/Camera';
+import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
+import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -93,10 +95,12 @@ export class ClientHockey extends Hockey {
 
 	setup() {
 		this.addSystem(new InputSystem());
+		this.addSystem(new SoundSystem());
 
 		const background = new Entity();
 		background.add(Position);
 		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
+		background.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.1 });
 		this.addEntities(background);
 
 		this.addSystem(new ClientInputSenderSystem());
