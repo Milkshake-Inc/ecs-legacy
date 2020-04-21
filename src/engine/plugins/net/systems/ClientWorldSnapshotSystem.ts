@@ -49,19 +49,17 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 
 	added = false;
 
-
 	updateEntityFixed(entity: Entity, deltaTime: number) {
 		// Handle world packets
-		if(!this.added) {
+		if (!this.added) {
 			const session = entity.get(Session);
-		session.socket.handleImmediate((packet) => {
+			session.socket.handleImmediate(packet => {
+				if (packet.opcode == PacketOpcode.WORLD) {
+					this.updateSnapshot(packet as any);
+				}
+			});
 
-			if(packet.opcode == PacketOpcode.WORLD) {
-				this.updateSnapshot(packet as any);
-			}
-		});
-
-		this.added = true;
+			this.added = true;
 		}
 	}
 
@@ -75,8 +73,6 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 		this.createEntitiesFromSnapshot(snapshot);
 
 		// If first tick - applySnapshot()
-
-
 
 		const remoteTick = tick;
 		const historicLocalSnapshot = this.state.snapshotHistory[remoteTick];
@@ -143,7 +139,7 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries e
 				}
 			}
 		} else {
-			console.log("Not on record - apply")
+			console.log('Not on record - apply');
 			this.applySnapshot(snapshot);
 			this.state.snapshotHistory[this.serverTick] = this.takeSnapshot();
 		}

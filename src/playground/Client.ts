@@ -3,6 +3,9 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
+import Camera from '@ecs/plugins/camera/components/Camera';
+import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
+import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
@@ -23,11 +26,6 @@ import Splash from './spaces/Splash';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
-import Camera from '@ecs/plugins/camera/components/Camera';
-import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
-import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
-import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -110,7 +108,6 @@ export class ClientHockey extends Hockey {
 		this.addEntity(new Entity().add(Score));
 
 		this.addSystem(new HockeyClientWorldSnapshotSystem(this.worldEngine, this.createPaddle.bind(this)));
-		this.addSystem(new HockeyClientSnapshotDebugSystem());
 
 		const scoreboard = new Entity();
 		scoreboard.add(Position, { x: 1280 / 2, z: 10 });

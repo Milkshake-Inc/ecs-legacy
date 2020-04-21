@@ -22,7 +22,7 @@ export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}, TQuer
 	}
 
 	updateSnapshot({ snapshot }: WorldSnapshot<TSnapshot>) {
-        this.createEntitiesFromSnapshot(snapshot);
+		this.createEntitiesFromSnapshot(snapshot);
 		this.applySnapshot(snapshot);
 	}
 }

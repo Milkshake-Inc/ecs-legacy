@@ -63,7 +63,6 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 
 		// Hack ATM - Collision response - Should move to own system
 		if (collision && response && entityA.has(ArcadePhysics)) {
-
 			// if(entityA.get(ArcadePhysics).isStatic) return;
 
 			// const velocity = new Vector2(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y);
@@ -76,8 +75,6 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 			entityAComponents.physics.velocity.x = 0;
 			entityAComponents.physics.velocity.y = 0;
 			entityBComponents.physics.velocity.set(0, 0);
-
-
 
 			this.updateCollisionShape(entityA);
 
