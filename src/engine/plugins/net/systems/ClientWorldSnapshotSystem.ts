@@ -6,6 +6,7 @@ import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
 import Session from '../components/Session';
 import { ClientPingStateQuery } from './ClientPingSystem';
+import { objectIsEqual } from '../utils/ObjectCompare';
 
 export class ClientWorldSnapshotState<T> {
 	public snapshotHistory: T[];
@@ -24,10 +25,6 @@ export class ClientWorldSnapshotState<T> {
 
 export const ClientWorldSnapshotStateQuery = {
 	snapshotState: makeQuery(all(ClientWorldSnapshotState))
-};
-
-const objectIsEqual = (objectA: {}, objectB: {}) => {
-	return JSON.stringify(objectA) == JSON.stringify(objectB);
 };
 
 export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries extends Queries = {}> extends StatefulIterativeSystem<
