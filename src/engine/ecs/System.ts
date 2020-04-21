@@ -1,10 +1,13 @@
 import { Engine } from './Engine';
+import { Signal } from 'typed-signals';
 
 /**
  * Engine system
  * Represents logic container for updating engine state
  */
 export abstract class System {
+	public signalOnAddedToEngine: Signal<(engine: Engine) => void> = new Signal();
+	public signalOnRemovedFromEngine: Signal<(engine: Engine) => void> = new Signal();
 	/**
 	 * Gets a priority of the system
 	 * It should be initialized before adding to the system

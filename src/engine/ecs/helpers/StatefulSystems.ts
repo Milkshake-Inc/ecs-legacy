@@ -1,11 +1,42 @@
-import { isFunction } from '@ecs/utils/Class';
+import { isFunction, Class } from '@ecs/utils/Class';
 import { Engine } from '../Engine';
 import { Entity } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
 import { Query } from '../Query';
 import { System } from '../System';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
 
 export type Queries = { [index: string]: Query };
+
+export type StateComponent = { [index: string]: {} } | {};
+
+export const useState = <TStateComponent>(system: System, state: TStateComponent) => {
+	const entity = new Entity();
+	entity.add(state);
+
+	system.signalOnAddedToEngine.connect(engine => {
+		engine.addEntity(entity);
+	});
+
+	return { state, entity };
+};
+
+export const getState = <T>(state: Class<T>) => makeQuery(all(state));
+
+export const useQueries = <Q extends Queries = {}>(system: System, queries?: Q) => {
+	const onAddedCallback = engine => {
+		if (queries) {
+			Object.values(queries).forEach(query => {
+				engine.addQuery(query);
+			});
+		}
+	};
+
+	system.signalOnAddedToEngine.connect(onAddedCallback);
+	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+
+	return queries;
+};
 
 export class StatefulIterativeSystem<StateComponent extends { [index: string]: {} } | {}, Q extends Queries = {}> extends IterativeSystem {
 	protected state: StateComponent;

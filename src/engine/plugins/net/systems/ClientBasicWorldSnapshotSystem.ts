@@ -1,14 +1,12 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { Queries, QueriesIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { any, makeQuery } from '@ecs/utils/QueryHelper';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
 import Session from '../components/Session';
 
-export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}, TQueries extends Queries = {}> extends QueriesIterativeSystem<
-	TQueries
-> {
-	constructor(queries: TQueries) {
-		super(makeQuery(any(Session)), queries);
+export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}> extends IterativeSystem {
+	constructor() {
+		super(makeQuery(any(Session)));
 	}
 
 	abstract applySnapshot(snapshot: TSnapshot): void;

@@ -1,17 +1,20 @@
-import { PacketOpcode, Packet } from '../components/Packet';
-import { makeQuery, any, all } from '@ecs/utils/QueryHelper';
-import { EntitySnapshot, Entity } from '@ecs/ecs/Entity';
-import Session from '../components/Session';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { getState, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { any, makeQuery } from '@ecs/utils/QueryHelper';
 import { ClientPingState } from '../components/ClientPingState';
+import { Packet, PacketOpcode } from '../components/Packet';
+import Session from '../components/Session';
 
 export const ClientPingStateQuery = {
-	pingState: makeQuery(all(ClientPingState))
+	pingState: getState(ClientPingState)
 };
 
-export default class ClientPingSystem extends StatefulIterativeSystem<ClientPingState> {
+export default class ClientPingSystem extends IterativeSystem {
+	protected state = useState(this, new ClientPingState()).state;
+
 	constructor() {
-		super(makeQuery(any(Session)), new ClientPingState());
+		super(makeQuery(any(Session)));
 	}
 
 	public updateFixed(deltaTime: number) {

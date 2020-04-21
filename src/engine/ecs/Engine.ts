@@ -104,6 +104,8 @@ export class Engine {
 				this._systems.splice(index, 0, system);
 			}
 		}
+
+		system.signalOnAddedToEngine.emit(this);
 		system.onAddedToEngine(this);
 
 		return this;
@@ -121,6 +123,7 @@ export class Engine {
 		if (index === -1) return this;
 		this._systems.splice(index, 1);
 		system.onRemovedFromEngine(this);
+		system.signalOnRemovedFromEngine.emit(this);
 
 		return this;
 	}
