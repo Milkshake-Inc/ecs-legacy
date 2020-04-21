@@ -1,27 +1,32 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { StatefulIterativeSystem, useQueries, useState, useQueriesFancy } from '@ecs/ecs/helpers/StatefulSystems';
 import { Query } from '@ecs/ecs/Query';
 import Random from '@ecs/math/Random';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import Position from '@ecs/plugins/Position';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery, any } from '@ecs/utils/QueryHelper';
 import { Paddle } from '../components/Paddle';
 import { Puck } from '../components/Puck';
 import Score from '../components/Score';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 
 type PuckScoreSystemQueries = {
 	paddles: Query;
 };
 
-export default class PuckScoreSystem extends StatefulIterativeSystem<Score, PuckScoreSystemQueries> {
+export default class PuckScoreSystem extends IterativeSystem {
 	protected bounds: { width: number; height: number };
 	protected padding: number;
 	protected spawnVelocity: number;
 
+	protected queries = useQueriesFancy(this, {
+		paddles: all(Paddle)
+	});
+
+	protected state = useState(this, new Score()).state;
+
 	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
-		super(makeQuery(all(Position, PhysicsBody, Puck)), new Score(), {
-			paddles: makeQuery(all(Paddle))
-		});
+		super(makeQuery(all(Position, PhysicsBody, Puck)));
 
 		this.bounds = bounds;
 		this.padding = padding;

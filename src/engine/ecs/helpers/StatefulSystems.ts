@@ -4,7 +4,7 @@ import { Entity } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
 import { Query } from '../Query';
 import { System } from '../System';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
+import { makeQuery, all, QueryPattern } from '@ecs/utils/QueryHelper';
 
 export type Queries = { [index: string]: Query };
 
@@ -24,7 +24,7 @@ export const useState = <TStateComponent>(system: System, state: TStateComponent
 export const getState = <T>(state: Class<T>) => makeQuery(all(state));
 
 export const useQueries = <Q extends Queries = {}>(system: System, queries?: Q) => {
-	const onAddedCallback = engine => {
+	const onAddedCallback = (engine: Engine) => {
 		if (queries) {
 			Object.values(queries).forEach(query => {
 				engine.addQuery(query);
@@ -36,6 +36,33 @@ export const useQueries = <Q extends Queries = {}>(system: System, queries?: Q) 
 	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
 
 	return queries;
+};
+
+type Queryfy<T> = {
+	[P in keyof T]?: Query;
+};
+
+export const useQueriesFancy = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(system: System, queries?: Q): Queryfy<Q> => {
+	const outObject = {};
+
+	const onAddedCallback = (engine: Engine) => {
+		if (queries) {
+			Object.keys(queries).forEach(key => {
+				const queryPattern = queries[key];
+				const asArray = queryPattern instanceof Array ? queryPattern : [queryPattern];
+				const query = makeQuery(...asArray);
+
+				outObject[key] = query;
+
+				engine.addQuery(query);
+			});
+		}
+	};
+
+	system.signalOnAddedToEngine.connect(onAddedCallback);
+	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+
+	return outObject;
 };
 
 export class StatefulIterativeSystem<StateComponent extends { [index: string]: {} } | {}, Q extends Queries = {}> extends IterativeSystem {
