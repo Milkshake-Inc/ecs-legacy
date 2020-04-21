@@ -1,4 +1,4 @@
-import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { Entity } from '@ecs/ecs/Entity';
 import { Queries, StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
 import { any, makeQuery, all } from '@ecs/utils/QueryHelper';
 import diff from 'json-diff';

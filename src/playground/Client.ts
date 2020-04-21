@@ -27,6 +27,7 @@ import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
 import Camera from '@ecs/plugins/camera/components/Camera';
 import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
+import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;

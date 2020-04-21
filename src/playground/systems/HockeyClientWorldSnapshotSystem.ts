@@ -1,18 +1,14 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Input from '@ecs/plugins/input/components/Input';
+import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
-import { ClientWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientWorldSnapshotSystem';
-import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
+import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
 import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
-import MovementSystem from './MovementSystem';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
-import { Body } from 'matter-js';
-import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 
-export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<HockeySnapshot, typeof generateSnapshotQueries> {
+export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSystem<HockeySnapshot, typeof generateSnapshotQueries> {
 	protected engine: Engine;
 	protected createPaddle: ClientHockey['createPaddle'];
 
@@ -85,27 +81,5 @@ export class HockeyClientWorldSnapshotSystem extends ClientWorldSnapshotSystem<H
 				}
 			}
 		});
-	}
-
-	runSimulation(deltaTime: number) {
-		this.engine.getSystem(MovementSystem).updateFixed(deltaTime);
-		// Maybe this updates static objects and puts stuff out of sync?
-		this.engine.getSystem(PhysicsSystem).updateFixedApple(deltaTime);
-	}
-
-	applyPlayerInput(tick: number) {
-		const currentEmulatedTickSnapshot = this.state.snapshotHistory[tick];
-
-		const localPlayerEntity = this.queries.sessions.first;
-		const localPlayerSession = localPlayerEntity.get(Session);
-		const localPlayerInput = localPlayerEntity.get(Input);
-
-		// Find our local paddle
-		const localSnapshot = currentEmulatedTickSnapshot.paddles.find(paddle => paddle.sessionId == localPlayerSession.id);
-
-		if (localSnapshot) {
-			// Apply history input yo now
-			Object.assign(localPlayerInput, { ...localSnapshot.input });
-		}
 	}
 }
