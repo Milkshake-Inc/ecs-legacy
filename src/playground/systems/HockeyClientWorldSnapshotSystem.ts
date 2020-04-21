@@ -24,6 +24,12 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 	}
 
 	applySnapshot(snapshot: HockeySnapshot) {
+		const currentState = this.takeSnapshot();
+
+		if (snapshot.scores.red > currentState.scores.red || snapshot.scores.blue > currentState.scores.blue) {
+			console.log('Just scored');
+		}
+
 		applySnapshot(this.queries, snapshot);
 	}
 
