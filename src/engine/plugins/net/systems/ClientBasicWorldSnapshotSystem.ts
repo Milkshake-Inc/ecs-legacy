@@ -18,11 +18,15 @@ export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}, TQuer
 		// Handle world packets
 		const session = entity.get(Session);
 		const packets = session.socket.handle<WorldSnapshot<TSnapshot>>(PacketOpcode.WORLD);
-		packets.forEach(packet => this.updateSnapshot(packet));
+
+		if (packets.length > 0) {
+			this.updateSnapshot(packets.pop());
+		}
 	}
 
 	updateSnapshot({ snapshot }: WorldSnapshot<TSnapshot>) {
 		this.createEntitiesFromSnapshot(snapshot);
+
 		this.applySnapshot(snapshot);
 	}
 }
