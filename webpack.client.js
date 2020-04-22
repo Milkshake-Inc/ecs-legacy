@@ -10,7 +10,7 @@ const chalk = require('chalk');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
 
 const config = {
-	entry: ['./src/playground/client/index.ts', 'webpack-plugin-serve/client'],
+	entry: ['./src/playground/Client.ts', 'webpack-plugin-serve/client'],
 	module: {
 		rules: [
 			{

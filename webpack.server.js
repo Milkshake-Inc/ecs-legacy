@@ -6,7 +6,7 @@ const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 
 const config = {
-	entry: './src/playground/server/index.ts',
+	entry: './src/playground/Server.ts',
 	target: 'node',
 	node: {
 		// Need this when working with express, otherwise the build fails
@@ -15,7 +15,8 @@ const config = {
 	},
 	plugins: [
 		new NodemonPlugin({
-			quiet: true
+			quiet: true,
+			nodeArgs: ['--inspect']
 		}),
 		new WebpackBar({
 			name: 'Server',

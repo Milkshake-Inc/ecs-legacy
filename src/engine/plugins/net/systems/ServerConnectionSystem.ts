@@ -1,61 +1,70 @@
-import { ServerChannel, GeckosServer } from '@geckos.io/server/lib/server';
-import { Entity } from '@ecs/ecs/Entity';
 import { Engine } from '@ecs/ecs/Engine';
-import { makeQuery, any } from '@ecs/utils/QueryHelper';
-import Session from '../components/Session';
+import { Entity } from '@ecs/ecs/Entity';
+import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { GeckosServer, ServerChannel } from '@geckos.io/server/lib/server';
 import { Packet } from '../components/Packet';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { encode, decode } from '@msgpack/msgpack';
+import Session from '../components/Session';
+import Socket from '../utils/Socket';
 
-export default class ServerConnectionSystem extends IterativeSystem {
+export class ServerConnectionState {
+	broadcast: ServerConnectionSystem['broadcast'];
+	disconnect: ServerConnectionSystem['disconnect'];
+
+	constructor() {}
+}
+
+export const ServerConnectionQuery = {
+	serverConnection: makeQuery(all(ServerConnectionState))
+};
+
+export default class ServerConnectionSystem extends StatefulIterativeSystem<ServerConnectionState> {
 	private engine: Engine;
 	private server: GeckosServer;
 
 	constructor(engine: Engine, server: GeckosServer) {
-		super(makeQuery(any(Session)));
+		super(makeQuery(any(Session)), new ServerConnectionState());
 
 		this.engine = engine;
 		this.server = server;
+
+		this.state.broadcast = this.broadcast.bind(this);
+		this.state.disconnect = this.disconnect.bind(this);
 
 		this.server.onConnection(this.handleConnection.bind(this));
 
 		console.log(`🔌 Server started!`);
 	}
 
-	public broadcast(packet: Packet) {
+	public broadcast(packet: Packet, immediate = false) {
 		for (const entity of this.query.entities) {
-			entity.get(Session).outgoing.push(packet);
+			const socket = entity.get(Session).socket;
+			immediate ? socket.sendImmediate(packet) : socket.send(packet);
 		}
+	}
+
+	public disconnect(entity: Entity) {
+		this.handleDisconnection(entity);
 	}
 
 	protected handleConnection(socket: ServerChannel) {
 		console.log(`🔌 Socket connected ${socket.id}`);
 
 		const session = new Entity();
-		session.add(Session, { id: socket.id, socket: socket });
+		session.add(Session, { id: socket.id, socket: new Socket(socket) });
 		this.engine.addEntity(session);
 
-		socket.onRaw(data => this.handleMessage(session, decode(data as ArrayBuffer) as Packet));
 		socket.onDisconnect(() => this.handleDisconnection(session));
 	}
 
 	protected handleDisconnection(entity: Entity) {
 		const session = entity.get(Session);
-		console.log(`🔌 Socket connected ${session.id}`);
+		console.log(`🔌 Socket disconnected ${session.id}`);
 		this.engine.removeEntity(entity);
+		session.socket.disconnect();
 	}
 
-	protected handleMessage(entity: Entity, packet: Packet) {
-		entity.get(Session).incoming.push(packet);
-		// entity.get(Session).incomingBuffer.push(packet);
-	}
-
-	protected updateEntity(entity: Entity): void {
-		const session = entity.get(Session);
-		session.outgoing.forEach(packet => session.socket.raw.emit(encode(packet)));
-		session.outgoing = [];
-		session.incoming = [];
-		// session.incoming = session.incomingBuffer;
-		// session.incomingBuffer = [];
+	protected updateEntityFixed(entity: Entity): void {
+		entity.get(Session)?.socket.update();
 	}
 }

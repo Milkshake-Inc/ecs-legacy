@@ -5,8 +5,25 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Body, Engine, Events, World } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
 import { CollisionEvent } from './PhysicsCollisionSystem';
+import { injectPolyDecomp } from '../utils/PhysicsUtils';
+
+injectPolyDecomp();
 
 export default class PhysicsSystem extends IterativeSystem {
+	static engineUpdate(dt: number) {
+		Engine.update(this.engine, dt);
+	}
+
+	static updateEntityFixed(entity: Entity, dt: number) {
+		const physicsBody = entity.get(PhysicsBody);
+		const position = entity.get(Position);
+
+		position.x = physicsBody.body.position.x;
+		position.y = physicsBody.body.position.y;
+	}
+
+	public static engine: Engine;
+
 	public readonly engine: Engine;
 	public readonly world: World;
 
@@ -14,6 +31,10 @@ export default class PhysicsSystem extends IterativeSystem {
 		super(makeQuery(all(Position, PhysicsBody)));
 
 		this.engine = Engine.create();
+
+		// HACK
+		PhysicsSystem.engine = this.engine;
+
 		this.world = this.engine.world;
 		this.world.gravity = gravity;
 
@@ -28,38 +49,65 @@ export default class PhysicsSystem extends IterativeSystem {
 		});
 	}
 
-	private entityFromBody(body: Body): Entity {
-		return this.entities.find(entity => entity.get(PhysicsBody).body == body);
+	public updateFixed(dt: number) {
+		this.clearCollisions();
+
+		// console.log("update phsycis")
+		Engine.update(this.engine, dt, 1);
+
+		super.updateFixed(dt);
+	}
+
+	public updateFixedApple(dt: number) {
+		this.clearCollisions();
+
+		// console.log("update phsycis")
+		Engine.update(this.engine, dt, 0);
+
+		super.updateFixed(dt);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
 		const physicsBody = entity.get(PhysicsBody);
 		const position = entity.get(Position);
 
-		physicsBody.collisions = [];
-
 		position.x = physicsBody.body.position.x;
 		position.y = physicsBody.body.position.y;
 	}
 
-	entityAdded = (snapshot: EntitySnapshot) => {
-		const body = snapshot.get(PhysicsBody);
-		const position = snapshot.get(Position);
+	private entityFromBody(body: Body): Entity {
+		return this.entities.find(entity => {
+			const physicsBody = entity.get(PhysicsBody);
+
+			return physicsBody.body == body || physicsBody.parts.includes(body);
+		});
+	}
+
+	private clearCollisions() {
+		this.entities.forEach(entity => {
+			entity.get(PhysicsBody).collisions = [];
+		});
+	}
+
+	entityAdded = ({ entity }: EntitySnapshot) => {
+		const body = entity.get(PhysicsBody);
+		const position = entity.get(Position);
 
 		body.position = {
 			x: position.x,
 			y: position.y
 		};
 
-		World.addBody(this.world, snapshot.get(PhysicsBody).body);
+		const alreadyHaveBody = this.world.bodies.includes(entity.get(PhysicsBody).body);
+
+		if (alreadyHaveBody) {
+			console.warn('Tried adding body twice');
+		}
+
+		World.addBody(this.world, entity.get(PhysicsBody).body);
 	};
 
 	entityRemoved = (snapshot: EntitySnapshot) => {
 		World.remove(this.world, snapshot.get(PhysicsBody).body);
 	};
-
-	public updateFixed(dt: number) {
-		super.updateFixed(dt);
-		Engine.update(this.engine, dt);
-	}
 }

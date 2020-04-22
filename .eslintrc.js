@@ -40,7 +40,19 @@ module.exports = {
 					'sortable',
 					'Chamferable',
 					'Collinear',
-					'Centre'
+					'Centre',
+					'Stateful',
+					'Decomp',
+					'func',
+					'renderer',
+					'ecs',
+					'dat',
+					'gui',
+					'src',
+					'onend',
+					'autoplay',
+					'html5',
+					'ogg'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

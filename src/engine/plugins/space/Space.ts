@@ -1,30 +1,56 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import SpaceTag from './components/SpaceTag';
+import { System } from '@ecs/ecs/System';
+import { Query } from '@ecs/ecs/Query';
 
-export default class Space extends Engine {
+export default class Space {
 	public readonly name: string;
 
-	private worldEngine: Engine;
+	protected worldEngine: Engine;
 	private loaded = false;
 	private visible = false;
 
-	constructor(engine: Engine, name: string) {
-		super();
+	private entities: Entity[];
+	private systems: System[];
+	private queries: Query[];
 
+	constructor(engine: Engine, name: string) {
 		this.name = name;
 		this.worldEngine = engine;
+
+		this.entities = [];
+		this.systems = [];
+		this.queries = [];
+	}
+
+	public addEntities(...entities: Entity[]) {
+		entities.forEach(entity => this.addEntity(entity));
 	}
 
 	public addEntity(entity: Entity) {
 		entity.add(SpaceTag, { spaceName: this.name });
-		return super.addEntity(entity);
+		this.entities.push(entity);
+	}
+
+	public addSystem(systems: System) {
+		this.systems.push(systems);
+	}
+
+	public async toggle(reset = false) {
+		if (this.visible) {
+			return this.close(reset);
+		}
+		await this.open(reset);
 	}
 
 	public async open(reset = false) {
 		console.log(`🚀opening space ${this.name}`);
-		if (reset || !this.loaded) {
+		if (reset && this.loaded) {
 			this.clear();
+		}
+
+		if (!this.loaded) {
 			await this.preload();
 			this.setup();
 			this.loaded = true;
@@ -43,7 +69,6 @@ export default class Space extends Engine {
 
 	public clear() {
 		this.loaded = false;
-		super.clear();
 	}
 
 	protected async preload(): Promise<any> {}
@@ -52,9 +77,10 @@ export default class Space extends Engine {
 
 	private show() {
 		if (this.visible) return;
-		this.entities.forEach(e => this.worldEngine.addEntity(e));
-		this.systems.forEach(s => this.worldEngine.addSystem(s));
 		this.queries.forEach(q => this.worldEngine.addQuery(q));
+		this.systems.forEach(s => this.worldEngine.addSystem(s));
+		this.entities.forEach(e => this.worldEngine.addEntity(e));
+
 		this.visible = true;
 	}
 
