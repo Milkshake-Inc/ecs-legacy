@@ -9,10 +9,7 @@ export class ServerPingState {
 		return 1000 / this.serverTickRate;
 	}
 
-	constructor(serverTickRate: number, serverPingInterval = 5000) {
-		this.serverTickRate = serverTickRate;
-		this.serverPingInterval = serverPingInterval;
-
+	constructor() {
 		this.serverTime = 0;
 		this.serverTick = 0;
 		this.timeSinceLastPing = -1;

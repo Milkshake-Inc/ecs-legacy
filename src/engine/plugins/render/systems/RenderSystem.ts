@@ -18,39 +18,34 @@ import Sprite from '../components/Sprite';
 import BitmapText from '../components/BitmapText';
 import ParticleEmitter from '../components/ParticleEmitter';
 import { Emitter as PixiParticleEmitter } from 'pixi-particles';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { useState, useQueries } from '@ecs/ecs/helpers/StatefulSystems';
 import RenderState from '../components/RenderState';
-import { Query } from '@ecs/ecs/Query';
 import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 
-type Queries = {
-	cameraState: Query;
-};
+export default class RenderSystem extends IterativeSystem {
+	protected state = useState(this, new RenderState());
+	protected queries = useQueries(this, {
+		cameraState: all(CameraRenderState)
+	});
 
-export default class RenderSystem extends StatefulIterativeSystem<RenderState, Queries> {
 	protected defaultRenderSprite: PixiSprite;
 	protected displayObjects: Map<DisplayObject, PixiDisplayObject> = new Map();
 	protected emitters: Map<ParticleEmitter, PixiParticleEmitter> = new Map();
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
-		super(
-			makeQuery(all(Position), any(Sprite, BitmapText, Graphics, ParticleEmitter)),
-			new RenderState(
-				new Container(),
-				new Application({
-					view: <HTMLCanvasElement>document.getElementById('canvas'),
-					backgroundColor,
-					width,
-					height,
-					// resolution: window.devicePixelRatio,
-					antialias: false,
-					autoStart: false
-				})
-			),
-			{
-				cameraState: makeQuery(all(CameraRenderState))
-			}
-		);
+		super(makeQuery(all(Position), any(Sprite, BitmapText, Graphics, ParticleEmitter)));
+
+		this.state.container = new Container();
+		this.state.application = new Application({
+			view: <HTMLCanvasElement>document.getElementById('canvas'),
+			backgroundColor,
+			width,
+			height,
+			// resolution: window.devicePixelRatio,
+			antialias: false,
+			autoStart: false
+		});
 
 		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width, height }))));
 

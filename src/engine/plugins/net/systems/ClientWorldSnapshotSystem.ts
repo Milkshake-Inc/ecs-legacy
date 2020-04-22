@@ -1,11 +1,11 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { Queries, StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
-import { any, makeQuery, all } from '@ecs/utils/QueryHelper';
+import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import diff from 'json-diff';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
 import Session from '../components/Session';
-import { ClientPingStateQuery } from './ClientPingSystem';
 import { objectIsEqual } from '../utils/ObjectCompare';
 
 export class ClientWorldSnapshotState<T> {
@@ -23,19 +23,15 @@ export class ClientWorldSnapshotState<T> {
 	}
 }
 
-export const ClientWorldSnapshotStateQuery = {
-	snapshotState: makeQuery(all(ClientWorldSnapshotState))
-};
+export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends IterativeSystem {
+	protected queries = useQueries(this, {
+		pingState: all(ClientPingState)
+	});
 
-export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}, TQueries extends Queries = {}> extends StatefulIterativeSystem<
-	ClientWorldSnapshotState<TSnapshot>,
-	TQueries & typeof ClientPingStateQuery
-> {
-	constructor(queries: TQueries) {
-		super(makeQuery(any(Session)), new ClientWorldSnapshotState(), {
-			...queries,
-			...ClientPingStateQuery
-		});
+	protected state = useState(this, new ClientWorldSnapshotState());
+
+	constructor() {
+		super(makeQuery(any(Session)));
 	}
 
 	abstract takeSnapshot(): TSnapshot;

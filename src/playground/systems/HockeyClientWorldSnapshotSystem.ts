@@ -8,13 +8,13 @@ import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientB
 import { ClientHockey } from '../Client';
 import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
 import { getSound } from '../constants/sound';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueriesManual } from '@ecs/ecs/helpers/StatefulSystems';
 
 export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSystem<HockeySnapshot> {
 	protected engine: Engine;
 	protected createPaddle: ClientHockey['createPaddle'];
 
-	protected queries = useQueries(this, generateSnapshotQueries);
+	protected queries = useQueriesManual(this, generateSnapshotQueries);
 
 	constructor(engine: Engine, createPaddle: ClientHockey['createPaddle']) {
 		super();

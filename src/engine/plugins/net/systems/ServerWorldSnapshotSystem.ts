@@ -1,19 +1,15 @@
-import { QueriesSystem, Queries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { System } from '@ecs/ecs/System';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
-import { ServerConnectionQuery, ServerConnectionState } from '@ecs/plugins/net/systems/ServerConnectionSystem';
-import { ServerPingStateQuery } from '@ecs/plugins/net/systems/ServerPingSystem';
+import { ServerConnectionState } from '@ecs/plugins/net/systems/ServerConnectionSystem';
+import { all } from '@ecs/utils/QueryHelper';
 
-export abstract class ServerWorldSnapshotSystem<S extends {}, Q extends Queries> extends QueriesSystem<
-	typeof ServerConnectionQuery & typeof ServerPingStateQuery & Q
-> {
-	constructor(query: Q) {
-		super({
-			...ServerConnectionQuery,
-			...ServerPingStateQuery,
-			...query
-		});
-	}
+export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
+	protected queries = useQueries(this, {
+		serverPing: all(ServerPingState),
+		serverConnection: all(ServerConnectionState)
+	});
 
 	public updateFixed(deltaTime: number) {
 		const { serverTick } = this.serverPingState;

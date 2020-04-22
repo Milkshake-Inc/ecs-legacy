@@ -1,19 +1,29 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
 import { ServerPingState } from '../components/ServerPingState';
 import Session from '../components/Session';
-import { ServerConnectionQuery, ServerConnectionState } from './ServerConnectionSystem';
+import { ServerConnectionState } from './ServerConnectionSystem';
 
-export const ServerPingStateQuery = {
-	serverPing: makeQuery(all(ServerPingState))
-};
+// export const ServerPingStateQuery = {
+// 	serverPing: makeQuery(all(ServerPingState))
+// };
 
-export default class ServerPingSystem extends StatefulIterativeSystem<ServerPingState, typeof ServerConnectionQuery> {
+export default class ServerPingSystem extends IterativeSystem {
+	protected state = useState(this, new ServerPingState());
+
+	protected queries = useQueries(this, {
+		serverConnection: all(ServerConnectionState)
+	});
+
 	constructor(tickRate: number, pingInterval = 3000) {
-		super(makeQuery(any(Session)), new ServerPingState(tickRate, pingInterval), ServerConnectionQuery);
+		super(makeQuery(any(Session)));
+
+		this.state.serverTickRate = tickRate;
+		this.state.serverPingInterval = pingInterval;
 	}
 
 	public updateFixed(deltaTime: number) {

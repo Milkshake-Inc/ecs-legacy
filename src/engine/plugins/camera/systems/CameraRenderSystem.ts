@@ -1,29 +1,27 @@
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import Camera from '../components/Camera';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { Sprite, RenderTexture } from 'pixi.js';
-import Position from '@ecs/plugins/Position';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
-import RenderState from '@ecs/plugins/render/components/RenderState';
-import { Query } from '@ecs/ecs/Query';
-import CameraState from '../components/CameraRenderState';
-import CameraRenderState from '../components/CameraRenderState';
-import CameraTarget from '../components/CameraTarget';
-import Bounds from '@ecs/plugins/render/components/Bounds';
+import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import MathHelper from '@ecs/math/MathHelper';
 import Vector2 from '@ecs/math/Vector2';
+import Position from '@ecs/plugins/Position';
+import Bounds from '@ecs/plugins/render/components/Bounds';
+import RenderState from '@ecs/plugins/render/components/RenderState';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { RenderTexture, Sprite } from 'pixi.js';
+import Camera from '../components/Camera';
+import CameraRenderState from '../components/CameraRenderState';
+import CameraTarget from '../components/CameraTarget';
 
-type Queries = {
-	rendererState: Query;
-	targets: Query;
-};
+export default class CameraRenderSystem extends IterativeSystem {
+	protected state = useState(this, new CameraRenderState());
 
-export default class CameraRenderSystem extends StatefulIterativeSystem<CameraState, Queries> {
+	protected queries = useQueries(this, {
+		rendererState: all(RenderState),
+		targets: all(CameraTarget)
+	});
+
 	constructor() {
-		super(makeQuery(all(Camera, Position)), new CameraRenderState(), {
-			rendererState: makeQuery(all(RenderState)),
-			targets: makeQuery(all(CameraTarget))
-		});
+		super(makeQuery(all(Camera, Position)));
 	}
 
 	public entityAdded = (snapshot: EntitySnapshot) => {

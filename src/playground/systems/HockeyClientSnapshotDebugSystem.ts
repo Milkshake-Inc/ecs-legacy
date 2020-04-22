@@ -1,21 +1,24 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { QueriesSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { System } from '@ecs/ecs/System';
 import Color from '@ecs/math/Color';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
-import { ClientPingStateQuery } from '@ecs/plugins/net/systems/ClientPingSystem';
-import { ClientWorldSnapshotState, ClientWorldSnapshotStateQuery } from '@ecs/plugins/net/systems/ClientWorldSnapshotSystem';
+import { ClientWorldSnapshotState } from '@ecs/plugins/net/systems/ClientWorldSnapshotSystem';
 import Position from '@ecs/plugins/Position';
+import { all } from '@ecs/utils/QueryHelper';
 import { Graphics } from 'pixi.js';
 
-export class HockeyClientSnapshotDebugSystem extends QueriesSystem<typeof ClientWorldSnapshotStateQuery & typeof ClientPingStateQuery> {
+export class HockeyClientSnapshotDebugSystem extends System {
 	private graphics: Graphics;
 
+	private queries = useQueries(this, {
+		snapshotState: all(ClientWorldSnapshotState),
+		pingState: all(ClientPingState)
+	});
+
 	constructor() {
-		super({
-			...ClientWorldSnapshotStateQuery,
-			...ClientPingStateQuery
-		});
+		super();
 	}
 
 	public onAddedToEngine(engine: Engine) {

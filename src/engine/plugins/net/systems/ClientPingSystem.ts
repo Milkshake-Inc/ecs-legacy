@@ -11,10 +11,13 @@ export const ClientPingStateQuery = {
 };
 
 export default class ClientPingSystem extends IterativeSystem {
-	protected state = useState(this, new ClientPingState()).state;
+	protected state = useState(this, new ClientPingState());
 
 	constructor() {
 		super(makeQuery(any(Session)));
+
+		this.state.serverTime = 0;
+		this.state.serverTick = 0;
 	}
 
 	public updateFixed(deltaTime: number) {

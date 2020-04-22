@@ -1,6 +1,7 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { StatefulIterativeSystem } from '@ecs/ecs/helpers/StatefulSystems';
+import { useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import { GeckosServer, ServerChannel } from '@geckos.io/server/lib/server';
 import { Packet } from '../components/Packet';
@@ -18,12 +19,14 @@ export const ServerConnectionQuery = {
 	serverConnection: makeQuery(all(ServerConnectionState))
 };
 
-export default class ServerConnectionSystem extends StatefulIterativeSystem<ServerConnectionState> {
+export default class ServerConnectionSystem extends IterativeSystem {
+	protected state = useState(this, new ServerConnectionState());
+
 	private engine: Engine;
 	private server: GeckosServer;
 
 	constructor(engine: Engine, server: GeckosServer) {
-		super(makeQuery(any(Session)), new ServerConnectionState());
+		super(makeQuery(any(Session)));
 
 		this.engine = engine;
 		this.server = server;

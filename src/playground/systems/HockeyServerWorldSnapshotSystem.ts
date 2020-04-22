@@ -1,12 +1,15 @@
-import { generateSnapshotQueries, Snapshot, takeSnapshot } from '../spaces/Hockey';
+import { useQueriesManual } from '@ecs/ecs/helpers/StatefulSystems';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
+import { generateSnapshotQueries, Snapshot, takeSnapshot } from '../spaces/Hockey';
 
-export class HockeyServerWorldSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot, typeof generateSnapshotQueries> {
+export class HockeyServerWorldSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot> {
+	protected snapshotQueries = useQueriesManual(this, generateSnapshotQueries);
+
 	constructor() {
-		super(generateSnapshotQueries);
+		super();
 	}
 
 	generateSnapshot(): Snapshot {
-		return takeSnapshot(this.queries);
+		return takeSnapshot(this.snapshotQueries);
 	}
 }
