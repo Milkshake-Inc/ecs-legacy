@@ -4,6 +4,7 @@ import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
+import Position from '@ecs/plugins/Position';
 
 export default class SoundSystem extends IterativeSystem {
 	protected engine: Engine;
@@ -12,6 +13,11 @@ export default class SoundSystem extends IterativeSystem {
 	constructor() {
 		super(makeQuery(all(Sound)));
 		Howler.volume(1);
+	}
+
+	public updateFixed(dt: number) {
+		super.updateFixed(dt);
+		Howler.pos(1280 / 2, 720 / 2, 0);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
@@ -58,6 +64,18 @@ export default class SoundSystem extends IterativeSystem {
 		if (sound.seek) {
 			howl.seek(sound.seek);
 			sound.seek = null;
+		}
+
+		if (entity.has(Position)) {
+			const pos = entity.get(Position);
+			howl.pos(pos.x, pos.y, 0);
+			howl.pannerAttr({
+				panningModel: 'HRTF',
+				refDistance: 0.8,
+				rolloffFactor: 0.5,
+				distanceModel: 'linear',
+				maxDistance: 1000
+			});
 		}
 	}
 
