@@ -52,6 +52,10 @@ export class Entity {
 		return this._components;
 	}
 
+	public toString(): string {
+		return `Entity${this.id} [${Array.from(this.components.values()).map(c => c.constructor.name)}]`;
+	}
+
 	/**
 	 * Adds component to entity.
 	 *

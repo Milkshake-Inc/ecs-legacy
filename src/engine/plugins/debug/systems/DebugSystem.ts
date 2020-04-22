@@ -1,6 +1,6 @@
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Keyboard from '@ecs/input/Keyboard';
-import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { Entity } from '@ecs/ecs/Entity';
 import Key from '@ecs/input/Key';
 import { makeQuery } from '@ecs/utils/QueryHelper';
 import { Engine } from '@ecs/ecs/Engine';
@@ -38,8 +38,8 @@ export class DebugSystem extends IterativeSystem {
 		this.engine.onEntityRemoved.connect(this.onEntityRemoved.bind(this));
 	}
 
-	protected onEntityAdded = (entity: EntitySnapshot) => {
-		this.ecsGraph.addEntityToGraph(entity.entity);
+	protected onEntityAdded = (entity: Entity) => {
+		this.ecsGraph.addEntityToGraph(entity);
 	};
 
 	protected onEntityRemoved = (entity: Entity) => {

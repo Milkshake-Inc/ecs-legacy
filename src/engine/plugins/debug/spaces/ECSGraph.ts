@@ -5,6 +5,7 @@ import { Entity } from '@ecs/ecs/Entity';
 export class ECSGraph extends Space {
 	private gui: dat.GUI;
 	private seen: Set<any> = new Set();
+	private entityFolders: Map<Entity, dat.GUI> = new Map();
 	private maxDepth = 15;
 	private search = '';
 	private blackList = ['RenderState'];
@@ -78,9 +79,11 @@ export class ECSGraph extends Space {
 	}
 
 	addEntityToGraph(entity: Entity) {
-		if (!this.gui) return;
-		const eFolder = this.addFolder(this.entitiesFolder, entity.constructor.name, entity.id);
+		if (!this.gui || !entity) return;
+		const eFolder = this.addFolder(this.entitiesFolder, entity.toString());
 		if (!eFolder) return;
+
+		this.entityFolders.set(entity, eFolder);
 		for (const component of entity.getAll()) {
 			const cFolder = this.addFolder(eFolder, component.constructor.name, entity.id);
 			if (!cFolder) return;
@@ -91,9 +94,10 @@ export class ECSGraph extends Space {
 			}
 		}
 	}
+
 	removeEntityFromGraph(entity: Entity) {
 		if (!this.gui) return;
-		const folder = this.entitiesFolder.__folders[entity.constructor.name + entity.id];
+		const folder = this.entityFolders.get(entity);
 		if (folder) {
 			this.entitiesFolder.removeFolder(folder);
 		}
