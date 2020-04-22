@@ -100,6 +100,7 @@ export class ClientHockey extends Hockey {
 		const background = new Entity();
 		background.add(Position);
 		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
+		background.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.1 });
 		this.addEntities(background);
 
 		this.addSystem(new ClientInputSenderSystem());
@@ -120,6 +121,10 @@ export class ClientHockey extends Hockey {
 		const hud = this.hud();
 		this.addEntities(hud.redScore, hud.blueScore);
 
+		const backgroundMusic = new Entity();
+		backgroundMusic.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.05 });
+		this.addEntity(backgroundMusic);
+
 		this.addSystem(new HudSystem(hud));
 	}
 
@@ -128,7 +133,6 @@ export class ClientHockey extends Hockey {
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
 		entity.add(SparksTrail(), { offset: Vector2.EQUAL(-50) });
 		entity.add(BitmapText, { text: name });
-		entity.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.1 });
 	}
 
 	createPuck(): Entity {
