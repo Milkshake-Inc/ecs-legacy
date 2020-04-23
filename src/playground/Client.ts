@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries, useEvents } from '@ecs/ecs/helpers/StatefulSystems';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
@@ -92,6 +92,13 @@ export default class MuteButtonSystem extends IterativeSystem {
 		clickEvents: all(MuteButton, Sprite, ClickEvent)
 	});
 
+	protected events = useEvents(this, {
+		['GOAL']: () => {
+			this.soundState.toggle();
+			this.events.dispatch('GOT_GOAL');
+		}
+	});
+
 	constructor() {
 		super(makeQuery(all(MuteButton, Sprite)));
 	}
@@ -168,14 +175,12 @@ export class ClientHockey extends Hockey {
 		backgroundMusic.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.05 });
 		this.addEntity(backgroundMusic);
 
-		// setTimeout(() => {
 		const muteButton = new Entity();
 		muteButton.add(Position, { x: 0, y: 720, z: 1000 });
 		muteButton.add(Sprite, { imageUrl: Assets.MusicOn, anchor: new Vector2(0, 1) });
 		muteButton.add(MuteButton);
 		muteButton.add(Interactable);
 		this.addEntity(muteButton);
-		// }, 1000)
 
 		this.addSystem(new HudSystem(hud));
 	}
@@ -189,9 +194,7 @@ export class ClientHockey extends Hockey {
 
 	createPuck(): Entity {
 		const puck = super.createPuck();
-
 		puck.add(Sprite, { imageUrl: Assets.Puck });
-
 		return puck;
 	}
 

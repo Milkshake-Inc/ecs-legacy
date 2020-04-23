@@ -96,3 +96,49 @@ export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: 
 
 	return new system();
 };
+
+class Event {
+	public type: string;
+}
+
+export const useEvents = <TEvents extends { [index: string]: () => void }>(system: System, events?: TEvents) => {
+	const entityEventsToClear: Entity[] = [];
+
+	let engine: Engine = null;
+
+	const queries = useQueries(system, {
+		events: all(Event)
+	});
+
+	system.signalOnAddedToEngine.connect(e => (engine = e));
+
+	system.signalPreUpdate.connect(() => {
+		// Remove all dispatched events by this useEvents
+		entityEventsToClear.forEach((entity, index) => {
+			entityEventsToClear.splice(index, 1);
+			engine.removeEntity(entity);
+		});
+
+		// Trigger callbacks on events listened to
+		queries.events.forEach(entity => {
+			const event = entity.get(Event);
+			if (events[event.type]) {
+				events[event.type]();
+			}
+		});
+	});
+
+	return {
+		dispatch: (type: string) => {
+			if (!engine) {
+				throw 'Attempted to dispatch before added to engine';
+			}
+
+			const entity = new Entity();
+			entity.add(Event, { type });
+			engine.addEntity(entity);
+
+			entityEventsToClear.push(entity);
+		}
+	};
+};
