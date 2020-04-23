@@ -71,6 +71,10 @@ export class Query {
 		return this._entities.filter(predicate);
 	}
 
+	public forEach(predicate: (value: Entity, index: number, array: Entity[]) => void): void {
+		this._entities.forEach(predicate);
+	}
+
 	public map<T>(predicate: (entity: Entity) => T): T[] {
 		return this._entities.map(predicate);
 	}

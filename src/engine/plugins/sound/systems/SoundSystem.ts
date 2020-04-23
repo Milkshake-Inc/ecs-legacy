@@ -5,17 +5,50 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
 import Position from '@ecs/plugins/Position';
+import { useState } from '@ecs/ecs/helpers/StatefulSystems';
+
+export class SoundState {
+	static fromStorage(): SoundState {
+		const storedVolume = window.localStorage.getItem('soundState');
+		return new SoundState(storedVolume ? Number(storedVolume) : 1);
+	}
+
+	static toStorage(soundState: SoundState) {
+		window.localStorage.setItem('soundState', soundState.volume.toString());
+	}
+
+	public volume = 1;
+
+	public get muted() {
+		return this.volume == 0;
+	}
+
+	public set muted(value: boolean) {
+		this.volume = value ? 0 : 1;
+	}
+
+	public toggle() {
+		return (this.muted = !this.muted);
+	}
+
+	constructor(volume = 1) {
+		this.volume = volume;
+	}
+}
 
 export default class SoundSystem extends IterativeSystem {
 	protected engine: Engine;
 	protected sounds: Map<Entity, Howl> = new Map();
 
+	protected state = useState(this, SoundState.fromStorage());
+
 	constructor() {
 		super(makeQuery(all(Sound)));
-		Howler.volume(1);
 	}
 
 	public updateFixed(dt: number) {
+		Howler.volume(this.state.volume);
+
 		super.updateFixed(dt);
 		Howler.pos(1280 / 2, 720 / 2, 0);
 	}

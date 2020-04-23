@@ -39,7 +39,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 			this.scrollTargets(camera, position);
 		}
 
-		this.renderCamera(camera, position);
+		this.updateCamera(camera, position);
 	}
 
 	public scrollTargets(camera: Camera, position: Position) {
@@ -82,7 +82,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 		camera.zoom = MathHelper.clamp(Math.min(widthDiff, heightDiff), options.maxZoom, options.minZoom);
 	}
 
-	public renderCamera(camera: Camera, position: Position) {
+	public updateCamera(camera: Camera, position: Position) {
 		const sprite = this.state.renderSprites.get(camera);
 		sprite.x = camera.x;
 		sprite.y = camera.y;

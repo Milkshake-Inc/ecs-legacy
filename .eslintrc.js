@@ -52,7 +52,8 @@ module.exports = {
 					'onend',
 					'autoplay',
 					'html5',
-					'ogg'
+					'ogg',
+					'Interactable'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

@@ -1,27 +1,28 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
+import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
 import Position from '@ecs/plugins/Position';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { Emitter as PixiParticleEmitter } from 'pixi-particles';
 import {
 	Application,
 	BaseTexture,
+	BitmapText as PixiBitmapText,
 	Container,
 	DisplayObject as PixiDisplayObject,
-	Sprite as PixiSprite,
-	BitmapText as PixiBitmapText,
-	Text as PixiText,
-	Texture,
 	Graphics,
-	RenderTexture
+	RenderTexture,
+	resources,
+	Sprite as PixiSprite,
+	Text as PixiText,
+	Texture
 } from 'pixi.js';
-import DisplayObject from '../components/DisplayObject';
-import Sprite from '../components/Sprite';
 import BitmapText from '../components/BitmapText';
+import DisplayObject from '../components/DisplayObject';
 import ParticleEmitter from '../components/ParticleEmitter';
-import { Emitter as PixiParticleEmitter } from 'pixi-particles';
-import { useState, useQueries } from '@ecs/ecs/helpers/StatefulSystems';
 import RenderState from '../components/RenderState';
-import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import Sprite from '../components/Sprite';
 
 export default class RenderSystem extends IterativeSystem {
 	protected state = useState(this, new RenderState());
@@ -30,7 +31,7 @@ export default class RenderSystem extends IterativeSystem {
 	});
 
 	protected defaultRenderSprite: PixiSprite;
-	protected displayObjects: Map<DisplayObject, PixiDisplayObject> = new Map();
+	// protected displayObjects: ;
 	protected emitters: Map<ParticleEmitter, PixiParticleEmitter> = new Map();
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
@@ -47,10 +48,16 @@ export default class RenderSystem extends IterativeSystem {
 			autoStart: false
 		});
 
+		this.state.application.renderer.plugins.interaction.useSystemTicker = false;
+
 		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width, height }))));
+
+		console.log(this.state.application.stage);
 
 		this.state.container.scale.set(scale, scale);
 		this.state.container.sortableChildren = true;
+		this.state.container.interactive = true;
+		this.state.container.interactiveChildren = true;
 
 		document.body.appendChild(this.state.application.view);
 	}
@@ -66,12 +73,16 @@ export default class RenderSystem extends IterativeSystem {
 
 		if (entity.has(Sprite)) {
 			const sprite = entity.get(Sprite);
-			const pixiSprite = this.displayObjects.get(sprite) as PixiSprite;
+			const pixiSprite = this.state.displayObjects.get(sprite) as PixiSprite;
 
 			genericDisplayObjectUpdate(pixiSprite, sprite);
 
 			if (sprite.frame && pixiSprite.texture.baseTexture.resource.valid) {
 				pixiSprite.texture.frame = sprite.frame;
+			}
+
+			if (sprite.imageUrl && (pixiSprite.texture.baseTexture.resource as resources.ImageResource).url) {
+				pixiSprite.texture = Texture.from(sprite.imageUrl);
 			}
 
 			pixiSprite.tint = sprite.tint;
@@ -80,7 +91,7 @@ export default class RenderSystem extends IterativeSystem {
 
 		if (entity.has(BitmapText)) {
 			const sprite = entity.get(BitmapText);
-			const pixiSprite = this.displayObjects.get(sprite) as PixiBitmapText;
+			const pixiSprite = this.state.displayObjects.get(sprite) as PixiBitmapText;
 
 			pixiSprite.text = sprite.text;
 			pixiSprite.tint = sprite.tint;
@@ -114,15 +125,15 @@ export default class RenderSystem extends IterativeSystem {
 	}
 
 	onComponentAdded = (entity: Entity) => {
-		if (entity.has(Sprite) && !this.displayObjects.has(entity.get(Sprite))) {
+		if (entity.has(Sprite) && !this.state.displayObjects.has(entity.get(Sprite))) {
 			const sprite = entity.get(Sprite);
 			const pixiSprite = new PixiSprite(new Texture(BaseTexture.from(sprite.imageUrl), sprite.frame));
 
-			this.displayObjects.set(sprite, pixiSprite);
+			this.state.displayObjects.set(sprite, pixiSprite);
 			this.state.container.addChild(pixiSprite);
 		}
 
-		if (entity.has(BitmapText) && !this.displayObjects.has(entity.get(BitmapText))) {
+		if (entity.has(BitmapText) && !this.state.displayObjects.has(entity.get(BitmapText))) {
 			const bitmapText = entity.get(BitmapText);
 
 			const pixiBitmapText = new PixiText(bitmapText.text, {
@@ -133,7 +144,7 @@ export default class RenderSystem extends IterativeSystem {
 			} as PIXI.TextStyle);
 			pixiBitmapText.roundPixels = true;
 
-			this.displayObjects.set(bitmapText, pixiBitmapText);
+			this.state.displayObjects.set(bitmapText, pixiBitmapText);
 			this.state.container.addChild(pixiBitmapText);
 		}
 
@@ -170,15 +181,15 @@ export default class RenderSystem extends IterativeSystem {
 		if (snapshot.has(Sprite)) {
 			const sprite = snapshot.get(Sprite);
 
-			this.state.container.removeChild(this.displayObjects.get(sprite));
-			this.displayObjects.delete(sprite);
+			this.state.container.removeChild(this.state.displayObjects.get(sprite));
+			this.state.displayObjects.delete(sprite);
 		}
 
 		if (snapshot.has(BitmapText)) {
 			const text = snapshot.get(BitmapText);
 
-			this.state.container.removeChild(this.displayObjects.get(text));
-			this.displayObjects.delete(text);
+			this.state.container.removeChild(this.state.displayObjects.get(text));
+			this.state.displayObjects.delete(text);
 		}
 
 		if (snapshot.has(Graphics)) {
@@ -220,6 +231,7 @@ export default class RenderSystem extends IterativeSystem {
 					camera.transform.pivot.x,
 					camera.transform.pivot.y
 				);
+
 				this.state.application.renderer.render(this.state.container, sprite.texture as RenderTexture, true);
 			}
 		} else {
@@ -227,6 +239,10 @@ export default class RenderSystem extends IterativeSystem {
 		}
 
 		this.state.application.render();
+
+		// In order for interaction to work
+		(this.state.application.renderer as any)._lastObjectRendered = this.state.container;
+		this.state.application.renderer.plugins.interaction.update();
 	}
 
 	onRemovedFromEngine() {
