@@ -2,7 +2,7 @@ import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { makeQuery, any } from '@ecs/utils/QueryHelper';
 import Score from '../components/Score';
 import { Entity } from '@ecs/ecs/Entity';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
+import Text from '@ecs/plugins/render/components/Text';
 
 export type Hud = {
 	redScore: Entity;
@@ -20,8 +20,8 @@ export default class HudSystem extends IterativeSystem {
 	protected updateEntity(entity: Entity): void {
 		if (entity.has(Score)) {
 			const score = entity.get(Score);
-			this.hud.blueScore.get(BitmapText).text = score.blue.toString();
-			this.hud.redScore.get(BitmapText).text = score.red.toString();
+			this.hud.blueScore.get(Text).value = score.blue.toString();
+			this.hud.redScore.get(Text).value = score.red.toString();
 		}
 	}
 }

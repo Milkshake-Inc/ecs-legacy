@@ -5,7 +5,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
 import Position from '@ecs/plugins/Position';
-import { useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { useState } from '@ecs/ecs/helpers';
 
 export class SoundState {
 	static fromStorage(): SoundState {

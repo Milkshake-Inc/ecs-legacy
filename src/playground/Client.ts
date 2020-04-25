@@ -1,21 +1,22 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { Events, useEvents, useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
 import Camera from '@ecs/plugins/camera/components/Camera';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
+import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import InteractionSystem, { ClickEvent, Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
+import { Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import Position from '@ecs/plugins/Position';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
 import Sprite from '@ecs/plugins/render/components/Sprite';
+import Text from '@ecs/plugins/render/components/Text';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
 import SoundSystem, { SoundState } from '@ecs/plugins/sound/systems/SoundSystem';
@@ -27,10 +28,10 @@ import { SparksTrail } from './components/Emitters';
 import Score from './components/Score';
 import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
+import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -89,7 +90,14 @@ class MuteButton {}
 export default class MuteButtonSystem extends IterativeSystem {
 	protected queries = useQueries(this, {
 		soundState: all(SoundState),
-		clickEvents: all(MuteButton, Sprite, ClickEvent)
+		clickEvents: [all(MuteButton, Sprite, Events)]
+	});
+
+	protected events = useEvents(this, {
+		['GOAL']: () => {
+			this.soundState.toggle();
+			this.events.dispatchGlobal('GOT_GOAL');
+		}
 	});
 
 	constructor() {
@@ -104,6 +112,7 @@ export default class MuteButtonSystem extends IterativeSystem {
 		super.update(deltaTime);
 
 		this.queries.clickEvents.forEach(entity => {
+			console.log('Event');
 			this.soundState.toggle();
 			this.updateSprite(entity, this.soundState.muted);
 
@@ -138,7 +147,7 @@ export class ClientHockey extends Hockey {
 		this.addSystem(new InputSystem());
 		this.addSystem(new SoundSystem());
 		this.addSystem(new MuteButtonSystem());
-		this.addSystem(new InteractionSystem());
+		// this.addSystem(new InteractionSystem());
 
 		const background = new Entity();
 		background.add(Position);
@@ -168,41 +177,39 @@ export class ClientHockey extends Hockey {
 		backgroundMusic.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.05 });
 		this.addEntity(backgroundMusic);
 
-		// setTimeout(() => {
 		const muteButton = new Entity();
 		muteButton.add(Position, { x: 0, y: 720, z: 1000 });
 		muteButton.add(Sprite, { imageUrl: Assets.MusicOn, anchor: new Vector2(0, 1) });
 		muteButton.add(MuteButton);
 		muteButton.add(Interactable);
 		this.addEntity(muteButton);
-		// }, 1000)
 
 		this.addSystem(new HudSystem(hud));
+
+		this.addSystem(new HockeyClientSnapshotDebugSystem());
 	}
 
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		super.createPaddle(entity, name, player, spawnPosition);
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
 		entity.add(SparksTrail(), { offset: Vector2.EQUAL(-50) });
-		entity.add(BitmapText, { text: name });
+		entity.add(Text, { value: name });
 	}
 
 	createPuck(): Entity {
 		const puck = super.createPuck();
-
 		puck.add(Sprite, { imageUrl: Assets.Puck });
-
 		return puck;
 	}
 
 	hud(): Hud {
 		const redScore = new Entity();
 		redScore.add(Position, { x: 1280 / 2 - 50, y: 30, z: 10 });
-		redScore.add(BitmapText, { text: '0', tint: Color.Red, size: 50 });
+		redScore.add(Text, { value: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
 		blueScore.add(Position, { x: 1280 / 2 + 50, y: 30, z: 10 });
-		blueScore.add(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
+		blueScore.add(Text, { value: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };
 	}

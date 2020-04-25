@@ -1,4 +1,4 @@
-import { useQueriesManual } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueriesManual } from '@ecs/ecs/helpers';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
 import { generateSnapshotQueries, Snapshot, takeSnapshot } from '../spaces/Hockey';
 

@@ -1,20 +1,26 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { useEvents, useQueriesManual } from '@ecs/ecs/helpers';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
 import { ClientHockey } from '../Client';
-import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
 import { getSound } from '../constants/sound';
-import { useQueriesManual } from '@ecs/ecs/helpers/StatefulSystems';
+import { applySnapshot, generateSnapshotQueries, Snapshot as HockeySnapshot, takeSnapshot } from '../spaces/Hockey';
 
 export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSystem<HockeySnapshot> {
 	protected engine: Engine;
 	protected createPaddle: ClientHockey['createPaddle'];
 
 	protected queries = useQueriesManual(this, generateSnapshotQueries);
+
+	protected events = useEvents(this, {
+		['GOT_GOAL']: () => {
+			console.log('Cool dude!');
+		}
+	});
 
 	constructor(engine: Engine, createPaddle: ClientHockey['createPaddle']) {
 		super();
@@ -35,6 +41,8 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 			const sound = new Entity();
 			sound.add(getSound('win'));
 			this.engine.addEntity(sound);
+
+			this.events.dispatchGlobal('GOAL');
 		}
 
 		applySnapshot(this.queries, snapshot);

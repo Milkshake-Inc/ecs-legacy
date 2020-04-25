@@ -1,8 +1,22 @@
 import { Entity } from '../ecs/Entity';
 import { Query } from '../ecs/Query';
 import { Class } from './Class';
+import { Events } from '@ecs/ecs/helpers';
 
 export type QueryPattern = (entity: Entity) => boolean;
+
+export const event = (eventType: string): QueryPattern => {
+	return (entity: Entity) => {
+		if (entity.has(Events)) {
+			const { events } = entity.get(Events);
+			for (const event of events) {
+				if (event.type == eventType) return true;
+			}
+		}
+
+		return false;
+	};
+};
 
 export const all = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {

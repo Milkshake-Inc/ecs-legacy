@@ -1,5 +1,5 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import MathHelper from '@ecs/math/MathHelper';
 import Vector2 from '@ecs/math/Vector2';
