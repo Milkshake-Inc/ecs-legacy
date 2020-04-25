@@ -42,7 +42,7 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 			sound.add(getSound('win'));
 			this.engine.addEntity(sound);
 
-			this.events.dispatch('GOAL');
+			this.events.dispatchGlobal('GOAL');
 		}
 
 		applySnapshot(this.queries, snapshot);

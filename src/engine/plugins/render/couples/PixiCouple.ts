@@ -1,10 +1,11 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { CoupleCallbacks, useCouple, useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers/StatefulSystems';
 import { System } from '@ecs/ecs/System';
 import Position from '@ecs/plugins/Position';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
 import RenderState from '../components/RenderState';
+import { Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {
 	const position = entity.get(Position);
@@ -12,6 +13,9 @@ export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDi
 	displayObject.position.set(position.x, position.y);
 	displayObject.scale.set(position.scale.x, position.scale.y);
 	displayObject.zIndex = position.z;
+
+	const interactable = entity.has(Interactable);
+	displayObject.interactive = displayObject.buttonMode = interactable;
 };
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -26,6 +30,8 @@ export const usePixiCouple = <T extends DisplayObject>(
 		displayObjectQuery
 	});
 
+	const events = useEvents(system);
+
 	const getRenderState = () => {
 		return query.renderState.first.get(RenderState);
 	};
@@ -33,6 +39,11 @@ export const usePixiCouple = <T extends DisplayObject>(
 	return useCouple<T>(query.displayObjectQuery, {
 		onCreate: entity => {
 			const createdDisplayObject = callbacks.onCreate(entity);
+
+			createdDisplayObject.on('click', () => {
+				events.dispatchEntity(entity, 'CLICK');
+			});
+
 			return getRenderState().container.addChild(createdDisplayObject);
 		},
 		onUpdate: (entity, displayObject, dt) => {

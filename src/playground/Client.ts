@@ -1,21 +1,22 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries, useEvents } from '@ecs/ecs/helpers/StatefulSystems';
+import { Events, useEvents, useQueries } from '@ecs/ecs/helpers/StatefulSystems';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
 import Camera from '@ecs/plugins/camera/components/Camera';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
+import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import InteractionSystem, { ClickEvent, Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
+import { Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import Position from '@ecs/plugins/Position';
-import Text from '@ecs/plugins/render/components/Text';
 import Sprite from '@ecs/plugins/render/components/Sprite';
+import Text from '@ecs/plugins/render/components/Text';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
 import SoundSystem, { SoundState } from '@ecs/plugins/sound/systems/SoundSystem';
@@ -27,11 +28,10 @@ import { SparksTrail } from './components/Emitters';
 import Score from './components/Score';
 import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
+import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
-import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -90,13 +90,13 @@ class MuteButton {}
 export default class MuteButtonSystem extends IterativeSystem {
 	protected queries = useQueries(this, {
 		soundState: all(SoundState),
-		clickEvents: all(MuteButton, Sprite, ClickEvent)
+		clickEvents: [all(MuteButton, Sprite, Events)]
 	});
 
 	protected events = useEvents(this, {
 		['GOAL']: () => {
 			this.soundState.toggle();
-			this.events.dispatch('GOT_GOAL');
+			this.events.dispatchGlobal('GOT_GOAL');
 		}
 	});
 
@@ -112,6 +112,7 @@ export default class MuteButtonSystem extends IterativeSystem {
 		super.update(deltaTime);
 
 		this.queries.clickEvents.forEach(entity => {
+			console.log('Event');
 			this.soundState.toggle();
 			this.updateSprite(entity, this.soundState.muted);
 
@@ -146,7 +147,7 @@ export class ClientHockey extends Hockey {
 		this.addSystem(new InputSystem());
 		this.addSystem(new SoundSystem());
 		this.addSystem(new MuteButtonSystem());
-		this.addSystem(new InteractionSystem());
+		// this.addSystem(new InteractionSystem());
 
 		const background = new Entity();
 		background.add(Position);

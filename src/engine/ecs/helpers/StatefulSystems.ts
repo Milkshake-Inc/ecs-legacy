@@ -97,53 +97,59 @@ export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: 
 	return new system();
 };
 
-
-class Event {
-	public type: string;
+export class Events {
+	public events: { type: string; data?: any }[] = [];
 }
 
-export const useEvents = <TEvents extends { [index: string]: () => void }>(system: System, events?: TEvents) => {
+export const useEvents = <TEvents extends { [index: string]: () => void }>(system: System, eventCallbacks?: TEvents) => {
 	const entityEventsToClear: Entity[] = [];
 
-	let engine: Engine = null;
+	const queuedEvents: (() => void)[] = [];
 
 	const queries = useQueries(system, {
-		events: all(Event)
+		events: all(Events)
 	});
 
-	system.signalOnAddedToEngine.connect(e => (engine = e));
+	const state = useState(system, new Events());
 
 	system.signalPreUpdate.connect(() => {
-		// Remove all dispatched events by this useEvents
-		entityEventsToClear.forEach((entity, index) => {
-			entityEventsToClear.splice(index, 1);
-			engine.removeEntity(entity);
-		});
+		state.events = [];
+
+		entityEventsToClear.forEach(entity => entity.remove(Events));
 
 		// Trigger callbacks on events listened to
 		queries.events.forEach(entity => {
-			const event = entity.get(Event);
-			if (events[event.type]) {
-				events[event.type]();
+			const entityEvents = entity.get(Events);
+			for (const event of entityEvents.events) {
+				if (eventCallbacks && eventCallbacks[event.type]) {
+					eventCallbacks[event.type]();
+				}
 			}
+		});
+
+		queuedEvents.forEach((entity, index) => {
+			queuedEvents.splice(index, 1);
+			entity();
 		});
 	});
 
 	return {
-		dispatch: (type: string) => {
-			if (!engine) {
-				throw 'Attempted to dispatch before added to engine';
-			}
+		dispatchGlobal: (type: string) => {
+			state.events.push({ type: type });
+		},
+		dispatchEntity: (entity: Entity, type: string) => {
+			queuedEvents.push(() => {
+				if (!entity.has(Events)) {
+					entity.add(Events);
+				}
 
-			const entity = new Entity();
-			entity.add(Event, { type });
-			engine.addEntity(entity);
-
-			entityEventsToClear.push(entity);
+				const { events } = entity.get(Events);
+				events.push({ type });
+				entityEventsToClear.push(entity);
+			});
 		}
 	};
 };
-
 
 export type CoupleCallbacks<T> = {
 	onCreate: (entity: Entity) => T;
