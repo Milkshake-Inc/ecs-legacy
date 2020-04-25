@@ -27,6 +27,9 @@ import Splash from './spaces/Splash';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
+import TileMap from '@ecs/plugins/tilemap/components/TileMap';
+import { TileMapAsset } from '@ecs/plugins/tilemap/components/TileMapAsset';
+import Random from '@ecs/math/Random';
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -35,7 +38,8 @@ const Assets = {
 	Puck: 'assets/hockey/puck.png',
 	Scoreboard: 'assets/hockey/scoreboard.png',
 	MusicOn: 'assets/hockey/musicOn.png',
-	MusicOff: 'assets/hockey/musicOff.png'
+	MusicOff: 'assets/hockey/musicOff.png',
+	TileSheet: 'assets/hockey/tilesheet.png'
 };
 
 class MuteButton {}
@@ -133,6 +137,25 @@ export class ClientHockey extends Hockey {
 		this.addSystem(new HudSystem(hud));
 
 		// this.addSystem(new HockeyClientSnapshotDebugSystem());
+
+		const tileMap = new Entity();
+		tileMap.add(Position);
+		tileMap.add(TileMap, {
+			data: [
+				[24, 24, 24, 24, 24, 24],
+				[24, 24, 24, 24, 24, 24],
+				[24, 24, 24, 24, 24, 24],
+				[24, 24, 24, 24, 24, 24],
+				[24, 24, 24, 24, 24, 24]
+			]
+		});
+		tileMap.add(TileMapAsset, { imageUrl: Assets.TileSheet, tileSize: 64, xTiles: 23, yTiles: 13 });
+		this.addEntity(tileMap);
+
+		setInterval(() => {
+			const tileMapData = tileMap.get(TileMap);
+			tileMapData.data[Random.int(0, tileMapData.width)][Random.int(0, tileMapData.height)] = Random.int(0, 23 * 13);
+		}, 100);
 	}
 
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {

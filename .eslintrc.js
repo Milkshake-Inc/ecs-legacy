@@ -53,7 +53,8 @@ module.exports = {
 					'autoplay',
 					'html5',
 					'ogg',
-					'Interactable'
+					'Interactable',
+					'tilesheet'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

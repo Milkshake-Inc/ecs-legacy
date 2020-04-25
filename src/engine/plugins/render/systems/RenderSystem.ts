@@ -9,6 +9,7 @@ import { useParticleCouple } from '../couples/ParticleCouple';
 import { useSpriteCouple } from '../couples/SpriteCouple';
 import { useTextCouple } from '../couples/TextCouple';
 import { useSpineCouple } from '../couples/SpineCouple';
+import { useTileMapCouple } from '../couples/TileMapCouple';
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -27,7 +28,8 @@ export default class RenderSystem extends System {
 		useParticleCouple(this),
 		useGraphicsCouple(this),
 		useTextCouple(this),
-		useSpineCouple(this)
+		useSpineCouple(this),
+		useTileMapCouple(this)
 	];
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
