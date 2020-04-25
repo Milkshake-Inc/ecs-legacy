@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { Events, useEvents, useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { Events, useEvents, useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';

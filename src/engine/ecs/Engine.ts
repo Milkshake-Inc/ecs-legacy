@@ -198,7 +198,7 @@ export class Engine {
 	 */
 	public update(dt: number): void {
 		for (const system of this._systems) {
-			system.signalPreUpdate.emit();
+			system.signalBeforeUpdate.emit();
 			system.update(dt);
 		}
 	}

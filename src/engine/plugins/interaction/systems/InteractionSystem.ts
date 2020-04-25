@@ -1,5 +1,5 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import DisplayObject from '@ecs/plugins/render/components/DisplayObject';
 import RenderState from '@ecs/plugins/render/components/RenderState';

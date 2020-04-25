@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import { GeckosServer, ServerChannel } from '@geckos.io/server/lib/server';

@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers/StatefulSystems';
+import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Position from '@ecs/plugins/Position';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';

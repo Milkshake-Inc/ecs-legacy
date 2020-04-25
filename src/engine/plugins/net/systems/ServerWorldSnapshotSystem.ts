@@ -1,4 +1,4 @@
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';

@@ -5,7 +5,7 @@ import Session from '../components/Session';
 import geckosClient, { ClientChannel } from '@geckos.io/client/lib/client';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Socket from '../utils/Socket';
-import { useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { useState } from '@ecs/ecs/helpers';
 
 export class ConnectionStatistics {
 	public bytesIn = 0;

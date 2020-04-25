@@ -1,14 +1,10 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { getState, useState } from '@ecs/ecs/helpers/StatefulSystems';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { any, makeQuery } from '@ecs/utils/QueryHelper';
 import { ClientPingState } from '../components/ClientPingState';
 import { Packet, PacketOpcode } from '../components/Packet';
 import Session from '../components/Session';
-
-export const ClientPingStateQuery = {
-	pingState: getState(ClientPingState)
-};
+import { useState } from '@ecs/ecs/helpers';
 
 export default class ClientPingSystem extends IterativeSystem {
 	protected state = useState(this, new ClientPingState());

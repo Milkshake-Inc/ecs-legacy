@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';

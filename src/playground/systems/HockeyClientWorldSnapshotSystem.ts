@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useEvents, useQueriesManual } from '@ecs/ecs/helpers/StatefulSystems';
+import { useEvents, useQueriesManual } from '@ecs/ecs/helpers';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';

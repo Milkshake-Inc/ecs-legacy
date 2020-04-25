@@ -1,4 +1,4 @@
-import { useQueries, useState } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
 import { all } from '@ecs/utils/QueryHelper';

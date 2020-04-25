@@ -9,7 +9,7 @@ export abstract class System {
 	public signalOnAddedToEngine: Signal<(engine: Engine) => void> = new Signal();
 	public signalOnRemovedFromEngine: Signal<(engine: Engine) => void> = new Signal();
 
-	public signalPreUpdate: Signal<() => void> = new Signal();
+	public signalBeforeUpdate: Signal<() => void> = new Signal();
 
 	/**
 	 * Gets a priority of the system

@@ -1,5 +1,5 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import { PacketOpcode, PlayerInput } from '@ecs/plugins/net/components/Packet';

@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import Input from '@ecs/plugins/input/components/Input';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { ClientPingState } from '../components/ClientPingState';

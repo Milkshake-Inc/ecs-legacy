@@ -1,7 +1,7 @@
 import { Entity } from '../ecs/Entity';
 import { Query } from '../ecs/Query';
 import { Class } from './Class';
-import { Events } from '@ecs/ecs/helpers/StatefulSystems';
+import { Events } from '@ecs/ecs/helpers';
 
 export type QueryPattern = (entity: Entity) => boolean;
 

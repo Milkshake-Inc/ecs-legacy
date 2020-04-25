@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers/StatefulSystems';
+import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Color from '@ecs/math/Color';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
