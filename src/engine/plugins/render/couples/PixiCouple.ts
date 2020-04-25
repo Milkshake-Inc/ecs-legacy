@@ -5,7 +5,7 @@ import Position from '@ecs/plugins/Position';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
 import RenderState from '../components/RenderState';
-import { Interactable } from '@ecs/plugins/interaction/systems/InteractionSystem';
+import { Interactable } from '../components/Interactable';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {
 	const position = entity.get(Position);
