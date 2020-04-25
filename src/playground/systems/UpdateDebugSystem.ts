@@ -1,6 +1,6 @@
 import { System } from '@ecs/ecs/System';
 import { Engine } from '@ecs/ecs/Engine';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
+import Text from '@ecs/plugins/render/components/Text';
 import { Entity } from '@ecs/ecs/Entity';
 import Position from '@ecs/plugins/Position';
 import Color from '@ecs/math/Color';
@@ -8,7 +8,7 @@ import Vector2 from '@ecs/math/Vector2';
 
 export class UpdateDebugSystem extends System {
 	protected textEntity: Entity;
-	protected bitmapText: BitmapText;
+	protected bitmapText: Text;
 
 	private startTime = -1;
 
@@ -20,12 +20,12 @@ export class UpdateDebugSystem extends System {
 
 		this.textEntity = new Entity();
 		this.textEntity.add(Position, Vector2.EQUAL(10));
-		this.textEntity.add(BitmapText, {
-			text: 'HI',
+		this.textEntity.add(Text, {
+			value: 'HI',
 			tint: Color.Red
 		});
 
-		this.bitmapText = this.textEntity.get(BitmapText);
+		this.bitmapText = this.textEntity.get(Text);
 	}
 
 	onAddedToEngine = (engine: Engine) => {
@@ -49,7 +49,7 @@ export class UpdateDebugSystem extends System {
 			this.resetClock();
 		} else {
 			if (Date.now() - this.startTime >= 1000) {
-				this.bitmapText.text = `Update: ${this.updateCalls}\n Fixed: ${this.updateFixedCalls}`;
+				this.bitmapText.value = `Update: ${this.updateCalls}\n Fixed: ${this.updateFixedCalls}`;
 				this.resetClock();
 			}
 		}

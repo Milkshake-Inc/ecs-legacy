@@ -14,7 +14,7 @@ import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSys
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import Position from '@ecs/plugins/Position';
-import BitmapText from '@ecs/plugins/render/components/BitmapText';
+import Text from '@ecs/plugins/render/components/Text';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
@@ -31,6 +31,7 @@ import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnap
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
 import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
+import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 
 class PixiEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
@@ -183,13 +184,15 @@ export class ClientHockey extends Hockey {
 		this.addEntity(muteButton);
 
 		this.addSystem(new HudSystem(hud));
+
+		this.addSystem(new HockeyClientSnapshotDebugSystem());
 	}
 
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		super.createPaddle(entity, name, player, spawnPosition);
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
 		entity.add(SparksTrail(), { offset: Vector2.EQUAL(-50) });
-		entity.add(BitmapText, { text: name });
+		entity.add(Text, { value: name });
 	}
 
 	createPuck(): Entity {
@@ -201,11 +204,11 @@ export class ClientHockey extends Hockey {
 	hud(): Hud {
 		const redScore = new Entity();
 		redScore.add(Position, { x: 1280 / 2 - 50, y: 30, z: 10 });
-		redScore.add(BitmapText, { text: '0', tint: Color.Red, size: 50 });
+		redScore.add(Text, { value: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
 		blueScore.add(Position, { x: 1280 / 2 + 50, y: 30, z: 10 });
-		blueScore.add(BitmapText, { text: '0', tint: Color.Blue, size: 50 });
+		blueScore.add(Text, { value: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };
 	}

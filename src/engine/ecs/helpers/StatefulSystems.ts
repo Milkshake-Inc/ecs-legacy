@@ -45,18 +45,18 @@ export type ToQueries<T> = {
 export const useQueries = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(system: System, queries?: Q): ToQueries<Q> => {
 	const queriesObject = {};
 
+	if (queries) {
+		Object.keys(queries).forEach(key => {
+			const queryPattern = queries[key];
+			const asArray = queryPattern instanceof Array ? queryPattern : [queryPattern];
+			const query = makeQuery(...asArray);
+
+			queriesObject[key] = query;
+		});
+	}
+
 	const onAddedCallback = (engine: Engine) => {
-		if (queries) {
-			Object.keys(queries).forEach(key => {
-				const queryPattern = queries[key];
-				const asArray = queryPattern instanceof Array ? queryPattern : [queryPattern];
-				const query = makeQuery(...asArray);
-
-				queriesObject[key] = query;
-
-				engine.addQuery(query);
-			});
-		}
+		Object.values(queriesObject).forEach((query: Query) => engine.addQuery(query));
 	};
 
 	system.signalOnAddedToEngine.connect(onAddedCallback);
@@ -96,6 +96,7 @@ export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: 
 
 	return new system();
 };
+
 
 class Event {
 	public type: string;
@@ -139,6 +140,42 @@ export const useEvents = <TEvents extends { [index: string]: () => void }>(syste
 			engine.addEntity(entity);
 
 			entityEventsToClear.push(entity);
+		}
+	};
+};
+
+
+export type CoupleCallbacks<T> = {
+	onCreate: (entity: Entity) => T;
+	onUpdate?: (entity: Entity, coupleType: T, deltaTime: number) => void;
+	onDestroy: (entity: Entity, coupleType: T) => void;
+};
+
+export const useCouple = <T>(query: Query, callbacks: CoupleCallbacks<T>) => {
+	const map: Map<Entity, T> = new Map();
+
+	const onCreate = ({ entity }: EntitySnapshot) => {
+		const coupleType = callbacks.onCreate(entity);
+		map.set(entity, coupleType);
+
+		callbacks.onUpdate(entity, coupleType, 0);
+	};
+
+	const onDestroy = ({ entity }: EntitySnapshot) => {
+		callbacks.onDestroy(entity, map.get(entity));
+		map.delete(entity);
+	};
+
+	query.onEntityAdded.connect(onCreate);
+	query.onEntityRemoved.connect(onDestroy);
+
+	return {
+		update: (deltaTime: number) => {
+			if (callbacks.onUpdate) {
+				query.entities.forEach(entity => {
+					callbacks.onUpdate(entity, map.get(entity), deltaTime);
+				});
+			}
 		}
 	};
 };
