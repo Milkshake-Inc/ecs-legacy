@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { Events, useEvents, useQueries } from '@ecs/ecs/helpers';
+import { Events, useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
@@ -44,13 +44,6 @@ export default class MuteButtonSystem extends IterativeSystem {
 	protected queries = useQueries(this, {
 		soundState: all(SoundState),
 		clickEvents: [all(MuteButton, Sprite, Events)]
-	});
-
-	protected events = useEvents(this, {
-		['GOAL']: () => {
-			this.soundState.toggle();
-			this.events.dispatchGlobal('GOT_GOAL');
-		}
 	});
 
 	constructor() {
