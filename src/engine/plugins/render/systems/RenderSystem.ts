@@ -8,6 +8,7 @@ import { useGraphicsCouple } from '../couples/GraphicsCouple';
 import { useParticleCouple } from '../couples/ParticleCouple';
 import { useSpriteCouple } from '../couples/SpriteCouple';
 import { useTextCouple } from '../couples/TextCouple';
+import { useSpineCouple } from '../couples/SpineCouple';
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -21,7 +22,13 @@ export default class RenderSystem extends System {
 	// Query passed in must be added to engine.... & update has to be called manually
 	// Maybe you could have TileMapCouplerPlugin - which renders tilemap (ParticleContainer etc)
 	// new RenderSystem([ useTileMapCouple ])
-	protected couples = [useSpriteCouple(this), useParticleCouple(this), useGraphicsCouple(this), useTextCouple(this)];
+	protected couples = [
+		useSpriteCouple(this),
+		useParticleCouple(this),
+		useGraphicsCouple(this),
+		useTextCouple(this),
+		useSpineCouple(this)
+	];
 
 	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
 		super();
@@ -35,6 +42,8 @@ export default class RenderSystem extends System {
 			antialias: false,
 			autoStart: false
 		});
+
+		(window as any).renderSystem = this;
 
 		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width, height }))));
 

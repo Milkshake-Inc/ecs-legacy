@@ -6825,6 +6825,11 @@ pixi-particles@^4.2.0:
   resolved "https://registry.yarnpkg.com/pixi-particles/-/pixi-particles-4.2.0.tgz#338d976e8ff43290a8da540fad81fcc3ee0b5300"
   integrity sha512-20aNuzrKtkpZZA8m4+fp56RwZMPaWnRkoTGPr6U+35XyRJoGlH13adSLiknL3TU0FGmGHKUw4fYAhn41Ujq3xQ==
 
+pixi-spine@^2.1.8:
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/pixi-spine/-/pixi-spine-2.1.8.tgz#afa6c41fda8effdb7869471742a37607798819f4"
+  integrity sha512-hLt4NAF9DHOPi8y6RtcKA1WR/KZWBLcVnDyz0MvgNKBwAv92JfM3ygezOHtuv2UkQgmNV5RS3HHjf/0/R84N/A==
+
 pixi.js@^5.2.1:
   version "5.2.1"
   resolved "https://registry.yarnpkg.com/pixi.js/-/pixi.js-5.2.1.tgz#523caaa64a9f8c15f380ace30520b991206c4ad5"
