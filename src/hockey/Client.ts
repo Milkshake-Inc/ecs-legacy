@@ -5,8 +5,6 @@ import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
 import Vector2 from '@ecs/math/Vector2';
-import Camera from '@ecs/plugins/camera/components/Camera';
-import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
 import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import Session from '@ecs/plugins/net/components/Session';
@@ -14,13 +12,12 @@ import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSys
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import Position from '@ecs/plugins/Position';
+import { Interactable } from '@ecs/plugins/render/components/Interactable';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import Text from '@ecs/plugins/render/components/Text';
-import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
+import { PixiEngine } from '@ecs/plugins/render/PixiEngine';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
 import SoundSystem, { SoundState } from '@ecs/plugins/sound/systems/SoundSystem';
-import Space from '@ecs/plugins/space/Space';
-import TickerEngine from '@ecs/TickerEngine';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { SparksTrail } from './components/Emitters';
@@ -30,49 +27,6 @@ import Splash from './spaces/Splash';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';
-import { Interactable } from '@ecs/plugins/render/components/Interactable';
-
-class PixiEngine extends TickerEngine {
-	protected spaces: Map<string, Space>;
-
-	constructor(tickRate = 60) {
-		super(tickRate);
-
-		this.addSystem(new CameraRenderSystem());
-		this.addSystem(new RenderSystem());
-		this.addSystem(new ClientConnectionSystem(this), 1000); // has to be low priority so systems get packets before the queue is cleared
-		this.addSystem(new ClientPingSystem());
-		this.addSystem(new DebugSystem());
-
-		const camera = new Entity();
-		camera.add(Position);
-		camera.add(Camera);
-		this.addEntities(camera);
-
-		this.spaces = new Map();
-	}
-
-	public getSpace(spaceName: string) {
-		return this.spaces.get(spaceName);
-	}
-
-	public registerSpaces(...spaces: Space[]) {
-		spaces.forEach(v => this.spaces.set(v.name, v));
-	}
-
-	protected getTime(): number {
-		return performance.now();
-	}
-
-	protected buildCallback(callback: () => void) {
-		const handleAnimationFrame = () => {
-			callback();
-			requestAnimationFrame(handleAnimationFrame);
-		};
-
-		requestAnimationFrame(handleAnimationFrame);
-	}
-}
 
 const Assets = {
 	Background: 'assets/hockey/background.png',
@@ -215,6 +169,10 @@ export class ClientHockey extends Hockey {
 }
 
 const engine = new PixiEngine();
+engine.addSystem(new ClientConnectionSystem(engine), 1000); // has to be low priority so systems get packets before the queue is cleared
+engine.addSystem(new ClientPingSystem());
+engine.addSystem(new DebugSystem());
+
 engine.registerSpaces(new Splash(engine, 'splash'), new ClientHockey(engine));
 
 engine.getSpace('splash').open();
