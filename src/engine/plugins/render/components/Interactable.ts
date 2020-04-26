@@ -1,3 +1,1 @@
-export class Interactable {
-
-}
+export class Interactable {}

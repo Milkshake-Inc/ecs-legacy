@@ -27,7 +27,6 @@ import { SparksTrail } from './components/Emitters';
 import Score from './components/Score';
 import Hockey, { PlayerColor } from './spaces/Hockey';
 import Splash from './spaces/Splash';
-import { HockeyClientSnapshotDebugSystem } from './systems/HockeyClientSnapshotDebugSystem';
 import { HockeyClientWorldSnapshotSystem } from './systems/HockeyClientWorldSnapshotSystem';
 import HudSystem, { Hud } from './systems/HudSystem';
 import { PuckSoundSystem } from './systems/PuckSoundSystem';

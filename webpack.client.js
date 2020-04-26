@@ -2,7 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const baseConfig = require('./webpack.base.js');
+const {baseConfig, projectPath} = require('./webpack.base.js');
 const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
@@ -10,7 +10,7 @@ const chalk = require('chalk');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
 
 const config = {
-	entry: ['./src/playground/Client.ts', 'webpack-plugin-serve/client'],
+	entry: [`${projectPath}/Client.ts`, 'webpack-plugin-serve/client'],
 	module: {
 		rules: [
 			{

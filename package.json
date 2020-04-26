@@ -47,7 +47,8 @@
 		"pixi.js": "^5.2.1",
 		"poly-decomp": "^0.3.0",
 		"sat": "^0.8.0",
-		"typed-signals": "^1.0.5"
+		"typed-signals": "^1.0.5",
+		"yargs": "^15.3.1"
 	},
 	"devDependencies": {
 		"@types/dat.gui": "^0.7.5",

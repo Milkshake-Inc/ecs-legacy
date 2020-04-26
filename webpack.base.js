@@ -1,6 +1,25 @@
 const path = require('path');
 
-module.exports = {
+
+const yargs = require('yargs');
+
+const argv = yargs
+    .command('project', 'Project name', {
+        year: {
+            description: 'which project to run',
+            alias: 'p',
+            type: 'string',
+        }
+    })
+    .help()
+    .alias('help', 'h')
+	.argv;
+
+exports.project = argv.project || "hockey";
+
+exports.projectPath = `./src/${exports.project}`;
+
+exports.baseConfig = {
 	mode: 'development',
 	module: {
 		rules: [

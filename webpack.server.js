@@ -1,12 +1,12 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
-const baseConfig = require('./webpack.base.js');
+const { baseConfig, projectPath } = require('./webpack.base.js');
 const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 
 const config = {
-	entry: './src/playground/Server.ts',
+	entry: `${projectPath}/Server.ts`,
 	target: 'node',
 	node: {
 		// Need this when working with express, otherwise the build fails
