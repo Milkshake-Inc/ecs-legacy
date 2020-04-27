@@ -1,3 +1,4 @@
 node_modules
 bin
 *.log
+.vscode/settings.json
