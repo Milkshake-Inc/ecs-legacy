@@ -38,8 +38,16 @@ export default class Keyboard {
 		return !!this.pressedKeys[key];
 	}
 
+	public isEitherPressed(keys: number[]) {
+		return keys.some(key => this.isPressed(key));
+	}
+
 	public isReleased(key: number) {
 		return !!this.releasedKeys[key];
+	}
+
+	public isEitherReleased(keys: number[]) {
+		return keys.some(key => this.isReleased(key));
 	}
 
 	public update() {
