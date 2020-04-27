@@ -18,7 +18,7 @@ export class InputSystem extends IterativeSystem {
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		this.keyboard.update(dt);
+		this.keyboard.update();
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number) {

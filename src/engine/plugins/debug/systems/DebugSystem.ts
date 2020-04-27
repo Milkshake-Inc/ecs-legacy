@@ -28,7 +28,7 @@ export class DebugSystem extends IterativeSystem {
 		}
 
 		this.ecsGraph.update(dt);
-		this.keyboard.update(dt);
+		this.keyboard.update();
 	}
 
 	public onAddedToEngine(engine: Engine) {
