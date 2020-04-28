@@ -3,8 +3,11 @@ import { System } from '@ecs/ecs/System';
 import { usePerspectiveCameraCouple } from '../couples/PerspectiveCameraCouple';
 import { useMeshCouple } from '../couples/MeshCouple';
 import RenderState from '../components/RenderState';
-import { Scene, WebGLRenderer, PerspectiveCamera, Camera } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor } from 'three';
 import { any } from '@ecs/utils/QueryHelper';
+import { useGroupCouple } from '../couples/GroupCouple';
+import Color from '@ecs/math/Color';
+import { useLightCouple } from '../couples/LightCouple';
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -14,12 +17,13 @@ export default class RenderSystem extends System {
 	});
 
 	// Query passed in must be added to engine.... & update has to be called manually
-	protected couples = [usePerspectiveCameraCouple(this), useMeshCouple(this)];
+	protected couples = [usePerspectiveCameraCouple(this), useMeshCouple(this), useGroupCouple(this), useLightCouple(this)];
 
-	constructor(width = 1280, height = 720) {
+	constructor(width = 1280, height = 720, color: number = Color.White) {
 		super();
 
 		this.state.scene = new Scene();
+		this.state.scene.background = new ThreeColor(color);
 
 		this.state.renderer = new WebGLRenderer({
 			antialias: true

@@ -53,7 +53,10 @@ module.exports = {
 					'autoplay',
 					'html5',
 					'ogg',
-					'Interactable'
+					'Interactable',
+					'gltf',
+					'panner',
+					'rolloff'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
