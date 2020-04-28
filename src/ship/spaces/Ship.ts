@@ -1,19 +1,31 @@
 import { Engine } from '@ecs/ecs/Engine';
-import Space from '@ecs/plugins/space/Space';
 import { Entity } from '@ecs/ecs/Entity';
-import { BoxGeometry, MeshBasicMaterial, Mesh, TextureLoader, PerspectiveCamera, Color as ThreeColor, PointLight } from 'three';
-
-import Position from '@ecs/plugins/Position';
 import { functionalSystem } from '@ecs/ecs/helpers';
-import { all } from '@ecs/utils/QueryHelper';
-import { LoadGLTF } from '@ecs/utils/ThreeHelper';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import Color from '@ecs/math/Color';
 import Input from '@ecs/plugins/input/components/Input';
-import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import Position from '@ecs/plugins/Position';
+import Space from '@ecs/plugins/space/Space';
+import { all } from '@ecs/utils/QueryHelper';
+import { LoadGLTF } from '@ecs/utils/ThreeHelper';
+import {
+	BoxGeometry,
+	Color as ThreeColor,
+	Mesh,
+	MeshBasicMaterial,
+	PerspectiveCamera,
+	PointLight,
+	RepeatWrapping,
+	TextureLoader
+} from 'three';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import SeaWaves from '../components/SeaWaves';
+import ThirdPersonTarget from '../components/ThirdPersonTarget';
+import WaveMachineSystem, { getWaveHeight } from '../systems/WaveMachineSystem';
+import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
 
-const ShipSpeed = 0.01;
+const ShipSpeed = 0.1;
 let Elapsed = 0;
 
 export class Ship extends Space {
@@ -30,7 +42,7 @@ export class Ship extends Space {
 	setup() {
 		const camera = new Entity();
 		camera.add(Position, { y: 2, z: 5 });
-		camera.add(new PointLight(new ThreeColor(Color.White), 1, 100));
+		camera.add(new PointLight(new ThreeColor(Color.White), 2, 10000));
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.1, 1000));
 
 		const ship = new Entity();
@@ -38,15 +50,24 @@ export class Ship extends Space {
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipObject.scene.children[0]);
+		ship.add(ThirdPersonTarget);
 
-		const sea = new Entity();
-		sea.add(Position);
-		sea.add(Mesh, {
-			geometry: new BoxGeometry(5, 0.1, 5),
-			material: new MeshBasicMaterial({
-				color: new ThreeColor(0x0000ff)
-			})
-		});
+		const floorMaterial = new TextureLoader().load('assets/prototype/textures/blue_texture_03.png');
+		floorMaterial.wrapS = RepeatWrapping;
+		floorMaterial.wrapT = RepeatWrapping;
+		floorMaterial.repeat.set(25, 25);
+		const floor = new Entity();
+		floor.add(Position);
+		floor.add(SeaWaves);
+		floor.add(
+			new Mesh(
+				new BoxGeometry(50, 0.1, 50, 50, 1, 50),
+				new MeshBasicMaterial({
+					map: floorMaterial,
+					wireframe: true
+				})
+			)
+		);
 
 		const cube = new Entity();
 		cube.add(Position);
@@ -54,7 +75,8 @@ export class Ship extends Space {
 			geometry: new BoxGeometry(),
 			material: new MeshBasicMaterial({ map: new TextureLoader().load('assets/prototype/textures/red/texture_01.png') })
 		});
-		this.addEntities(camera, ship, sea);
+
+		this.addEntities(camera, ship, floor);
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
@@ -63,8 +85,8 @@ export class Ship extends Space {
 					const pos = entity.get(Position);
 					const input = entity.get(Input);
 
-					const directionX = Math.cos(pos.r + Math.PI / 2) * ShipSpeed;
-					const directionY = Math.sin(pos.r + Math.PI / 2) * ShipSpeed;
+					const directionX = Math.cos(pos.rotation.y + Math.PI / 2) * ShipSpeed;
+					const directionY = Math.sin(pos.rotation.y + Math.PI / 2) * ShipSpeed;
 
 					if (input.upDown) {
 						pos.z -= directionY;
@@ -76,18 +98,21 @@ export class Ship extends Space {
 					}
 
 					if (input.leftDown) {
-						pos.r += ShipSpeed;
+						pos.rotation.y += 0.02;
 					}
 
 					if (input.rightDown) {
-						pos.r -= ShipSpeed;
+						pos.rotation.y -= 0.02;
 					}
 
 					Elapsed += dt;
 
-					pos.y = Math.sin(Elapsed / 1000) * 0.1;
+					pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
 				}
 			})
 		);
+
+		this.addSystem(new WaveMachineSystem());
+		this.addSystem(new ThirdPersonCameraSystem());
 	}
 }

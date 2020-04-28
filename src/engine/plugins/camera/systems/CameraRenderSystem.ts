@@ -98,7 +98,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 		camera.transform.position.y = -(position.y + camera.offset.y) * camera.zoom;
 		camera.transform.scale.x = camera.zoom;
 		camera.transform.scale.y = camera.zoom;
-		camera.transform.rotation = position.r;
+		camera.transform.rotation = position.rotation.x;
 		camera.transform.pivot.x = -offsetX;
 		camera.transform.pivot.y = -offsetY;
 	}

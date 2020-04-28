@@ -11,7 +11,7 @@ export const genericObject3DUpdate = (entity: Entity, object3D: Object3D) => {
 
 	object3D.position.set(position.x, position.y, position.z);
 	object3D.scale.set(position.scale.x, position.scale.y, position.scale.x); // TODO scale on 3 axis
-	object3D.rotation.set(object3D.rotation.x, position.r, object3D.rotation.z); // TODO rotate on 3 axis
+	object3D.rotation.set(position.rotation.x, position.rotation.y, position.rotation.z); // TODO rotate on 3 axis
 };
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

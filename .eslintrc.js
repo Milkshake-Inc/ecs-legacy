@@ -56,7 +56,9 @@ module.exports = {
 					'Interactable',
 					'gltf',
 					'panner',
-					'rolloff'
+					'rolloff',
+					'elasped',
+					'verticies'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
