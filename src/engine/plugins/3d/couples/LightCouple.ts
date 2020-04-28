@@ -1,12 +1,16 @@
 import Position from '@ecs/plugins/Position';
 import { all, any } from '@ecs/utils/QueryHelper';
 import { useThreeCouple } from './ThreeCouple';
-import { AmbientLight, Light, PointLight } from 'three';
+import { AmbientLight, Light, PointLight, DirectionalLight } from 'three';
 import RenderSystem from '../systems/RenderSystem';
 
 export const useLightCouple = (system: RenderSystem) =>
-	useThreeCouple<Light>(system, [all(Position), any(Light, AmbientLight, PointLight)], {
+	useThreeCouple<Light>(system, [all(Position), any(Light, AmbientLight, PointLight, DirectionalLight)], {
 		onCreate: entity => {
+			if (entity.has(DirectionalLight)) {
+				return entity.get(DirectionalLight);
+			}
+
 			if (entity.has(AmbientLight)) {
 				return entity.get(AmbientLight);
 			}

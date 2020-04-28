@@ -17,7 +17,10 @@ import {
 	PerspectiveCamera,
 	PointLight,
 	RepeatWrapping,
-	TextureLoader
+	TextureLoader,
+	DirectionalLight,
+	MeshPhongMaterial,
+	BackSide
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import SeaWaves from '../components/SeaWaves';
@@ -42,8 +45,12 @@ export class Ship extends Space {
 	setup() {
 		const camera = new Entity();
 		camera.add(Position, { y: 2, z: 5 });
-		camera.add(new PointLight(new ThreeColor(Color.White), 2, 10000));
+		// camera.add(new PointLight(new ThreeColor(Color.White), 2, 10000));
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.1, 1000));
+
+		const light = new Entity();
+		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.4));
+		light.add(new Position(4, 5, 2));
 
 		const ship = new Entity();
 		ship.add(Position, {});
@@ -52,22 +59,52 @@ export class Ship extends Space {
 		ship.add(this.shipObject.scene.children[0]);
 		ship.add(ThirdPersonTarget);
 
-		const floorMaterial = new TextureLoader().load('assets/prototype/textures/blue_texture_03.png');
-		floorMaterial.wrapS = RepeatWrapping;
-		floorMaterial.wrapT = RepeatWrapping;
-		floorMaterial.repeat.set(25, 25);
+		const seaTexture = new TextureLoader().load('assets/prototype/textures/sea.jpg');
+		seaTexture.wrapS = RepeatWrapping;
+		seaTexture.wrapT = RepeatWrapping;
+		seaTexture.repeat.set(25, 25);
 		const floor = new Entity();
 		floor.add(Position);
 		floor.add(SeaWaves);
 		floor.add(
 			new Mesh(
-				new BoxGeometry(50, 0.1, 50, 50, 1, 50),
-				new MeshBasicMaterial({
-					map: floorMaterial,
-					wireframe: true
+				new BoxGeometry(100, 0.1, 100, 20, 1, 20),
+				new MeshPhongMaterial({
+					flatShading: true,
+					map: seaTexture,
+					shininess: 0,
+					transparent: true,
+					opacity: 0.9
 				})
 			)
 		);
+
+		const textureFT = new TextureLoader().load('assets/prototype/textures/sky/nx.png');
+		const textureBK = new TextureLoader().load('assets/prototype/textures/sky/nz.png');
+		const textureUP = new TextureLoader().load('assets/prototype/textures/sky/ny.png');
+		const textureDN = new TextureLoader().load('assets/prototype/textures/sky/py.png');
+		const textureRT = new TextureLoader().load('assets/prototype/textures/sky/pz.png');
+		const textureLF = new TextureLoader().load('assets/prototype/textures/sky/px.png');
+
+		const materialArray = [
+			new MeshBasicMaterial({ map: textureFT }),
+			new MeshBasicMaterial({ map: textureBK }),
+			new MeshBasicMaterial({ map: textureUP }),
+			new MeshBasicMaterial({ map: textureDN }),
+			new MeshBasicMaterial({ map: textureRT }),
+			new MeshBasicMaterial({ map: textureLF })
+		];
+
+		for (let i = 0; i < 6; i++) {
+			materialArray[i].side = BackSide;
+		}
+
+		const skyBox = new Entity();
+		skyBox.add(Position);
+		skyBox.add(Mesh, {
+			geometry: new BoxGeometry(1000, 1000, 1000),
+			material: materialArray
+		});
 
 		const cube = new Entity();
 		cube.add(Position);
@@ -76,7 +113,7 @@ export class Ship extends Space {
 			material: new MeshBasicMaterial({ map: new TextureLoader().load('assets/prototype/textures/red/texture_01.png') })
 		});
 
-		this.addEntities(camera, ship, floor);
+		this.addEntities(light, camera, ship, floor, skyBox);
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
