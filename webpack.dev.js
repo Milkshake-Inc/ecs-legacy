@@ -1,5 +1,6 @@
 const fs = require('fs');
 const chalk = require('chalk');
+const emoji = require('node-emoji')
 const { project, projectPath } = require('./webpack.base.js');
 
 const hasClient = fs.existsSync(`${projectPath}/Client.ts`);
@@ -20,6 +21,14 @@ if(!hasClient && !hasServer) {
     process.exit()
 }
 
-console.log(chalk.bold.blue(`\n🌱  Starting project '${project}' - Client: ${hasClient} Server: ${hasServer}`))
+let projectEmoji = "🌱";
+
+const results = emoji.search(project);
+if(results.length > 0) {
+    projectEmoji = results[0].emoji;
+
+}
+
+console.log(chalk.bold.blue(`\n ${projectEmoji}  Starting project '${project}' - Client: ${hasClient} Server: ${hasServer}`))
 
 module.exports = webpacks;

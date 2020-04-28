@@ -43,6 +43,7 @@
 		"howler": "^2.1.3",
 		"json-diff": "^0.5.4",
 		"matter-js": "^0.14.2",
+		"node-emoji": "^1.10.0",
 		"pixi-particles": "^4.2.0",
 		"pixi-spine": "^2.1.8",
 		"pixi.js": "^5.2.1",
