@@ -1,6 +1,9 @@
 import { makeQuery, QueryPattern } from '@ecs/utils/QueryHelper';
 import { Entity, EntitySnapshot } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
+import { System } from '../System';
+import { useQueries, ToQueries } from './useQueries';
+import { use } from 'matter-js';
 
 export type FunctionalSystemStuff = {
 	entityUpdate?(entity: Entity, dt: number): void;
@@ -29,6 +32,38 @@ export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: 
 		entityRemoved = (snapshot: EntitySnapshot) => {
 			if (callbacks.entityRemoved) callbacks.entityRemoved(snapshot.entity);
 		};
+	};
+
+	return new system();
+};
+
+export type FunctionalSystemQueryStuff<Q> = {
+	update?(queries: Q, dt: number): void;
+	updateFixed?(queries: Q, dt: number): void;
+};
+
+export const functionalSystemQuery = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(queries: Q, callbacks: FunctionalSystemQueryStuff<ToQueries<Q>>) => {
+	const system = class CustomSystem extends System {
+
+		protected queries = useQueries(this, queries);
+
+		constructor() {
+			super();
+
+
+		}
+
+		update(deltaTime: number) {
+			if(callbacks.update) {
+				callbacks.update(this.queries, deltaTime);
+			}
+		}
+
+		updateFixed(deltaTime: number) {
+			if(callbacks.updateFixed) {
+				callbacks.updateFixed(this.queries, deltaTime);
+			}
+		}
 	};
 
 	return new system();

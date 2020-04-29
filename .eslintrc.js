@@ -60,7 +60,9 @@ module.exports = {
 					'elasped',
 					'verticies',
 					'phong',
-					'jpg'
+					'jpg',
+					'Raycaster',
+					'raycast'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

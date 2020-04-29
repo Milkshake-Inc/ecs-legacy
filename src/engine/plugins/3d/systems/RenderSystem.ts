@@ -8,6 +8,7 @@ import { any } from '@ecs/utils/QueryHelper';
 import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
+import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -17,7 +18,14 @@ export default class RenderSystem extends System {
 	});
 
 	// Query passed in must be added to engine.... & update has to be called manually
-	protected couples = [usePerspectiveCameraCouple(this), useMeshCouple(this), useGroupCouple(this), useLightCouple(this)];
+	protected couples = [
+		usePerspectiveCameraCouple(this),
+		useMeshCouple(this),
+		useGroupCouple(this),
+		useLightCouple(this),
+		useRaycastCouple(this),
+		useRaycastDebugCouple(this)
+	];
 
 	constructor(width = 1280, height = 720, color: number = Color.White) {
 		super();

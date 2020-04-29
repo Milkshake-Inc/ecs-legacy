@@ -1,7 +1,7 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { Geometry, Mesh } from 'three';
+import { Geometry, Mesh, MeshPhongMaterial } from 'three';
 import SeaWaves from '../components/SeaWaves';
 
 export const getWaveHeight = (x: number, z: number, elaspedTime: number) => {
@@ -19,6 +19,11 @@ export default class WaveMachineSystem extends IterativeSystem {
 		this.elaspedTime += deltaTime;
 
 		const mesh = entity.get(Mesh);
+
+		if(mesh.material instanceof MeshPhongMaterial){
+			mesh.material.map.repeat.x = 25 + (Math.sin(this.elaspedTime / 2000) * 0.1)
+			mesh.material.map.repeat.y = 25 + (Math.cos(this.elaspedTime / 1600) * 0.1)
+		}
 
 		if (mesh.geometry instanceof Geometry) {
 			mesh.geometry.vertices.forEach(verticies => {

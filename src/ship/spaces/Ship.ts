@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { functionalSystem } from '@ecs/ecs/helpers';
+import { functionalSystem, functionalSystemQuery } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
@@ -19,13 +19,16 @@ import {
 	TextureLoader,
 	DirectionalLight,
 	MeshPhongMaterial,
-	BackSide
+	BackSide,
+	Vector3 as ThreeVector3
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import SeaWaves from '../components/SeaWaves';
 import ThirdPersonTarget from '../components/ThirdPersonTarget';
 import WaveMachineSystem, { getWaveHeight } from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
+import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
+import Vector3 from '@ecs/math/Vector';
 
 const ShipSpeed = 0.1;
 let Elapsed = 0;
@@ -151,12 +154,41 @@ export class Ship extends Space {
 
 					Elapsed += dt;
 
-					pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
+					// pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
 				}
 			})
 		);
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new ThirdPersonCameraSystem());
+
+		const ray = new Entity()
+		ray.add(Transform, { rotation: new Vector3(0, -1, 0 )});
+		ray.add(Raycast)
+		ray.add(RaycastDebug);
+		this.addEntities(ray);
+
+		this.addSystem(functionalSystemQuery({
+			ship: all(Input),
+			raycast: all(Raycast)
+		}, {
+			updateFixed: (queries) => {
+				const { position } = queries.ship.first.get(Transform);
+				const boatMesh = queries.ship.first.get(Mesh);
+				const { intersects } = queries.raycast.first.get(Raycast);
+
+				// Reposition ray to boats position
+				queries.raycast.first.get(Transform).position.set(position.x, position.y + 50, position.z)
+
+				if(intersects.length > 0) {
+					for (const intersect of intersects) {
+						if(intersect.object != boatMesh) {
+							position.y = intersect.point.y;
+							return;
+						}
+					}
+				}
+			}
+		}))
 	}
 }
