@@ -1,5 +1,5 @@
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { Emitter, EmitterConfig, OldEmitterConfig } from 'pixi-particles';
 import { Container, Texture } from 'pixi.js';
@@ -17,7 +17,7 @@ class ParticleEmitterDisplayObject extends Container {
 }
 
 export const useParticleCouple = (system: System) =>
-	usePixiCouple<ParticleEmitterDisplayObject>(system, all(Position, ParticleEmitter), {
+	usePixiCouple<ParticleEmitterDisplayObject>(system, all(Transform, ParticleEmitter), {
 		onCreate: entity => {
 			const { textures, config } = entity.get(ParticleEmitter);
 
@@ -26,7 +26,7 @@ export const useParticleCouple = (system: System) =>
 			return new ParticleEmitterDisplayObject(pixiTextures, config);
 		},
 		onUpdate: (entity, displayObject, deltaTime) => {
-			const position = entity.get(Position);
+			const position = entity.get(Transform).position;
 			const emitter = entity.get(ParticleEmitter);
 
 			displayObject.position.set(0, 0); //HACK

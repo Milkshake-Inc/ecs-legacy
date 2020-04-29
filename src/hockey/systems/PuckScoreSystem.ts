@@ -3,7 +3,7 @@ import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Random from '@ecs/math/Random';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Paddle } from '../components/Paddle';
 import { Puck } from '../components/Puck';
@@ -21,7 +21,7 @@ export default class PuckScoreSystem extends IterativeSystem {
 	protected state = useState(this, new Score());
 
 	constructor(bounds: { width: number; height: number }, padding = 50, spawnVelocity = 0.5) {
-		super(makeQuery(all(Position, PhysicsBody, Puck)));
+		super(makeQuery(all(Transform, PhysicsBody, Puck)));
 
 		this.bounds = bounds;
 		this.padding = padding;
@@ -29,7 +29,7 @@ export default class PuckScoreSystem extends IterativeSystem {
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number) {
-		const position = entity.get(Position);
+		const position = entity.get(Transform).position;
 
 		const score = this.state;
 		const serverEmpty = this.queries.paddles.entities.length == 0;

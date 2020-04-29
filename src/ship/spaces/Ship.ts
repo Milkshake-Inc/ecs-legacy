@@ -5,7 +5,7 @@ import Color from '@ecs/math/Color';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import Space from '@ecs/plugins/space/Space';
 import { all } from '@ecs/utils/QueryHelper';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
@@ -47,23 +47,23 @@ export class Ship extends Space {
 
 	setup() {
 		const camera = new Entity();
-		camera.add(Position, { y: 2, z: 5 });
+		camera.add(Transform, { y: 2, z: 5 });
 		// camera.add(new PointLight(new ThreeColor(Color.White), 2, 10000));
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.1, 1000));
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.4));
-		light.add(new Position(4, 5, 2));
+		light.add(Transform, { x: 4, y: 5, z: 2 });
 
 		const ship = new Entity();
-		ship.add(Position);
+		ship.add(Transform);
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget);
 
 		const island = new Entity();
-		island.add(Position, { z: -20, y: 2 });
+		island.add(Transform, { x: 0, y: 2, z: -20 });
 		island.add(this.islandModel.scene);
 
 		const seaTexture = new TextureLoader().load('assets/prototype/textures/sea.jpg');
@@ -71,7 +71,7 @@ export class Ship extends Space {
 		seaTexture.wrapT = RepeatWrapping;
 		seaTexture.repeat.set(25, 25);
 		const floor = new Entity();
-		floor.add(Position);
+		floor.add(Transform);
 		floor.add(SeaWaves);
 		floor.add(
 			new Mesh(
@@ -107,14 +107,14 @@ export class Ship extends Space {
 		}
 
 		const skyBox = new Entity();
-		skyBox.add(Position);
+		skyBox.add(Transform);
 		skyBox.add(Mesh, {
 			geometry: new BoxGeometry(1000, 1000, 1000),
 			material: materialArray
 		});
 
 		const cube = new Entity();
-		cube.add(Position);
+		cube.add(Transform);
 		cube.add(Mesh, {
 			geometry: new BoxGeometry(),
 			material: new MeshBasicMaterial({ map: new TextureLoader().load('assets/prototype/textures/red/texture_01.png') })
@@ -124,9 +124,9 @@ export class Ship extends Space {
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
-			functionalSystem([all(Position, Input)], {
+			functionalSystem([all(Transform, Input)], {
 				entityUpdate(entity, dt) {
-					const pos = entity.get(Position);
+					const pos = entity.get(Transform);
 					const input = entity.get(Input);
 
 					const directionX = Math.cos(pos.rotation.y + Math.PI / 2) * ShipSpeed;

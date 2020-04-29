@@ -1,6 +1,6 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
 import BoundingBox from '../components/ArcadeBoundingBox';
 import ArcadeBoundingCircle from '../components/ArcadeBoundingCircle';
@@ -8,11 +8,11 @@ import ArcadePhysics from '../components/ArcadePhysics';
 
 export default class BoundsSystem extends IterativeSystem {
 	constructor(protected bounds: { width: number; height: number }) {
-		super(makeQuery(all(Position, ArcadePhysics), any(BoundingBox, ArcadeBoundingCircle)));
+		super(makeQuery(all(Transform, ArcadePhysics), any(BoundingBox, ArcadeBoundingCircle)));
 	}
 
 	protected updateEntity(entity: Entity, dt: number) {
-		const position = entity.get(Position);
+		const position = entity.get(Transform).position;
 		const physics = entity.get(ArcadePhysics);
 
 		const boundsComponent = entity.has(BoundingBox) ? entity.get(BoundingBox) : entity.get(ArcadeBoundingCircle);

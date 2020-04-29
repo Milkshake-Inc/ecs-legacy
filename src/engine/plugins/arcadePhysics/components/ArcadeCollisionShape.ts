@@ -1,5 +1,5 @@
 import { Circle, Box, Polygon, Vector } from 'sat';
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 type Shapes = Circle | Polygon;
 
@@ -12,7 +12,7 @@ export class ArcadeCollisionShape {
 		return new ArcadeCollisionShape(new Box(undefined, width, height).toPolygon());
 	}
 
-	public static Polygon(points: Vector2[]) {
+	public static Polygon(points: Vector3[]) {
 		return new ArcadeCollisionShape(
 			new Polygon(
 				undefined,

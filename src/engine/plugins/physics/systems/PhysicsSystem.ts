@@ -1,6 +1,6 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Body, Engine, Events, World } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
@@ -16,7 +16,7 @@ export default class PhysicsSystem extends IterativeSystem {
 
 	static updateEntityFixed(entity: Entity, dt: number) {
 		const physicsBody = entity.get(PhysicsBody);
-		const position = entity.get(Position);
+		const position = entity.get(Transform).position;
 
 		position.x = physicsBody.body.position.x;
 		position.y = physicsBody.body.position.y;
@@ -28,7 +28,7 @@ export default class PhysicsSystem extends IterativeSystem {
 	public readonly world: World;
 
 	constructor(gravity = { x: 0, y: 1, scale: 0.001 }) {
-		super(makeQuery(all(Position, PhysicsBody)));
+		super(makeQuery(all(Transform, PhysicsBody)));
 
 		this.engine = Engine.create();
 
@@ -69,7 +69,7 @@ export default class PhysicsSystem extends IterativeSystem {
 
 	protected updateEntityFixed(entity: Entity): void {
 		const physicsBody = entity.get(PhysicsBody);
-		const position = entity.get(Position);
+		const position = entity.get(Transform);
 
 		position.x = physicsBody.body.position.x;
 		position.y = physicsBody.body.position.y;
@@ -91,7 +91,7 @@ export default class PhysicsSystem extends IterativeSystem {
 
 	entityAdded = ({ entity }: EntitySnapshot) => {
 		const body = entity.get(PhysicsBody);
-		const position = entity.get(Position);
+		const position = entity.get(Transform);
 
 		body.position = {
 			x: position.x,

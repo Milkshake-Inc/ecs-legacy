@@ -1,4 +1,4 @@
-import Vector2 from '../math/Vector2';
+import Vector3 from './Vector';
 
 export default class MathHelper {
 	public static clamp(value: number, min: number, max: number): number {
@@ -8,10 +8,11 @@ export default class MathHelper {
 		return value < min ? min : value > max ? max : value;
 	}
 
-	public static clampVector2(value: Vector2, min: Vector2, max: Vector2) {
-		const result: Vector2 = value.clone();
+	public static clampVector3(value: Vector3, min: Vector3, max: Vector3) {
+		const result: Vector3 = value.clone();
 		result.x = this.clamp(result.x, min.x, max.x);
 		result.y = this.clamp(result.y, min.y, max.y);
+		result.z = this.clamp(result.z, min.z, max.z);
 		return result;
 	}
 
@@ -46,10 +47,11 @@ export default class MathHelper {
 		return this.hermite(valueA, 0, valueB, 0, this.clamp(amount, 0, 1));
 	}
 
-	public static smoothStepVector2(valueA: Vector2, valueB: Vector2, amount: number): Vector2 {
-		const result: Vector2 = new Vector2();
+	public static smoothStepVector3(valueA: Vector3, valueB: Vector3, amount: number): Vector3 {
+		const result: Vector3 = new Vector3();
 		result.x = this.smoothStep(valueA.x, valueB.x, amount);
 		result.y = this.smoothStep(valueA.y, valueB.y, amount);
+		result.z = this.smoothStep(valueA.z, valueB.z, amount);
 		return result;
 	}
 
@@ -61,10 +63,11 @@ export default class MathHelper {
 		return start + percent * (end - start);
 	}
 
-	public static lerpVector2(start: Vector2, end: Vector2, percent: number) {
-		const result: Vector2 = new Vector2();
+	public static lerpVector3(start: Vector3, end: Vector3, percent: number) {
+		const result: Vector3 = new Vector3();
 		result.x = this.lerp(start.x, end.x, percent);
 		result.y = this.lerp(start.y, end.y, percent);
+		result.z = this.lerp(start.z, end.z, percent);
 		return result;
 	}
 

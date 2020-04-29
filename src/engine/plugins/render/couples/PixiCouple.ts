@@ -1,18 +1,19 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
 import RenderState from '../components/RenderState';
 import { Interactable } from '../components/Interactable';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {
-	const position = entity.get(Position);
+	const transform = entity.get(Transform);
 
-	displayObject.position.set(position.x, position.y);
-	displayObject.scale.set(position.scale.x, position.scale.y);
-	displayObject.zIndex = position.z;
+	displayObject.position.set(transform.position.x, transform.position.y);
+	displayObject.scale.set(transform.scale.x, transform.scale.y);
+	displayObject.rotation = transform.rotation.x;
+	displayObject.zIndex = transform.position.z;
 
 	const interactable = entity.has(Interactable);
 	displayObject.interactive = displayObject.buttonMode = interactable;

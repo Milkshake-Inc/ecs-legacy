@@ -5,7 +5,7 @@ import { Engine } from '@ecs/ecs/Engine';
 import PhysicsSystem from './PhysicsSystem';
 import { Graphics } from 'pixi.js';
 import Color from '@ecs/math/Color';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { World } from 'matter-js';
 
 export const Options = {
@@ -44,7 +44,7 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 		this.graphics.alpha = Options.alpha;
 
 		const entity = new Entity();
-		entity.add(Position);
+		entity.add(Transform);
 		entity.add(this.graphics);
 		engine.addEntity(entity);
 	}

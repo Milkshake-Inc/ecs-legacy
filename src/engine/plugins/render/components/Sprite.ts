@@ -1,10 +1,10 @@
 import { Rectangle } from 'pixi.js';
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 export default class Sprite {
 	public constructor(
 		public imageUrl: string = '',
-		public anchor: Vector2 = Vector2.HALF,
+		public anchor: Vector3 = Vector3.HALF,
 		public frame: Rectangle = null,
 		public tint: number = 0xffffff
 	) {}

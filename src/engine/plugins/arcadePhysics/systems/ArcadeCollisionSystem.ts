@@ -1,6 +1,6 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { ReactionSystem } from '@ecs/ecs/ReactionSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import ArcadePhysics from '../components/ArcadePhysics';
 import { Circle, Polygon, Response, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle } from 'sat';
@@ -8,11 +8,11 @@ import { ArcadeCollisionShape } from '../components/ArcadeCollisionShape';
 
 export default class ArcadeCollisionSystem extends ReactionSystem {
 	constructor() {
-		super(makeQuery(all(Position, ArcadeCollisionShape)));
+		super(makeQuery(all(Transform, ArcadeCollisionShape)));
 	}
 
 	private updateCollisionShape(entity: Entity) {
-		const { x, y } = entity.get(Position);
+		const { x, y } = entity.get(Transform).position;
 		const { shape } = entity.get(ArcadeCollisionShape);
 
 		shape.pos.x = x;
@@ -64,16 +64,16 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 		if (collision && response && entityA.has(ArcadePhysics)) {
 			// if(entityA.get(ArcadePhysics).isStatic) return;
 
-			// const velocity = new Vector2(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y);
+			// const velocity = new Vector3(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y, 0);
 			// const inverseAngle = new Vector(velocity.x, velocity.y).projectN(response.overlapN);
 			// inverseAngle.normalize().scale(velocity.magnitude() * 1.2);
 
-			entityAComponents.position.y -= response.overlapV.y;
-			entityAComponents.position.x -= response.overlapV.x;
+			entityAComponents.transform.position.y -= response.overlapV.y;
+			entityAComponents.transform.position.x -= response.overlapV.x;
 
 			entityAComponents.physics.velocity.x = 0;
 			entityAComponents.physics.velocity.y = 0;
-			entityBComponents.physics.velocity.set(0, 0);
+			entityBComponents.physics.velocity.set(0, 0, 0);
 
 			this.updateCollisionShape(entityA);
 
@@ -91,7 +91,7 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 
 	private getEntityComponents(entity: Entity) {
 		return {
-			position: entity.get(Position),
+			transform: entity.get(Transform),
 			collision: entity.get(ArcadeCollisionShape),
 			physics: entity.get(ArcadePhysics)
 		};

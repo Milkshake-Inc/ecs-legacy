@@ -4,7 +4,7 @@ import { Query } from '@ecs/ecs/Query';
 import MathHelper from '@ecs/math/MathHelper';
 import PhysicsBody from '@ecs/plugins/physics/components/PhysicsBody';
 import PhysicsSystem from '@ecs/plugins/physics/systems/PhysicsSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import Space from '@ecs/plugins/space/Space';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import Moveable from '../components/Moveable';
@@ -186,7 +186,7 @@ export default class Hockey extends Space {
 	}
 
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
-		entity.add(Position, spawnPosition);
+		entity.add(Transform, spawnPosition);
 		entity.add(Moveable, { speed: 0.05 });
 		entity.add(Paddle, { color: player });
 		entity.add(Player);
@@ -203,7 +203,7 @@ export default class Hockey extends Space {
 
 	createPuck(): Entity {
 		const puck = new Entity();
-		puck.add(Position, { x: 1280 / 2, y: 720 / 2 });
+		puck.add(Transform, { x: 1280 / 2, y: 720 / 2 });
 		puck.add(
 			PhysicsBody.circle(40, {
 				mass: 1,
@@ -271,7 +271,7 @@ export default class Hockey extends Space {
 		});
 
 		return new Entity()
-			.add(Position, { x, y })
+			.add(Transform, { x, y })
 			.add(Wall)
 			.add(
 				PhysicsBody.fromVertices(points, {
@@ -283,7 +283,7 @@ export default class Hockey extends Space {
 
 	createWall(x: number, y: number, width: number, height): Entity {
 		const wall = new Entity();
-		wall.add(Position, { x, y });
+		wall.add(Transform, { x, y });
 		wall.add(
 			PhysicsBody.rectangle(width, height, {
 				isStatic: true,
@@ -296,7 +296,7 @@ export default class Hockey extends Space {
 
 	createGoal(x: number, y: number): Entity {
 		const goal = new Entity();
-		goal.add(Position, { x, y });
+		goal.add(Transform, { x, y });
 		goal.add(
 			PhysicsBody.rectangle(10, 336, {
 				isStatic: true,

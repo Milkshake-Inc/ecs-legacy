@@ -2,9 +2,9 @@ import { System } from '@ecs/ecs/System';
 import { Engine } from '@ecs/ecs/Engine';
 import Text from '@ecs/plugins/render/components/Text';
 import { Entity } from '@ecs/ecs/Entity';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import Color from '@ecs/math/Color';
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 export class UpdateDebugSystem extends System {
 	protected textEntity: Entity;
@@ -19,7 +19,7 @@ export class UpdateDebugSystem extends System {
 		super();
 
 		this.textEntity = new Entity();
-		this.textEntity.add(Position, Vector2.EQUAL(10));
+		this.textEntity.add(Transform, { position: Vector3.EQUAL(10) });
 		this.textEntity.add(Text, {
 			value: 'HI',
 			tint: Color.Red

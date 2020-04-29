@@ -2,8 +2,8 @@ import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import MathHelper from '@ecs/math/MathHelper';
-import Vector2 from '@ecs/math/Vector2';
-import Position from '@ecs/plugins/Position';
+import Vector3 from '@ecs/math/Vector';
+import Transform from '@ecs/plugins/Transform';
 import Bounds from '@ecs/plugins/render/components/Bounds';
 import RenderState from '@ecs/plugins/render/components/RenderState';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
@@ -21,7 +21,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 	});
 
 	constructor() {
-		super(makeQuery(all(Camera, Position)));
+		super(makeQuery(all(Camera, Transform)));
 	}
 
 	public entityAdded = (snapshot: EntitySnapshot) => {
@@ -33,7 +33,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 
 	public updateEntity(entity: Entity, dt: number) {
 		const camera = entity.get(Camera);
-		const position = entity.get(Position);
+		const position = entity.get(Transform);
 
 		if (camera.scrollOptions) {
 			this.scrollTargets(camera, position);
@@ -42,17 +42,17 @@ export default class CameraRenderSystem extends IterativeSystem {
 		this.updateCamera(camera, position);
 	}
 
-	public scrollTargets(camera: Camera, position: Position) {
+	public scrollTargets(camera: Camera, transform: Transform) {
 		const targets = this.queries.targets;
 		if (targets.length <= 0) return;
 
-		const min = Object.assign({}, targets.first.get(Position));
-		const max = Object.assign({}, targets.first.get(Position));
+		const min = targets.first.get(Transform).position.clone();
+		const max = targets.first.get(Transform).position.clone();
 		const options = camera.scrollOptions;
 
 		for (const target of targets.entities) {
 			const bounds = target.get(Bounds);
-			const position = target.get(Position);
+			const position = target.get(Transform).position;
 
 			if (options.bounded && target.has(Bounds)) {
 				if (bounds.min.x < min.x) min.x = bounds.min.x;
@@ -76,13 +76,13 @@ export default class CameraRenderSystem extends IterativeSystem {
 		const widthDiff: number = camera.width / width;
 		const heightDiff: number = camera.height / height;
 
-		position.x = x + width / 2;
-		position.y = y + height / 2;
-		camera.offset = Vector2.ZERO;
+		transform.position.x = x + width / 2;
+		transform.position.y = y + height / 2;
+		camera.offset = Vector3.ZERO;
 		camera.zoom = MathHelper.clamp(Math.min(widthDiff, heightDiff), options.maxZoom, options.minZoom);
 	}
 
-	public updateCamera(camera: Camera, position: Position) {
+	public updateCamera(camera: Camera, transform: Transform) {
 		const sprite = this.state.renderSprites.get(camera);
 		sprite.x = camera.x;
 		sprite.y = camera.y;
@@ -94,11 +94,11 @@ export default class CameraRenderSystem extends IterativeSystem {
 		const offsetX = newWidth * 0.5;
 		const offsetY = newHeight * 0.5;
 
-		camera.transform.position.x = -(position.x + camera.offset.x) * camera.zoom;
-		camera.transform.position.y = -(position.y + camera.offset.y) * camera.zoom;
+		camera.transform.position.x = -(transform.position.x + camera.offset.x) * camera.zoom;
+		camera.transform.position.y = -(transform.position.y + camera.offset.y) * camera.zoom;
 		camera.transform.scale.x = camera.zoom;
 		camera.transform.scale.y = camera.zoom;
-		camera.transform.rotation = position.rotation.x;
+		camera.transform.rotation = transform.rotation.x;
 		camera.transform.pivot.x = -offsetX;
 		camera.transform.pivot.y = -offsetY;
 	}

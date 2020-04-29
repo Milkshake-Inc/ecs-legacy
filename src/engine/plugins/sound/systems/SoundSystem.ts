@@ -4,7 +4,7 @@ import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { useState } from '@ecs/ecs/helpers';
 
 export class SoundState {
@@ -99,8 +99,8 @@ export default class SoundSystem extends IterativeSystem {
 			sound.seek = null;
 		}
 
-		if (entity.has(Position)) {
-			const pos = entity.get(Position);
+		if (entity.has(Transform)) {
+			const pos = entity.get(Transform);
 			howl.pos(pos.x, pos.y, 0);
 			howl.pannerAttr({
 				panningModel: 'HRTF',

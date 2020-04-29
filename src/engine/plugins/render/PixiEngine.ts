@@ -1,7 +1,7 @@
 import { Entity } from '@ecs/ecs/Entity';
 import Camera from '@ecs/plugins/camera/components/Camera';
 import CameraRenderSystem from '@ecs/plugins/camera/systems/CameraRenderSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
@@ -16,7 +16,7 @@ export class PixiEngine extends TickerEngine {
 		this.addSystem(new RenderSystem());
 
 		const camera = new Entity();
-		camera.add(Position);
+		camera.add(Transform);
 		camera.add(Camera);
 		this.addEntities(camera);
 

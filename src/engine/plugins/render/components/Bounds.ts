@@ -1,5 +1,5 @@
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 export default class Bounds {
-	public constructor(public min: Vector2, public max: Vector2) {}
+	public constructor(public min: Vector3, public max: Vector3) {}
 }

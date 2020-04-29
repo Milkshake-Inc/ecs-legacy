@@ -5,7 +5,7 @@ import { System } from '@ecs/ecs/System';
 import Color from '@ecs/math/Color';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
 import { ClientWorldSnapshotState } from '@ecs/plugins/net/systems/ClientWorldSnapshotSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { Graphics } from 'pixi.js';
 
@@ -25,7 +25,7 @@ export class HockeyClientSnapshotDebugSystem extends System {
 		super.onAddedToEngine(engine);
 
 		const entity = new Entity();
-		entity.add(Position, { z: 10 });
+		entity.add(Transform, { z: 10 });
 		entity.add((this.graphics = new Graphics()));
 
 		engine.addEntity(entity);

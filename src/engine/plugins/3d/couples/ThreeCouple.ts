@@ -1,17 +1,17 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { Object3D } from 'three';
 import RenderState from '../components/RenderState';
 
 export const genericObject3DUpdate = (entity: Entity, object3D: Object3D) => {
-	const position = entity.get(Position);
+	const transform = entity.get(Transform);
 
-	object3D.position.set(position.x, position.y, position.z);
-	object3D.scale.set(position.scale.x, position.scale.y, position.scale.x); // TODO scale on 3 axis
-	object3D.rotation.set(position.rotation.x, position.rotation.y, position.rotation.z); // TODO rotate on 3 axis
+	object3D.position.set(transform.position.x, transform.position.y, transform.position.z);
+	object3D.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
+	object3D.rotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 };
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

@@ -1,37 +1,37 @@
 import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from '../components/ThirdPersonTarget';
 
 export default class ThirdPersonCameraSystem extends System {
 	private queries = useQueries(this, {
-		camera: all(Position, PerspectiveCamera),
-		target: all(Position, ThirdPersonTarget)
+		camera: all(Transform, PerspectiveCamera),
+		target: all(Transform, ThirdPersonTarget)
 	});
 
 	update(dt: number) {
 		const camera = {
-			position: this.queries.camera.first.get(Position),
+			transform: this.queries.camera.first.get(Transform),
 			cam: this.queries.camera.first.get(PerspectiveCamera)
 		};
 
 		const target = {
-			position: this.queries.target.first.get(Position),
+			transform: this.queries.target.first.get(Transform),
 			target: this.queries.target.first.get(ThirdPersonTarget)
 		};
 
-		const angleX = Math.cos(target.position.rotation.y);
-		const angleY = Math.sin(target.position.rotation.y);
+		const angleX = Math.cos(target.transform.rotation.y);
+		const angleY = Math.sin(target.transform.rotation.y);
 
-		camera.position.x = target.position.x + angleY * target.target.angle;
-		camera.position.y = target.position.y + target.target.distance;
-		camera.position.z = target.position.z + angleX * target.target.angle;
+		camera.transform.position.x = target.transform.position.x + angleY * target.target.angle;
+		camera.transform.position.y = target.transform.position.y + target.target.distance;
+		camera.transform.position.z = target.transform.position.z + angleX * target.target.angle;
 
-		camera.cam.lookAt(target.position.x, target.position.y, target.position.z);
-		camera.position.rotation.x = camera.cam.rotation.x;
-		camera.position.rotation.y = camera.cam.rotation.y;
-		camera.position.rotation.z = camera.cam.rotation.z;
+		camera.cam.lookAt(target.transform.position.x, target.transform.position.y, target.transform.position.z);
+		camera.transform.rotation.x = camera.cam.rotation.x;
+		camera.transform.rotation.y = camera.cam.rotation.y;
+		camera.transform.rotation.z = camera.cam.rotation.z;
 	}
 }

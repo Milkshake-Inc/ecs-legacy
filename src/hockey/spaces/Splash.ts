@@ -1,9 +1,9 @@
 import { Entity } from '@ecs/ecs/Entity';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import Space from '@ecs/plugins/space/Space';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 const Assets = {
 	SplashBackground: 'assets/splash/background.png'
@@ -16,10 +16,10 @@ export default class Splash extends Space {
 
 	setup() {
 		const background = new Entity();
-		background.add(Position);
+		background.add(Transform);
 		background.add(Sprite, {
 			imageUrl: Assets.SplashBackground,
-			anchor: Vector2.ZERO
+			anchor: Vector3.ZERO
 		});
 		this.addEntity(background);
 	}

@@ -4,14 +4,14 @@ import { Events, useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Query } from '@ecs/ecs/Query';
 import Color from '@ecs/math/Color';
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 import { DebugSystem } from '@ecs/plugins/debug/systems/DebugSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import Session from '@ecs/plugins/net/components/Session';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { Interactable } from '@ecs/plugins/render/components/Interactable';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import Text from '@ecs/plugins/render/components/Text';
@@ -96,8 +96,8 @@ export class ClientHockey extends Hockey {
 		// this.addSystem(new InteractionSystem());
 
 		const background = new Entity();
-		background.add(Position);
-		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector2.ZERO });
+		background.add(Transform);
+		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector3.ZERO });
 		background.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.1 });
 		this.addEntities(background);
 
@@ -112,8 +112,8 @@ export class ClientHockey extends Hockey {
 		this.addSystem(new HockeyClientWorldSnapshotSystem(this.worldEngine, this.createPaddle.bind(this)));
 
 		const scoreboard = new Entity();
-		scoreboard.add(Position, { x: 1280 / 2, z: 10 });
-		scoreboard.add(Sprite, { imageUrl: Assets.Scoreboard, anchor: new Vector2(0.5, 0) });
+		scoreboard.add(Transform, { x: 1280 / 2, z: 10 });
+		scoreboard.add(Sprite, { imageUrl: Assets.Scoreboard, anchor: new Vector3(0.5, 0) });
 		this.addEntities(scoreboard);
 
 		const hud = this.hud();
@@ -124,8 +124,8 @@ export class ClientHockey extends Hockey {
 		this.addEntity(backgroundMusic);
 
 		const muteButton = new Entity();
-		muteButton.add(Position, { x: 0, y: 720, z: 1000 });
-		muteButton.add(Sprite, { imageUrl: Assets.MusicOn, anchor: new Vector2(0, 1) });
+		muteButton.add(Transform, { x: 0, y: 720, z: 1000 });
+		muteButton.add(Sprite, { imageUrl: Assets.MusicOn, anchor: new Vector3(0, 1) });
 		muteButton.add(MuteButton);
 		muteButton.add(Interactable);
 		this.addEntity(muteButton);
@@ -138,7 +138,7 @@ export class ClientHockey extends Hockey {
 	createPaddle(entity: Entity, name: string, player: PlayerColor, spawnPosition: { x: number; y: number }) {
 		super.createPaddle(entity, name, player, spawnPosition);
 		entity.add(Sprite, { imageUrl: player == PlayerColor.Red ? Assets.RedPaddle : Assets.BluePaddle });
-		entity.add(SparksTrail(), { offset: Vector2.EQUAL(-50) });
+		entity.add(SparksTrail(), { offset: Vector3.EQUAL(-50) });
 		entity.add(Text, { value: name });
 	}
 
@@ -150,11 +150,11 @@ export class ClientHockey extends Hockey {
 
 	hud(): Hud {
 		const redScore = new Entity();
-		redScore.add(Position, { x: 1280 / 2 - 50, y: 30, z: 10 });
+		redScore.add(Transform, { x: 1280 / 2 - 50, y: 30, z: 10 });
 		redScore.add(Text, { value: '0', tint: Color.Red, size: 50 });
 
 		const blueScore = new Entity();
-		blueScore.add(Position, { x: 1280 / 2 + 50, y: 30, z: 10 });
+		blueScore.add(Transform, { x: 1280 / 2 + 50, y: 30, z: 10 });
 		blueScore.add(Text, { value: '0', tint: Color.Blue, size: 50 });
 
 		return { redScore, blueScore };

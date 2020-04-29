@@ -1,12 +1,12 @@
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { Text as PixiText, TextStyle } from 'pixi.js';
 import Text from '../components/Text';
 import { usePixiCouple } from './PixiCouple';
 
 export const useTextCouple = (system: System) =>
-	usePixiCouple<PixiText>(system, all(Position, Text), {
+	usePixiCouple<PixiText>(system, all(Transform, Text), {
 		onCreate: entity => {
 			const text = entity.get(Text);
 

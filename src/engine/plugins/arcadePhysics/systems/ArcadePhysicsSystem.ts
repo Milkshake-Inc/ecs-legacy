@@ -1,16 +1,16 @@
 import ArcadePhysics from '../components/ArcadePhysics';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Entity } from '@ecs/ecs/Entity';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { QueryBuilder } from '@ecs/ecs/Query';
 
 export default class ArcadePhysicsSystem extends IterativeSystem {
 	constructor() {
-		super(new QueryBuilder().contains(Position, ArcadePhysics).build());
+		super(new QueryBuilder().contains(Transform, ArcadePhysics).build());
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number) {
-		const position = entity.get(Position);
+		const position = entity.get(Transform).position;
 		const physics = entity.get(ArcadePhysics);
 
 		position.x += physics.velocity.x * dt;

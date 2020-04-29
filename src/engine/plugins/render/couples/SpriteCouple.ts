@@ -1,12 +1,12 @@
 import { System } from '@ecs/ecs/System';
-import Position from '@ecs/plugins/Position';
+import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { BaseTexture, resources, Sprite as PixiSprite, Texture } from 'pixi.js';
 import Sprite from '../components/Sprite';
 import { usePixiCouple } from './PixiCouple';
 
 export const useSpriteCouple = (system: System) =>
-	usePixiCouple<PixiSprite>(system, all(Position, Sprite), {
+	usePixiCouple<PixiSprite>(system, all(Transform, Sprite), {
 		onCreate: entity => {
 			const { imageUrl, frame } = entity.get(Sprite);
 			return new PixiSprite(new Texture(BaseTexture.from(imageUrl), frame));

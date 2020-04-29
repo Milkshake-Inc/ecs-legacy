@@ -1,5 +1,5 @@
-import Vector2 from '@ecs/math/Vector2';
+import Vector3 from '@ecs/math/Vector';
 
 export default class BoundingBox {
-	constructor(public size: Vector2 = Vector2.ONE) {}
+	constructor(public size: Vector3 = Vector3.ONE) {}
 }
