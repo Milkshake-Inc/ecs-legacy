@@ -62,7 +62,12 @@ module.exports = {
 					'phong',
 					'jpg',
 					'Raycaster',
-					'raycast'
+					'raycast',
+					'Heightfield',
+					'Broadphase',
+					'Vec3',
+					'euler',
+					'quaternion'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

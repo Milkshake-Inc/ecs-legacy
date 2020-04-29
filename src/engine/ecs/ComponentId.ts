@@ -7,6 +7,8 @@ import { Class } from '../utils/Class';
  * @param createIfNotExists If defined - will create unique id for class component, if it's not defined before
  */
 export function getComponentId<T>(component: Class<T>, createIfNotExists = false): number | undefined {
+	if (component == undefined) return undefined;
+
 	const componentClass = component as ComponentId<T>;
 	let result: number | undefined = undefined;
 	if (Object.prototype.hasOwnProperty.call(componentClass, COMPONENT_CLASS_ID)) {

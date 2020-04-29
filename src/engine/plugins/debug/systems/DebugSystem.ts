@@ -22,7 +22,7 @@ export class DebugSystem extends IterativeSystem {
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		if (this.keyboard.isEitherDown([Key.BACKWARD_TICK, Key.R]) && !this.open) {
+		if (this.keyboard.isEitherDown([Key.BACKWARD_TICK]) && !this.open) {
 			this.ecsGraph.toggle(true);
 			this.open = true;
 		}
