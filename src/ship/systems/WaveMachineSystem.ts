@@ -5,7 +5,7 @@ import { Geometry, Mesh } from 'three';
 import SeaWaves from '../components/SeaWaves';
 
 export const getWaveHeight = (x: number, z: number, elaspedTime: number) => {
-	return Math.sin(elaspedTime * 0.0005 + x * 0.2) * 0.5 + Math.sin(elaspedTime * 0.0002 + z * 0.2) * 1.25;
+	return Math.sin(elaspedTime * 0.0005 + x * 0.2) * 0.25 + Math.sin(elaspedTime * 0.0002 + z * 0.2) * 0.5;
 };
 
 export default class WaveMachineSystem extends IterativeSystem {

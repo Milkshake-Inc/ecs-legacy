@@ -15,7 +15,6 @@ import {
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
-	PointLight,
 	RepeatWrapping,
 	TextureLoader,
 	DirectionalLight,
@@ -32,14 +31,18 @@ const ShipSpeed = 0.1;
 let Elapsed = 0;
 
 export class Ship extends Space {
-	protected shipObject: GLTF;
+	protected shipModel: GLTF;
+	protected islandModel: GLTF;
 
 	constructor(engine: Engine) {
 		super(engine, 'ship');
 	}
 
 	protected async preload() {
-		this.shipObject = await LoadGLTF('assets/prototype/models/boat_large.gltf');
+		[this.shipModel, this.islandModel] = await Promise.all([
+			LoadGLTF('assets/prototype/models/boat_large.gltf'),
+			LoadGLTF('assets/prototype/models/island.gltf')
+		]);
 	}
 
 	setup() {
@@ -53,11 +56,15 @@ export class Ship extends Space {
 		light.add(new Position(4, 5, 2));
 
 		const ship = new Entity();
-		ship.add(Position, {});
+		ship.add(Position);
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
-		ship.add(this.shipObject.scene.children[0]);
+		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget);
+
+		const island = new Entity();
+		island.add(Position, { z: -20, y: 2 });
+		island.add(this.islandModel.scene);
 
 		const seaTexture = new TextureLoader().load('assets/prototype/textures/sea.jpg');
 		seaTexture.wrapS = RepeatWrapping;
@@ -113,7 +120,7 @@ export class Ship extends Space {
 			material: new MeshBasicMaterial({ map: new TextureLoader().load('assets/prototype/textures/red/texture_01.png') })
 		});
 
-		this.addEntities(light, camera, ship, floor, skyBox);
+		this.addEntities(light, camera, ship, island, floor, skyBox);
 
 		this.addSystem(new InputSystem());
 		this.addSystem(

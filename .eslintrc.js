@@ -58,7 +58,9 @@ module.exports = {
 					'panner',
 					'rolloff',
 					'elasped',
-					'verticies'
+					'verticies',
+					'phong',
+					'jpg'
 				],
 				skipIfMatch: [
 					'http://[^s]*',
