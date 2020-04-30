@@ -27,6 +27,10 @@ export const useShapeCouple = (system: System) =>
 
 				if (entity.has(Plane)) {
 					body.addShape(entity.get(Plane));
+
+					// By default cannon points plane in local z dir. Change to y.
+					body.quaternion.setFromAxisAngle(new Vec3(-1, 0, 0), Math.PI / 2);
+
 					return entity.get(Plane);
 				}
 

@@ -3,7 +3,6 @@ import { Entity } from '@ecs/ecs/Entity';
 import { functionalSystem } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
-import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
@@ -32,12 +31,13 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import { Body, Vec3, Quaternion } from 'cannon';
+import { Body, Vec3, Plane, Material } from 'cannon';
 import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
 import MathHelper from '@ecs/math/MathHelper';
 
 let Elapsed = 0;
-const ShipSpeed = 0.00001;
+const ShipSpeed = 1;
+const Gravity = new Vector3(0, -10, 0);
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
@@ -63,19 +63,24 @@ export class Ship extends Space {
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.9));
 		light.add(Transform, { x: 1, y: 1, z: 0 });
 
+		const slippy = new Material('slippy');
+		slippy.friction = 0.03;
+
 		const ship = new Entity();
-		ship.add(Transform, { z: 20 });
+		ship.add(Transform, { z: 20, y: 20 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget, { angle: 8, distance: 7 });
-		ship.add(new Body({ mass: 1 }));
+		ship.add(new Body({ mass: 1, material: slippy }));
 		ship.add(MeshShape);
+
+		window['ship'] = ship;
 
 		const island = new Entity();
 		island.add(Transform, { y: -0.5 });
 		island.add(this.islandModel.scene);
-		island.add(new Body());
+		island.add(new Body({ material: slippy }));
 		island.add(MeshShape);
 
 		const entity = this.worldEngine.entities.find(any(ShipRenderState));
@@ -95,6 +100,17 @@ export class Ship extends Space {
 			transparent: true,
 			fog: true
 		});
+
+		const ground = new Entity();
+		ground.add(Transform, { z: 5 });
+		ground.add(
+			new Body({
+				material: slippy
+			})
+		);
+		ground.add(new Plane());
+		this.addEntity(ground);
+		window['ground'] = ground;
 
 		// Water
 		const mesh = new Mesh(new PlaneBufferGeometry(window.innerWidth, window.innerHeight, 100, 100), postMaterial);
@@ -147,6 +163,7 @@ export class Ship extends Space {
 
 					const force = new Vec3();
 					const forward = Look(body);
+					const up = Look(body, Vector3.UP);
 
 					if (input.upDown) {
 						forward.mult(ShipSpeed * dt, force);
@@ -157,22 +174,25 @@ export class Ship extends Space {
 					}
 
 					if (input.leftDown) {
-						body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, 0.02, 0));
+						// body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, 0.02, 0));
+						body.angularVelocity = body.angularVelocity.vadd(up.mult(ShipSpeed * 0.08));
+						console.log(body.angularVelocity);
 					}
 
 					if (input.rightDown) {
-						body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, -0.02, 0));
+						// body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, -0.02, 0));
+						body.angularVelocity = body.angularVelocity.vadd(up.mult(-ShipSpeed * 0.08));
 					}
 
 					Elapsed += dt;
 					postMaterial.uniforms.tTime.value = Elapsed;
 
 					const depth = -0.18;
-					if(body.position.y < depth) {
+					if (body.position.y < depth) {
 						body.position.y = depth;
 						body.velocity.y = 0;
 						const original = new Vec3();
-						body.quaternion.toEuler(original)
+						body.quaternion.toEuler(original);
 
 						original.x = MathHelper.lerp(original.x, 0, 0.1);
 						original.z = MathHelper.lerp(original.z, 0, 0.1);
@@ -189,14 +209,14 @@ export class Ship extends Space {
 		);
 
 		this.addSystem(new WaveMachineSystem());
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
 		this.addSystem(new ThirdPersonCameraSystem());
-		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -0.00005, 0), 2, true));
 
-		const ray = new Entity();
-		ray.add(Transform, { rotation: new Vector3(0, -1, 0) });
-		ray.add(Raycast);
-		ray.add(RaycastDebug);
-		this.addEntities(ray);
+		// const ray = new Entity();
+		// ray.add(Transform, { rotation: new Vector3(0, -1, 0) });
+		// ray.add(Raycast);
+		// ray.add(RaycastDebug);
+		// this.addEntities(ray);
 
 		// this.addSystem(
 		// 	functionalSystemQuery(

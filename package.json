@@ -6,7 +6,7 @@
 		"build:client": "webpack --config webpack.client.js",
 		"build:server": "webpack --config webpack.server.js",
 		"commit": "yarn lint && git-cz",
-		"lint": "prettier --write src && eslint --fix src/**/*.ts",
+		"lint": "prettier --write src/**/*.ts && eslint --fix src/**/*.ts",
 		"start": "webpack --config webpack.dev.js --watch --info-verbosity none",
 		"watch:client": "webpack --config webpack.client.js --watch",
 		"watch:server": "webpack --config webpack.server.js --watch"

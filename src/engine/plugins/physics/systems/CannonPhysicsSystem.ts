@@ -29,12 +29,13 @@ export default class CannonPhysicsSystem extends System {
 
 	protected debugRenderer;
 	protected debug = false;
+	protected gravity = Vector3.ZERO;
 
 	constructor(gravity = Vector3.ZERO, iterations = 2, debug = false) {
 		super();
 
 		this.state.world = new World();
-		this.state.world.gravity.set(gravity.x, gravity.y, gravity.z);
+		this.state.gravity = gravity;
 		this.state.world.solver.iterations = iterations;
 		this.state.broadPhase = new NaiveBroadphase();
 		this.state.world.solver.iterations = iterations;
@@ -46,7 +47,9 @@ export default class CannonPhysicsSystem extends System {
 
 		this.couples.forEach(couple => couple.update(dt));
 
-		this.state.world.step(dt);
+		this.state.world.step(dt / 1000);
+
+		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
 
 		if (this.debug && !this.debugRenderer) {
 			this.createDebugRenderer();

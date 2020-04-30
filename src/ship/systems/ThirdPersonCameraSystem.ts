@@ -4,6 +4,7 @@ import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from '../components/ThirdPersonTarget';
+import MathHelper from '@ecs/math/MathHelper';
 
 export default class ThirdPersonCameraSystem extends System {
 	private queries = useQueries(this, {
@@ -11,7 +12,7 @@ export default class ThirdPersonCameraSystem extends System {
 		target: all(Transform, ThirdPersonTarget)
 	});
 
-	update(dt: number) {
+	updateFixed(dt: number) {
 		const camera = {
 			transform: this.queries.camera.first.get(Transform),
 			cam: this.queries.camera.first.get(PerspectiveCamera)
@@ -26,9 +27,25 @@ export default class ThirdPersonCameraSystem extends System {
 		const angleX = Math.cos(-rotation.y);
 		const angleY = Math.sin(-rotation.y);
 
-		camera.transform.position.x = target.transform.position.x - angleY * target.target.angle;
-		camera.transform.position.y = target.transform.position.y + target.target.distance;
-		camera.transform.position.z = target.transform.position.z + angleX * target.target.angle;
+		const a = 1;
+
+		camera.transform.position.x = MathHelper.lerp(
+			camera.transform.position.x,
+			target.transform.position.x - angleY * target.target.angle,
+			a
+		);
+
+		camera.transform.position.y = MathHelper.lerp(camera.transform.position.y, target.transform.position.y + target.target.distance, a);
+
+		camera.transform.position.z = MathHelper.lerp(
+			camera.transform.position.z,
+			target.transform.position.z + angleX * target.target.angle,
+			a
+		);
+
+		// camera.transform.position.x = target.transform.position.x - angleY * target.target.angle;
+		// camera.transform.position.y = target.transform.position.y + target.target.distance;
+		// camera.transform.position.z = target.transform.position.z + angleX * target.target.angle;
 
 		camera.cam.lookAt(target.transform.position.x, target.transform.position.y, target.transform.position.z);
 		camera.transform.quaternion.set(camera.cam.quaternion.x, camera.cam.quaternion.y, camera.cam.quaternion.z, camera.cam.quaternion.w);

@@ -1,21 +1,19 @@
 const path = require('path');
 
-
 const yargs = require('yargs');
 
 const argv = yargs
-    .command('project', 'Project name', {
-        year: {
-            description: 'which project to run',
-            alias: 'p',
-            type: 'string',
-        }
-    })
-    .help()
-    .alias('help', 'h')
-	.argv;
+	.command('project', 'Project name', {
+		year: {
+			description: 'which project to run',
+			alias: 'p',
+			type: 'string'
+		}
+	})
+	.help()
+	.alias('help', 'h').argv;
 
-exports.project = argv.project || "hockey";
+exports.project = argv.project || 'ship';
 
 exports.projectPath = `./src/${exports.project}`;
 

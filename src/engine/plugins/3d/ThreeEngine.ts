@@ -8,7 +8,7 @@ export class ThreeEngine extends TickerEngine {
 	constructor(customRendererSystem?: RenderSystem, tickRate = 60) {
 		super(tickRate);
 
-		this.addSystem(customRendererSystem ? customRendererSystem : new RenderSystem(), 1000);
+		this.addSystem(customRendererSystem ? customRendererSystem : new RenderSystem());
 
 		this.spaces = new Map();
 	}
