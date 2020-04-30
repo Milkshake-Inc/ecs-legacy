@@ -34,6 +34,7 @@ import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
 import { Body, Vec3, Quaternion } from 'cannon';
 import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
+import MathHelper from '@ecs/math/MathHelper';
 
 let Elapsed = 0;
 const ShipSpeed = 0.00001;
@@ -166,6 +167,21 @@ export class Ship extends Space {
 					Elapsed += dt;
 					postMaterial.uniforms.tTime.value = Elapsed;
 
+					const depth = -0.18;
+					if(body.position.y < depth) {
+						body.position.y = depth;
+						body.velocity.y = 0;
+						const original = new Vec3();
+						body.quaternion.toEuler(original)
+
+						original.x = MathHelper.lerp(original.x, 0, 0.1);
+						original.z = MathHelper.lerp(original.z, 0, 0.1);
+
+						body.quaternion.setFromEuler(original.x, original.y, original.z);
+						// body.applyForce(new Vec3(0, 0.001, 0), body.position);
+						// body.quaternion.
+					}
+
 					// pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
 					body.applyForce(force, body.position);
 				}
@@ -174,7 +190,7 @@ export class Ship extends Space {
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new ThirdPersonCameraSystem());
-		this.addSystem(new CannonPhysicsSystem(Vector3.ZERO, 2, true));
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -0.00005, 0), 2, true));
 
 		const ray = new Entity();
 		ray.add(Transform, { rotation: new Vector3(0, -1, 0) });

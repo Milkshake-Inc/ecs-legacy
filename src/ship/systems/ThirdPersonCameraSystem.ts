@@ -22,13 +22,13 @@ export default class ThirdPersonCameraSystem extends System {
 			target: this.queries.target.first.get(ThirdPersonTarget)
 		};
 
-		const rotation = target.transform.quaternion.toEuler()
+		const rotation = target.transform.quaternion.toEuler();
 		const angleX = Math.cos(-rotation.y);
 		const angleY = Math.sin(-rotation.y);
 
-		camera.transform.position.x = target.transform.position.x - (angleY * target.target.angle);
+		camera.transform.position.x = target.transform.position.x - angleY * target.target.angle;
 		camera.transform.position.y = target.transform.position.y + target.target.distance;
-		camera.transform.position.z = target.transform.position.z + (angleX * target.target.angle);
+		camera.transform.position.z = target.transform.position.z + angleX * target.target.angle;
 
 		camera.cam.lookAt(target.transform.position.x, target.transform.position.y, target.transform.position.z);
 		camera.transform.quaternion.set(camera.cam.quaternion.x, camera.cam.quaternion.y, camera.cam.quaternion.z, camera.cam.quaternion.w);
