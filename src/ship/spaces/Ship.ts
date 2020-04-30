@@ -13,18 +13,30 @@ import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
-import { Body } from 'cannon';
-import { BackSide, BoxGeometry, Color as ThreeColor, DirectionalLight, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneBufferGeometry, ShaderMaterial, TextureLoader } from 'three';
+import {
+	BackSide,
+	BoxGeometry,
+	Color as ThreeColor,
+	DirectionalLight,
+	Mesh,
+	MeshBasicMaterial,
+	PerspectiveCamera,
+	PlaneBufferGeometry,
+	ShaderMaterial,
+	TextureLoader
+} from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import ThirdPersonTarget from '../components/ThirdPersonTarget';
 import { ShipRenderState } from '../systems/ShipRenderSystem';
-import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import WaveMachineSystem from '../systems/WaveMachineSystem';
 import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
+import WaveMachineSystem from '../systems/WaveMachineSystem';
+import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
+import { Body, Vec3, Quaternion } from 'cannon';
+import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
 
-const ShipSpeed = 0.1;
 let Elapsed = 0;
+const ShipSpeed = 0.00001;
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
@@ -43,7 +55,7 @@ export class Ship extends Space {
 
 	setup() {
 		const camera = new Entity();
-		camera.add(Transform, { y: 2, z: 5 });
+		camera.add(Transform, { y: 2, z: 25 });
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
 
 		const light = new Entity();
@@ -51,17 +63,16 @@ export class Ship extends Space {
 		light.add(Transform, { x: 1, y: 1, z: 0 });
 
 		const ship = new Entity();
-		ship.add(Transform, { y: -0.17 });
+		ship.add(Transform, { z: 20 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
-		ship.add(ThirdPersonTarget);
-		// ship.add(new Body({ mass: 1 }));
-		// ship.add(MeshShape);
 		ship.add(ThirdPersonTarget, { angle: 8, distance: 7 });
+		ship.add(new Body({ mass: 1 }));
+		ship.add(MeshShape);
 
 		const island = new Entity();
-		island.add(Transform, { x: 0, y: 2, z: -20 });
+		island.add(Transform, { y: -0.5 });
 		island.add(this.islandModel.scene);
 		island.add(new Body());
 		island.add(MeshShape);
@@ -128,35 +139,35 @@ export class Ship extends Space {
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
-			functionalSystem([all(Transform, Input)], {
+			functionalSystem([all(Transform, Input, Body)], {
 				entityUpdate(entity, dt) {
-					const pos = entity.get(Transform);
 					const input = entity.get(Input);
+					const body = entity.get(Body);
 
-					const directionX = Math.cos(pos.rotation.y + Math.PI / 2) * ShipSpeed;
-					const directionY = Math.sin(pos.rotation.y + Math.PI / 2) * ShipSpeed;
+					const force = new Vec3();
+					const forward = Look(body);
 
 					if (input.upDown) {
-						pos.z -= directionY;
-						pos.x += directionX;
+						forward.mult(ShipSpeed * dt, force);
 					}
+
 					if (input.downDown) {
-						pos.z += directionY;
-						pos.x -= directionX;
+						forward.mult(-ShipSpeed * dt, force);
 					}
 
 					if (input.leftDown) {
-						pos.rotation.y += 0.02;
+						body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, 0.02, 0));
 					}
 
 					if (input.rightDown) {
-						pos.rotation.y -= 0.02;
+						body.quaternion = body.quaternion.mult(new Quaternion().setFromEuler(0, -0.02, 0));
 					}
 
 					Elapsed += dt;
 					postMaterial.uniforms.tTime.value = Elapsed;
 
 					// pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
+					body.applyForce(force, body.position);
 				}
 			})
 		);

@@ -1,7 +1,13 @@
 import Vector3 from '@ecs/math/Vector';
+import Quaternion from '@ecs/math/Quaternion';
 
 export default class Transform {
-	constructor(public position: Vector3 = Vector3.ZERO, public rotation: Vector3 = Vector3.ZERO, public scale: Vector3 = Vector3.ONE) {}
+	constructor(
+		public position: Vector3 = new Vector3(),
+		public rotation: Vector3 = new Vector3(),
+		public quaternion: Quaternion = new Quaternion(),
+		public scale: Vector3 = Vector3.ONE
+	) {}
 
 	public get x(): number {
 		return this.position.x;
@@ -51,6 +57,38 @@ export default class Transform {
 		this.rotation.z = value;
 	}
 
+	public get qx(): number {
+		return this.quaternion.x;
+	}
+
+	public set qx(value: number) {
+		this.quaternion.x = value;
+	}
+
+	public get qy(): number {
+		return this.quaternion.y;
+	}
+
+	public set qy(value: number) {
+		this.quaternion.y = value;
+	}
+
+	public get qz(): number {
+		return this.quaternion.z;
+	}
+
+	public set qz(value: number) {
+		this.quaternion.z = value;
+	}
+
+	public get qw(): number {
+		return this.quaternion.w;
+	}
+
+	public set qw(value: number) {
+		this.quaternion.w = value;
+	}
+
 	public get sx(): number {
 		return this.scale.x;
 	}
@@ -76,6 +114,18 @@ export default class Transform {
 	}
 
 	public clone(): Transform {
-		return Object.assign({}, this);
+		return JSON.parse(JSON.stringify(this));
+	}
+
+	public updateRotationFromQuaternion() {
+		this.rotation.setFromQuaternion(this.quaternion);
+	}
+
+	public updateQuaternionFromRotation() {
+		this.quaternion.setFromEuler(this.rotation);
+	}
+
+	public look(direction = Vector3.FORWARD) {
+		return this.quaternion.multiV(direction);
 	}
 }

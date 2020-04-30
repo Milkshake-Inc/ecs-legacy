@@ -1,3 +1,5 @@
+import Quaternion from './Quaternion';
+
 export type Vector = { x: number; y: number; z: number };
 
 // Refs
@@ -12,6 +14,30 @@ export default class Vector3 {
 	}
 	public static get HALF(): Vector3 {
 		return Vector3.EQUAL(0.5);
+	}
+
+	public static get UP(): Vector3 {
+		return new Vector3(0, 1, 0);
+	}
+
+	public static get DOWN(): Vector3 {
+		return new Vector3(0, -1, 0);
+	}
+
+	public static get LEFT(): Vector3 {
+		return new Vector3(-1, 0, 0);
+	}
+
+	public static get RIGHT(): Vector3 {
+		return new Vector3(1, 0, 0);
+	}
+
+	public static get FORWARD(): Vector3 {
+		return new Vector3(0, 0, -1);
+	}
+
+	public static get BACKWARD(): Vector3 {
+		return new Vector3(0, 0, 1);
 	}
 
 	public static EQUAL(value: number): Vector3 {
@@ -36,6 +62,14 @@ export default class Vector3 {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+
+		return this;
+	}
+
+	setFromQuaternion({ x, y, z, w }: Quaternion) {
+		this.x = Math.atan2(2 * (x * y + z * w), 1 - 2 * (y * y + z * z));
+		this.y = Math.asin(2 * (x * z - w * y));
+		this.z = Math.atan2(2 * (x * w + y * z), 1 - 2 * (z * z + w * w));
 
 		return this;
 	}

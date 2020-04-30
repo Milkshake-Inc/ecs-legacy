@@ -3,7 +3,6 @@ import { Entity, EntitySnapshot } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
 import { System } from '../System';
 import { useQueries, ToQueries } from './useQueries';
-import { use } from 'matter-js';
 
 export type FunctionalSystemStuff = {
 	entityUpdate?(entity: Entity, dt: number): void;

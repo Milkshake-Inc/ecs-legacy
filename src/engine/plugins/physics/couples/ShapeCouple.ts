@@ -4,7 +4,7 @@ import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group, Matrix4 } from 'three';
+import { Mesh, Geometry, BufferGeometry, Group } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 
 export const useShapeCouple = (system: System) =>
@@ -62,24 +62,27 @@ export const useShapeCouple = (system: System) =>
 						const group = entity.get(Group)?.clone();
 						if (!group) throw new Error('no mesh found :(');
 
+						// Reset world position and rotation
+						group.position.set(0, 0, 0);
+						group.rotation.set(0, 0, 0);
+
 						group.traverse(child => {
 							if (child instanceof Mesh) {
-								if (child.parent) {
-									child.parent.updateMatrixWorld(true);
-									child.applyMatrix4(child.parent.matrixWorld);
-								}
-
-								const convexShape = meshToConvexPolyhedron(child, child.matrixWorld);
+								const convexShape = meshToConvexPolyhedron(child);
 
 								convexShapes.push(convexShape);
 								body.addShape(convexShape);
 							}
 						});
-						console.log(convexShapes);
 
+						console.log(convexShapes);
 						entity.add(convexShapes);
 						return convexShapes;
 					}
+
+					// Reset world position and rotation
+					mesh.position.set(0, 0, 0);
+					mesh.rotation.set(0, 0, 0);
 
 					const convexShape = meshToConvexPolyhedron(mesh);
 					entity.add(convexShape);
@@ -91,7 +94,7 @@ export const useShapeCouple = (system: System) =>
 		}
 	);
 
-export const meshToConvexPolyhedron = (mesh: Mesh, offset?: Matrix4) => {
+export const meshToConvexPolyhedron = (mesh: Mesh) => {
 	if (mesh.geometry instanceof BufferGeometry) {
 		mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
 	}
@@ -99,9 +102,8 @@ export const meshToConvexPolyhedron = (mesh: Mesh, offset?: Matrix4) => {
 
 	// Convert to convex hull (no inside faces)
 	const convexGeometry = new ConvexGeometry(mesh.geometry.vertices);
-	if (offset) {
-		convexGeometry.applyMatrix4(offset);
-	}
+	mesh.updateWorldMatrix(true, false);
+	convexGeometry.applyMatrix4(mesh.matrixWorld);
 
 	// convert to Cannon object
 	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));

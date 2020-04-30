@@ -9,9 +9,9 @@ import RenderState from '../components/RenderState';
 export const genericObject3DUpdate = (entity: Entity, object3D: Object3D) => {
 	const transform = entity.get(Transform);
 
-	object3D.position.set(transform.position.x, transform.position.y, transform.position.z);
-	object3D.scale.set(transform.scale.x, transform.scale.y, transform.scale.z);
-	object3D.rotation.set(transform.rotation.x, transform.rotation.y, transform.rotation.z);
+	object3D.position.set(transform.x, transform.y, transform.z);
+	object3D.scale.set(transform.sx, transform.sy, transform.sz);
+	object3D.quaternion.set(transform.qx, transform.qy, transform.qz, transform.qw);
 };
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

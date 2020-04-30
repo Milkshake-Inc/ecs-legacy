@@ -70,7 +70,6 @@
 		"copy-webpack-plugin": "^5.1.1",
 		"cz-gitmoji": "^0.0.7",
 		"eslint": "^6.8.0",
-		"eslint-plugin-spellcheck": "^0.0.14",
 		"html-webpack-plugin": "^4.0.4",
 		"jest": "^25.3.0",
 		"nodemon-webpack-plugin": "^4.3.1",
