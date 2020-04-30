@@ -20,9 +20,9 @@ export default class WaveMachineSystem extends IterativeSystem {
 
 		const mesh = entity.get(Mesh);
 
-		if(mesh.material instanceof MeshPhongMaterial){
-			mesh.material.map.repeat.x = 25 + (Math.sin(this.elaspedTime / 2000) * 0.1)
-			mesh.material.map.repeat.y = 25 + (Math.cos(this.elaspedTime / 1600) * 0.1)
+		if (mesh.material instanceof MeshPhongMaterial) {
+			mesh.material.map.repeat.x = 25 + Math.sin(this.elaspedTime / 2000) * 0.1;
+			mesh.material.map.repeat.y = 25 + Math.cos(this.elaspedTime / 1600) * 0.1;
 		}
 
 		if (mesh.geometry instanceof Geometry) {

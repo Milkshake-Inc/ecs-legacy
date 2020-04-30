@@ -42,25 +42,25 @@ export type FunctionalSystemQueryStuff<Q> = {
 	updateFixed?(queries: Q, dt: number): void;
 };
 
-export const functionalSystemQuery = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(queries: Q, callbacks: FunctionalSystemQueryStuff<ToQueries<Q>>) => {
+export const functionalSystemQuery = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(
+	queries: Q,
+	callbacks: FunctionalSystemQueryStuff<ToQueries<Q>>
+) => {
 	const system = class CustomSystem extends System {
-
 		protected queries = useQueries(this, queries);
 
 		constructor() {
 			super();
-
-
 		}
 
 		update(deltaTime: number) {
-			if(callbacks.update) {
+			if (callbacks.update) {
 				callbacks.update(this.queries, deltaTime);
 			}
 		}
 
 		updateFixed(deltaTime: number) {
-			if(callbacks.updateFixed) {
+			if (callbacks.updateFixed) {
 				callbacks.updateFixed(this.queries, deltaTime);
 			}
 		}

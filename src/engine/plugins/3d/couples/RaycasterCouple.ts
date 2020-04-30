@@ -8,9 +8,7 @@ import RenderSystem from '../systems/RenderSystem';
 import { useThreeCouple } from './ThreeCouple';
 import Transform from '@ecs/plugins/Transform';
 
-export const useRaycastCouple = <T extends Object3D>(
-	system: System,
-) => {
+export const useRaycastCouple = <T extends Object3D>(system: System) => {
 	const query = useQueries(system, {
 		renderState: all(RenderState),
 		raycast: all(Transform, Raycast)
@@ -25,45 +23,36 @@ export const useRaycastCouple = <T extends Object3D>(
 			return new Raycaster();
 		},
 		onUpdate: (entity, raycaster, dt) => {
-            const { position, rotation: direction } = entity.get(Transform);
+			const { position, rotation: direction } = entity.get(Transform);
 
-            raycaster.ray.origin.set(position.x, position.y, position.z);
-            raycaster.ray.direction.set(direction.x, direction.y, direction.z);
+			raycaster.ray.origin.set(position.x, position.y, position.z);
+			raycaster.ray.direction.set(direction.x, direction.y, direction.z);
 
-            const raycast = entity.get(Raycast);
-            raycast.intersects = raycaster.intersectObjects(getRenderState().scene.children, true);
-
+			const raycast = entity.get(Raycast);
+			raycast.intersects = raycaster.intersectObjects(getRenderState().scene.children, true);
 		},
-		onDestroy: (entity, object3D) => {
-		}
+		onDestroy: (entity, object3D) => {}
 	});
 };
 
 export const useRaycastDebugCouple = (system: RenderSystem) =>
-    useThreeCouple<Line>(system, all(Raycast, RaycastDebug), {
-    onCreate: entity => {
-        const geom = new Geometry();
-        geom.vertices.push(new Vector3());
-        geom.vertices.push(new Vector3());
+	useThreeCouple<Line>(system, all(Raycast, RaycastDebug), {
+		onCreate: entity => {
+			const geom = new Geometry();
+			geom.vertices.push(new Vector3());
+			geom.vertices.push(new Vector3());
 
-        const material = new LineBasicMaterial( { color : 0xff0000 } );
+			const material = new LineBasicMaterial({ color: 0xff0000 });
 
-        return new Line(
-            geom,
-            material
-        );
-    },
-    onUpdate(entity, line) {
-        const { position, rotation: direction } = entity.get(Transform);
-        // const raycast = entity.get(Raycast);
+			return new Line(geom, material);
+		},
+		onUpdate(entity, line) {
+			const { position, rotation: direction } = entity.get(Transform);
+			// const raycast = entity.get(Raycast);
 
-        if(line.geometry instanceof Geometry) {
-            line.geometry.vertices[0].set(position.x, position.y, position.z);
-            line.geometry.vertices[1].set(direction.x, direction.y, direction.z).multiplyScalar(100)
-
-            console.log(line.geometry.vertices[1]);
-        }
-
-
-    }
-});
+			if (line.geometry instanceof Geometry) {
+				line.geometry.vertices[0].set(position.x, position.y, position.z);
+				line.geometry.vertices[1].set(direction.x, direction.y, direction.z).multiplyScalar(100);
+			}
+		}
+	});

@@ -1,37 +1,27 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { functionalSystem, functionalSystemQuery } from '@ecs/ecs/helpers';
+import { functionalSystem } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
+import Vector3 from '@ecs/math/Vector';
+import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import Transform from '@ecs/plugins/Transform';
-import Space from '@ecs/plugins/space/Space';
-import { all } from '@ecs/utils/QueryHelper';
-import { LoadGLTF } from '@ecs/utils/ThreeHelper';
-import {
-	BoxGeometry,
-	Color as ThreeColor,
-	Mesh,
-	MeshBasicMaterial,
-	PerspectiveCamera,
-	RepeatWrapping,
-	TextureLoader,
-	DirectionalLight,
-	MeshPhongMaterial,
-	BackSide,
-	Vector3 as ThreeVector3
-} from 'three';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import SeaWaves from '../components/SeaWaves';
-import ThirdPersonTarget from '../components/ThirdPersonTarget';
-import WaveMachineSystem, { getWaveHeight } from '../systems/WaveMachineSystem';
-import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
-import Vector3 from '@ecs/math/Vector';
-import { Body } from 'cannon';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import MeshShape from '@ecs/plugins/physics/components/MeshShape';
+import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import Space from '@ecs/plugins/space/Space';
+import Transform from '@ecs/plugins/Transform';
+import { all, any } from '@ecs/utils/QueryHelper';
+import { LoadGLTF } from '@ecs/utils/ThreeHelper';
+import { Body } from 'cannon';
+import { BackSide, BoxGeometry, Color as ThreeColor, DirectionalLight, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneBufferGeometry, ShaderMaterial, TextureLoader } from 'three';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import ThirdPersonTarget from '../components/ThirdPersonTarget';
+import { ShipRenderState } from '../systems/ShipRenderSystem';
+import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
+import WaveMachineSystem from '../systems/WaveMachineSystem';
+import WaterFrag from './../shaders/water.frag';
+import WaterVert from './../shaders/water.vert';
 
 const ShipSpeed = 0.1;
 let Elapsed = 0;
@@ -54,21 +44,21 @@ export class Ship extends Space {
 	setup() {
 		const camera = new Entity();
 		camera.add(Transform, { y: 2, z: 5 });
-		// camera.add(new PointLight(new ThreeColor(Color.White), 2, 10000));
-		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.1, 1000));
+		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
 
 		const light = new Entity();
-		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.4));
-		light.add(Transform, { x: 4, y: 5, z: 2 });
+		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.9));
+		light.add(Transform, { x: 1, y: 1, z: 0 });
 
 		const ship = new Entity();
-		ship.add(Transform);
+		ship.add(Transform, { y: -0.17 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget);
 		// ship.add(new Body({ mass: 1 }));
 		// ship.add(MeshShape);
+		ship.add(ThirdPersonTarget, { angle: 8, distance: 7 });
 
 		const island = new Entity();
 		island.add(Transform, { x: 0, y: 2, z: -20 });
@@ -76,25 +66,29 @@ export class Ship extends Space {
 		island.add(new Body());
 		island.add(MeshShape);
 
-		const seaTexture = new TextureLoader().load('assets/prototype/textures/sea.jpg');
-		seaTexture.wrapS = RepeatWrapping;
-		seaTexture.wrapT = RepeatWrapping;
-		seaTexture.repeat.set(25, 25);
-		const floor = new Entity();
-		floor.add(Transform);
-		floor.add(SeaWaves);
-		floor.add(
-			new Mesh(
-				new BoxGeometry(100, 0.1, 100, 20, 1, 20),
-				new MeshPhongMaterial({
-					flatShading: true,
-					map: seaTexture,
-					shininess: 0,
-					transparent: true,
-					opacity: 0.9
-				})
-			)
-		);
+		const entity = this.worldEngine.entities.find(any(ShipRenderState));
+		const renderState = entity.get(ShipRenderState);
+
+		const cam = camera.get(PerspectiveCamera);
+		const postMaterial = new ShaderMaterial({
+			vertexShader: WaterVert,
+			fragmentShader: WaterFrag,
+			uniforms: {
+				cameraNear: { value: cam.near },
+				cameraFar: { value: cam.far },
+				tDiffuse: { value: null },
+				tDepth: { value: null },
+				tTime: { value: 0 }
+			},
+			transparent: true,
+			fog: true
+		});
+
+		// Water
+		const mesh = new Mesh(new PlaneBufferGeometry(window.innerWidth, window.innerHeight, 100, 100), postMaterial);
+		mesh.rotation.x = -Math.PI / 2;
+		postMaterial.uniforms.tDepth.value = renderState.depthTarget.depthTexture;
+		renderState.waterScene.add(mesh);
 
 		const textureFT = new TextureLoader().load('assets/prototype/textures/sky/nx.png');
 		const textureBK = new TextureLoader().load('assets/prototype/textures/sky/nz.png');
@@ -104,12 +98,12 @@ export class Ship extends Space {
 		const textureLF = new TextureLoader().load('assets/prototype/textures/sky/px.png');
 
 		const materialArray = [
-			new MeshBasicMaterial({ map: textureFT }),
-			new MeshBasicMaterial({ map: textureBK }),
-			new MeshBasicMaterial({ map: textureUP }),
-			new MeshBasicMaterial({ map: textureDN }),
-			new MeshBasicMaterial({ map: textureRT }),
-			new MeshBasicMaterial({ map: textureLF })
+			new MeshBasicMaterial({ map: textureFT, fog: false }),
+			new MeshBasicMaterial({ map: textureBK, fog: false }),
+			new MeshBasicMaterial({ map: textureUP, fog: false }),
+			new MeshBasicMaterial({ map: textureDN, fog: false }),
+			new MeshBasicMaterial({ map: textureRT, fog: false }),
+			new MeshBasicMaterial({ map: textureLF, fog: false })
 		];
 
 		for (let i = 0; i < 6; i++) {
@@ -130,7 +124,7 @@ export class Ship extends Space {
 			material: new MeshBasicMaterial({ map: new TextureLoader().load('assets/prototype/textures/red/texture_01.png') })
 		});
 
-		this.addEntities(light, camera, ship, island, floor, skyBox);
+		this.addEntities(light, camera, ship, island, skyBox);
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
@@ -160,6 +154,7 @@ export class Ship extends Space {
 					}
 
 					Elapsed += dt;
+					postMaterial.uniforms.tTime.value = Elapsed;
 
 					// pos.y = getWaveHeight(pos.x, pos.z, Elapsed);
 				}
@@ -170,33 +165,38 @@ export class Ship extends Space {
 		this.addSystem(new ThirdPersonCameraSystem());
 		this.addSystem(new CannonPhysicsSystem(Vector3.ZERO, 2, true));
 
-		const ray = new Entity()
-		ray.add(Transform, { rotation: new Vector3(0, -1, 0 )});
-		ray.add(Raycast)
+		const ray = new Entity();
+		ray.add(Transform, { rotation: new Vector3(0, -1, 0) });
+		ray.add(Raycast);
 		ray.add(RaycastDebug);
 		this.addEntities(ray);
 
-		this.addSystem(functionalSystemQuery({
-			ship: all(Input),
-			raycast: all(Raycast)
-		}, {
-			updateFixed: (queries) => {
-				const { position } = queries.ship.first.get(Transform);
-				const boatMesh = queries.ship.first.get(Mesh);
-				const { intersects } = queries.raycast.first.get(Raycast);
+		// this.addSystem(
+		// 	functionalSystemQuery(
+		// 		{
+		// 			ship: all(Input),
+		// 			raycast: all(Raycast)
+		// 		},
+		// 		{
+		// 			updateFixed: queries => {
+		// 				const { position } = queries.ship.first.get(Transform);
+		// 				const boatMesh = queries.ship.first.get(Mesh);
+		// 				const { intersects } = queries.raycast.first.get(Raycast);
 
-				// Reposition ray to boats position
-				queries.raycast.first.get(Transform).position.set(position.x, position.y + 50, position.z)
+		// 				// Reposition ray to boats position
+		// 				queries.raycast.first.get(Transform).position.set(position.x, position.y + 50, position.z);
 
-				if(intersects.length > 0) {
-					for (const intersect of intersects) {
-						if(intersect.object != boatMesh) {
-							position.y = intersect.point.y;
-							return;
-						}
-					}
-				}
-			}
-		}))
+		// 				if (intersects.length > 0) {
+		// 					for (const intersect of intersects) {
+		// 						if (intersect.object != boatMesh) {
+		// 							position.y = intersect.point.y;
+		// 							return;
+		// 						}
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 	)
+		// );
 	}
 }

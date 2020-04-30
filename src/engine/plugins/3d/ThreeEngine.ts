@@ -5,10 +5,10 @@ import Space from '../space/Space';
 export class ThreeEngine extends TickerEngine {
 	protected spaces: Map<string, Space>;
 
-	constructor(tickRate = 60) {
+	constructor(customRendererSystem?: RenderSystem, tickRate = 60) {
 		super(tickRate);
 
-		this.addSystem(new RenderSystem());
+		this.addSystem(customRendererSystem ? customRendererSystem : new RenderSystem());
 
 		this.spaces = new Map();
 	}
