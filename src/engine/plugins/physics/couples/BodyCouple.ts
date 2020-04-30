@@ -13,6 +13,7 @@ export const useBodyCouple = (system: System) =>
 			const body = entity.get(Body);
 			body.position.x = transform.x;
 			body.position.y = transform.y;
+			body.position.z = transform.z;
 			body.quaternion.setFromEuler(transform.rx, transform.ry, transform.rz);
 
 			return body;

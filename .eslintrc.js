@@ -67,7 +67,9 @@ module.exports = {
 					'Broadphase',
 					'Vec3',
 					'euler',
-					'quaternion'
+					'quaternion',
+					'threejs',
+					'collider'
 				],
 				skipIfMatch: [
 					'http://[^s]*',

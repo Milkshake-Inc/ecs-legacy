@@ -6,7 +6,7 @@ import PhysicsState from '../components/PhysicsState';
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const useCannonCouple = <T extends Body | Shape | Constraint | ContactMaterial | Material>(
+export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | ContactMaterial | Material>(
 	system: System,
 	physicsObject: QueryPattern | QueryPattern[],
 	callbacks: Optional<CoupleCallbacks<T>, 'onUpdate' | 'onDestroy'>

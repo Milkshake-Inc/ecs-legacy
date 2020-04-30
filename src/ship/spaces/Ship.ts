@@ -29,6 +29,9 @@ import WaveMachineSystem, { getWaveHeight } from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
 import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
 import Vector3 from '@ecs/math/Vector';
+import { Body } from 'cannon';
+import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import MeshShape from '@ecs/plugins/physics/components/MeshShape';
 
 const ShipSpeed = 0.1;
 let Elapsed = 0;
@@ -64,10 +67,14 @@ export class Ship extends Space {
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget);
+		// ship.add(new Body({ mass: 1 }));
+		// ship.add(MeshShape);
 
 		const island = new Entity();
 		island.add(Transform, { x: 0, y: 2, z: -20 });
 		island.add(this.islandModel.scene);
+		island.add(new Body());
+		island.add(MeshShape);
 
 		const seaTexture = new TextureLoader().load('assets/prototype/textures/sea.jpg');
 		seaTexture.wrapS = RepeatWrapping;
@@ -161,6 +168,7 @@ export class Ship extends Space {
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new ThirdPersonCameraSystem());
+		this.addSystem(new CannonPhysicsSystem(Vector3.ZERO, 2, true));
 
 		const ray = new Entity()
 		ray.add(Transform, { rotation: new Vector3(0, -1, 0 )});

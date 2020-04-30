@@ -74,4 +74,8 @@ export default class Transform {
 	public set sz(value: number) {
 		this.scale.z = value;
 	}
+
+	public clone(): Transform {
+		return Object.assign({}, this);
+	}
 }

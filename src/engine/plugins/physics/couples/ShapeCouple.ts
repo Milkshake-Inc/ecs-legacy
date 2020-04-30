@@ -1,13 +1,16 @@
 import { all, any } from '@ecs/utils/QueryHelper';
-import { Shape, Body, Particle, Plane, Sphere, Heightfield, Cylinder, ConvexPolyhedron, Box } from 'cannon';
+import { Shape, Body, Particle, Plane, Sphere, Heightfield, Cylinder, ConvexPolyhedron, Box, Vec3 } from 'cannon';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
+import MeshShape from '../components/MeshShape';
+import { Mesh, Geometry, BufferGeometry, Group, Matrix4 } from 'three';
+import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 
 export const useShapeCouple = (system: System) =>
-	useCannonCouple<Shape>(
+	useCannonCouple<Shape | Shape[]>(
 		system,
-		[all(Transform, Body), any(Shape, Particle, Plane, Box, Sphere, ConvexPolyhedron, Cylinder, Heightfield)],
+		[all(Transform, Body), any(Shape, Particle, Plane, Box, Sphere, ConvexPolyhedron, Cylinder, Heightfield, MeshShape)],
 		{
 			onCreate: entity => {
 				const body = entity.get(Body);
@@ -51,6 +54,57 @@ export const useShapeCouple = (system: System) =>
 					body.addShape(entity.get(Heightfield));
 					return entity.get(Heightfield);
 				}
+
+				if (entity.has(MeshShape)) {
+					const mesh = entity.get(Mesh)?.clone();
+					const convexShapes: ConvexPolyhedron[] = [];
+					if (!mesh) {
+						const group = entity.get(Group)?.clone();
+						if (!group) throw new Error('no mesh found :(');
+
+						group.traverse(child => {
+							if (child instanceof Mesh) {
+								if (child.parent) {
+									child.parent.updateMatrixWorld(true);
+									child.applyMatrix4(child.parent.matrixWorld);
+								}
+
+								const convexShape = meshToConvexPolyhedron(child, child.matrixWorld);
+
+								convexShapes.push(convexShape);
+								body.addShape(convexShape);
+							}
+						});
+						console.log(convexShapes);
+
+						entity.add(convexShapes);
+						return convexShapes;
+					}
+
+					const convexShape = meshToConvexPolyhedron(mesh);
+					entity.add(convexShape);
+					body.addShape(convexShape);
+
+					return convexShape;
+				}
 			}
 		}
 	);
+
+export const meshToConvexPolyhedron = (mesh: Mesh, offset?: Matrix4) => {
+	if (mesh.geometry instanceof BufferGeometry) {
+		mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
+	}
+	console.log(`generating mesh collider for ${mesh.name}`);
+
+	// Convert to convex hull (no inside faces)
+	const convexGeometry = new ConvexGeometry(mesh.geometry.vertices);
+	if (offset) {
+		convexGeometry.applyMatrix4(offset);
+	}
+
+	// convert to Cannon object
+	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
+	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
+	return new ConvexPolyhedron(vertices, faces as any);
+};
