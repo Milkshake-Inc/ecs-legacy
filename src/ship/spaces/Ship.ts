@@ -31,11 +31,14 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import { Body, Vec3, Plane, Material } from 'cannon';
+import { Body, Plane, Material, Vec3 } from 'cannon';
 import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
-import MathHelper from '@ecs/math/MathHelper';
 
-const ShipSpeed = 1;
+const Acceleration = 0.01;
+const MaxSpeed = 15;
+const RotateAcceleration = 0.01;
+const MaxRotationalSpeed = 3;
+const Friction = 0.03;
 const Gravity = new Vector3(0, -10, 0);
 
 export class Ship extends Space {
@@ -47,7 +50,7 @@ export class Ship extends Space {
 	constructor(engine: Engine) {
 		super(engine, 'ship');
 
-		this.slippy.friction = 0.03;
+		this.slippy.friction = Friction;
 	}
 
 	protected async preload() {
@@ -68,48 +71,60 @@ export class Ship extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
-				entityUpdate(entity, dt) {
+				entityUpdateFixed(entity, dt) {
 					const input = entity.get(Input);
 					const body = entity.get(Body);
 
-					const force = new Vec3();
 					const forward = Look(body);
 					const up = Look(body, Vector3.UP);
 
+					const velocity = new Vec3();
+					const angularVelocity = new Vec3();
+
 					if (input.upDown) {
-						forward.mult(ShipSpeed * dt, force);
+						velocity.vadd(forward.mult(Acceleration * dt), velocity);
 					}
 
 					if (input.downDown) {
-						forward.mult(-ShipSpeed * dt, force);
+						velocity.vsub(forward.mult(Acceleration * dt), velocity);
 					}
 
 					if (input.leftDown) {
-						body.angularVelocity = body.angularVelocity.vadd(up.mult(ShipSpeed * 0.1));
+						angularVelocity.vadd(up.mult(RotateAcceleration * dt), angularVelocity);
 					}
 
 					if (input.rightDown) {
-						body.angularVelocity = body.angularVelocity.vadd(up.mult(-ShipSpeed * 0.1));
+						angularVelocity.vsub(up.mult(RotateAcceleration * dt), angularVelocity);
 					}
 
 					if (this.postMaterial) {
 						this.postMaterial.uniforms.tTime.value += dt;
 					}
 
-					const depth = -0.18;
-					if (body.position.y < depth) {
-						body.position.y = depth;
-						body.velocity.y = 0;
-						const original = new Vec3();
-						body.quaternion.toEuler(original);
+					// const depth = -0.18;
+					// if (body.position.y < depth) {
+					// 	body.position.y = depth;
+					// 	body.velocity.y = 0;
+					// 	const original = new Vec3();
+					// 	body.quaternion.toEuler(original);
 
-						original.x = MathHelper.lerp(original.x, 0, 0.1);
-						original.z = MathHelper.lerp(original.z, 0, 0.1);
+					// 	original.x = MathHelper.lerp(original.x, 0, 0.1);
+					// 	original.z = MathHelper.lerp(original.z, 0, 0.1);
 
-						body.quaternion.setFromEuler(original.x, original.y, original.z);
+					// 	body.quaternion.setFromEuler(original.x, original.y, original.z);
+					// }
+
+					// apply forward force
+					// body.applyForce(force, body.position);
+
+					// Limit max speed
+					if (body.velocity.norm() < MaxSpeed) {
+						body.velocity.vadd(velocity, body.velocity);
 					}
 
-					body.applyForce(force, body.position);
+					if (body.angularVelocity.norm() < MaxRotationalSpeed) {
+						body.angularVelocity.vadd(angularVelocity, body.angularVelocity);
+					}
 				}
 			})
 		);
@@ -122,7 +137,7 @@ export class Ship extends Space {
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget, { angle: 8, distance: 7 });
-		ship.add(new Body({ mass: 1, material: this.slippy }));
+		ship.add(new Body({ mass: 20, material: this.slippy }));
 		ship.add(MeshShape);
 
 		this.addEntities(ship);
