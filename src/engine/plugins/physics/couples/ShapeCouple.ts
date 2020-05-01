@@ -1,10 +1,22 @@
 import { all, any } from '@ecs/utils/QueryHelper';
-import { Shape, Body, Particle, Plane, Sphere, Heightfield, Cylinder, ConvexPolyhedron, Box, Vec3 } from 'cannon';
+import {
+	Shape,
+	Body,
+	Particle,
+	Plane,
+	Sphere,
+	Heightfield,
+	Cylinder,
+	ConvexPolyhedron,
+	Box,
+	Vec3,
+	Quaternion as CannonQuaternion
+} from 'cannon';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group } from 'three';
+import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Object3D } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 
 export const useShapeCouple = (system: System) =>
@@ -60,39 +72,35 @@ export const useShapeCouple = (system: System) =>
 				}
 
 				if (entity.has(MeshShape)) {
-					const mesh = entity.get(Mesh)?.clone();
 					const convexShapes: ConvexPolyhedron[] = [];
-					if (!mesh) {
-						const group = entity.get(Group)?.clone();
-						if (!group) throw new Error('no mesh found :(');
 
-						// Reset world position and rotation
-						group.position.set(0, 0, 0);
-						group.rotation.set(0, 0, 0);
+					let object3d: Object3D;
 
-						group.traverse(child => {
-							if (child instanceof Mesh) {
-								const convexShape = meshToConvexPolyhedron(child);
-
-								convexShapes.push(convexShape);
-								body.addShape(convexShape);
-							}
-						});
-
-						console.log(convexShapes);
-						entity.add(convexShapes);
-						return convexShapes;
+					if (entity.has(Mesh)) {
+						object3d = entity.get(Mesh).clone();
 					}
 
-					// Reset world position and rotation
-					mesh.position.set(0, 0, 0);
-					mesh.rotation.set(0, 0, 0);
+					if (entity.has(Group)) {
+						object3d = entity.get(Group).clone();
+					}
 
-					const convexShape = meshToConvexPolyhedron(mesh);
-					entity.add(convexShape);
-					body.addShape(convexShape);
+					if (!object3d) throw new Error('no mesh found :(');
 
-					return convexShape;
+					// Reset position and rotation applied on the entity, it's accounted for later from position applied by meshToConvexPolyhedron
+					object3d.position.set(0, 0, 0);
+					object3d.rotation.set(0, 0, 0);
+
+					object3d.traverse(child => {
+						if (child instanceof Mesh) {
+							const { shape, position, quaternion } = meshToConvexPolyhedron(child);
+
+							convexShapes.push(shape);
+							body.addShape(shape, position, quaternion);
+						}
+					});
+
+					entity.add(convexShapes);
+					return convexShapes;
 				}
 			}
 		}
@@ -104,13 +112,27 @@ export const meshToConvexPolyhedron = (mesh: Mesh) => {
 	}
 	console.log(`generating mesh collider for ${mesh.name}`);
 
+	// Get world pos, scale and rotation as the convex geometry does not copy that data
+	// Applying the matrix directly to the convex geometry messes it up somehow and causes bad things to happen to collision.
+	mesh.updateWorldMatrix(true, false);
+	const position = new ThreeVector3();
+	const scale = new ThreeVector3();
+	const quaternion = new ThreeQuaternion();
+	mesh.getWorldPosition(position);
+	mesh.getWorldScale(scale);
+	mesh.getWorldQuaternion(quaternion);
+
 	// Convert to convex hull (no inside faces)
 	const convexGeometry = new ConvexGeometry(mesh.geometry.vertices);
-	mesh.updateWorldMatrix(true, false);
-	convexGeometry.applyMatrix4(mesh.matrixWorld);
+	convexGeometry.scale(scale.x, scale.y, scale.z);
 
 	// convert to Cannon object
 	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
 	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
-	return new ConvexPolyhedron(vertices, faces as any);
+
+	return {
+		shape: new ConvexPolyhedron(vertices, faces as any),
+		position: new Vec3(position.x, position.y, position.z),
+		quaternion: new CannonQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+	};
 };
