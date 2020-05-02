@@ -9,7 +9,6 @@ export const useBodyCouple = (system: System) =>
 		onCreate: entity => {
 			const transform = entity.get(Transform);
 			const body = entity.get(Body);
-			transform.updateQuaternionFromRotation();
 			body.position.set(transform.x, transform.y, transform.z);
 			body.quaternion.set(transform.qx, transform.qy, transform.qz, transform.qw);
 
