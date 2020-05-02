@@ -12,7 +12,9 @@ export default class ShipRenderSystem extends RenderSystem {
 	protected waterState = useState(this, new ShipRenderState());
 
 	constructor(width = 1280, height = 720, color: number = Color.White) {
-		super(width, height, color);
+		super({
+			color: Color.White
+		});
 
 		this.waterState.waterScene = new Scene();
 

@@ -88,4 +88,43 @@ export default class Quaternion {
 			iz * qw + iw * -qz + ix * -qy - iy * -qx
 		);
 	}
+
+	multiply(value: Quaternion | { x: number; y: number; z: number; w: number }) {
+		const qax = this.x, qay = this.y, qaz = this.z, qaw = this.w;
+		const qbx = value.x, qby = value.y, qbz = value.z, qbw = value.w;
+
+		this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+		this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+		this.z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+		this.w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+		return this;
+	}
+
+	setFromAxisAngle(axis: Vector3, angle: number) {
+		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+
+		// assumes axis is normalized
+
+		const halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+		this.x = axis.x * s;
+		this.y = axis.y * s;
+		this.z = axis.z * s;
+		this.w = Math.cos( halfAngle );
+
+		return this;
+	}
+
+	multiplyFromAxisAngle(axis: Vector3, angle: number) {
+		// assumes axis is normalized
+		const halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+		return this.multiply({
+			x: axis.x * s,
+			y:axis.y * s,
+			z:axis.z * s,
+			w: Math.cos( halfAngle )
+		});
+	}
 }

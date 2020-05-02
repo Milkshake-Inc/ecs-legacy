@@ -9,6 +9,20 @@ import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
+import { useDebugCouple } from '../couples/DebugCouple';
+
+export type RenderSystemSettings = {
+	width: number;
+	height: number;
+	color: number;
+	configure?: (renderer: WebGLRenderer, scene: Scene) => void;
+}
+
+export const DefaultRenderSystemSettings: RenderSystemSettings = {
+	width: 1280,
+	height: 720,
+	color: Color.Tomato
+}
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -24,19 +38,29 @@ export default class RenderSystem extends System {
 		useGroupCouple(this),
 		useLightCouple(this),
 		useRaycastCouple(this),
-		useRaycastDebugCouple(this)
+		useRaycastDebugCouple(this),
 	];
 
-	constructor(width = 1280, height = 720, color: number = Color.White) {
+	constructor(customSettings?: Partial<RenderSystemSettings>) {
 		super();
 
+		const settings = {
+			...DefaultRenderSystemSettings,
+			...customSettings
+		};
+
 		this.state.scene = new Scene();
-		this.state.scene.background = new ThreeColor(color);
+		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
 			antialias: true
 		});
-		this.state.renderer.setSize(width, height);
+
+		this.state.renderer.setSize(settings.width, settings.height);
+
+		if(settings.configure) {
+			settings.configure(this.state.renderer, this.state.scene);
+		}
 
 		(window as any).renderSystem = this;
 

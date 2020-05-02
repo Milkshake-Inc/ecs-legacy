@@ -1,24 +1,18 @@
 import { Engine } from '@ecs/ecs/Engine';
-import { ThreeEngine } from '@ecs/plugins/3d/ThreeEngine';
-import Space from '@ecs/plugins/space/Space';
-import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Mesh, PlaneGeometry, MeshBasicMaterial, PerspectiveCamera, MeshPhongMaterial, DirectionalLight, Color as ThreeColor, Vector3 as ThreeVector3, BoxGeometry, TextureLoader, RepeatWrapping, Texture, AmbientLight } from 'three';
-import Transform from '@ecs/plugins/Transform';
 import { Entity } from '@ecs/ecs/Entity';
-import ThirdPersonCameraSystem from 'src/ship/systems/ThirdPersonCameraSystem';
 import Color from '@ecs/math/Color';
-import Vector3 from '@ecs/math/Vector';
-import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
-import { useQueries } from '@ecs/ecs/helpers';
-import { Body, Box, Vec3, Plane } from 'cannon';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import MeshShape from '@ecs/plugins/physics/components/MeshShape';
 import Random from '@ecs/math/Random';
-import { System } from '@ecs/ecs/System';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
-import Keyboard from '@ecs/input/Keyboard';
-import Key from '@ecs/input/Key';
+import Vector3 from '@ecs/math/Vector';
+import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
+import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
+import { ThreeEngine } from '@ecs/plugins/3d/ThreeEngine';
+import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import Space from '@ecs/plugins/space/Space';
+import Transform from '@ecs/plugins/Transform';
+import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
+import { Body, Box, Plane, Vec3 } from 'cannon';
+import { AmbientLight, BoxGeometry, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture, Fog, PCFSoftShadowMap } from 'three';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const Assets = {
     BOX_MAN: 'assets/prototype/models/boxman.glb',
@@ -80,7 +74,7 @@ class AnimationSpace extends Space {
     }
 
 	setup() {
-        this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 10, false));
+        this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, false));
 
         const camera = new Entity();
         camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
@@ -119,75 +113,23 @@ class AnimationSpace extends Space {
 
 
         this.addEntities(light,camera, ground);
-        this.addSystem(new MouseSystem());
+        this.addSystem(new FreeRoamCameraSystem());
     }
 }
 
-class MouseSystem extends System {
 
-    private lastPosition = {
-        x: 0,
-        y: 0
-    };
 
-    private cameraAngle: Vector3 = Vector3.ZERO;
-    private keyboard = new Keyboard();
+const engine = new ThreeEngine(new RenderSystem({ color: 0x262626,configure: (renderer, scene) => {
+    renderer.setPixelRatio(2);
+	renderer.shadowMap.type = PCFSoftShadowMap;
+    renderer.shadowMap.enabled = true;
 
-    protected queries = useQueries(this, {
-        camera: all(PerspectiveCamera)
-    });
-
-    constructor() {
-        super();
-
-        window.addEventListener("mousemove", this.handleMouseMove.bind(this));
-    }
-
-    handleMouseMove(event: MouseEvent) {
-        const mouse = {
-            x: (event.clientX / window.innerWidth) * 2 - 1,
-            y: -(event.clientY / window.innerHeight) * 2 + 1
-
-        }
-
-        const delta = {
-            x: mouse.x - this.lastPosition.x,
-            y: mouse.y - this.lastPosition.y,
-        }
-
-        this.cameraAngle.x += delta.y;
-        this.cameraAngle.y -= delta.x;
-
-        const camera = this.queries.camera.first.get(Transform);
-
-        // camera.rx += delta.y;
-        camera.quaternion.setFromEuler(this.cameraAngle);
-
-        this.lastPosition = mouse;
-    }
-
-    public update(deltaTime: number) {
-        const camera = this.queries.camera.first.get(Transform);
-
-        if(this.keyboard.isDown(Key.W)) {
-            camera.position.z -= 0.1;
-        }
-
-        if(this.keyboard.isDown(Key.S)) {
-            camera.position.z += 0.1;
-        }
-
-        if(this.keyboard.isDown(Key.A)) {
-            camera.position.x -= 0.1;
-        }
-
-        if(this.keyboard.isDown(Key.D)) {
-            camera.position.x += 0.1;
-        }
-    }
-}
-
-const engine = new ThreeEngine(new RenderSystem(1280, 720, 0x262626));
+    scene.fog = new Fog(
+        0x262626,
+        10,
+        200
+    )
+} }));
 
 engine.registerSpaces(new AnimationSpace(engine));
 
