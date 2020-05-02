@@ -33,6 +33,7 @@ import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
 import { Body, Plane, Material, Vec3 } from 'cannon';
 import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
+import MathHelper from '@ecs/math/MathHelper';
 
 const Acceleration = 0.01;
 const MaxSpeed = 15;
@@ -99,20 +100,21 @@ export class Ship extends Space {
 
 					if (this.postMaterial) {
 						this.postMaterial.uniforms.tTime.value += dt;
+
 					}
 
-					// const depth = -0.18;
-					// if (body.position.y < depth) {
-					// 	body.position.y = depth;
-					// 	body.velocity.y = 0;
-					// 	const original = new Vec3();
-					// 	body.quaternion.toEuler(original);
+					const depth = -0.18;
+					if (body.position.y < depth) {
+						body.position.y = depth;
+						body.velocity.y = 0;
+						const original = new Vec3();
+						body.quaternion.toEuler(original);
 
-					// 	original.x = MathHelper.lerp(original.x, 0, 0.1);
-					// 	original.z = MathHelper.lerp(original.z, 0, 0.1);
+						original.x = MathHelper.lerp(original.x, 0, 0.1);
+						original.z = MathHelper.lerp(original.z, 0, 0.1);
 
-					// 	body.quaternion.setFromEuler(original.x, original.y, original.z);
-					// }
+						body.quaternion.setFromEuler(original.x, original.y, original.z);
+					}
 
 					// apply forward force
 					// body.applyForce(force, body.position);
@@ -125,6 +127,10 @@ export class Ship extends Space {
 					if (body.angularVelocity.norm() < MaxRotationalSpeed) {
 						body.angularVelocity.vadd(angularVelocity, body.angularVelocity);
 					}
+
+					// Friction
+					body.angularVelocity.mult(0.9, body.angularVelocity);
+					body.velocity.mult(0.99, body.velocity);
 				}
 			})
 		);
@@ -132,11 +138,11 @@ export class Ship extends Space {
 
 	protected setupPlayer() {
 		const ship = new Entity();
-		ship.add(Transform, { z: 20, y: 20 });
+		ship.add(Transform, { z: 20, y: 2 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
-		ship.add(ThirdPersonTarget, { angle: 8, distance: 7 });
+		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
 		ship.add(new Body({ mass: 20, material: this.slippy }));
 		ship.add(MeshShape);
 
@@ -178,14 +184,14 @@ export class Ship extends Space {
 		});
 
 		// Ground
-		const ground = new Entity();
-		ground.add(Transform, { z: 5 });
-		ground.add(
-			new Body({
-				material: this.slippy
-			})
-		);
-		ground.add(new Plane());
+		// const ground = new Entity();
+		// ground.add(Transform, { z: 5 });
+		// ground.add(
+		// 	new Body({
+		// 		material: this.slippy
+		// 	})
+		// );
+		// ground.add(new Plane());
 
 		// Water
 		const mesh = new Mesh(new PlaneBufferGeometry(window.innerWidth, window.innerHeight, 100, 100), this.postMaterial);
@@ -218,12 +224,12 @@ export class Ship extends Space {
 		}
 
 		const skyBox = new Entity();
-		skyBox.add(Transform);
+		skyBox.add(Transform, { y: 100 });
 		skyBox.add(Mesh, {
 			geometry: new BoxGeometry(1000, 1000, 1000),
 			material: materialArray
 		});
 
-		this.addEntities(light, camera, ground, skyBox);
+		this.addEntities(light, camera, skyBox);
 	}
 }
