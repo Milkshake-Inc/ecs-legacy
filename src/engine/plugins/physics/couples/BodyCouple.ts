@@ -1,14 +1,16 @@
 import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
-import { all } from '@ecs/utils/QueryHelper';
+import { all, any } from '@ecs/utils/QueryHelper';
 import { useCannonCouple } from './CannonCouple';
 import { Body } from 'cannon';
+import CannonBody from '../components/CannonBody';
 
 export const useBodyCouple = (system: System) =>
-	useCannonCouple<Body>(system, all(Transform, Body), {
+	useCannonCouple<Body>(system, [all(Transform), any(Body, CannonBody)], {
 		onCreate: entity => {
 			const transform = entity.get(Transform);
-			const body = entity.get(Body);
+			const body = entity.get(CannonBody) || entity.get(Body);
+
 			body.position.set(transform.x, transform.y, transform.z);
 			body.quaternion.set(transform.qx, transform.qy, transform.qz, transform.qw);
 

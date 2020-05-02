@@ -1,6 +1,4 @@
 import decomp from 'poly-decomp';
-import { Vec3, Body } from 'cannon';
-import Vector3 from '@ecs/math/Vector';
 
 // API: https://brm.io/matter-js/docs/classes/Bodies.html
 // Code: https://brm.io/matter-js/docs/files/src_factory_Bodies.js.html#l179
@@ -18,9 +16,3 @@ export const injectPolyDecomp = () => {
 
 	((<any>window) as any).decomp = decomp;
 };
-
-export const ToVec3 = (value: Vector3) => new Vec3(value.x, value.y, value.z);
-
-export const ToVector3 = (value: Vec3) => new Vector3(value.x, value.y, value.z);
-
-export const Look = (body: Body, dir = Vector3.FORWARD) => body.quaternion.vmult(ToVec3(dir));

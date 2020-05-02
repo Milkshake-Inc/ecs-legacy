@@ -31,8 +31,8 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import { Body, Material, Vec3 } from 'cannon';
-import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
+import { Material, Vec3 } from 'cannon';
+import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
 
 const Acceleration = 0.01;
@@ -48,6 +48,7 @@ export class Ship extends Space {
 	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
+	protected boat2: Entity;
 
 	constructor(engine: Engine) {
 		super(engine, 'ship');
@@ -67,6 +68,14 @@ export class Ship extends Space {
 		this.setupTerrain();
 		this.setupPlayer();
 
+		this.boat2 = new Entity();
+		this.boat2.add(Transform, { x: 5, z: 20, y: 2 });
+		this.boat2.add(this.shipModel.scene.children[0].clone());
+		this.boat2.add(new Body({ material: this.slippy }));
+		this.boat2.add(MeshShape);
+
+		this.addEntities(this.boat2);
+
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
 		this.addSystem(new ThirdPersonCameraSystem());
@@ -74,33 +83,26 @@ export class Ship extends Space {
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
 				entityUpdateFixed: (entity, dt) => {
-					if (this.island) {
-						this.island.get(Body).position.y += 0.001;
-					}
-
 					const input = entity.get(Input);
 					const body = entity.get(Body);
-
-					const forward = Look(body);
-					const up = Look(body, Vector3.UP);
 
 					const velocity = new Vec3();
 					const angularVelocity = new Vec3();
 
 					if (input.upDown) {
-						velocity.vadd(forward.mult(Acceleration * dt), velocity);
+						velocity.vadd(body.forward.mult(Acceleration * dt), velocity);
 					}
 
 					if (input.downDown) {
-						velocity.vsub(forward.mult(Acceleration * dt), velocity);
+						velocity.vsub(body.forward.mult(Acceleration * dt), velocity);
 					}
 
 					if (input.leftDown) {
-						angularVelocity.vadd(up.mult(RotateAcceleration * dt), angularVelocity);
+						angularVelocity.vadd(body.up.mult(RotateAcceleration * dt), angularVelocity);
 					}
 
 					if (input.rightDown) {
-						angularVelocity.vsub(up.mult(RotateAcceleration * dt), angularVelocity);
+						angularVelocity.vsub(body.up.mult(RotateAcceleration * dt), angularVelocity);
 					}
 
 					if (this.postMaterial) {
@@ -132,6 +134,8 @@ export class Ship extends Space {
 					// Friction
 					body.angularVelocity.mult(0.9, body.angularVelocity);
 					body.velocity.mult(0.99, body.velocity);
+
+					this.boat2.get(Body).lookAt(body);
 				}
 			})
 		);
@@ -185,16 +189,6 @@ export class Ship extends Space {
 			transparent: true,
 			fog: true
 		});
-
-		// Ground
-		// const ground = new Entity();
-		// ground.add(Transform, { z: 5 });
-		// ground.add(
-		// 	new Body({
-		// 		material: this.slippy
-		// 	})
-		// );
-		// ground.add(new Plane());
 
 		// Water
 		const mesh = new Mesh(new PlaneBufferGeometry(window.innerWidth, window.innerHeight, 100, 100), this.postMaterial);

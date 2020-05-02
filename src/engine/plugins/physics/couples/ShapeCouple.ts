@@ -18,14 +18,19 @@ import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
 import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Object3D } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
+import CannonBody from '../components/CannonBody';
 
 export const useShapeCouple = (system: System) =>
 	useCannonCouple<Shape | Shape[]>(
 		system,
-		[all(Transform, Body), any(Shape, Particle, Plane, Box, Sphere, ConvexPolyhedron, Cylinder, Heightfield, MeshShape)],
+		[
+			all(Transform),
+			any(Body, CannonBody),
+			any(Shape, Particle, Plane, Box, Sphere, ConvexPolyhedron, Cylinder, Heightfield, MeshShape)
+		],
 		{
 			onCreate: entity => {
-				const body = entity.get(Body);
+				const body = entity.get(CannonBody) || entity.get(Body);
 
 				if (entity.has(Shape)) {
 					body.addShape(entity.get(Shape));
