@@ -5,10 +5,10 @@ import { System } from '../System';
 import { useQueries, ToQueries } from './useQueries';
 
 export type FunctionalSystemStuff = {
-	entityUpdate?(entity: Entity, dt: number): void;
-	entityUpdateFixed?(entity: Entity, dt: number): void;
-	entityAdded?(entity: Entity): void;
-	entityRemoved?(entity: Entity): void;
+	entityUpdate?: (entity: Entity, dt: number) => void;
+	entityUpdateFixed?: (entity: Entity, dt: number) => void;
+	entityAdded?: (entity: Entity) => void;
+	entityRemoved?: (entity: Entity) => void;
 };
 
 export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: FunctionalSystemStuff) => {

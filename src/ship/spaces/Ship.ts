@@ -72,7 +72,7 @@ export class Ship extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
-				entityUpdateFixed(entity, dt) {
+				entityUpdateFixed: (entity, dt) => {
 					const input = entity.get(Input);
 					const body = entity.get(Body);
 
