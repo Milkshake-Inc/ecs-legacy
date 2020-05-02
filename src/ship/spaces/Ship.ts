@@ -77,7 +77,7 @@ export class Ship extends Space {
 		this.addEntities(this.boat2);
 
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
 		this.addSystem(new ThirdPersonCameraSystem());
 		this.addSystem(new InputSystem());
 		this.addSystem(
@@ -172,7 +172,7 @@ export class Ship extends Space {
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
 
 		const light = new Entity();
-		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.9));
+		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.3));
 		light.add(Transform, { x: 1, y: 1, z: 0 });
 
 		const cam = camera.get(PerspectiveCamera);
