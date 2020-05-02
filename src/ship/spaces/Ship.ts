@@ -31,7 +31,7 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
-import { Body, Plane, Material, Vec3 } from 'cannon';
+import { Body, Material, Vec3 } from 'cannon';
 import { Look } from '@ecs/plugins/physics/utils/PhysicsUtils';
 import MathHelper from '@ecs/math/MathHelper';
 
@@ -47,6 +47,7 @@ export class Ship extends Space {
 	protected islandModel: GLTF;
 	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
+	protected island: Entity;
 
 	constructor(engine: Engine) {
 		super(engine, 'ship');
@@ -72,7 +73,15 @@ export class Ship extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
+<<<<<<< HEAD
 				entityUpdateFixed: (entity, dt) => {
+=======
+				entityUpdateFixed(entity, dt) {
+					if (this.island) {
+						this.island.get(Body).position.y += 0.001;
+					}
+
+>>>>>>> 🎨  Fixing camera shake
 					const input = entity.get(Input);
 					const body = entity.get(Body);
 
@@ -100,7 +109,6 @@ export class Ship extends Space {
 
 					if (this.postMaterial) {
 						this.postMaterial.uniforms.tTime.value += dt;
-
 					}
 
 					const depth = -0.18;
@@ -115,9 +123,6 @@ export class Ship extends Space {
 
 						body.quaternion.setFromEuler(original.x, original.y, original.z);
 					}
-
-					// apply forward force
-					// body.applyForce(force, body.position);
 
 					// Limit max speed
 					if (body.velocity.norm() < MaxSpeed) {
@@ -155,6 +160,8 @@ export class Ship extends Space {
 		island.add(this.islandModel.scene);
 		island.add(new Body({ material: this.slippy }));
 		island.add(MeshShape);
+
+		this.island = island;
 
 		this.addEntities(island);
 	}

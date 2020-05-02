@@ -12,7 +12,7 @@ export default class ThirdPersonCameraSystem extends System {
 		target: all(Transform, ThirdPersonTarget)
 	});
 
-	updateFixed(dt: number) {
+	update(dt: number) {
 		const camera = {
 			transform: this.queries.camera.first.get(Transform),
 			cam: this.queries.camera.first.get(PerspectiveCamera)
@@ -42,10 +42,6 @@ export default class ThirdPersonCameraSystem extends System {
 			target.transform.position.z + angleX * target.target.angle,
 			a
 		);
-
-		// camera.transform.position.x = target.transform.position.x - angleY * target.target.angle;
-		// camera.transform.position.y = target.transform.position.y + target.target.distance;
-		// camera.transform.position.z = target.transform.position.z + angleX * target.target.angle;
 
 		camera.cam.lookAt(target.transform.position.x, target.transform.position.y, target.transform.position.z);
 		camera.transform.quaternion.set(camera.cam.quaternion.x, camera.cam.quaternion.y, camera.cam.quaternion.z, camera.cam.quaternion.w);

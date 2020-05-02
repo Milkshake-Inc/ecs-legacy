@@ -43,10 +43,14 @@ export default class RenderSystem extends System {
 		document.body.appendChild(this.state.renderer.context.canvas as HTMLCanvasElement);
 	}
 
-	update(dt: number) {
-		super.update(dt);
+	updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.couples.forEach(couple => couple.update(dt));
+	}
+
+	update(dt: number) {
+		super.update(dt);
 
 		this.render();
 	}

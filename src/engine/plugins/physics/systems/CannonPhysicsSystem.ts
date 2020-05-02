@@ -45,12 +45,14 @@ export default class CannonPhysicsSystem extends System {
 	updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		this.couples.forEach(couple => couple.update(dt));
-
 		this.state.world.step(dt / 1000);
 
-		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
+		this.couples.forEach(couple => couple.update(dt));
 
+		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
+	}
+
+	update(dt: number) {
 		if (this.debug && !this.debugRenderer) {
 			this.createDebugRenderer();
 		}
