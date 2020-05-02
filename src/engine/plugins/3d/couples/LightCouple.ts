@@ -1,24 +1,26 @@
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
 import { useThreeCouple } from './ThreeCouple';
-import { AmbientLight, Light, PointLight, DirectionalLight } from 'three';
+import { AmbientLight, Light, PointLight, DirectionalLight, Group } from 'three';
 import RenderSystem from '../systems/RenderSystem';
 
 export const useLightCouple = (system: RenderSystem) =>
-	useThreeCouple<Light>(system, [all(Transform), any(Light, AmbientLight, PointLight, DirectionalLight)], {
+	useThreeCouple<Group>(system, [all(Transform), any(Light, AmbientLight, PointLight, DirectionalLight)], {
 		onCreate: entity => {
-			if (entity.has(DirectionalLight)) {
-				return entity.get(DirectionalLight);
-			}
+			const group = new Group();
 
 			if (entity.has(AmbientLight)) {
-				return entity.get(AmbientLight);
+				group.add(entity.get(AmbientLight));
+			}
+
+			if (entity.has(DirectionalLight)) {
+				group.add(entity.get(DirectionalLight));
 			}
 
 			if (entity.has(PointLight)) {
-				return entity.get(PointLight);
+				group.add(entity.get(PointLight));
 			}
 
-			return entity.get(Light);
+			return group;
 		}
 	});
