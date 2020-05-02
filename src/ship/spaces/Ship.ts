@@ -73,15 +73,11 @@ export class Ship extends Space {
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
-<<<<<<< HEAD
 				entityUpdateFixed: (entity, dt) => {
-=======
-				entityUpdateFixed(entity, dt) {
 					if (this.island) {
 						this.island.get(Body).position.y += 0.001;
 					}
 
->>>>>>> 🎨  Fixing camera shake
 					const input = entity.get(Input);
 					const body = entity.get(Body);
 
