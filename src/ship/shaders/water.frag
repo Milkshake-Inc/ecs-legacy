@@ -29,13 +29,11 @@ void main() {
   depth = pow(depth, 2.0);
   depth = clamp(depth, 0.0, 1.0) * 0.8;
 
-  vec4 DepthGradientShallow = vec4(0.325, 0.807, 0.971, 0.725);
-  vec4 DepthGradientDeep = vec4(0.086, 0.407, 1.0, 1);
+  vec4 DepthGradientShallow = vec4(0.325, 0.807, 0.971, 1.0);
+  vec4 DepthGradientDeep = vec4(0.086, 0.407, 1.0, 1.0);
 
   float waterDepthDifference01 = saturate(depth / 1.0);
   vec4 waterColor = mix(DepthGradientShallow, DepthGradientDeep, waterDepthDifference01);
-
-  vec4 color = mix(DepthGradientShallow, DepthGradientDeep, depth);
 
   float linearSin = 1.0 + sin(tTime / 1000.0) / 2.0;
   float wakeDepth = 0.001 + (linearSin * 0.004) * 2.0;
@@ -47,10 +45,10 @@ void main() {
   } else if (depth < wakeDepth) {
     gl_FragColor = vec4(1.0, 1.0, 1.0, 0.7);
   } else {
-    gl_FragColor = color;
+    gl_FragColor = waterColor;
   }
 
-  float deptha = gl_FragCoord.z / gl_FragCoord.w;
-  float fogFactor = smoothstep( 30.0, 60.0, deptha );
-  gl_FragColor = mix( gl_FragColor.rgba, vec4(gl_FragColor.r, gl_FragColor.g, gl_FragColor.b, 0.0), fogFactor);
+  // float deptha = gl_FragCoord.z / gl_FragCoord.w;
+  // float fogFactor = smoothstep( 80.0, 90.0, deptha );
+  // gl_FragColor = mix( gl_FragColor.rgba, vec4(gl_FragColor.r, gl_FragColor.g, gl_FragColor.b, 0.0), fogFactor);
 }
