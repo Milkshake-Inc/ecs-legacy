@@ -30,7 +30,7 @@ void main() {
   depth = clamp(depth, 0.0, 1.0) * 0.8;
 
   vec4 DepthGradientShallow = vec4(0.325, 0.807, 0.971, 1.0);
-  vec4 DepthGradientDeep = vec4(0.086, 0.407, 1.0, 0.5);
+  vec4 DepthGradientDeep = vec4(0.086, 0.407, 1.0, 0.8);
 
   float waterDepthDifference01 = saturate(depth / 1.0);
   vec4 waterColor = mix(DepthGradientShallow, DepthGradientDeep, waterDepthDifference01);

@@ -39,7 +39,7 @@ import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 
-const Acceleration = 0.01;
+const Acceleration = 0.03;
 const MaxSpeed = 15;
 const RotateAcceleration = 0.01;
 const MaxRotationalSpeed = 3;
@@ -49,6 +49,7 @@ const Gravity = new Vector3(0, -10, 0);
 export class Ship extends Space {
 	protected shipModel: GLTF;
 	protected islandModel: GLTF;
+	protected boxMan: GLTF;
 	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
@@ -61,9 +62,10 @@ export class Ship extends Space {
 	}
 
 	protected async preload() {
-		[this.shipModel, this.islandModel] = await Promise.all([
+		[this.shipModel, this.islandModel, this.boxMan] = await Promise.all([
 			LoadGLTF('assets/prototype/models/boat_large.gltf'),
-			LoadGLTF('assets/prototype/models/island.gltf')
+			LoadGLTF('assets/prototype/models/island.gltf'),
+			LoadGLTF('assets/prototype/models/boxman.glb')
 		]);
 	}
 
@@ -80,7 +82,7 @@ export class Ship extends Space {
 		this.addEntities(this.boat2);
 
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
 
         const player = new CharacterEntity(this.boxMan);
 		player.add(ThirdPersonTarget)
@@ -157,13 +159,13 @@ export class Ship extends Space {
 
 	protected setupPlayer() {
 		const ship = new Entity();
-		ship.add(Transform, { z: 20, y: 2 });
+		ship.add(Transform, { z: 20, y: 20 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
 		ship.add(new Body({ mass: 20, material: this.slippy }));
-		ship.add(BoundingBoxShape);
+		ship.add(MeshShape);
 
 		this.addEntities(ship);
 	}
