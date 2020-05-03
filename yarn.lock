@@ -6597,6 +6597,11 @@ only@~0.0.2:
   resolved "https://registry.yarnpkg.com/only/-/only-0.0.2.tgz#2afde84d03e50b9a8edc444e30610a70295edfb4"
   integrity sha1-Kv3oTQPlC5qO3EROMGEKcCle37Q=
 
+open-simplex-noise@^2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/open-simplex-noise/-/open-simplex-noise-2.3.1.tgz#fb3e04db8693f6487497536be76d6192f1b9b827"
+  integrity sha512-akJvOFDWOoyNHg/ahxZQLBkBvKofV4avYLksYcaSUXNEHU+Y0bJlRRlZEf0MV753CR+lVSMtEPBv7NacDM+0mg==
+
 opencollective-postinstall@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.2.tgz#5657f1bede69b6e33a45939b061eb53d3c6c3a89"

@@ -35,6 +35,7 @@ import { Material, Vec3 } from 'cannon';
 import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
 import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
+import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 
 const Acceleration = 0.01;
 const MaxSpeed = 15;
@@ -66,7 +67,7 @@ export class Ship extends Space {
 
 	setup() {
 		this.setupEnvironment();
-		this.setupTerrain();
+		// this.setupTerrain();
 		this.setupPlayer();
 
 		this.boat2 = new Entity();
@@ -78,7 +79,8 @@ export class Ship extends Space {
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
-		this.addSystem(new ThirdPersonCameraSystem());
+		// this.addSystem(new ThirdPersonCameraSystem());
+		this.addSystem(new FreeRoamCameraSystem());
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {
@@ -172,7 +174,7 @@ export class Ship extends Space {
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
 
 		const light = new Entity();
-		light.add(new DirectionalLight(new ThreeColor(Color.White), 1.3));
+		light.add(new DirectionalLight(new ThreeColor(Color.White), 1));
 		light.add(Transform, { x: 1, y: 1, z: 0 });
 
 		const cam = camera.get(PerspectiveCamera);
