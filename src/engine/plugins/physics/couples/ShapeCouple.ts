@@ -16,9 +16,15 @@ import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Object3D } from 'three';
+import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import CannonBody from '../components/CannonBody';
+import { Entity } from '@ecs/ecs/Entity';
+import BoundingSphereShape from '../components/BoundingSphereShape';
+import BoundingCylinderShape from '../components/BoundingCylinderShape';
+import BoundingBoxShape from '../components/BoundingBoxShape';
+
+export const NoMeshError = new Error('no mesh found :(');
 
 export const useShapeCouple = (system: System) =>
 	useCannonCouple<Shape | Shape[]>(
@@ -26,7 +32,20 @@ export const useShapeCouple = (system: System) =>
 		[
 			all(Transform),
 			any(Body, CannonBody),
-			any(Shape, Particle, Plane, Box, Sphere, ConvexPolyhedron, Cylinder, Heightfield, MeshShape)
+			any(
+				Shape,
+				Particle,
+				Plane,
+				Box,
+				Sphere,
+				ConvexPolyhedron,
+				Cylinder,
+				Heightfield,
+				MeshShape,
+				BoundingSphereShape,
+				BoundingBoxShape,
+				BoundingCylinderShape
+			)
 		],
 		{
 			onCreate: entity => {
@@ -76,32 +95,91 @@ export const useShapeCouple = (system: System) =>
 					return entity.get(Heightfield);
 				}
 
+				if (entity.has(BoundingBoxShape)) {
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
+						console.log(`generating BoundingBox for ${mesh.name}`);
+
+						// Scale geometry to correct world size
+						geometry.scale(scale.x, scale.y, scale.z);
+
+						// Calculate bounding box and offset world position
+						geometry.computeBoundingBox();
+						const center = geometry.boundingBox.getCenter(new ThreeVector3());
+						const size = geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
+						position.add(center.applyQuaternion(rotation));
+
+						body.addShape(
+							new Box(new Vec3(size.x, size.y, size.z)),
+							new Vec3(position.x, position.y, position.z),
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+					});
+				}
+
+				if (entity.has(BoundingSphereShape)) {
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
+						console.log(`generating BoundingSphere for ${mesh.name}`);
+						// Scale geometry to correct world size
+						geometry.scale(scale.x, scale.y, scale.z);
+
+						// Calculate bounding sphere and offset world position
+						geometry.computeBoundingSphere();
+						const center = geometry.boundingSphere.center;
+						const size = geometry.boundingSphere.radius;
+						position.add(center.applyQuaternion(rotation));
+
+						body.addShape(
+							new Sphere(size),
+							new Vec3(position.x, position.y, position.z),
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+					});
+				}
+
+				if (entity.has(BoundingCylinderShape)) {
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
+						console.log(`generating BoundingCylinder for ${mesh.name}`);
+
+						throw new Error('not implemented');
+
+						// // Scale geometry to correct world size
+						// geometry.scale(scale.x, scale.y, scale.z);
+
+						// // Calculate bounding box and offset world position
+						// geometry.computeBoundingBox();
+						// const center = geometry.boundingBox.getCenter(new ThreeVector3());
+						// const size = geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
+						// position.add(center.applyQuaternion(rotation));
+
+						// const radius = Math.max(size.x, size.y);
+
+						// body.addShape(
+						// 	new Cylinder(radius, radius, size.y, 12),
+						// 	new Vec3(position.x, position.y, position.z),
+						// 	new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						// );
+					});
+				}
+
 				if (entity.has(MeshShape)) {
 					const convexShapes: ConvexPolyhedron[] = [];
 
-					let object3d: Object3D;
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
+						console.log(`generating MeshShape for ${mesh.name}`);
 
-					if (entity.has(Mesh)) {
-						object3d = entity.get(Mesh).clone();
-					}
+						const convexGeometry = new ConvexGeometry(geometry.vertices);
+						convexGeometry.scale(scale.x, scale.y, scale.z);
 
-					if (entity.has(Group)) {
-						object3d = entity.get(Group).clone();
-					}
+						const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
+						const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
 
-					if (!object3d) throw new Error('no mesh found :(');
-
-					// Reset position and rotation applied on the entity, it's accounted for later from position applied by meshToConvexPolyhedron
-					object3d.position.set(0, 0, 0);
-					object3d.rotation.set(0, 0, 0);
-
-					object3d.traverse(child => {
-						if (child instanceof Mesh) {
-							const { shape, position, quaternion } = meshToConvexPolyhedron(child);
-
-							convexShapes.push(shape);
-							body.addShape(shape, position, quaternion);
-						}
+						const shape = new ConvexPolyhedron(vertices, faces as any);
+						body.addShape(
+							shape,
+							new Vec3(position.x, position.y, position.z),
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+						convexShapes.push(shape);
 					});
 
 					entity.add(convexShapes);
@@ -111,33 +189,34 @@ export const useShapeCouple = (system: System) =>
 		}
 	);
 
-export const meshToConvexPolyhedron = (mesh: Mesh) => {
-	if (mesh.geometry instanceof BufferGeometry) {
-		mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
-	}
-	console.log(`generating mesh collider for ${mesh.name}`);
+export const applyToMeshesIndividually = (
+	entity: Entity,
+	callback: (data: { mesh: Mesh; geometry: Geometry; position: ThreeVector3; scale: ThreeVector3; rotation: ThreeQuaternion }) => void
+) => {
+	let object3d = entity.get(Mesh) || entity.get(Group);
+	if (!object3d) throw NoMeshError;
 
-	// Get world pos, scale and rotation as the convex geometry does not copy that data
-	// Applying the matrix directly to the convex geometry messes it up somehow and causes bad things to happen to collision.
-	mesh.updateWorldMatrix(true, false);
-	const position = new ThreeVector3();
-	const scale = new ThreeVector3();
-	const quaternion = new ThreeQuaternion();
-	mesh.getWorldPosition(position);
-	mesh.getWorldScale(scale);
-	mesh.getWorldQuaternion(quaternion);
+	// Reset position and rotation applied on the entity, it's accounted for later from position applied later
+	object3d = object3d.clone();
+	object3d.position.set(0, 0, 0);
+	object3d.rotation.set(0, 0, 0);
 
-	// Convert to convex hull (no inside faces)
-	const convexGeometry = new ConvexGeometry(mesh.geometry.vertices);
-	convexGeometry.scale(scale.x, scale.y, scale.z);
+	object3d.traverse(mesh => {
+		mesh.updateWorldMatrix(true, false);
+		if (mesh instanceof Mesh) {
+			if (mesh.geometry instanceof BufferGeometry) {
+				mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
+			}
 
-	// convert to Cannon object
-	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
-	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
+			// Get world pos, scale and rotation as the convex geometry does not copy that data
+			// Applying the matrix directly to the convex geometry messes it up somehow and causes bad things to happen to collision.
+			mesh.updateWorldMatrix(true, false);
+			const position = new ThreeVector3();
+			const scale = new ThreeVector3();
+			const rotation = new ThreeQuaternion();
 
-	return {
-		shape: new ConvexPolyhedron(vertices, faces as any),
-		position: new Vec3(position.x, position.y, position.z),
-		quaternion: new CannonQuaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
-	};
+			mesh.matrixWorld.decompose(position, rotation, scale);
+			callback({ mesh, geometry: mesh.geometry, position, scale, rotation });
+		}
+	});
 };

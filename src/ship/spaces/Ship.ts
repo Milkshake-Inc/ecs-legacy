@@ -34,6 +34,7 @@ import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
 import { Material, Vec3 } from 'cannon';
 import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
+import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
 
 const Acceleration = 0.01;
 const MaxSpeed = 15;
@@ -72,12 +73,11 @@ export class Ship extends Space {
 		this.boat2.add(Transform, { x: 5, z: 20, y: 2 });
 		this.boat2.add(this.shipModel.scene.children[0].clone());
 		this.boat2.add(new Body({ material: this.slippy }));
-		this.boat2.add(MeshShape);
 
 		this.addEntities(this.boat2);
 
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
 		this.addSystem(new ThirdPersonCameraSystem());
 		this.addSystem(new InputSystem());
 		this.addSystem(
@@ -149,7 +149,7 @@ export class Ship extends Space {
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
 		ship.add(new Body({ mass: 20, material: this.slippy }));
-		ship.add(MeshShape);
+		ship.add(BoundingBoxShape);
 
 		this.addEntities(ship);
 	}
