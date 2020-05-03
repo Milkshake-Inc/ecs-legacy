@@ -1,49 +1,77 @@
 import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
+import MathHelper from '@ecs/math/MathHelper';
+import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from '../components/ThirdPersonTarget';
-import MathHelper from '@ecs/math/MathHelper';
 
 export default class ThirdPersonCameraSystem extends System {
+	private lastPosition = { x: 0, y: 0 };
+	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
+
+	private zoom = 4;
+
 	private queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera),
 		target: all(Transform, ThirdPersonTarget)
 	});
 
+	constructor() {
+		super()
+
+		window.addEventListener("mousemove", this.handleMouseMove.bind(this));
+		window.addEventListener("wheel", this.handleMouseWheel.bind(this));
+	}
+
+	get target() {
+        return this.queries.target.first.get(Transform);
+	}
+
+	get camera() {
+        return this.queries.camera.first.get(Transform);
+	}
+
+	get acamera() {
+        return this.queries.camera.first.get(PerspectiveCamera);
+	}
+
+	handleMouseWheel(event: WheelEvent) {
+		this.zoom += event.deltaY * -0.01;
+	}
+
+	handleMouseMove(event: MouseEvent) {
+        const mouse = {
+            x: (event.clientX / window.innerWidth) * 2 - 1,
+            y: -(event.clientY / window.innerHeight) * 2 + 1
+        }
+
+        const delta = {
+            x: mouse.x - this.lastPosition.x,
+            y: mouse.y - this.lastPosition.y,
+        }
+
+        this.cameraAngle.x += delta.x * 2;
+        this.cameraAngle.y -= delta.y * 2;
+
+		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
+
+        this.lastPosition = mouse;
+    }
+
 	update(dt: number) {
-		const camera = {
-			transform: this.queries.camera.first.get(Transform),
-			cam: this.queries.camera.first.get(PerspectiveCamera)
-		};
+		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
+		this.acamera.quaternion.set(this.acamera.quaternion.x, this.acamera.quaternion.y, this.acamera.quaternion.z, this.acamera.quaternion.w);
 
-		const target = {
-			transform: this.queries.target.first.get(Transform),
-			target: this.queries.target.first.get(ThirdPersonTarget)
-		};
+		const xAngle = -(this.cameraAngle.x * 2);
+		const yAngle = this.cameraAngle.y * 6;
 
-		const rotation = target.transform.quaternion.toEuler();
-		const angleX = Math.cos(-rotation.y);
-		const angleY = Math.sin(-rotation.y);
+		const angleX = Math.cos(-xAngle) * this.zoom;
+		const angleY = Math.sin(-xAngle) * this.zoom;
 
-		const a = 1;
-
-		camera.transform.position.x = MathHelper.lerp(
-			camera.transform.position.x,
-			target.transform.position.x - angleY * target.target.angle,
-			a
-		);
-
-		camera.transform.position.y = MathHelper.lerp(camera.transform.position.y, target.transform.position.y + target.target.distance, a);
-
-		camera.transform.position.z = MathHelper.lerp(
-			camera.transform.position.z,
-			target.transform.position.z + angleX * target.target.angle,
-			a
-		);
-
-		camera.cam.lookAt(target.transform.position.x, target.transform.position.y, target.transform.position.z);
-		camera.transform.quaternion.set(camera.cam.quaternion.x, camera.cam.quaternion.y, camera.cam.quaternion.z, camera.cam.quaternion.w);
+		this.camera.x = this.target.x + angleX;
+		this.camera.z = this.target.z + angleY;
+		this.camera.y = this.target.y + yAngle;
 	}
 }

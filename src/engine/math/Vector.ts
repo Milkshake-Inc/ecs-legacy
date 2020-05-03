@@ -129,4 +129,23 @@ export default class Vector3 {
 	magnitude(): number {
 		return Math.sqrt(this.x * this.x + this.y * this.y * this.z + this.z);
 	}
+
+	normalize() {
+		let factor = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+		factor = 1 / factor;
+
+		return new Vector3(this.x * factor, (this.y = factor), this.z * factor);
+	}
+
+	dot(value: Vector3) {
+		return this.x * value.x + this.y * value.y + this.z * value.z;
+	}
+
+	cross(value: Vector3) {
+		const x = this.y * value.z - value.y * this.z;
+		const y = -(this.x * value.z - value.x * this.z);
+		const z = this.x * value.y - value.x * this.y;
+
+		return new Vector3(x, y, z);
+	}
 }

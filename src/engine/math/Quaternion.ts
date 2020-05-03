@@ -1,6 +1,12 @@
 import Vector3 from './Vector';
+import MathHelper from './MathHelper';
 
 export default class Quaternion {
+
+	public static Identity() {
+		return new Quaternion(0, 0, 0, 1);
+	}
+
 	public x: number;
 	public y: number;
 	public z: number;
@@ -126,5 +132,14 @@ export default class Quaternion {
 			z:axis.z * s,
 			w: Math.cos( halfAngle )
 		});
+	}
+
+	normalize()
+	{
+		const num = 1 / Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w));
+		this.x *= num;
+		this.y *= num;
+		this.z *= num;
+		this.w *= num;
 	}
 }
