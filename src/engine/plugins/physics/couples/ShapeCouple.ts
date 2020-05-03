@@ -10,7 +10,8 @@ import {
 	ConvexPolyhedron,
 	Box,
 	Vec3,
-	Quaternion as CannonQuaternion
+	Quaternion as CannonQuaternion,
+	Quaternion
 } from 'cannon';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
@@ -56,7 +57,22 @@ export const useShapeCouple = (system: System) =>
 				const body = entity.get(CannonBody) || entity.get(Body);
 
 				if (entity.has(Shape)) {
-					body.addShape(entity.get(Shape));
+					const mesh = entity.get(Mesh);
+
+					const position = new ThreeVector3();
+					const scale = new ThreeVector3();
+					const rotation = new ThreeQuaternion();
+
+					mesh.updateMatrixWorld()
+					mesh.matrixWorld.decompose(position, rotation, scale);
+
+					mesh.geometry.computeBoundingBox();
+					const size = mesh.geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
+
+					const newRotation = new CannonQuaternion()
+					newRotation.setFromEuler(Math.PI, -Math.PI, Math.PI / 2);
+					body.addShape(entity.get(Shape), new Vec3(-size.x, size.y, 0), newRotation);
+
 					return entity.get(Shape);
 				}
 
@@ -95,7 +111,9 @@ export const useShapeCouple = (system: System) =>
 				}
 
 				if (entity.has(Heightfield)) {
+					// Doesn't get hit
 					body.addShape(entity.get(Heightfield));
+
 					return entity.get(Heightfield);
 				}
 
