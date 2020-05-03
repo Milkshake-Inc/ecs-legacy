@@ -36,6 +36,8 @@ import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
 import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
+import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
+import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 
 const Acceleration = 0.01;
 const MaxSpeed = 15;
@@ -73,14 +75,24 @@ export class Ship extends Space {
 		this.boat2 = new Entity();
 		this.boat2.add(Transform, { x: 5, z: 20, y: 2 });
 		this.boat2.add(this.shipModel.scene.children[0].clone());
-		this.boat2.add(new Body({ material: this.slippy }));
+		this.boat2.add(new Body());
 
 		this.addEntities(this.boat2);
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
-		// this.addSystem(new ThirdPersonCameraSystem());
-		this.addSystem(new FreeRoamCameraSystem());
+
+        const player = new CharacterEntity(this.boxMan);
+		player.add(ThirdPersonTarget)
+		player.add(InputKeybindings.WASD());
+        this.addEntity(player);
+
+
+
+		this.addSystem(new CharacterControllerSystem());
+		this.addSystem(new ThirdPersonCameraSystem());
+
+
 		this.addSystem(new InputSystem());
 		this.addSystem(
 			functionalSystem([all(Transform, Input, Body)], {

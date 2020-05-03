@@ -21,10 +21,6 @@ export const contactMaterial = new ContactMaterial(characterMaterial, boatMateri
     friction: 1
 });
 
-
-export const material = new Material("characterMaterial");
-material.friction
-
 export default class CharacterEntity extends Entity {
     constructor(gtlf: GLTF, spawnPosition: Vector3 = Vector3.UP) {
         super();
@@ -38,12 +34,11 @@ export default class CharacterEntity extends Entity {
         this.add(new CannonBody({
             mass: 1,
             material: characterMaterial,
-            // fixedRotation: true,
+            fixedRotation: true,
         }), {
             offset: new Vector3(0, -0.2, 0),
         });
 
-        this.add(new Box(new Vec3(0.4, 0.4, 0.2)));
-        // this.add(new CapsuleShape(1, 0.2));
+        this.add(new CapsuleShape(1, 0.2));
     }
 }
