@@ -25,12 +25,12 @@ import {
 	TextureLoader
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import ThirdPersonTarget from '../components/ThirdPersonTarget';
+import ThirdPersonTarget from '../../engine/plugins/3d/systems/ThirdPersonTarget';
 import { ShipRenderState } from '../systems/ShipRenderSystem';
 import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
-import ThirdPersonCameraSystem from '../systems/ThirdPersonCameraSystem';
+import ThirdPersonCameraSystem from '../../engine/plugins/3d/systems/ThirdPersonCameraSystem';
 import { Material, Vec3 } from 'cannon';
 import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';

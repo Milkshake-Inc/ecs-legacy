@@ -28,9 +28,9 @@ export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | 
 
 			if (createdPhysicsObject instanceof Body) {
 				getPhysicsState().world.addBody(createdPhysicsObject);
-				createdPhysicsObject.addEventListener('collide', () => {
-					events.dispatchEntity(entity, 'COLLIDE');
-				});
+				// createdPhysicsObject.addEventListener('collide', () => {
+				// 	events.dispatchEntity(entity, 'COLLIDE');
+				// });
 			}
 
 			if (createdPhysicsObject instanceof Constraint) {

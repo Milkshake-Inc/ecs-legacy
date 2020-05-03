@@ -148,4 +148,25 @@ export default class Vector3 {
 
 		return new Vector3(x, y, z);
 	}
+
+	public static Dot(value1: Vector3, value2: Vector3)
+	{
+		return value1.x * value2.x + value1.y * value2.y + value1.z * value2.z;
+	}
+
+	public static Cross(value1: Vector3, value2: Vector3)
+	{
+		const x = value1.y * value2.z - value2.y * value1.z;
+		const y = -(value1.x * value2.z - value2.x * value1.z);
+		const z = value1.x * value2.y - value2.x * value1.y;
+
+		return new Vector3(x, y, z);
+	}
+
+	public static Normalize(value: Vector3): Vector3
+	{
+		let factor = Math.sqrt((value.x * value.x) + (value.y * value.y) + (value.z * value.z));
+		factor = 1 / factor;
+		return new Vector3(value.x * factor, value.y * factor, value.z * factor);
+	}
 }

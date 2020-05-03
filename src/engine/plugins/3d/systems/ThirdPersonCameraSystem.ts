@@ -5,7 +5,7 @@ import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
-import ThirdPersonTarget from '../components/ThirdPersonTarget';
+import ThirdPersonTarget from './ThirdPersonTarget';
 
 export default class ThirdPersonCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -52,15 +52,23 @@ export default class ThirdPersonCameraSystem extends System {
             y: mouse.y - this.lastPosition.y,
         }
 
-        this.cameraAngle.x += delta.x * 2;
-        this.cameraAngle.y -= delta.y * 2;
+        this.cameraAngle.x += delta.x * 4;
+        this.cameraAngle.y -= delta.y * 4;
 
 		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
 
         this.lastPosition = mouse;
     }
 
+	// Vector3 newForward = Vector3.Normalize(Position - GameState.Avatar.Position);
+	// calc the rotation so the avatar faces the target
+	// Rotation = Helpers.GetRotation(Vector3.Forward, newForward, Vector3.Up);
+	// Cannon.Shoot(Position, Rotation, this);
+
 	update(dt: number) {
+
+
+
 		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
 		this.acamera.quaternion.set(this.acamera.quaternion.x, this.acamera.quaternion.y, this.acamera.quaternion.z, this.acamera.quaternion.w);
 

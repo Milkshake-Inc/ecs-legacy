@@ -3,6 +3,9 @@ import Vector3 from '@ecs/math/Vector';
 import MathHelper from '@ecs/math/MathHelper';
 
 export default class CannonBody extends Body {
+
+	public offset: Vector3 = Vector3.ZERO;
+
 	rotate(euler: Vector3 | Vec3) {
 		this.quaternion.mult(new Quaternion().setFromEuler(euler.x, euler.y, euler.z), this.quaternion);
 	}
