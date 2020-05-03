@@ -197,6 +197,8 @@ export const useShapeCouple = (system: System) =>
 					return shapes;
 				}
 
+				// TODO: Still a bug in here somewhere around nested rotation of meshes.
+				// The rotation needs to also be applied to the spheres which currently isn't done by `position.add(center.applyQuaternion(rotation));`
 				if (entity.has(BoundingCapsuleShape)) {
 					const shapes: Cylinder[] = [];
 
@@ -215,9 +217,10 @@ export const useShapeCouple = (system: System) =>
 						const major = entity.get(BoundingCapsuleShape).axis;
 						const minor = axes.splice(axes.indexOf(major), 1) && axes;
 
-						const height = box.max[major] - box.min[major];
+						let height = box.max[major] - box.min[major];
 						const radius = 0.5 * Math.max(box.max[minor[0]] - box.min[minor[0]], box.max[minor[1]] - box.min[minor[1]]);
 
+						// Needs investigation.
 						position.add(center.applyQuaternion(rotation));
 						rotation = rotation.multiplyQuaternions(
 							rotation,
@@ -226,14 +229,38 @@ export const useShapeCouple = (system: System) =>
 							)
 						);
 
-						const shape = new Cylinder(radius, radius, height, 12);
+						if (entity.get(BoundingCapsuleShape).offsetRadius) {
+							height = height - radius * 2;
+						}
 
+						const cylinderShape = new Cylinder(radius, radius, height, 12);
 						body.addShape(
-							shape,
+							cylinderShape,
 							new Vec3(position.x, position.y, position.z),
 							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
 						);
-						shapes.push(shape);
+						shapes.push(cylinderShape);
+
+						const topSphereShape = new Sphere(radius);
+						const topSphereShapePos = new Vec3(position.x, position.y, position.z);
+						topSphereShapePos[major] -= height / 2;
+						body.addShape(
+							topSphereShape,
+							topSphereShapePos,
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+
+						shapes.push(topSphereShape);
+
+						const bottomSphereShape = new Sphere(radius);
+						const bottomSphereShapePos = new Vec3(position.x, position.y, position.z);
+						bottomSphereShapePos[major] += height / 2;
+						body.addShape(
+							bottomSphereShape,
+							bottomSphereShapePos,
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+						shapes.push(bottomSphereShape);
 					});
 
 					entity.add(shapes);
