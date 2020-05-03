@@ -16,7 +16,7 @@ import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion } from 'three';
+import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import CannonBody from '../components/CannonBody';
 import { Entity } from '@ecs/ecs/Entity';
@@ -140,24 +140,34 @@ export const useShapeCouple = (system: System) =>
 					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
 						console.log(`generating BoundingCylinder for ${mesh.name}`);
 
-						throw new Error('not implemented');
+						// Scale geometry to correct world size
+						geometry.scale(scale.x, scale.y, scale.z);
 
-						// // Scale geometry to correct world size
-						// geometry.scale(scale.x, scale.y, scale.z);
+						// Calculate bounding box and offset world position
+						geometry.computeBoundingBox();
+						const box = geometry.boundingBox;
+						const center = box.getCenter(new ThreeVector3());
+						position.add(center.applyQuaternion(rotation));
 
-						// // Calculate bounding box and offset world position
-						// geometry.computeBoundingBox();
-						// const center = geometry.boundingBox.getCenter(new ThreeVector3());
-						// const size = geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
-						// position.add(center.applyQuaternion(rotation));
+						const axes = ['x', 'y', 'z'];
+						const major = entity.get(BoundingCylinderShape).axis;
+						const minor = axes.splice(axes.indexOf(major), 1) && axes;
 
-						// const radius = Math.max(size.x, size.y);
+						const height = box.max[major] - box.min[major];
+						const radius = 0.5 * Math.max(box.max[minor[0]] - box.min[minor[0]], box.max[minor[1]] - box.min[minor[1]]);
 
-						// body.addShape(
-						// 	new Cylinder(radius, radius, size.y, 12),
-						// 	new Vec3(position.x, position.y, position.z),
-						// 	new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
-						// );
+						rotation = rotation.multiplyQuaternions(
+							rotation,
+							new ThreeQuaternion().setFromEuler(
+								new Euler(major == 'y' ? Math.PI / 2 : 0, major === 'z' ? Math.PI / 2 : 0, 0)
+							)
+						);
+
+						body.addShape(
+							new Cylinder(radius, radius, height, 12),
+							new Vec3(position.x, position.y, position.z),
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
 					});
 				}
 
