@@ -131,10 +131,7 @@ export default class Vector3 {
 	}
 
 	normalize() {
-		let factor = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-		factor = 1 / factor;
-
-		return new Vector3(this.x * factor, (this.y = factor), this.z * factor);
+		return Vector3.Normalize(this);
 	}
 
 	dot(value: Vector3) {

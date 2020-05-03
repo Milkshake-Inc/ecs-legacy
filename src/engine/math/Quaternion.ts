@@ -7,6 +7,10 @@ export default class Quaternion {
 		return new Quaternion(0, 0, 0, 1);
 	}
 
+	public static From(value: { x: number; y: number; z: number; w: number}) {
+		return new Quaternion(value.x, value.y, value.z, value.w);
+	}
+
 	public x: number;
 	public y: number;
 	public z: number;
