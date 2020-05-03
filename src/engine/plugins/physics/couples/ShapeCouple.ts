@@ -24,6 +24,7 @@ import BoundingSphereShape from '../components/BoundingSphereShape';
 import BoundingCylinderShape from '../components/BoundingCylinderShape';
 import BoundingBoxShape from '../components/BoundingBoxShape';
 import BoundingCapsuleShape from '../components/BoundingCapsuleShape';
+import CapsuleShape from '../components/CapsuleShape';
 
 export const NoMeshError = new Error('no mesh found :(');
 
@@ -46,7 +47,8 @@ export const useShapeCouple = (system: System) =>
 				BoundingSphereShape,
 				BoundingBoxShape,
 				BoundingCylinderShape,
-				BoundingCapsuleShape
+				BoundingCapsuleShape,
+				CapsuleShape
 			)
 		],
 		{
@@ -95,6 +97,47 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(Heightfield)) {
 					body.addShape(entity.get(Heightfield));
 					return entity.get(Heightfield);
+				}
+
+				if (entity.has(CapsuleShape)) {
+					const capsule = entity.get(CapsuleShape);
+
+					const shapes: Shape[] = [];
+
+					let height = capsule.height;
+					if (capsule.offsetRadius) {
+						height = capsule.height - capsule.radius * 2;
+					}
+
+					const position = new Vec3(0, height / 2, 0);
+
+					const major = entity.get(CapsuleShape).axis;
+					const rotation = new ThreeQuaternion().setFromEuler(
+						new Euler(major == 'y' ? Math.PI / 2 : 0, major == 'x' ? Math.PI / 2 : 0, major == 'z' ? Math.PI / 2 : 0)
+					);
+
+					const cylinderShape = new Cylinder(capsule.radius, capsule.radius, height, 12);
+					body.addShape(cylinderShape, position, new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+					shapes.push(cylinderShape);
+
+					const topSphereShape = new Sphere(capsule.radius);
+					const topSphereShapePos = position.clone();
+					topSphereShapePos[major] -= height / 2;
+					body.addShape(topSphereShape, topSphereShapePos, new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w));
+					shapes.push(topSphereShape);
+
+					const bottomSphereShape = new Sphere(capsule.radius);
+					const bottomSphereShapePos = position.clone();
+					bottomSphereShapePos[major] += height / 2;
+					body.addShape(
+						bottomSphereShape,
+						bottomSphereShapePos,
+						new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+					);
+					shapes.push(bottomSphereShape);
+
+					entity.add(shapes);
+					return shapes;
 				}
 
 				if (entity.has(BoundingBoxShape)) {
@@ -200,7 +243,7 @@ export const useShapeCouple = (system: System) =>
 				// TODO: Still a bug in here somewhere around nested rotation of meshes.
 				// The rotation needs to also be applied to the spheres which currently isn't done by `position.add(center.applyQuaternion(rotation));`
 				if (entity.has(BoundingCapsuleShape)) {
-					const shapes: Cylinder[] = [];
+					const shapes: Shape[] = [];
 
 					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
 						console.log(`generating BoundingCylinder for ${mesh.name}`);
