@@ -1,12 +1,16 @@
 import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
-import { all } from '@ecs/utils/QueryHelper';
+import { all, any } from '@ecs/utils/QueryHelper';
 import { useThreeCouple } from './ThreeCouple';
-import { Mesh } from 'three';
+import { Mesh, InstancedMesh } from 'three';
 
 export const useMeshCouple = (system: System) =>
-	useThreeCouple<Mesh>(system, all(Transform, Mesh), {
+	useThreeCouple<Mesh>(system, [all(Transform), any(Mesh, InstancedMesh)], {
 		onCreate: entity => {
+			if (entity.has(InstancedMesh)) {
+				return entity.get(InstancedMesh);
+			}
+
 			return entity.get(Mesh);
 		}
 	});

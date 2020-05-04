@@ -15,8 +15,6 @@ export const useBodyCouple = (system: System) =>
 			body.position.set(transform.x, transform.y, transform.z);
 			body.quaternion.set(transform.qx, transform.qy, transform.qz, transform.qw);
 
-
-
 			return body;
 		},
 		onUpdate: (entity, body, dt) => {
@@ -25,11 +23,9 @@ export const useBodyCouple = (system: System) =>
 			transform.position.set(body.position.x, body.position.y, body.position.z);
 			transform.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
 
-			if(entity.has(CannonBody)) {
+			if (entity.has(CannonBody)) {
 				const cannonBody = entity.get(CannonBody);
 				transform.position = transform.position.add(cannonBody.offset);
 			}
-
-
 		}
 	});
