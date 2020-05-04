@@ -2,7 +2,7 @@ import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
 import { useCannonCouple } from './CannonCouple';
-import { Body, Vec3 } from 'cannon';
+import { Body, Vec3 } from 'cannon-es';
 import CannonBody from '../components/CannonBody';
 import Quaternion from '@ecs/math/Quaternion';
 

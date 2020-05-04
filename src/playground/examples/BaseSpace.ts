@@ -70,7 +70,7 @@ export default class BaseSpace extends Space {
 				angularVelocity: new Vec3(Math.random() * 10, Math.random() * 10, Math.random() * 10)
 			})
 		);
-		entity.add(new CannonSphere(0.05));
+		entity.add(new CannonSphere(radius));
 
 		return entity;
 	}

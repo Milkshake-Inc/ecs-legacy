@@ -6,6 +6,11 @@ export type Vector = { x: number; y: number; z: number };
 // https://github.com/ManojLakshan/monogame/blob/master/MonoGame.Framework/Vector3.cs
 // https://github.com/photonstorm/phaser/blob/v2.4.4/src/geom/Point.js
 export default class Vector3 {
+
+	public static From(value: { x: number; y: number; z: number }): Vector3 {
+		return new Vector3(value.x, value.y, value.z);
+	}
+
 	public static get ZERO(): Vector3 {
 		return Vector3.EQUAL(0);
 	}

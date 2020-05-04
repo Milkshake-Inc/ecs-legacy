@@ -2,7 +2,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
-import { Box, Material, Vec3, ContactMaterial } from 'cannon';
+import { Box, Material, Vec3, ContactMaterial } from 'cannon-es';
 import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
 import Vector3 from '@ecs/math/Vector';
 import GLTFHolder from './../components/GLTFHolder';

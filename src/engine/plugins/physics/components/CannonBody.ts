@@ -1,4 +1,4 @@
-import { Body, Quaternion, Vec3 } from 'cannon';
+import { Body, Quaternion, Vec3 } from 'cannon-es';
 import Vector3 from '@ecs/math/Vector';
 import MathHelper from '@ecs/math/MathHelper';
 

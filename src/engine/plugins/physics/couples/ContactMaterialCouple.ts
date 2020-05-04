@@ -1,5 +1,5 @@
 import { all } from '@ecs/utils/QueryHelper';
-import { Transform, ContactMaterial } from 'cannon';
+import { Transform, ContactMaterial } from 'cannon-es';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 

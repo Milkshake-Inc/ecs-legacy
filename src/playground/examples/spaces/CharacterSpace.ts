@@ -13,7 +13,7 @@ import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSyste
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
-import { Body, Material, Plane, Vec3 } from 'cannon';
+import { Body, Material, Plane, Vec3 } from 'cannon-es';
 import { AmbientLight, BoxGeometry, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 

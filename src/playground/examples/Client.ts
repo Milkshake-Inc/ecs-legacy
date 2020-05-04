@@ -15,14 +15,15 @@ import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSyste
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
-import { Body, Material, Plane, Vec3, Box, Heightfield, Sphere as CannonSphere } from 'cannon';
+import { Body, Material, Plane, Vec3, Box, Heightfield, Sphere as CannonSphere } from 'cannon-es';
 import { AmbientLight, BoxGeometry, Color as ThreeColor, DirectionalLight, Fog, Mesh, MeshPhongMaterial, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture, Sphere, SphereGeometry, PlaneBufferGeometry } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import BaseSpace from './BaseSpace';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Quaternion from '@ecs/math/Quaternion';
 import TerrainSpace from './spaces/TerrainSpace';
-import AnimationSpace from './spaces/CharacterSpace';
+import CharacterSpace from './spaces/CharacterSpace';
+import VoxelSpace from './spaces/VoxelSpace';
 
 const engine = new ThreeEngine(
 	new RenderSystem({
@@ -38,7 +39,8 @@ const engine = new ThreeEngine(
 );
 
 engine.registerSpaces(new TerrainSpace(engine, "terrain"));
-engine.registerSpaces(new AnimationSpace(engine, "animation"));
+engine.registerSpaces(new CharacterSpace(engine, "animation"));
+engine.registerSpaces(new VoxelSpace(engine, "voxel"));
 
 
 engine.getSpace('terrain').open();

@@ -4,7 +4,7 @@ import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSy
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
-import { Heightfield } from 'cannon';
+import { Heightfield } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, PlaneBufferGeometry, RepeatWrapping } from 'three';
 import BaseSpace from './../BaseSpace';
 

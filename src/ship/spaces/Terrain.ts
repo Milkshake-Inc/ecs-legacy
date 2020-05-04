@@ -21,10 +21,10 @@ import Transform from '@ecs/plugins/Transform';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import Vector3 from '@ecs/math/Vector';
 import Color from '@ecs/math/Color';
-import { Heightfield, Material } from 'cannon';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler';
+import { Heightfield, Material } from 'cannon-es';
 
 const width = 100;
 const height = 100;

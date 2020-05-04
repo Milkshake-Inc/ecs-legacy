@@ -7,7 +7,7 @@ import {
 	HingeConstraint,
 	LockConstraint,
 	PointToPointConstraint
-} from 'cannon';
+} from 'cannon-es';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 

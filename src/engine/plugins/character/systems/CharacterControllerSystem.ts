@@ -5,7 +5,7 @@ import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
-import { Vec3 } from 'cannon';
+import { Vec3 } from 'cannon-es';
 import { AnimationAction, AnimationClip, AnimationMixer, PerspectiveCamera, Quaternion, Vector3 as ThreeVector3 } from 'three';
 import CharacterTag from '../components/CharacterTag';
 import GLTFHolder from '../components/GLTFHolder';

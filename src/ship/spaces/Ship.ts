@@ -31,17 +31,15 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../../engine/plugins/3d/systems/ThirdPersonCameraSystem';
-import { Material, Vec3 } from 'cannon';
+import { Material, Vec3 } from 'cannon-es';
 import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
-import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
-import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 
-const Acceleration = 0.03;
-const MaxSpeed = 15;
-const RotateAcceleration = 0.01;
+const Acceleration = 0.3;
+const MaxSpeed = 30;
+const RotateAcceleration = 0.02;
 const MaxRotationalSpeed = 3;
 const Friction = 0.03;
 const Gravity = new Vector3(0, -10, 0);
@@ -82,10 +80,10 @@ export class Ship extends Space {
 		this.addEntities(this.boat2);
 
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
 
         const player = new CharacterEntity(this.boxMan);
-		player.add(ThirdPersonTarget)
+		// player.add(ThirdPersonTarget)
 		player.add(InputKeybindings.WASD());
         this.addEntity(player);
 
@@ -102,23 +100,23 @@ export class Ship extends Space {
 					const input = entity.get(Input);
 					const body = entity.get(Body);
 
-					const velocity = new Vec3();
-					const angularVelocity = new Vec3();
+					let velocity = new Vector3();
+					let angularVelocity = Vector3.From(body.angularVelocity);
 
 					if (input.upDown) {
-						velocity.vadd(body.forward.mult(Acceleration * dt), velocity);
+						velocity = velocity.add(Vector3.FORWARD.multiF(Acceleration * dt))
 					}
 
 					if (input.downDown) {
-						velocity.vsub(body.forward.mult(Acceleration * dt), velocity);
+						velocity = velocity.add(Vector3.BACKWARD.multiF(Acceleration * dt))
 					}
 
 					if (input.leftDown) {
-						angularVelocity.vadd(body.up.mult(RotateAcceleration * dt), angularVelocity);
+						angularVelocity = angularVelocity.add(Vector3.UP.multiF(RotateAcceleration * dt));
 					}
 
 					if (input.rightDown) {
-						angularVelocity.vsub(body.up.mult(RotateAcceleration * dt), angularVelocity);
+						angularVelocity = angularVelocity.add(Vector3.DOWN.multiF(RotateAcceleration * dt));
 					}
 
 					if (this.postMaterial) {
@@ -139,17 +137,15 @@ export class Ship extends Space {
 					}
 
 					// Limit max speed
-					if (body.velocity.norm() < MaxSpeed) {
-						body.velocity.vadd(velocity, body.velocity);
+					velocity = velocity.multiF(100);
+					angularVelocity = angularVelocity.multiF(0.9);
+
+					if (body.velocity.length() < MaxSpeed) {
+						body.applyLocalForce(new Vec3(velocity.x, velocity.y, velocity.z), new Vec3(0, 0, 0));
 					}
 
-					if (body.angularVelocity.norm() < MaxRotationalSpeed) {
-						body.angularVelocity.vadd(angularVelocity, body.angularVelocity);
-					}
+					body.angularVelocity.set(angularVelocity.x, angularVelocity.y, angularVelocity.z);
 
-					// Friction
-					body.angularVelocity.mult(0.9, body.angularVelocity);
-					body.velocity.mult(0.99, body.velocity);
 
 					this.boat2.get(Body).lookAt(body);
 				}

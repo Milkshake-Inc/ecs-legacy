@@ -6,10 +6,11 @@ import { useShapeCouple } from '../couples/ShapeCouple';
 import { useContactMaterialCouple } from '../couples/ContactMaterialCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';
 import { useMaterialCouple } from '../couples/MaterialCouple';
-import { World, NaiveBroadphase } from 'cannon';
+import { World, NaiveBroadphase } from 'cannon-es';
 import Vector3 from '@ecs/math/Vector';
 import { any } from '@ecs/utils/QueryHelper';
 import RenderState from '@ecs/plugins/3d/components/RenderState';
+import CannonDebugRenderer from '../utils/CannonRenderer';
 
 export default class CannonPhysicsSystem extends System {
 	protected state = useState(this, new PhysicsState());
@@ -36,9 +37,8 @@ export default class CannonPhysicsSystem extends System {
 
 		this.state.world = new World();
 		this.state.gravity = gravity;
-		this.state.world.solver.iterations = iterations;
+
 		this.state.broadPhase = new NaiveBroadphase();
-		this.state.world.solver.iterations = iterations;
 		this.debug = debug;
 	}
 
@@ -65,11 +65,7 @@ export default class CannonPhysicsSystem extends System {
 	private createDebugRenderer() {
 		const scene = this.queries.renderState?.first?.get(RenderState).scene;
 		if (scene) {
-			// Legacy hacks...
-			global['THREE'] = require('three');
-			global['CANNON'] = require('cannon');
-			require('cannon/tools/threejs/CannonDebugRenderer');
-			this.debugRenderer = new global['THREE'].CannonDebugRenderer(scene, this.state.world);
+			this.debugRenderer = new CannonDebugRenderer(scene, this.state.world);
 		}
 	}
 }

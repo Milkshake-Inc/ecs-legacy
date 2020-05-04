@@ -11,8 +11,7 @@ import {
 	Box,
 	Vec3,
 	Quaternion as CannonQuaternion,
-	Quaternion
-} from 'cannon';
+} from 'cannon-es';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
@@ -59,6 +58,7 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(Shape)) {
 					const mesh = entity.get(Mesh);
 
+					// Not sure if needed?
 					const position = new ThreeVector3();
 					const scale = new ThreeVector3();
 					const rotation = new ThreeQuaternion();
@@ -111,8 +111,21 @@ export const useShapeCouple = (system: System) =>
 				}
 
 				if (entity.has(Heightfield)) {
-					// Doesn't get hit
-					body.addShape(entity.get(Heightfield));
+					const mesh = entity.get(Mesh);
+
+					const position = new ThreeVector3();
+					const scale = new ThreeVector3();
+					const rotation = new ThreeQuaternion();
+
+					mesh.updateMatrixWorld()
+					mesh.matrixWorld.decompose(position, rotation, scale);
+
+					mesh.geometry.computeBoundingBox();
+					const size = mesh.geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
+
+					const newRotation = new CannonQuaternion()
+					newRotation.setFromEuler(Math.PI, -Math.PI, Math.PI / 2);
+					body.addShape(entity.get(Heightfield), new Vec3(-size.x, size.y, 0), newRotation)
 
 					return entity.get(Heightfield);
 				}
@@ -335,12 +348,13 @@ export const useShapeCouple = (system: System) =>
 						console.log(`generating MeshShape for ${mesh.name}`);
 
 						const convexGeometry = new ConvexGeometry(geometry.vertices);
+						// convexGeometry.
 						convexGeometry.scale(scale.x, scale.y, scale.z);
 
 						const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
 						const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
 
-						const shape = new ConvexPolyhedron(vertices, faces as any);
+						const shape = new ConvexPolyhedron({ vertices, faces });
 						body.addShape(
 							shape,
 							new Vec3(position.x, position.y, position.z),

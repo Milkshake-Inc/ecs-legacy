@@ -1,7 +1,7 @@
 import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
-import { Body, Shape, Constraint, ContactMaterial, Material } from 'cannon';
+import { Body, Shape, Constraint, ContactMaterial, Material } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -54,7 +54,7 @@ export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | 
 		},
 		onDestroy: (entity, physicsObject) => {
 			if (physicsObject instanceof Body) {
-				getPhysicsState().world.remove(physicsObject);
+				getPhysicsState().world.removeBody(physicsObject);
 			}
 		}
 	});
