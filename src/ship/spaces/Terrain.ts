@@ -19,12 +19,13 @@ import {
 } from 'three';
 import Transform from '@ecs/plugins/Transform';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
-import Vector3 from '@ecs/math/Vector';
 import Color from '@ecs/math/Color';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler';
-import { Heightfield, Material } from 'cannon-es';
+import { Heightfield, Material, Box, Vec3 } from 'cannon-es';
+import CannonInstancedBody from '@ecs/plugins/physics/components/CannonInstancedBody';
+import { PhysicsGroup } from './Ship';
 
 const width = 100;
 const height = 100;
@@ -34,7 +35,7 @@ const scale = 5;
 const GRASS = 0x82c62d;
 const BLUE = 0x249bbd;
 
-const flowerCount = 2000;
+const flowerCount = 1000;
 const flowerScale = 3;
 const flowerPosition = new ThreeVector3();
 const flowerNormal = new ThreeVector3();
@@ -133,10 +134,24 @@ export class Terrain extends Space {
 		const stems = new Entity();
 		stems.add(Transform, { y: -20, rx: -Math.PI / 2 });
 		stems.add(this.instancedStem);
+		// stems.add(CannonInstancedBody, {
+		// 	options: {
+		// 		collisionFilterGroup: PhysicsGroup.Flowers,
+		// 		collisionFilterMask: PhysicsGroup.Player
+		// 	}
+		// });
+		// stems.add(new Box(new Vec3(0.5, 0.5, 0.5)));
 
 		const blossoms = new Entity();
 		blossoms.add(Transform, { y: -20, rx: -Math.PI / 2 });
 		blossoms.add(this.instancedBlossom);
+		// blossoms.add(CannonInstancedBody, {
+		// 	options: {
+		// 		collisionFilterGroup: PhysicsGroup.Flowers,
+		// 		collisionFilterMask: PhysicsGroup.Player
+		// 	}
+		// });
+		// blossoms.add(new Box(new Vec3(0.5, 0.5, 0.5)));
 
 		this.sampler = new MeshSurfaceSampler(terrainMesh).build();
 
@@ -232,7 +247,9 @@ export class Terrain extends Space {
 			)
 		);
 		terrain.add(new CannonBody(), {
-			material: terrainMaterial
+			material: terrainMaterial,
+			collisionFilterGroup: PhysicsGroup.Terrain,
+			collisionFilterMask: PhysicsGroup.Player
 		});
 		terrain.add(heightfield);
 

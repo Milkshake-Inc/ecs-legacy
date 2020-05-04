@@ -1,17 +1,21 @@
-import { Body, Quaternion, Vec3 } from 'cannon-es';
+import { Body, Quaternion, Vec3, BodyOptions } from 'cannon-es';
 import Vector3 from '@ecs/math/Vector';
 import MathHelper from '@ecs/math/MathHelper';
+import { ToCannonVector3 } from '../utils/Conversions';
 
 export default class CannonBody extends Body {
+	public offset: Vector3 = null;
 
-	public offset: Vector3 = Vector3.ZERO;
+	constructor(options?: BodyOptions) {
+		super(options);
+	}
 
 	rotate(euler: Vector3 | Vec3) {
 		this.quaternion.mult(new Quaternion().setFromEuler(euler.x, euler.y, euler.z), this.quaternion);
 	}
 
 	look(direction: Vector3 | Vec3 = Vector3.FORWARD) {
-		return this.quaternion.vmult(CannonBody.ToVec3(direction));
+		return this.quaternion.vmult(ToCannonVector3(direction));
 	}
 
 	// Still a bit buggy
@@ -20,7 +24,7 @@ export default class CannonBody extends Body {
 	lookAt(body: CannonBody, up: Vector3 | Vec3 = Vector3.FORWARD) {
 		const direction = body.position.vsub(this.position);
 		direction.normalize();
-		const dot = CannonBody.ToVec3(Vector3.FORWARD).dot(direction);
+		const dot = ToCannonVector3(Vector3.FORWARD).dot(direction);
 
 		if (Math.abs(dot - -1) < 0.000001) {
 			this.quaternion.set(up.x, up.y, up.z, MathHelper.toRadians(180.0));
@@ -34,7 +38,7 @@ export default class CannonBody extends Body {
 
 		const rotAngle = Math.acos(dot);
 
-		const axis = CannonBody.ToVec3(up).cross(direction);
+		const axis = ToCannonVector3(up).cross(direction);
 		axis.normalize();
 
 		this.quaternion.setFromAxisAngle(axis, rotAngle);
@@ -63,15 +67,5 @@ export default class CannonBody extends Body {
 
 	get down() {
 		return this.look(Vector3.DOWN);
-	}
-
-	static ToVec3(value: Vec3 | Vector3) {
-		if (value instanceof Vec3) return value;
-		return new Vec3(value.x, value.y, value.z);
-	}
-
-	static ToVector3(value: Vec3 | Vector3) {
-		if (value instanceof Vector3) return value;
-		return new Vector3(value.x, value.y, value.z);
 	}
 }

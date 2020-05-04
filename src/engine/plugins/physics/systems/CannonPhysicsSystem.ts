@@ -6,11 +6,12 @@ import { useShapeCouple } from '../couples/ShapeCouple';
 import { useContactMaterialCouple } from '../couples/ContactMaterialCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';
 import { useMaterialCouple } from '../couples/MaterialCouple';
-import { World, NaiveBroadphase } from 'cannon-es';
+import { World, SAPBroadphase } from 'cannon-es';
 import Vector3 from '@ecs/math/Vector';
 import { any } from '@ecs/utils/QueryHelper';
 import RenderState from '@ecs/plugins/3d/components/RenderState';
 import CannonDebugRenderer from '../utils/CannonRenderer';
+import { useInstancedBodyCouple } from '../couples/InstancedBodyCouple';
 
 export default class CannonPhysicsSystem extends System {
 	protected state = useState(this, new PhysicsState());
@@ -18,6 +19,7 @@ export default class CannonPhysicsSystem extends System {
 	// Query passed in must be added to engine.... & update has to be called manually
 	protected couples = [
 		useBodyCouple(this),
+		useInstancedBodyCouple(this),
 		useShapeCouple(this),
 		useConstraintCouple(this),
 		useContactMaterialCouple(this),
@@ -38,7 +40,7 @@ export default class CannonPhysicsSystem extends System {
 		this.state.world = new World();
 		this.state.gravity = gravity;
 
-		this.state.broadPhase = new NaiveBroadphase();
+		this.state.broadPhase = new SAPBroadphase(this.state.world);
 		this.debug = debug;
 	}
 

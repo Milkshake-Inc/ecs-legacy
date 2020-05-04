@@ -6,7 +6,6 @@ export type Vector = { x: number; y: number; z: number };
 // https://github.com/ManojLakshan/monogame/blob/master/MonoGame.Framework/Vector3.cs
 // https://github.com/photonstorm/phaser/blob/v2.4.4/src/geom/Point.js
 export default class Vector3 {
-
 	public static From(value: { x: number; y: number; z: number }): Vector3 {
 		return new Vector3(value.x, value.y, value.z);
 	}
@@ -151,13 +150,36 @@ export default class Vector3 {
 		return new Vector3(x, y, z);
 	}
 
-	public static Dot(value1: Vector3, value2: Vector3)
-	{
+	applyQuaternion(q: Quaternion) {
+		const x = this.x,
+			y = this.y,
+			z = this.z;
+		const qx = q.x,
+			qy = q.y,
+			qz = q.z,
+			qw = q.w;
+
+		// calculate quat * vector
+
+		const ix = qw * x + qy * z - qz * y;
+		const iy = qw * y + qz * x - qx * z;
+		const iz = qw * z + qx * y - qy * x;
+		const iw = -qx * x - qy * y - qz * z;
+
+		// calculate result * inverse quat
+
+		return new Vector3(
+			ix * qw + iw * -qx + iy * -qz - iz * -qy,
+			iy * qw + iw * -qy + iz * -qx - ix * -qz,
+			iz * qw + iw * -qz + ix * -qy - iy * -qx
+		);
+	}
+
+	public static Dot(value1: Vector3, value2: Vector3) {
 		return value1.x * value2.x + value1.y * value2.y + value1.z * value2.z;
 	}
 
-	public static Cross(value1: Vector3, value2: Vector3)
-	{
+	public static Cross(value1: Vector3, value2: Vector3) {
 		const x = value1.y * value2.z - value2.y * value1.z;
 		const y = -(value1.x * value2.z - value2.x * value1.z);
 		const z = value1.x * value2.y - value2.x * value1.y;
@@ -165,9 +187,8 @@ export default class Vector3 {
 		return new Vector3(x, y, z);
 	}
 
-	public static Normalize(value: Vector3): Vector3
-	{
-		let factor = Math.sqrt((value.x * value.x) + (value.y * value.y) + (value.z * value.z));
+	public static Normalize(value: Vector3): Vector3 {
+		let factor = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
 		factor = 1 / factor;
 		return new Vector3(value.x * factor, value.y * factor, value.z * factor);
 	}

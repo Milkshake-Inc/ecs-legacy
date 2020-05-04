@@ -3,10 +3,11 @@ import { System } from '@ecs/ecs/System';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { Body, Shape, Constraint, ContactMaterial, Material } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
+import CannonInstancedBody from '../components/CannonInstancedBody';
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | ContactMaterial | Material>(
+export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | ContactMaterial | Material | CannonInstancedBody>(
 	system: System,
 	physicsObject: QueryPattern | QueryPattern[],
 	callbacks: Optional<CoupleCallbacks<T>, 'onUpdate' | 'onDestroy'>
@@ -16,8 +17,6 @@ export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | 
 		physicsObject
 	});
 
-	const events = useEvents(system);
-
 	const getPhysicsState = () => {
 		return query.physicsState.first.get(PhysicsState);
 	};
@@ -25,24 +24,26 @@ export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | 
 	return useCouple<T>(query.physicsObject, {
 		onCreate: entity => {
 			const createdPhysicsObject = callbacks.onCreate(entity);
+			const world = getPhysicsState().world;
 
 			if (createdPhysicsObject instanceof Body) {
-				getPhysicsState().world.addBody(createdPhysicsObject);
-				// createdPhysicsObject.addEventListener('collide', () => {
-				// 	events.dispatchEntity(entity, 'COLLIDE');
-				// });
+				world.addBody(createdPhysicsObject);
+			}
+
+			if (createdPhysicsObject instanceof CannonInstancedBody) {
+				createdPhysicsObject.bodies.forEach(b => world.addBody(b));
 			}
 
 			if (createdPhysicsObject instanceof Constraint) {
-				getPhysicsState().world.addConstraint(createdPhysicsObject);
+				world.addConstraint(createdPhysicsObject);
 			}
 
 			if (createdPhysicsObject instanceof ContactMaterial) {
-				getPhysicsState().world.addContactMaterial(createdPhysicsObject);
+				world.addContactMaterial(createdPhysicsObject);
 			}
 
 			if (createdPhysicsObject instanceof Material) {
-				getPhysicsState().world.addMaterial(createdPhysicsObject);
+				world.addMaterial(createdPhysicsObject);
 			}
 
 			return createdPhysicsObject;

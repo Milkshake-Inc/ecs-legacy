@@ -10,13 +10,13 @@ import {
 	ConvexPolyhedron,
 	Box,
 	Vec3,
-	Quaternion as CannonQuaternion,
+	Quaternion as CannonQuaternion
 } from 'cannon-es';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler } from 'three';
+import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler, InstancedMesh } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import CannonBody from '../components/CannonBody';
 import { Entity } from '@ecs/ecs/Entity';
@@ -25,15 +25,17 @@ import BoundingCylinderShape from '../components/BoundingCylinderShape';
 import BoundingBoxShape from '../components/BoundingBoxShape';
 import BoundingCapsuleShape from '../components/BoundingCapsuleShape';
 import CapsuleShape from '../components/CapsuleShape';
+import CannonInstancedBody from '../components/CannonInstancedBody';
 
 export const NoMeshError = new Error('no mesh found :(');
+export const UnexpectedShapeError = new Error('should not use shape on entity');
 
 export const useShapeCouple = (system: System) =>
 	useCannonCouple<Shape | Shape[]>(
 		system,
 		[
 			all(Transform),
-			any(Body, CannonBody),
+			any(Body, CannonBody, CannonInstancedBody),
 			any(
 				Shape,
 				Particle,
@@ -53,27 +55,10 @@ export const useShapeCouple = (system: System) =>
 		],
 		{
 			onCreate: entity => {
-				const body = entity.get(CannonBody) || entity.get(Body);
+				const body = getBody(entity);
 
 				if (entity.has(Shape)) {
-					const mesh = entity.get(Mesh);
-
-					// Not sure if needed?
-					const position = new ThreeVector3();
-					const scale = new ThreeVector3();
-					const rotation = new ThreeQuaternion();
-
-					mesh.updateMatrixWorld()
-					mesh.matrixWorld.decompose(position, rotation, scale);
-
-					mesh.geometry.computeBoundingBox();
-					const size = mesh.geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
-
-					const newRotation = new CannonQuaternion()
-					newRotation.setFromEuler(Math.PI, -Math.PI, Math.PI / 2);
-					body.addShape(entity.get(Shape), new Vec3(-size.x, size.y, 0), newRotation);
-
-					return entity.get(Shape);
+					throw UnexpectedShapeError;
 				}
 
 				if (entity.has(Particle)) {
@@ -111,21 +96,21 @@ export const useShapeCouple = (system: System) =>
 				}
 
 				if (entity.has(Heightfield)) {
-					const mesh = entity.get(Mesh);
+					const mesh = getMesh(entity);
 
 					const position = new ThreeVector3();
 					const scale = new ThreeVector3();
 					const rotation = new ThreeQuaternion();
 
-					mesh.updateMatrixWorld()
+					mesh.updateMatrixWorld();
 					mesh.matrixWorld.decompose(position, rotation, scale);
 
 					mesh.geometry.computeBoundingBox();
 					const size = mesh.geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
 
-					const newRotation = new CannonQuaternion()
+					const newRotation = new CannonQuaternion();
 					newRotation.setFromEuler(Math.PI, -Math.PI, Math.PI / 2);
-					body.addShape(entity.get(Heightfield), new Vec3(-size.x, size.y, 0), newRotation)
+					body.addShape(entity.get(Heightfield), new Vec3(-size.x, size.y, 0), newRotation);
 
 					return entity.get(Heightfield);
 				}
@@ -374,7 +359,7 @@ export const applyToMeshesIndividually = (
 	entity: Entity,
 	callback: (data: { mesh: Mesh; geometry: Geometry; position: ThreeVector3; scale: ThreeVector3; rotation: ThreeQuaternion }) => void
 ) => {
-	let object3d = entity.get(Mesh) || entity.get(Group);
+	let object3d = getObject3d(entity);
 	if (!object3d) throw NoMeshError;
 
 	// Reset position and rotation applied on the entity, it's accounted for later from position applied later
@@ -400,4 +385,16 @@ export const applyToMeshesIndividually = (
 			callback({ mesh, geometry: mesh.geometry, position, scale, rotation });
 		}
 	});
+};
+
+export const getObject3d = (entity: Entity) => {
+	return entity.get(Mesh) || entity.get(InstancedMesh) || entity.get(Group);
+};
+
+export const getMesh = (entity: Entity) => {
+	return entity.get(Mesh) || entity.get(InstancedMesh);
+};
+
+export const getBody = (entity: Entity) => {
+	return entity.get(CannonBody) || entity.get(CannonInstancedBody) || entity.get(Body);
 };

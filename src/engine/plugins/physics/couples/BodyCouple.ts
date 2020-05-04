@@ -2,9 +2,8 @@ import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
 import { useCannonCouple } from './CannonCouple';
-import { Body, Vec3 } from 'cannon-es';
+import { Body } from 'cannon-es';
 import CannonBody from '../components/CannonBody';
-import Quaternion from '@ecs/math/Quaternion';
 
 export const useBodyCouple = (system: System) =>
 	useCannonCouple<Body>(system, [all(Transform), any(Body, CannonBody)], {
@@ -23,8 +22,8 @@ export const useBodyCouple = (system: System) =>
 			transform.position.set(body.position.x, body.position.y, body.position.z);
 			transform.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
 
-			if (entity.has(CannonBody)) {
-				const cannonBody = entity.get(CannonBody);
+			const cannonBody = entity.get(CannonBody);
+			if (cannonBody && cannonBody.offset) {
 				transform.position = transform.position.add(cannonBody.offset);
 			}
 		}

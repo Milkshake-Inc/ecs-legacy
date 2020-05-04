@@ -32,10 +32,10 @@ import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../../engine/plugins/3d/systems/ThirdPersonCameraSystem';
 import { Material, Vec3 } from 'cannon-es';
-import Body from '@ecs/plugins/physics/components/CannonBody';
 import MathHelper from '@ecs/math/MathHelper';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 const Acceleration = 0.3;
 const MaxSpeed = 30;
@@ -43,6 +43,13 @@ const RotateAcceleration = 0.02;
 const MaxRotationalSpeed = 3;
 const Friction = 0.03;
 const Gravity = new Vector3(0, -10, 0);
+
+// Collision filter groups - must be powers of 2!
+export enum PhysicsGroup {
+	Terrain = 1,
+	Player = 2,
+	Flowers = 4
+}
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
@@ -72,43 +79,33 @@ export class Ship extends Space {
 		// this.setupTerrain();
 		this.setupPlayer();
 
-		this.boat2 = new Entity();
-		this.boat2.add(Transform, { x: 5, z: 20, y: 2 });
-		this.boat2.add(this.shipModel.scene.children[0].clone());
-		this.boat2.add(new Body());
-
-		this.addEntities(this.boat2);
-
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, true));
+		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
 
-        const player = new CharacterEntity(this.boxMan);
+		const player = new CharacterEntity(this.boxMan);
 		// player.add(ThirdPersonTarget)
 		player.add(InputKeybindings.WASD());
-        this.addEntity(player);
-
-
+		this.addEntity(player);
 
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new ThirdPersonCameraSystem());
 
-
 		this.addSystem(new InputSystem());
 		this.addSystem(
-			functionalSystem([all(Transform, Input, Body)], {
+			functionalSystem([all(Transform, Input, CannonBody)], {
 				entityUpdateFixed: (entity, dt) => {
 					const input = entity.get(Input);
-					const body = entity.get(Body);
+					const body = entity.get(CannonBody);
 
 					let velocity = new Vector3();
 					let angularVelocity = Vector3.From(body.angularVelocity);
 
 					if (input.upDown) {
-						velocity = velocity.add(Vector3.FORWARD.multiF(Acceleration * dt))
+						velocity = velocity.add(Vector3.FORWARD.multiF(Acceleration * dt));
 					}
 
 					if (input.downDown) {
-						velocity = velocity.add(Vector3.BACKWARD.multiF(Acceleration * dt))
+						velocity = velocity.add(Vector3.BACKWARD.multiF(Acceleration * dt));
 					}
 
 					if (input.leftDown) {
@@ -145,9 +142,6 @@ export class Ship extends Space {
 					}
 
 					body.angularVelocity.set(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-
-
-					this.boat2.get(Body).lookAt(body);
 				}
 			})
 		);
@@ -160,7 +154,14 @@ export class Ship extends Space {
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
 		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
-		ship.add(new Body({ mass: 20, material: this.slippy }));
+		ship.add(
+			new CannonBody({
+				mass: 20,
+				material: this.slippy,
+				collisionFilterGroup: PhysicsGroup.Player,
+				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Flowers
+			})
+		);
 		ship.add(MeshShape);
 
 		this.addEntities(ship);
@@ -170,7 +171,13 @@ export class Ship extends Space {
 		const island = new Entity();
 		island.add(Transform, { y: -0.5 });
 		island.add(this.islandModel.scene);
-		island.add(new Body({ material: this.slippy }));
+		island.add(
+			new CannonBody({
+				material: this.slippy,
+				collisionFilterGroup: PhysicsGroup.Terrain,
+				collisionFilterMask: PhysicsGroup.Player
+			})
+		);
 		island.add(MeshShape);
 
 		this.island = island;
