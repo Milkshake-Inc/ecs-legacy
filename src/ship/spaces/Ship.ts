@@ -22,7 +22,8 @@ import {
 	PerspectiveCamera,
 	PlaneBufferGeometry,
 	ShaderMaterial,
-	TextureLoader
+	TextureLoader,
+	HemisphereLight
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import ThirdPersonTarget from '../../engine/plugins/3d/systems/ThirdPersonTarget';
@@ -36,6 +37,7 @@ import MathHelper from '@ecs/math/MathHelper';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 
 const Acceleration = 0.3;
 const MaxSpeed = 30;
@@ -88,7 +90,8 @@ export class Ship extends Space {
 		this.addEntity(player);
 
 		this.addSystem(new CharacterControllerSystem());
-		this.addSystem(new ThirdPersonCameraSystem());
+		// this.addSystem(new ThirdPersonCameraSystem());
+		this.addSystem(new FreeRoamCameraSystem());
 
 		this.addSystem(new InputSystem());
 		this.addSystem(
@@ -149,7 +152,7 @@ export class Ship extends Space {
 
 	protected setupPlayer() {
 		const ship = new Entity();
-		ship.add(Transform, { z: 20, y: 20 });
+		ship.add(Transform, { z: 20, y: 70 });
 		ship.add(Input);
 		ship.add(InputKeybindings.WASD());
 		ship.add(this.shipModel.scene.children[0]);
@@ -192,7 +195,9 @@ export class Ship extends Space {
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1));
+		light.add(new HemisphereLight());
 		light.add(Transform, { x: 1, y: 1, z: 0 });
+		light.get(HemisphereLight).intensity = 0.35;
 
 		const cam = camera.get(PerspectiveCamera);
 		this.postMaterial = new ShaderMaterial({

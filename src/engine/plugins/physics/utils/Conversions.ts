@@ -9,7 +9,7 @@ export const ToCannonVector3 = (value: { x: number; y: number; z: number }) => {
 	return new Vec3(value.x, value.y, value.z);
 };
 
-export const ToThreeVec3 = (value: { x: number; y: number; z: number }) => {
+export const ToThreeVector3 = (value: { x: number; y: number; z: number }) => {
 	if (value instanceof ThreeVector3) return value;
 	if (!value) return undefined;
 	return new ThreeVector3(value.x, value.y, value.z);
