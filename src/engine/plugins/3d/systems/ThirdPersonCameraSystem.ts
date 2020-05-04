@@ -4,7 +4,7 @@ import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
-import { PerspectiveCamera } from 'three';
+import { PerspectiveCamera, Matrix4, Vector3 as ThreeVector3, Quaternion, Euler } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
 
 export default class ThirdPersonCameraSystem extends System {
@@ -12,7 +12,7 @@ export default class ThirdPersonCameraSystem extends System {
 	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
 	private zoom = 4;
-
+	private locked = false;
 	private queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera),
 		target: all(Transform, ThirdPersonTarget)
@@ -21,8 +21,22 @@ export default class ThirdPersonCameraSystem extends System {
 	constructor() {
 		super()
 
-		window.addEventListener("mousemove", this.handleMouseMove.bind(this));
+		const requestedElement = document.body;
+
+		requestedElement.addEventListener("click", () => {
+			document.body.requestPointerLock();
+		})
+
+		document.body.addEventListener("mousemove", this.handleMouseMove.bind(this));
 		window.addEventListener("wheel", this.handleMouseWheel.bind(this));
+
+		document.addEventListener('pointerlockchange', (event) => {
+			this.locked = document.pointerLockElement === requestedElement;
+		}, false);
+	}
+
+	changeCallback() {
+
 	}
 
 	get target() {
@@ -42,20 +56,29 @@ export default class ThirdPersonCameraSystem extends System {
 	}
 
 	handleMouseMove(event: MouseEvent) {
-        const mouse = {
+
+
+
+		const mouse = this.locked ? {
+            x: event.movementX / 500,
+            y: -event.movementY / 500
+        } : {
             x: (event.clientX / window.innerWidth) * 2 - 1,
             y: -(event.clientY / window.innerHeight) * 2 + 1
-        }
+        };
 
-        const delta = {
+        const delta = this.locked ? {
+            x: mouse.x,
+            y: mouse.y,
+        } : {
             x: mouse.x - this.lastPosition.x,
             y: mouse.y - this.lastPosition.y,
         }
 
-        this.cameraAngle.x += delta.x * 4;
-        this.cameraAngle.y -= delta.y * 4;
+        this.cameraAngle.x += delta.x *  2;
+        this.cameraAngle.y -= delta.y *  2;
 
-		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
+		// this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
 
         this.lastPosition = mouse;
     }
@@ -66,9 +89,6 @@ export default class ThirdPersonCameraSystem extends System {
 	// Cannon.Shoot(Position, Rotation, this);
 
 	update(dt: number) {
-
-
-
 		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
 		this.acamera.quaternion.set(this.acamera.quaternion.x, this.acamera.quaternion.y, this.acamera.quaternion.z, this.acamera.quaternion.w);
 
@@ -81,5 +101,6 @@ export default class ThirdPersonCameraSystem extends System {
 		this.camera.x = this.target.x + angleX;
 		this.camera.z = this.target.z + angleY;
 		this.camera.y = this.target.y + yAngle;
+
 	}
 }

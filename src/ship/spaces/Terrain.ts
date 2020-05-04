@@ -15,7 +15,8 @@ import {
 	Vector3 as ThreeVector3,
 	Object3D,
 	PlaneBufferGeometry,
-	BufferAttribute
+	BufferAttribute,
+	Vector2
 } from 'three';
 import Transform from '@ecs/plugins/Transform';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
@@ -195,8 +196,24 @@ export class Terrain extends Space {
 				const worldX = x * sizePerQuad;
 				const worldY = y * sizePerQuad;
 
-				heightValue += linearNoise(this.noise(worldX / resolution, 0, worldY / resolution)) * 20 * 2;
-				// heightValue += linearNoise(this.noise(worldX / resolution2, 0, worldY / resolution2));
+				const distance = new Vector3(x - (widthVertices / 2), 0, y - (widthVertices / 2)).distance(new Vector3(0, 0, 0));
+				const app = (distance / 75);
+				// console.log(distance);
+
+				const easeInCubic = t => t*t*t;
+				const easeInOutCubic = t => t<.5 ? 4*t*t*t : (t-1)*(2*t-2)*(2*t-2)+1;
+
+				const easeInExpo = (x: number): number => {
+					return x === 0 ? 0 : Math.pow(2, 10 * x - 10);
+					}
+
+				// heightValue *= ;
+				heightValue += linearNoise(this.noise(worldX / 60, 0, worldY / 60)) * 120;
+				heightValue += linearNoise(this.noise(worldX / resolution, 0, worldY / resolution)) * 40;
+
+				heightValue *= (1 - app);
+				heightValue += linearNoise(this.noise(worldX / 10, 0, worldY / 10)) * 5;
+				heightValue = Math.max(heightValue, 0);
 				// if (v.z < oceanFloor) {
 				// 	v.z = oceanFloor;
 				// }
