@@ -7,11 +7,12 @@ import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import Color from '@ecs/math/Color';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
-import { Heightfield, Material } from 'cannon-es';
+import { Heightfield, Material, Box, Vec3 } from 'cannon-es';
 import { PhysicsGroup } from './Ship';
 import { generateInstancedMesh, getMeshByMaterialName } from '@ecs/plugins/3d/utils/meshUtils';
 import Vector3 from '@ecs/math/Vector';
 import Random from '@ecs/math/Random';
+import CannonInstancedBody from '@ecs/plugins/physics/components/CannonInstancedBody';
 
 const GRASS = 0x82c62d;
 
@@ -78,6 +79,13 @@ export class Terrain extends Space {
 
 			const wood = new Entity();
 			wood.add(Transform, { y: -20 });
+			// wood.add(
+			// 	new CannonInstancedBody({
+			// 		collisionFilterGroup: PhysicsGroup.Folliage,
+			// 		collisionFilterMask: PhysicsGroup.Player
+			// 	})
+			// );
+			// wood.add(new Box(new Vec3(1, 1, 1)));
 			wood.add(v.woodMesh);
 
 			this.addEntities(leaf, wood);

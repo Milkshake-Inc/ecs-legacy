@@ -5,6 +5,10 @@ export default class InputKeybindings {
 		return new InputKeybindings([Key.D], [Key.A], [Key.W], [Key.S]);
 	}
 
+	public static WASDINVERSE() {
+		return new InputKeybindings([Key.D], [Key.A], [Key.S], [Key.W]);
+	}
+
 	public static ARROW() {
 		return new InputKeybindings([Key.RIGHT], [Key.LEFT], [Key.UP], [Key.DOWN]);
 	}

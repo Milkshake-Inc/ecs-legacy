@@ -52,7 +52,7 @@ const Gravity = new Vector3(0, -10, 0);
 export enum PhysicsGroup {
 	Terrain = 1,
 	Player = 2,
-	Flowers = 4
+	Folliage = 4
 }
 
 export class Ship extends Space {
@@ -89,7 +89,10 @@ export class Ship extends Space {
 
 		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 20, -100));
 		// player.add(ThirdPersonTarget)
-		player.add(InputKeybindings.WASD());
+		player.add(InputKeybindings.WASDINVERSE());
+		player.get(CannonBody).collisionFilterGroup = PhysicsGroup.Player;
+		player.get(CannonBody).collisionFilterMask = PhysicsGroup.Terrain | PhysicsGroup.Folliage;
+
 		this.addEntity(player);
 		const ship = new Entity();
 		ship.add(Transform, { x: -180, y: 20, z: -100 });
@@ -102,7 +105,7 @@ export class Ship extends Space {
 				mass: 20,
 				material: this.slippy,
 				collisionFilterGroup: PhysicsGroup.Player,
-				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Flowers
+				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Folliage
 			})
 		);
 		ship.add(MeshShape);
