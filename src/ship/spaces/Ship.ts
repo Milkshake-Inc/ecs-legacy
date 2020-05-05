@@ -38,6 +38,8 @@ import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
+import CameraSwitchState, { CameraSwitchType } from '../components/CameraSwitchState';
+import Key from '@ecs/input/Key';
 
 const Acceleration = 0.3;
 const MaxSpeed = 30;
@@ -60,7 +62,9 @@ export class Ship extends Space {
 	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
-	protected boat2: Entity;
+	protected ship: Entity;
+	protected thirdPersonCameraSystem = new ThirdPersonCameraSystem();
+	protected freeRoamCameraSystem = new FreeRoamCameraSystem();
 
 	constructor(engine: Engine) {
 		super(engine, 'ship');
@@ -79,21 +83,66 @@ export class Ship extends Space {
 	setup() {
 		this.setupEnvironment();
 		// this.setupTerrain();
-		this.setupPlayer();
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
 
-		const player = new CharacterEntity(this.boxMan);
+		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 20, -100));
 		// player.add(ThirdPersonTarget)
 		player.add(InputKeybindings.WASD());
 		this.addEntity(player);
+		const ship = new Entity();
+		ship.add(Transform, { x: -180, y: 20, z: -100 });
+		ship.add(Input);
+		ship.add(InputKeybindings.WASD());
+		ship.add(this.shipModel.scene.children[0]);
+		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
+		ship.add(
+			new CannonBody({
+				mass: 20,
+				material: this.slippy,
+				collisionFilterGroup: PhysicsGroup.Player,
+				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Flowers
+			})
+		);
+		ship.add(MeshShape);
+		this.addEntity(ship);
 
 		this.addSystem(new CharacterControllerSystem());
-		// this.addSystem(new ThirdPersonCameraSystem());
-		this.addSystem(new FreeRoamCameraSystem());
+		this.addSystem(this.thirdPersonCameraSystem);
 
 		this.addSystem(new InputSystem());
+
+		this.addSystem(
+			functionalSystem([all(CameraSwitchState, Input)], {
+				entityUpdateFixed: (entity, dt) => {
+					const input = entity.get(Input);
+					const cameraState = entity.get(CameraSwitchState);
+
+					if (input.jumpDown) {
+						switch (cameraState.state) {
+							case CameraSwitchType.Ship:
+								cameraState.state = CameraSwitchType.Player;
+								ship.remove(ThirdPersonTarget);
+								player.add(ThirdPersonTarget);
+								break;
+							case CameraSwitchType.Player:
+								cameraState.state = CameraSwitchType.Freeroam;
+								player.remove(ThirdPersonTarget);
+								this.removeSystem(this.thirdPersonCameraSystem);
+								this.addSystem(this.freeRoamCameraSystem);
+								break;
+							case CameraSwitchType.Freeroam:
+								cameraState.state = CameraSwitchType.Ship;
+								this.removeSystem(this.freeRoamCameraSystem);
+								this.addSystem(this.thirdPersonCameraSystem);
+								ship.add(ThirdPersonTarget);
+						}
+					}
+				}
+			})
+		);
+
 		this.addSystem(
 			functionalSystem([all(Transform, Input, CannonBody)], {
 				entityUpdateFixed: (entity, dt) => {
@@ -150,26 +199,6 @@ export class Ship extends Space {
 		);
 	}
 
-	protected setupPlayer() {
-		const ship = new Entity();
-		ship.add(Transform, { z: 20, y: 70 });
-		ship.add(Input);
-		ship.add(InputKeybindings.WASD());
-		ship.add(this.shipModel.scene.children[0]);
-		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
-		ship.add(
-			new CannonBody({
-				mass: 20,
-				material: this.slippy,
-				collisionFilterGroup: PhysicsGroup.Player,
-				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Flowers
-			})
-		);
-		ship.add(MeshShape);
-
-		this.addEntities(ship);
-	}
-
 	protected setupTerrain() {
 		const island = new Entity();
 		island.add(Transform, { y: -0.5 });
@@ -192,6 +221,9 @@ export class Ship extends Space {
 		const camera = new Entity();
 		camera.add(Transform, { y: 2, z: 25 });
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
+		camera.add(CameraSwitchState);
+		camera.add(Input);
+		camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1));

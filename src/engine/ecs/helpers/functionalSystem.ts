@@ -5,6 +5,8 @@ import { System } from '../System';
 import { useQueries, ToQueries } from './useQueries';
 
 export type FunctionalSystemStuff = {
+	update?: (dt: number) => void;
+	updateFixed?: (dt: number) => void;
 	entityUpdate?: (entity: Entity, dt: number) => void;
 	entityUpdateFixed?: (entity: Entity, dt: number) => void;
 	entityAdded?: (entity: Entity) => void;
@@ -16,6 +18,16 @@ export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: 
 		constructor() {
 			super(makeQuery(...query));
 		}
+		update(dt: number) {
+			super.update(dt);
+			if (callbacks.update) callbacks.update(dt);
+		}
+
+		updateFixed(dt: number) {
+			super.updateFixed(dt);
+			if (callbacks.update) callbacks.updateFixed(dt);
+		}
+
 		updateEntity(entity: Entity, dt: number) {
 			if (callbacks.entityUpdate) callbacks.entityUpdate(entity, dt);
 		}

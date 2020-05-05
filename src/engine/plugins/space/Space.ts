@@ -33,8 +33,20 @@ export default class Space {
 		this.entities.push(entity);
 	}
 
-	public addSystem(systems: System) {
-		this.systems.push(systems);
+	public addSystem(system: System) {
+		this.systems.push(system);
+
+		if (this.visible) {
+			this.worldEngine.addSystem(system);
+		}
+	}
+
+	public removeSystem(system: System) {
+		this.systems.slice(this.systems.indexOf(system), 1);
+
+		if (this.visible) {
+			this.worldEngine.removeSystem(system);
+		}
 	}
 
 	public async toggle(reset = false) {

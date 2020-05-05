@@ -7,10 +7,8 @@ import Key from '@ecs/input/Key';
 import InputKeybindings from '../components/InputKeybindings';
 
 export class InputSystem extends IterativeSystem {
-
 	defaultKeybindings: InputKeybindings = InputKeybindings.BOTH();
 	keyboard: Keyboard;
-
 
 	constructor() {
 		super(new QueryBuilder().contains(Input).build());
@@ -34,7 +32,7 @@ export class InputSystem extends IterativeSystem {
 		input.upDown = this.keyboard.isEitherDown(keyBindings.upKeybinding);
 		input.downDown = this.keyboard.isEitherDown(keyBindings.downKeybinding);
 
-		input.jumpDown = this.keyboard.isPressed(Key.SPACEBAR);
+		input.jumpDown = this.keyboard.isEitherPressed(keyBindings.jumpKeybinding);
 		input.fireDown = this.keyboard.isDown(Key.E);
 	}
 }
