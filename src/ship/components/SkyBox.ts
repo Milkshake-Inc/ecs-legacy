@@ -1,3 +1,1 @@
-export default class SkyBox {
-
-}
+export default class SkyBox {}

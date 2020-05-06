@@ -1,1 +1,1 @@
-export default class Water{}
+export default class Water {}

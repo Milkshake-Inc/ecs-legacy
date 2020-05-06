@@ -17,7 +17,7 @@ import {
 	PlaneGeometry,
 	RepeatWrapping,
 	Texture,
-	BoxGeometry,
+	BoxGeometry
 } from 'three';
 
 const Assets = {

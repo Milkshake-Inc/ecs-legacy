@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import { all, any } from '@ecs/utils/QueryHelper';
 import {
 	Shape,
@@ -26,6 +27,7 @@ import BoundingBoxShape from '../components/BoundingBoxShape';
 import BoundingCapsuleShape from '../components/BoundingCapsuleShape';
 import CapsuleShape from '../components/CapsuleShape';
 import CannonInstancedBody from '../components/CannonInstancedBody';
+import GLTFShape from '../components/GLTFShape';
 
 export const NoMeshError = new Error('no mesh found :(');
 export const UnexpectedShapeError = new Error('should not use shape on entity');
@@ -50,7 +52,8 @@ export const useShapeCouple = (system: System) =>
 				BoundingBoxShape,
 				BoundingCylinderShape,
 				BoundingCapsuleShape,
-				CapsuleShape
+				CapsuleShape,
+				GLTFShape
 			)
 		],
 		{
@@ -93,6 +96,37 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(Cylinder)) {
 					body.addShape(entity.get(Cylinder));
 					return entity.get(Cylinder);
+				}
+
+				if (entity.has(GLTFShape)) {
+					const gltf = entity.get(GLTFShape).gltf;
+					const shapes: Shape[] = [];
+
+					gltf.scene.traverse(child => {
+						if (child.hasOwnProperty('userData')) {
+							if (child.userData.hasOwnProperty('data')) {
+								if (child.userData.data === 'collision') {
+									if (child.userData.shape === 'box') {
+										child.visible = false;
+
+										const box = new Box(new Vec3(child.scale.x, child.scale.y, child.scale.z));
+										body.addShape(box, new Vec3(child.position.x, child.position.y, child.position.z));
+										shapes.push(box);
+									}
+
+									if (child.userData.shape === 'sphere') {
+										child.visible = false;
+
+										const sphere = new Sphere(child.scale.x);
+										body.addShape(sphere, new Vec3(child.position.x, child.position.y, child.position.z));
+										shapes.push(sphere);
+									}
+								}
+							}
+						}
+					});
+
+					return shapes;
 				}
 
 				if (entity.has(Heightfield)) {

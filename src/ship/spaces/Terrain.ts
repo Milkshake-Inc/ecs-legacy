@@ -11,12 +11,7 @@ import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Heightfield, Material } from 'cannon-es';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import { BufferAttribute, InstancedMesh, Mesh, MeshPhongMaterial, Object3D, PlaneBufferGeometry, Vector3 as ThreeVector3 } from 'three';
-import { PhysicsGroup } from './Ship';
-
-const width = 100;
-const height = 100;
-const detail = 1.5;
-const scale = 5;
+import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 
 const GRASS = 0x82c62d;
 
@@ -67,8 +62,10 @@ export class Terrain extends Space {
 					this.trees.count / trees.length,
 					this.trees.leafColors
 				),
-				woodMesh: generateInstancedMesh(getMeshByMaterialName(t.scene, 'woodBark'), this.trees.count / trees.length,
-				[0x844734, 0x7B444A ]),
+				woodMesh: generateInstancedMesh(getMeshByMaterialName(t.scene, 'woodBark'), this.trees.count / trees.length, [
+					0x844734,
+					0x7b444a
+				]),
 				index: 0
 			};
 		});
@@ -212,8 +209,8 @@ export class Terrain extends Space {
 		);
 		terrain.add(new CannonBody(), {
 			material: terrainMaterial,
-			collisionFilterGroup: PhysicsGroup.Terrain,
-			collisionFilterMask: PhysicsGroup.Player
+			collisionFilterGroup: ~CollisionGroups.Default,
+			collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
 		});
 		terrain.add(heightfield);
 

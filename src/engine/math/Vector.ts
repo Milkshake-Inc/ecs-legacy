@@ -138,11 +138,11 @@ export default class Vector3 {
 		return Vector3.Normalize(this);
 	}
 
-	dot(value: Vector3) {
+	dot(value: Vector3 | Vector) {
 		return this.x * value.x + this.y * value.y + this.z * value.z;
 	}
 
-	cross(value: Vector3) {
+	cross(value: Vector3 | Vector) {
 		const x = this.y * value.z - value.y * this.z;
 		const y = -(this.x * value.z - value.x * this.z);
 		const z = this.x * value.y - value.x * this.y;

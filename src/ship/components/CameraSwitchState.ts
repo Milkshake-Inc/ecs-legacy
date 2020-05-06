@@ -1,5 +1,6 @@
 export enum CameraSwitchType {
 	Ship,
+	Helicopter,
 	Player,
 	Freeroam
 }

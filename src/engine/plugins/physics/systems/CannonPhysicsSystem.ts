@@ -6,12 +6,20 @@ import { useShapeCouple } from '../couples/ShapeCouple';
 import { useContactMaterialCouple } from '../couples/ContactMaterialCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';
 import { useMaterialCouple } from '../couples/MaterialCouple';
-import { World, SAPBroadphase } from 'cannon-es';
+import { World, SAPBroadphase, GSSolver } from 'cannon-es';
 import Vector3 from '@ecs/math/Vector';
 import { any } from '@ecs/utils/QueryHelper';
 import RenderState from '@ecs/plugins/3d/components/RenderState';
 import CannonDebugRenderer from '../utils/CannonRenderer';
 import { useInstancedBodyCouple } from '../couples/InstancedBodyCouple';
+
+export const DefaultGravity = new Vector3(0, -9.81, 0);
+
+export enum CollisionGroups {
+	Default = 1,
+	Characters = 2,
+	Vehicles = 4
+}
 
 export default class CannonPhysicsSystem extends System {
 	protected state = useState(this, new PhysicsState());
@@ -32,26 +40,28 @@ export default class CannonPhysicsSystem extends System {
 
 	protected debugRenderer;
 	protected debug = false;
-	protected gravity = Vector3.ZERO;
+	protected gravity = DefaultGravity;
 
-	constructor(gravity = Vector3.ZERO, iterations = 2, debug = false) {
+	constructor(gravity = DefaultGravity, iterations = 10, debug = false) {
 		super();
 
-		this.state.world = new World();
-		this.state.gravity = gravity;
+		const world = new World();
+		world.broadphase = new SAPBroadphase(world);
+		(world.solver as GSSolver).iterations = iterations;
+		world.allowSleep = true;
 
-		this.state.broadPhase = new SAPBroadphase(this.state.world);
+		this.state.gravity = gravity;
+		this.state.world = world;
 		this.debug = debug;
 	}
 
 	updateFixed(dt: number) {
+		this.state.frameTime = dt / 1000;
 		super.updateFixed(dt);
-
-		this.state.world.step(dt / 1000);
+		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
+		this.state.world.step(this.state.frameTime);
 
 		this.couples.forEach(couple => couple.update(dt));
-
-		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
 	}
 
 	update(dt: number) {

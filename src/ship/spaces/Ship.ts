@@ -7,7 +7,7 @@ import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import MeshShape from '@ecs/plugins/physics/components/MeshShape';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import CannonPhysicsSystem, { DefaultGravity, CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
@@ -20,7 +20,6 @@ import {
 	Mesh,
 	MeshBasicMaterial,
 	PerspectiveCamera,
-	PlaneBufferGeometry,
 	ShaderMaterial,
 	TextureLoader,
 	HemisphereLight,
@@ -45,24 +44,20 @@ import Key from '@ecs/input/Key';
 import ParentTransformSystem from '../systems/ParentTransformSystem';
 import SkyBox from '../components/SkyBox';
 import Water from '../components/Water';
+import HelicopterEntity from '@ecs/plugins/vehicle/entity/HelicopterEntity';
+import HelicopterControllerSystem from '@ecs/plugins/vehicle/systems/HelicopterControllerSystem';
+import Vehicle from '@ecs/plugins/vehicle/components/Vehicle';
 
 const Acceleration = 0.3;
 const MaxSpeed = 30;
 const RotateAcceleration = 0.02;
 const Friction = 0.03;
-const Gravity = new Vector3(0, -10, 0);
-
-// Collision filter groups - must be powers of 2!
-export enum PhysicsGroup {
-	Terrain = 1,
-	Player = 2,
-	Folliage = 4
-}
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
 	protected islandModel: GLTF;
 	protected boxMan: GLTF;
+	protected heli: GLTF;
 	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
@@ -77,10 +72,11 @@ export class Ship extends Space {
 	}
 
 	protected async preload() {
-		[this.shipModel, this.islandModel, this.boxMan] = await Promise.all([
+		[this.shipModel, this.islandModel, this.boxMan, this.heli] = await Promise.all([
 			LoadGLTF('assets/prototype/models/boat_large.gltf'),
 			LoadGLTF('assets/prototype/models/island.gltf'),
-			LoadGLTF('assets/prototype/models/boxman.glb')
+			LoadGLTF('assets/prototype/models/boxman.glb'),
+			LoadGLTF('assets/prototype/models/heli.glb')
 		]);
 	}
 
@@ -89,27 +85,24 @@ export class Ship extends Space {
 		// this.setupTerrain();
 
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
-
+		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
 
 		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 20, -100));
 
-		this.addSystem(new ParentTransformSystem(
-			all(PerspectiveCamera),
-			[
-				any(SkyBox, Water)
-			], {
+		this.addSystem(
+			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox, Water)], {
 				followZ: true,
 				followX: true,
 				followY: false
-			}))
+			})
+		);
 
-		// player.add(ThirdPersonTarget)
 		player.add(InputKeybindings.WASDINVERSE());
-		player.get(CannonBody).collisionFilterGroup = PhysicsGroup.Player;
-		player.get(CannonBody).collisionFilterMask = PhysicsGroup.Terrain | PhysicsGroup.Folliage;
-
 		this.addEntity(player);
+
+		const heli = new HelicopterEntity(this.heli, new Vector3(-160, 20, -100));
+		this.addEntity(heli);
+
 		const ship = new Entity();
 		ship.add(Transform, { x: -180, y: 20, z: -100 });
 		ship.add(Input);
@@ -120,14 +113,15 @@ export class Ship extends Space {
 			new CannonBody({
 				mass: 20,
 				material: this.slippy,
-				collisionFilterGroup: PhysicsGroup.Player,
-				collisionFilterMask: PhysicsGroup.Terrain | PhysicsGroup.Folliage
+				collisionFilterGroup: ~CollisionGroups.Vehicles,
+				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters
 			})
 		);
 		ship.add(MeshShape);
 		this.addEntity(ship);
 
 		this.addSystem(new CharacterControllerSystem());
+		this.addSystem(new HelicopterControllerSystem());
 		this.addSystem(this.thirdPersonCameraSystem);
 
 		this.addSystem(new InputSystem());
@@ -141,8 +135,15 @@ export class Ship extends Space {
 					if (input.jumpDown) {
 						switch (cameraState.state) {
 							case CameraSwitchType.Ship:
-								cameraState.state = CameraSwitchType.Player;
+								cameraState.state = CameraSwitchType.Helicopter;
 								ship.remove(ThirdPersonTarget);
+								heli.add(ThirdPersonTarget);
+								heli.get(Vehicle).controller = player;
+								break;
+							case CameraSwitchType.Helicopter:
+								cameraState.state = CameraSwitchType.Player;
+								heli.remove(ThirdPersonTarget);
+								heli.get(Vehicle).controller = null;
 								player.add(ThirdPersonTarget);
 								break;
 							case CameraSwitchType.Player:
@@ -202,8 +203,6 @@ export class Ship extends Space {
 						original.z = MathHelper.lerp(original.z, 0, 0.1);
 
 						body.quaternion.setFromEuler(original.x, original.y, original.z);
-					} else {
-
 					}
 
 					// Limit max speed
@@ -229,34 +228,31 @@ export class Ship extends Space {
 					target.mult(targetY, target);
 					// target.mult(targetX, target);
 
-
 					// const targetX = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), a);
 					body.quaternion.slerp(target, 0.01, body.quaternion);
-					body.wakeUp()
-
-
+					body.wakeUp();
 				}
 			})
 		);
 	}
 
-	protected setupTerrain() {
-		const island = new Entity();
-		island.add(Transform, { y: -0.5 });
-		island.add(this.islandModel.scene);
-		island.add(
-			new CannonBody({
-				material: this.slippy,
-				collisionFilterGroup: PhysicsGroup.Terrain,
-				collisionFilterMask: PhysicsGroup.Player
-			})
-		);
-		island.add(MeshShape);
+	// protected setupTerrain() {
+	// 	const island = new Entity();
+	// 	island.add(Transform, { y: -0.5 });
+	// 	island.add(this.islandModel.scene);
+	// 	island.add(
+	// 		new CannonBody({
+	// 			material: this.slippy,
+	// 			collisionFilterGroup: ~CollisionGroups.Default,
+	// 			collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
+	// 		})
+	// 	);
+	// 	island.add(MeshShape);
 
-		this.island = island;
+	// 	this.island = island;
 
-		this.addEntities(island);
-	}
+	// 	this.addEntities(island);
+	// }
 
 	protected setupEnvironment() {
 		const camera = new Entity();
@@ -291,12 +287,10 @@ export class Ship extends Space {
 		// Water
 		const mesh = new Mesh(new CircleBufferGeometry(500, 30), this.postMaterial);
 
-
 		const waterEntity = new Entity();
-		waterEntity.add(Transform, { rx: -Math.PI / 2, });
+		waterEntity.add(Transform, { rx: -Math.PI / 2 });
 		waterEntity.add(mesh);
 		waterEntity.add(Water);
-
 
 		const entity = this.worldEngine.entities.find(any(ShipRenderState));
 		const renderState = entity.get(ShipRenderState);
@@ -312,7 +306,6 @@ export class Ship extends Space {
 
 		const textureBK = new TextureLoader().load('assets/prototype/textures/sky/nz.png');
 		const textureRT = new TextureLoader().load('assets/prototype/textures/sky/pz.png');
-
 
 		const materialArray = [
 			new MeshBasicMaterial({ map: textureFT, fog: false }),
@@ -334,7 +327,7 @@ export class Ship extends Space {
 			geometry: new BoxGeometry(1000, 1000, 1000),
 			material: materialArray
 		});
-		skyBox.add(SkyBox)
+		skyBox.add(SkyBox);
 
 		this.addEntities(light, camera, skyBox, waterEntity);
 	}

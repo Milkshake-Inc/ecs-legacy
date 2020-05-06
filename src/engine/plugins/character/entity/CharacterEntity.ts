@@ -8,6 +8,7 @@ import Vector3 from '@ecs/math/Vector';
 import GLTFHolder from '../../3d/components/GLTFHolder';
 import CharacterTag from './../components/CharacterTag';
 import CapsuleShape from '@ecs/plugins/physics/components/CapsuleShape';
+import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 
 export const characterMaterial = new Material('characterMaterial');
 characterMaterial.friction = 0.5;
@@ -35,7 +36,9 @@ export default class CharacterEntity extends Entity {
 			new CannonBody({
 				mass: 1,
 				material: characterMaterial,
-				fixedRotation: true
+				fixedRotation: true,
+				collisionFilterGroup: ~CollisionGroups.Characters,
+				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Vehicles
 			}),
 			{
 				offset: new Vector3(0, -0.2, 0)
