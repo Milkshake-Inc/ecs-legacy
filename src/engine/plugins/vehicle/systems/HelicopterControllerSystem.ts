@@ -19,7 +19,7 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 	});
 
 	constructor() {
-		super(makeQuery(all(Vehicle, Helicopter, CannonBody, Input)));
+		super(makeQuery(all(Vehicle, Helicopter, CannonBody)));
 	}
 
 	updateEntity(entity: Entity, dt: number) {
@@ -42,6 +42,8 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 		const body = entity.get(CannonBody);
 		const heli = entity.get(Helicopter);
 		const input = entity.get(Input);
+
+		if (!input) return;
 
 		if (input.upDown) {
 			body.velocity.x += body.up.x * 0.15 * heli.enginePower;

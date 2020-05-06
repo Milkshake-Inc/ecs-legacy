@@ -7,11 +7,8 @@ import Input from '@ecs/plugins/input/components/Input';
 import PhysicsState from '@ecs/plugins/physics/components/PhysicsState';
 import { useQueries } from '@ecs/ecs/helpers';
 import Boat from '../components/Boat';
-import { Vec3, Quaternion } from 'cannon-es';
-import Vector3 from '@ecs/math/Vector';
 
-const Acceleration = 0.3;
-const MaxSpeed = 30;
+const Acceleration = 0.02;
 const RotateAcceleration = 0.02;
 
 export default class BoatControllerSystem extends IterativeSystem {
@@ -28,42 +25,31 @@ export default class BoatControllerSystem extends IterativeSystem {
 		const input = entity.get(Input);
 		const body = entity.get(CannonBody);
 
-		let velocity = new Vector3();
-		let angularVelocity = Vector3.From(body.angularVelocity);
-
-		if (input.upDown) {
-			velocity = velocity.add(Vector3.FORWARD.multiF(Acceleration * dt));
-		}
-
 		if (input.downDown) {
-			velocity = velocity.add(Vector3.BACKWARD.multiF(Acceleration * dt));
+			body.velocity.x -= body.forward.x * Acceleration * dt;
+			body.velocity.y -= body.forward.y * Acceleration * dt;
+			body.velocity.z -= body.forward.z * Acceleration * dt;
 		}
-
-		if (input.leftDown) {
-			angularVelocity = angularVelocity.add(Vector3.UP.multiF(RotateAcceleration * dt));
+		if (input.upDown) {
+			body.velocity.x += body.forward.x * Acceleration * dt;
+			body.velocity.y += body.forward.y * Acceleration * dt;
+			body.velocity.z += body.forward.z * Acceleration * dt;
 		}
 
 		if (input.rightDown) {
-			angularVelocity = angularVelocity.add(Vector3.DOWN.multiF(RotateAcceleration * dt));
+			body.angularVelocity.x -= body.up.x * RotateAcceleration * dt;
+			body.angularVelocity.y -= body.up.y * RotateAcceleration * dt;
+			body.angularVelocity.z -= body.up.z * RotateAcceleration * dt;
+		}
+		if (input.leftDown) {
+			body.angularVelocity.x += body.up.x * RotateAcceleration * dt;
+			body.angularVelocity.y += body.up.y * RotateAcceleration * dt;
+			body.angularVelocity.z += body.up.z * RotateAcceleration * dt;
 		}
 
-		// Limit max speed
-		velocity = velocity.multiF(100);
-		angularVelocity = angularVelocity.multiF(0.9);
-
-		if (body.velocity.length() < MaxSpeed) {
-			body.applyLocalForce(new Vec3(velocity.x, velocity.y, velocity.z), new Vec3(0, 0, 0));
-		}
-		// Check if airborn
-
-		body.velocity = body.velocity.scale(0.99);
-
-		body.angularVelocity.set(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-
-		const targetY = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), Math.atan(body.velocity.y));
-		const target = new Quaternion();
-		target.mult(targetY, target);
-		body.quaternion.slerp(target, 0.01, body.quaternion);
-		body.wakeUp();
+		// Damping on every axis except y (because gravity yo)
+		body.velocity.x *= 0.99;
+		body.velocity.z *= 0.99;
+		body.angularVelocity = body.angularVelocity.scale(0.9);
 	}
 }
