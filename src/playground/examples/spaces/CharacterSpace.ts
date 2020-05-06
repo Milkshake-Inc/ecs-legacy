@@ -14,7 +14,18 @@ import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
 import { Body, Material, Plane, Vec3 } from 'cannon-es';
-import { AmbientLight, BoxGeometry, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture } from 'three';
+import {
+	AmbientLight,
+	BoxGeometry,
+	Color as ThreeColor,
+	DirectionalLight,
+	Mesh,
+	MeshPhongMaterial,
+	PerspectiveCamera,
+	PlaneGeometry,
+	RepeatWrapping,
+	Texture
+} from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 const Assets = {
@@ -90,36 +101,35 @@ export default class AnimationSpace extends Space {
 
 		// Ground
 		const ground = new Entity();
-        ground.add(Transform, { rx: -Math.PI / 2 });
-        this.darkTexture.repeat.set(400, 400);
-        this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
-		ground.add(new Mesh(
-            new PlaneGeometry(1000, 1000),
-            new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })
-        ), {
-            castShadow: true,
-            receiveShadow: true,
-        });
-        ground.add(new Body({
-            material: slippy,
-        }));
-        ground.add(new Plane());
+		ground.add(Transform, { rx: -Math.PI / 2 });
+		this.darkTexture.repeat.set(400, 400);
+		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
+		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })), {
+			castShadow: true,
+			receiveShadow: true
+		});
+		ground.add(
+			new Body({
+				material: slippy
+			})
+		);
+		ground.add(new Plane());
 
-        light.get(Transform).look(Vector3.ZERO);
+		light.get(Transform).look(Vector3.ZERO);
 
-        for (let index = 0; index < 100; index++) {
-            this.addEntities(this.createBox(index));
-        }
+		for (let index = 0; index < 100; index++) {
+			this.addEntities(this.createBox(index));
+		}
 
-        this.addEntities(light,camera, ground);
-        this.addSystem(new ThirdPersonCameraSystem());
+		this.addEntities(light, camera, ground);
+		this.addSystem(new ThirdPersonCameraSystem());
 
-        const player = new CharacterEntity(this.boxman);
-        player.add(ThirdPersonTarget)
-        this.addEntity(player);
+		const player = new CharacterEntity(this.boxman);
+		player.add(ThirdPersonTarget);
+		this.addEntity(player);
 
-        this.addSystem(new CharacterControllerSystem());
+		this.addSystem(new CharacterControllerSystem());
 
-        this.addSystem(new InputSystem());
-    }
+		this.addSystem(new InputSystem());
+	}
 }

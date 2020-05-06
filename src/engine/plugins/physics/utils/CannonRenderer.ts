@@ -154,11 +154,11 @@ export default class CannonDebugRenderer {
 
 				mesh = new Mesh(geo, material);
 				shape.geometryId = geo.id;
-                break;
-            }
+				break;
+			}
 
 			case Shape.types.TRIMESH: {
-				console.log("render")
+				console.log('render');
 				const geometry = new Geometry();
 				const v0 = this.tmpVec0;
 				const v1 = this.tmpVec1;
@@ -173,8 +173,8 @@ export default class CannonDebugRenderer {
 				geometry.computeFaceNormals();
 				mesh = new Mesh(geometry, material);
 				shape.geometryId = geometry.id;
-                break;
-            }
+				break;
+			}
 
 			case Shape.types.HEIGHTFIELD: {
 				const geometry = new Geometry();
@@ -206,8 +206,8 @@ export default class CannonDebugRenderer {
 				geometry.computeFaceNormals();
 				mesh = new Mesh(geometry, material);
 				shape.geometryId = geometry.id;
-                break;
-            }
+				break;
+			}
 		}
 
 		if (mesh) {
@@ -220,33 +220,33 @@ export default class CannonDebugRenderer {
 	_scaleMesh(mesh: Mesh, shape: Shape) {
 		switch (shape.type) {
 			case Shape.types.SPHERE: {
-                const radius = (shape as Sphere).radius;
+				const radius = (shape as Sphere).radius;
 				mesh.scale.set(radius, radius, radius);
 				break;
-            }
+			}
 
 			case Shape.types.BOX: {
 				const half = (shape as Box).halfExtents;
 				mesh.scale.copy(new Vector3(half.x, half.y, half.z));
 				mesh.scale.multiplyScalar(2);
-                break;
-            }
+				break;
+			}
 
 			case Shape.types.CONVEXPOLYHEDRON: {
 				mesh.scale.set(1, 1, 1);
-                break;
-            }
+				break;
+			}
 
 			case Shape.types.TRIMESH: {
 				const scale = (shape as Trimesh).scale;
 				mesh.scale.copy(new Vector3(scale.x, scale.y, scale.z));
-                break;
-            }
+				break;
+			}
 
 			case Shape.types.HEIGHTFIELD: {
 				mesh.scale.set(1, 1, 1);
-                break;
-            }
+				break;
+			}
 		}
 	}
 }

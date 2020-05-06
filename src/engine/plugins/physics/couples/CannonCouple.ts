@@ -1,4 +1,4 @@
-import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/ecs/helpers';
+import { CoupleCallbacks, useCouple, useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { Body, Shape, Constraint, ContactMaterial, Material } from 'cannon-es';

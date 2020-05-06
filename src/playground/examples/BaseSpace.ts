@@ -1,23 +1,24 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Color from '@ecs/math/Color';
-import Random from '@ecs/math/Random';
 import Vector3 from '@ecs/math/Vector';
-import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
-import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import { ThreeEngine } from '@ecs/plugins/3d/ThreeEngine';
-import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
-import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
-import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
 import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
-import { LoadGLTF, LoadTexture } from '@ecs/utils/ThreeHelper';
+import { LoadTexture } from '@ecs/utils/ThreeHelper';
 import { Body, Material, Plane, Vec3, Sphere as CannonSphere } from 'cannon-es';
-import { AmbientLight, BoxGeometry, Color as ThreeColor, DirectionalLight, Fog, Mesh, MeshPhongMaterial, PCFSoftShadowMap, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture, SphereGeometry } from 'three';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import {
+	AmbientLight,
+	Color as ThreeColor,
+	DirectionalLight,
+	Mesh,
+	MeshPhongMaterial,
+	PerspectiveCamera,
+	PlaneGeometry,
+	RepeatWrapping,
+	Texture,
+	SphereGeometry
+} from 'three';
 
 const Assets = {
 	BOX_MAN: 'assets/prototype/models/boxman.glb',
@@ -29,7 +30,6 @@ const Assets = {
 };
 
 export default class BaseSpace extends Space {
-
 	protected darkTexture: Texture;
 	protected orangeTexture: Texture;
 	protected purpleTexture: Texture;
@@ -79,7 +79,7 @@ export default class BaseSpace extends Space {
 		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, false));
 
 		const slippy = new Material('slippy');
-        slippy.friction = 0.04;
+		slippy.friction = 0.04;
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 4, x: 0, qx: -0.1 });
@@ -97,23 +97,22 @@ export default class BaseSpace extends Space {
 
 		// Ground
 		const ground = new Entity();
-        ground.add(Transform, { rx: -Math.PI / 2 });
-        this.darkTexture.repeat.set(400, 400);
-        this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
-		ground.add(new Mesh(
-            new PlaneGeometry(1000, 1000),
-            new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })
-        ), {
-            castShadow: true,
-            receiveShadow: true,
-        });
-        ground.add(new Body({
-            material: slippy,
-        }));
-        ground.add(new Plane());
+		ground.add(Transform, { rx: -Math.PI / 2 });
+		this.darkTexture.repeat.set(400, 400);
+		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
+		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })), {
+			castShadow: true,
+			receiveShadow: true
+		});
+		ground.add(
+			new Body({
+				material: slippy
+			})
+		);
+		ground.add(new Plane());
 
-        light.get(Transform).look(Vector3.ZERO);
+		light.get(Transform).look(Vector3.ZERO);
 
-        this.addEntities(light,camera, ground);
-    }
+		this.addEntities(light, camera, ground);
+	}
 }

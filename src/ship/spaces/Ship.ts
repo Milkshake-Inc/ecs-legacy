@@ -44,7 +44,6 @@ import Key from '@ecs/input/Key';
 const Acceleration = 0.3;
 const MaxSpeed = 30;
 const RotateAcceleration = 0.02;
-const MaxRotationalSpeed = 3;
 const Friction = 0.03;
 const Gravity = new Vector3(0, -10, 0);
 

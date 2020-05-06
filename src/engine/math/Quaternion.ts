@@ -1,13 +1,11 @@
 import Vector3 from './Vector';
-import MathHelper from './MathHelper';
 
 export default class Quaternion {
-
 	public static Identity() {
 		return new Quaternion(0, 0, 0, 1);
 	}
 
-	public static From(value: { x: number; y: number; z: number; w: number}) {
+	public static From(value: { x: number; y: number; z: number; w: number }) {
 		return new Quaternion(value.x, value.y, value.z, value.w);
 	}
 
@@ -100,8 +98,14 @@ export default class Quaternion {
 	}
 
 	multiply(value: Quaternion | { x: number; y: number; z: number; w: number }) {
-		const qax = this.x, qay = this.y, qaz = this.z, qaw = this.w;
-		const qbx = value.x, qby = value.y, qbz = value.z, qbw = value.w;
+		const qax = this.x,
+			qay = this.y,
+			qaz = this.z,
+			qaw = this.w;
+		const qbx = value.x,
+			qby = value.y,
+			qbz = value.z,
+			qbw = value.w;
 
 		this.x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
 		this.y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
@@ -116,31 +120,32 @@ export default class Quaternion {
 
 		// assumes axis is normalized
 
-		const halfAngle = angle / 2, s = Math.sin( halfAngle );
+		const halfAngle = angle / 2,
+			s = Math.sin(halfAngle);
 
 		this.x = axis.x * s;
 		this.y = axis.y * s;
 		this.z = axis.z * s;
-		this.w = Math.cos( halfAngle );
+		this.w = Math.cos(halfAngle);
 
 		return this;
 	}
 
 	multiplyFromAxisAngle(axis: Vector3, angle: number) {
 		// assumes axis is normalized
-		const halfAngle = angle / 2, s = Math.sin( halfAngle );
+		const halfAngle = angle / 2,
+			s = Math.sin(halfAngle);
 
 		return this.multiply({
 			x: axis.x * s,
-			y:axis.y * s,
-			z:axis.z * s,
-			w: Math.cos( halfAngle )
+			y: axis.y * s,
+			z: axis.z * s,
+			w: Math.cos(halfAngle)
 		});
 	}
 
-	normalize()
-	{
-		const num = 1 / Math.sqrt((this.x * this.x) + (this.y * this.y) + (this.z * this.z) + (this.w * this.w));
+	normalize() {
+		const num = 1 / Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
 		this.x *= num;
 		this.y *= num;
 		this.z *= num;

@@ -9,7 +9,7 @@ export const useDebugCouple = (system: RenderSystem) =>
 		onCreate: entity => {
 			if (entity.has(DirectionalLight)) {
 				const directionalLight = entity.get(DirectionalLight);
-				return new DirectionalLightHelper(directionalLight)
+				return new DirectionalLightHelper(directionalLight);
 			}
 		}
 	});

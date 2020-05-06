@@ -9,20 +9,19 @@ import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
-import { useDebugCouple } from '../couples/DebugCouple';
 
 export type RenderSystemSettings = {
 	width: number;
 	height: number;
 	color: number;
 	configure?: (renderer: WebGLRenderer, scene: Scene) => void;
-}
+};
 
 export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	width: 1280,
 	height: 720,
 	color: Color.Tomato
-}
+};
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -38,7 +37,7 @@ export default class RenderSystem extends System {
 		useGroupCouple(this),
 		useLightCouple(this),
 		useRaycastCouple(this),
-		useRaycastDebugCouple(this),
+		useRaycastDebugCouple(this)
 	];
 
 	constructor(customSettings?: Partial<RenderSystemSettings>) {
@@ -58,7 +57,7 @@ export default class RenderSystem extends System {
 
 		this.state.renderer.setSize(settings.width, settings.height);
 
-		if(settings.configure) {
+		if (settings.configure) {
 			settings.configure(this.state.renderer, this.state.scene);
 		}
 
