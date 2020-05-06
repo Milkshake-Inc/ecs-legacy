@@ -27,7 +27,8 @@ export default class BoatEntity extends Entity {
 				mass: 20,
 				material: mat,
 				collisionFilterGroup: ~CollisionGroups.Vehicles,
-				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters
+				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters,
+				allowSleep: false
 			})
 		);
 		this.add(MeshShape);

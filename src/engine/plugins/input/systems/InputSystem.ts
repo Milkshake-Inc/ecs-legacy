@@ -34,5 +34,11 @@ export class InputSystem extends IterativeSystem {
 
 		input.jumpDown = this.keyboard.isEitherPressed(keyBindings.jumpKeybinding);
 		input.fireDown = this.keyboard.isDown(Key.E);
+
+		input.pitchUpDown = this.keyboard.isEitherDown(keyBindings.pitchUpKeybinding);
+		input.pitchDownDown = this.keyboard.isEitherDown(keyBindings.pitchDownKeybinding);
+
+		input.yawRightDown = this.keyboard.isEitherDown(keyBindings.yawRightKeybinding);
+		input.yawLeftDown = this.keyboard.isEitherDown(keyBindings.yawLeftKeybinding);
 	}
 }

@@ -77,8 +77,8 @@ export class Ship extends Space {
 	setup() {
 		this.setupEnvironment();
 
-		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 10, -100));
-		const heli = new HelicopterEntity(this.heli, new Vector3(-160, 10, -100));
+		const player = new CharacterEntity(this.boxMan, new Vector3(-200, 10, -100));
+		const heli = new HelicopterEntity(this.heli, new Vector3(-190, 10, -100));
 		const boat = new BoatEntity(this.shipModel, new Vector3(-180, 10, -100));
 		this.addEntities(player, heli, boat);
 

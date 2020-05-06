@@ -10,6 +10,7 @@ import Helicopter from '../components/Helicopter';
 import { Material } from 'cannon-es';
 import GLTFShape from '@ecs/plugins/physics/components/GLTFShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export default class HelicopterEntity extends Entity {
 	constructor(gltf: GLTF, spawnPosition: Vector3 = Vector3.ZERO) {
@@ -21,12 +22,14 @@ export default class HelicopterEntity extends Entity {
 		this.add(Transform, { position: spawnPosition });
 		this.add(Vehicle);
 		this.add(Helicopter, { rotors: this.getRotorsFromModel(gltf) });
+		this.add(InputKeybindings.AIRCRAFT());
 		this.add(gltf.scene);
 		this.add(
 			new CannonBody({
 				mass: 50,
 				collisionFilterGroup: ~CollisionGroups.Vehicles,
-				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters
+				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters,
+				allowSleep: false
 			})
 		);
 		this.add(GLTFShape, { gltf });

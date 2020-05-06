@@ -17,11 +17,19 @@ export default class InputKeybindings {
 		return new InputKeybindings([Key.RIGHT, Key.D], [Key.LEFT, Key.A], [Key.UP, Key.W], [Key.DOWN, Key.S]);
 	}
 
+	public static AIRCRAFT() {
+		return new InputKeybindings([Key.RIGHT, Key.D], [Key.LEFT, Key.A], [Key.W], [Key.S], [], [Key.UP], [Key.DOWN], [Key.Q], [Key.E]);
+	}
+
 	constructor(
 		public rightKeybinding: number[] = [],
 		public leftKeybinding: number[] = [],
 		public upKeybinding: number[] = [],
 		public downKeybinding: number[] = [],
-		public jumpKeybinding: number[] = []
+		public jumpKeybinding: number[] = [],
+		public pitchUpKeybinding: number[] = [],
+		public pitchDownKeybinding: number[] = [],
+		public yawLeftKeybinding: number[] = [],
+		public yawRightKeybinding: number[] = []
 	) {}
 }

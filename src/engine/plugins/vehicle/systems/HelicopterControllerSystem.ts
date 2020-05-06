@@ -44,7 +44,6 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 		const input = entity.get(Input);
 
 		if (input.upDown) {
-			console.log(heli.enginePower);
 			body.velocity.x += body.up.x * 0.15 * heli.enginePower;
 			body.velocity.y += body.up.y * 0.15 * heli.enginePower;
 			body.velocity.z += body.up.z * 0.15 * heli.enginePower;
@@ -92,41 +91,41 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 			body.angularVelocity.z += rotStabEuler.z;
 		}
 
-		// // Pitch
-		// if (heli.actions.pitchUp.isPressed) {
-		// 	body.angularVelocity.x -= body.right.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y -= body.right.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z -= body.right.z * 0.1 * heli.enginePower;
-		// }
-		// if (heli.actions.pitchDown.isPressed) {
-		// 	body.angularVelocity.x += body.right.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y += body.right.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z += body.right.z * 0.1 * heli.enginePower;
-		// }
+		// Pitch
+		if (input.pitchDownDown) {
+			body.angularVelocity.x -= body.right.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y -= body.right.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z -= body.right.z * 0.1 * heli.enginePower;
+		}
+		if (input.pitchUpDown) {
+			body.angularVelocity.x += body.right.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y += body.right.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z += body.right.z * 0.1 * heli.enginePower;
+		}
 
-		// // Yaw
-		// if (heli.actions.yawLeft.isPressed) {
-		// 	body.angularVelocity.x += body.up.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y += body.up.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z += body.up.z * 0.1 * heli.enginePower;
-		// }
-		// if (heli.actions.yawRight.isPressed) {
-		// 	body.angularVelocity.x -= body.up.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y -= body.up.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z -= body.up.z * 0.1 * heli.enginePower;
-		// }
+		// Yaw
+		if (input.yawLeftDown) {
+			body.angularVelocity.x += body.up.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y += body.up.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z += body.up.z * 0.1 * heli.enginePower;
+		}
+		if (input.yawRightDown) {
+			body.angularVelocity.x -= body.up.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y -= body.up.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z -= body.up.z * 0.1 * heli.enginePower;
+		}
 
-		// // Roll
-		// if (heli.actions.rollLeft.isPressed) {
-		// 	body.angularVelocity.x -= body.forward.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y -= body.forward.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z -= body.forward.z * 0.1 * heli.enginePower;
-		// }
-		// if (heli.actions.rollRight.isPressed) {
-		// 	body.angularVelocity.x += body.forward.x * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.y += body.forward.y * 0.1 * heli.enginePower;
-		// 	body.angularVelocity.z += body.forward.z * 0.1 * heli.enginePower;
-		// }
+		// Roll
+		if (input.rightDown) {
+			body.angularVelocity.x -= body.forward.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y -= body.forward.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z -= body.forward.z * 0.1 * heli.enginePower;
+		}
+		if (input.leftDown) {
+			body.angularVelocity.x += body.forward.x * 0.1 * heli.enginePower;
+			body.angularVelocity.y += body.forward.y * 0.1 * heli.enginePower;
+			body.angularVelocity.z += body.forward.z * 0.1 * heli.enginePower;
+		}
 
 		// Angular damping
 		body.angularVelocity.x *= 0.97;
