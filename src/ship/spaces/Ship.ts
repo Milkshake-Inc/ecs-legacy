@@ -6,8 +6,7 @@ import Vector3 from '@ecs/math/Vector';
 import Input from '@ecs/plugins/input/components/Input';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
-import MeshShape from '@ecs/plugins/physics/components/MeshShape';
-import CannonPhysicsSystem, { DefaultGravity, CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import CannonPhysicsSystem, { DefaultGravity } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
@@ -33,8 +32,6 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../../engine/plugins/3d/systems/ThirdPersonCameraSystem';
-import { Material, Vec3, Quaternion } from 'cannon-es';
-import MathHelper from '@ecs/math/MathHelper';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
@@ -47,18 +44,17 @@ import Water from '../components/Water';
 import HelicopterEntity from '@ecs/plugins/vehicle/entity/HelicopterEntity';
 import HelicopterControllerSystem from '@ecs/plugins/vehicle/systems/HelicopterControllerSystem';
 import Vehicle from '@ecs/plugins/vehicle/components/Vehicle';
-
-const Acceleration = 0.3;
-const MaxSpeed = 30;
-const RotateAcceleration = 0.02;
-const Friction = 0.03;
+import BoatEntity from '@ecs/plugins/vehicle/entity/BoatEntity';
+import BoatControllerSystem from '@ecs/plugins/vehicle/systems/BoatControllerSystem';
+import MathHelper from '@ecs/math/MathHelper';
+import { Vec3 } from 'cannon-es';
+import CharacterTag from '@ecs/plugins/character/components/CharacterTag';
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
 	protected islandModel: GLTF;
 	protected boxMan: GLTF;
 	protected heli: GLTF;
-	protected slippy = new Material('slippy');
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
 	protected ship: Entity;
@@ -67,8 +63,6 @@ export class Ship extends Space {
 
 	constructor(engine: Engine) {
 		super(engine, 'ship');
-
-		this.slippy.friction = Friction;
 	}
 
 	protected async preload() {
@@ -82,81 +76,74 @@ export class Ship extends Space {
 
 	setup() {
 		this.setupEnvironment();
-		// this.setupTerrain();
+
+		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 10, -100));
+		const heli = new HelicopterEntity(this.heli, new Vector3(-160, 10, -100));
+		const boat = new BoatEntity(this.shipModel, new Vector3(-180, 10, -100));
+		this.addEntities(player, heli, boat);
 
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
-
-		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 20, -100));
-
-		this.addSystem(
-			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox, Water)], {
-				followZ: true,
-				followX: true,
-				followY: false
-			})
-		);
-
-		player.add(InputKeybindings.WASDINVERSE());
-		this.addEntity(player);
-
-		const heli = new HelicopterEntity(this.heli, new Vector3(-160, 20, -100));
-		this.addEntity(heli);
-
-		const ship = new Entity();
-		ship.add(Transform, { x: -180, y: 20, z: -100 });
-		ship.add(Input);
-		ship.add(InputKeybindings.WASD());
-		ship.add(this.shipModel.scene.children[0]);
-		ship.add(ThirdPersonTarget, { angle: 12, distance: 7 });
-		ship.add(
-			new CannonBody({
-				mass: 20,
-				material: this.slippy,
-				collisionFilterGroup: ~CollisionGroups.Vehicles,
-				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters
-			})
-		);
-		ship.add(MeshShape);
-		this.addEntity(ship);
-
+		this.addSystem(new InputSystem());
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new HelicopterControllerSystem());
-		this.addSystem(this.thirdPersonCameraSystem);
-
-		this.addSystem(new InputSystem());
+		this.addSystem(new BoatControllerSystem());
 
 		this.addSystem(
 			functionalSystem([all(CameraSwitchState, Input)], {
+				setup: () => {
+					// boat is first CameraSwitchState, so add some things for setup.
+					boat.add(Input);
+					boat.add(ThirdPersonTarget);
+					boat.get(Vehicle).controller = player;
+
+					this.addSystem(this.thirdPersonCameraSystem);
+				},
 				entityUpdateFixed: (entity, dt) => {
 					const input = entity.get(Input);
 					const cameraState = entity.get(CameraSwitchState);
 
 					if (input.jumpDown) {
 						switch (cameraState.state) {
-							case CameraSwitchType.Ship:
+							case CameraSwitchType.Boat:
 								cameraState.state = CameraSwitchType.Helicopter;
-								ship.remove(ThirdPersonTarget);
+
+								boat.remove(ThirdPersonTarget);
+								boat.remove(Input);
+								boat.get(Vehicle).controller = null;
+
 								heli.add(ThirdPersonTarget);
+								heli.add(Input);
 								heli.get(Vehicle).controller = player;
 								break;
 							case CameraSwitchType.Helicopter:
 								cameraState.state = CameraSwitchType.Player;
+
 								heli.remove(ThirdPersonTarget);
+								heli.remove(Input);
 								heli.get(Vehicle).controller = null;
+
 								player.add(ThirdPersonTarget);
+								player.add(Input);
 								break;
 							case CameraSwitchType.Player:
 								cameraState.state = CameraSwitchType.Freeroam;
+
 								player.remove(ThirdPersonTarget);
+								player.remove(Input);
+
 								this.removeSystem(this.thirdPersonCameraSystem);
 								this.addSystem(this.freeRoamCameraSystem);
 								break;
 							case CameraSwitchType.Freeroam:
-								cameraState.state = CameraSwitchType.Ship;
+								cameraState.state = CameraSwitchType.Boat;
+
 								this.removeSystem(this.freeRoamCameraSystem);
 								this.addSystem(this.thirdPersonCameraSystem);
-								ship.add(ThirdPersonTarget);
+
+								boat.add(ThirdPersonTarget);
+								boat.add(Input);
+								boat.get(Vehicle).controller = player;
 						}
 					}
 				}
@@ -164,38 +151,22 @@ export class Ship extends Space {
 		);
 
 		this.addSystem(
-			functionalSystem([all(Transform, Input, CannonBody)], {
-				entityUpdateFixed: (entity, dt) => {
-					const input = entity.get(Input);
-					const body = entity.get(CannonBody);
-
-					let velocity = new Vector3();
-					let angularVelocity = Vector3.From(body.angularVelocity);
-
-					if (input.upDown) {
-						velocity = velocity.add(Vector3.FORWARD.multiF(Acceleration * dt));
-					}
-
-					if (input.downDown) {
-						velocity = velocity.add(Vector3.BACKWARD.multiF(Acceleration * dt));
-					}
-
-					if (input.leftDown) {
-						angularVelocity = angularVelocity.add(Vector3.UP.multiF(RotateAcceleration * dt));
-					}
-
-					if (input.rightDown) {
-						angularVelocity = angularVelocity.add(Vector3.DOWN.multiF(RotateAcceleration * dt));
-					}
-
+			functionalSystem([all(Transform, CannonBody), any(Vehicle, CharacterTag)], {
+				update: dt => {
 					if (this.postMaterial) {
 						this.postMaterial.uniforms.tTime.value += dt;
 					}
+				},
+				entityUpdateFixed: (entity, dt) => {
+					const body = entity.get(CannonBody);
 
+					// Dont let stuff fall below water...
 					const depth = -0.18;
 					if (body.position.y < depth) {
 						body.position.y = depth;
-						body.velocity.y = 0;
+						if (body.velocity.y < 0) {
+							body.velocity.y = 0;
+						}
 						const original = new Vec3();
 						body.quaternion.toEuler(original);
 
@@ -204,55 +175,10 @@ export class Ship extends Space {
 
 						body.quaternion.setFromEuler(original.x, original.y, original.z);
 					}
-
-					// Limit max speed
-					velocity = velocity.multiF(100);
-					angularVelocity = angularVelocity.multiF(0.9);
-
-					if (body.velocity.length() < MaxSpeed) {
-						body.applyLocalForce(new Vec3(velocity.x, velocity.y, velocity.z), new Vec3(0, 0, 0));
-					}
-					// Check if airborn
-
-					body.velocity = body.velocity.scale(0.99);
-
-					body.angularVelocity.set(angularVelocity.x, angularVelocity.y, angularVelocity.z);
-
-					// const a = ;
-					// const x = Math.atan(body.velocity.x);
-					const targetY = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), Math.atan(body.velocity.y));
-					// const targetX = new Quaternion().setFromAxisAngle(new Vec3(0, -1, 0), Math.atan(body.velocity.x) + (Math.PI / 2));
-					// const targetZ = new Quaternion().setFromAxisAngle(new Vec3(0, 0, 1), Math.atan(body.velocity.z));
-
-					const target = new Quaternion();
-					target.mult(targetY, target);
-					// target.mult(targetX, target);
-
-					// const targetX = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), a);
-					body.quaternion.slerp(target, 0.01, body.quaternion);
-					body.wakeUp();
 				}
 			})
 		);
 	}
-
-	// protected setupTerrain() {
-	// 	const island = new Entity();
-	// 	island.add(Transform, { y: -0.5 });
-	// 	island.add(this.islandModel.scene);
-	// 	island.add(
-	// 		new CannonBody({
-	// 			material: this.slippy,
-	// 			collisionFilterGroup: ~CollisionGroups.Default,
-	// 			collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
-	// 		})
-	// 	);
-	// 	island.add(MeshShape);
-
-	// 	this.island = island;
-
-	// 	this.addEntities(island);
-	// }
 
 	protected setupEnvironment() {
 		const camera = new Entity();
@@ -261,6 +187,14 @@ export class Ship extends Space {
 		camera.add(CameraSwitchState);
 		camera.add(Input);
 		camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
+
+		this.addSystem(
+			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox, Water)], {
+				followZ: true,
+				followX: true,
+				followY: false
+			})
+		);
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1));

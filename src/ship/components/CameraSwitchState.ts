@@ -1,10 +1,10 @@
 export enum CameraSwitchType {
-	Ship,
+	Boat,
 	Helicopter,
 	Player,
 	Freeroam
 }
 
 export default class CameraSwitchState {
-	constructor(public state = CameraSwitchType.Ship) {}
+	constructor(public state = CameraSwitchType.Boat) {}
 }

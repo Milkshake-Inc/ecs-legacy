@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Key from '@ecs/input/Key';
@@ -12,6 +13,8 @@ export default class FreeRoamCameraSystem extends System {
 	private cameraAngle: Vector3 = Vector3.ZERO;
 	private keyboard = new Keyboard();
 
+	private locked = false;
+
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
 	});
@@ -19,23 +22,49 @@ export default class FreeRoamCameraSystem extends System {
 	constructor() {
 		super();
 
-		window.addEventListener('mousemove', this.handleMouseMove.bind(this));
+		const requestedElement = document.body;
+
+		requestedElement.addEventListener('click', () => {
+			document.body.requestPointerLock();
+		});
+
+		document.body.addEventListener('mousemove', this.handleMouseMove.bind(this));
+
+		document.addEventListener(
+			'pointerlockchange',
+			event => {
+				this.locked = document.pointerLockElement === requestedElement;
+			},
+			false
+		);
 	}
 
 	get camera() {
-		return this.queries.camera.first.get(Transform);
+		return this.queries.camera.first?.get(Transform);
 	}
 
 	handleMouseMove(event: MouseEvent) {
-		const mouse = {
-			x: (event.clientX / window.innerWidth) * 2 - 1,
-			y: -(event.clientY / window.innerHeight) * 2 + 1
-		};
+		if (!this.camera) return;
 
-		const delta = {
-			x: mouse.x - this.lastPosition.x,
-			y: mouse.y - this.lastPosition.y
-		};
+		const mouse = this.locked
+			? {
+					x: event.movementX / 500,
+					y: -event.movementY / 500
+			  }
+			: {
+					x: (event.clientX / window.innerWidth) * 2 - 1,
+					y: -(event.clientY / window.innerHeight) * 2 + 1
+			  };
+
+		const delta = this.locked
+			? {
+					x: mouse.x,
+					y: mouse.y
+			  }
+			: {
+					x: mouse.x - this.lastPosition.x,
+					y: mouse.y - this.lastPosition.y
+			  };
 
 		this.cameraAngle.x += delta.x * 2;
 		this.cameraAngle.y -= delta.y * 2;

@@ -81,13 +81,6 @@ export class Terrain extends Space {
 
 			const wood = new Entity();
 			wood.add(Transform, { y: -20 });
-			// wood.add(
-			// 	new CannonInstancedBody({
-			// 		collisionFilterGroup: PhysicsGroup.Folliage,
-			// 		collisionFilterMask: PhysicsGroup.Player
-			// 	})
-			// );
-			// wood.add(new Box(new Vec3(1, 1, 1)));
 			wood.add(v.woodMesh);
 
 			this.addEntities(leaf, wood);

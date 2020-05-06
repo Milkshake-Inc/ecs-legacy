@@ -1,60 +1,63 @@
 import { useQueries } from '@ecs/ecs/helpers';
-import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/math/Vector';
 import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
-import { all } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Vec3 } from 'cannon-es';
 import { AnimationAction, AnimationClip, AnimationMixer, PerspectiveCamera, Quaternion, Vector3 as ThreeVector3 } from 'three';
 import CharacterTag from '../components/CharacterTag';
 import GLTFHolder from '../../3d/components/GLTFHolder';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { Entity } from '@ecs/ecs/Entity';
 
 enum CharacterAnimationState {
 	IDLE,
 	RUN
 }
 
-export default class CharacterControllerSystem extends System {
+export default class CharacterControllerSystem extends IterativeSystem {
 	private idleClip: AnimationAction;
 	private sprintClip: AnimationAction;
 
 	private state: CharacterAnimationState = CharacterAnimationState.IDLE;
-	private amimationMixed: AnimationMixer;
+	private animationMixed: AnimationMixer;
 
 	protected queries = useQueries(this, {
-		character: all(CharacterTag, Transform, CannonBody, Input),
 		camera: all(Transform, PerspectiveCamera)
 	});
 
-	update(deltaTime: number) {
-		super.update(deltaTime);
-		this.rotateToCameraDirection();
-		this.moveCharacter(deltaTime);
+	constructor() {
+		super(makeQuery(all(CharacterTag, Transform, CannonBody, Input)));
 	}
 
-	private moveCharacter(deltaTime: number) {
-		if (!this.amimationMixed) {
-			const gltf = this.character.get(GLTFHolder).value;
-			this.amimationMixed = new AnimationMixer(gltf.scene);
+	updateEntity(entity: Entity, dt: number) {
+		this.rotateToCameraDirection(entity);
+		this.moveCharacter(entity, dt);
+	}
+
+	private moveCharacter(entity: Entity, deltaTime: number) {
+		if (!this.animationMixed) {
+			const gltf = entity.get(GLTFHolder).value;
+			this.animationMixed = new AnimationMixer(gltf.scene);
 
 			const idleAnimation = AnimationClip.findByName(gltf.animations, 'idle');
 			const sprintAnimation = AnimationClip.findByName(gltf.animations, 'sprint');
 
-			this.idleClip = this.amimationMixed.clipAction(idleAnimation);
-			this.sprintClip = this.amimationMixed.clipAction(sprintAnimation);
+			this.idleClip = this.animationMixed.clipAction(idleAnimation);
+			this.sprintClip = this.animationMixed.clipAction(sprintAnimation);
 
 			this.idleClip.play();
 			this.sprintClip.play();
 			this.sprintClip.weight = 0;
 		}
 
-		if (this.amimationMixed) {
-			this.amimationMixed.update(deltaTime / 1000);
+		if (this.animationMixed) {
+			this.animationMixed.update(deltaTime / 1000);
 		}
 
-		const input = this.character.get(Input);
-		const characterCanonBody = this.character.get(CannonBody);
+		const input = entity.get(Input);
+		const characterCanonBody = entity.get(CannonBody);
 
 		characterCanonBody.velocity.x *= 0.6;
 		characterCanonBody.velocity.z *= 0.6;
@@ -102,10 +105,10 @@ export default class CharacterControllerSystem extends System {
 		characterCanonBody.applyLocalImpulse(new Vec3(impulse.x, impulse.y, impulse.z), new Vec3(0, 0, 0));
 	}
 
-	private rotateToCameraDirection() {
+	private rotateToCameraDirection(entity: Entity) {
 		const cameraTransform = this.camera.get(Transform);
-		const characterTransform = this.character.get(Transform);
-		const characterCanonBody = this.character.get(CannonBody);
+		const characterTransform = entity.get(Transform);
+		const characterCanonBody = entity.get(CannonBody);
 
 		const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
 		const directionAngle = Math.atan2(directionVector.z, directionVector.x);
@@ -122,10 +125,6 @@ export default class CharacterControllerSystem extends System {
 		const slerpQuaternion = currentQuaternion.slerp(targetQuaternion, 0.3);
 
 		characterCanonBody.quaternion.set(slerpQuaternion.x, slerpQuaternion.y, slerpQuaternion.z, slerpQuaternion.w);
-	}
-
-	get character() {
-		return this.queries.character.first;
 	}
 
 	get camera() {

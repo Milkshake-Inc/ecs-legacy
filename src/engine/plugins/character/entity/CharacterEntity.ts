@@ -1,5 +1,4 @@
 import { Entity } from '@ecs/ecs/Entity';
-import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
 import { Material, ContactMaterial } from 'cannon-es';
@@ -9,6 +8,7 @@ import GLTFHolder from '../../3d/components/GLTFHolder';
 import CharacterTag from './../components/CharacterTag';
 import CapsuleShape from '@ecs/plugins/physics/components/CapsuleShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export const characterMaterial = new Material('characterMaterial');
 characterMaterial.friction = 0.5;
@@ -27,9 +27,9 @@ export default class CharacterEntity extends Entity {
 		super();
 
 		this.add(Transform, { position: spawnPosition, ry: 2 });
+		this.add(InputKeybindings.WASD());
 		this.add(GLTFHolder, { value: gtlf });
 		this.add(CharacterTag);
-		this.add(Input);
 		this.add(gtlf.scene);
 		this.add(contactMaterial);
 		this.add(
@@ -38,7 +38,8 @@ export default class CharacterEntity extends Entity {
 				material: characterMaterial,
 				fixedRotation: true,
 				collisionFilterGroup: ~CollisionGroups.Characters,
-				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Vehicles
+				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Vehicles,
+				allowSleep: false
 			}),
 			{
 				offset: new Vector3(0, -0.2, 0)

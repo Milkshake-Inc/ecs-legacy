@@ -25,6 +25,8 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 	updateEntity(entity: Entity, dt: number) {
 		const heli = entity.get(Helicopter);
 
+		dt = dt / 1000;
+
 		if (entity.get(Vehicle).controller) {
 			if (heli.enginePower < 1) heli.enginePower += dt * 0.2;
 			if (heli.enginePower > 1) heli.enginePower = 1;
@@ -36,13 +38,13 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 		heli.rotors.forEach(r => r.rotateX(heli.enginePower * dt * 30));
 	}
 
-	// should be pre physics
 	updateEntityFixed(entity: Entity, dt: number) {
 		const body = entity.get(CannonBody);
 		const heli = entity.get(Helicopter);
 		const input = entity.get(Input);
 
 		if (input.upDown) {
+			console.log(heli.enginePower);
 			body.velocity.x += body.up.x * 0.15 * heli.enginePower;
 			body.velocity.y += body.up.y * 0.15 * heli.enginePower;
 			body.velocity.z += body.up.z * 0.15 * heli.enginePower;
@@ -56,7 +58,7 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 
 		const gravity = this.physicsState.gravity;
 		let gravityCompensation = new Vec3(-gravity.x, -gravity.y, -gravity.z).length();
-		gravityCompensation *= this.physicsState.frameTime; // heli.world.physicsFrameTime;
+		gravityCompensation *= this.physicsState.frameTime;
 		gravityCompensation *= 0.98;
 		const dot = Vector3.UP.dot(body.up);
 		gravityCompensation *= Math.sqrt(MathHelper.clamp(dot, 0, 1));

@@ -1,6 +1,5 @@
 /* eslint-disable no-prototype-builtins */
 import { Entity } from '@ecs/ecs/Entity';
-import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -22,7 +21,6 @@ export default class HelicopterEntity extends Entity {
 		this.add(Transform, { position: spawnPosition });
 		this.add(Vehicle);
 		this.add(Helicopter, { rotors: this.getRotorsFromModel(gltf) });
-		this.add(Input);
 		this.add(gltf.scene);
 		this.add(
 			new CannonBody({
@@ -34,8 +32,6 @@ export default class HelicopterEntity extends Entity {
 		this.add(GLTFShape, { gltf });
 		this.add(mat);
 	}
-
-	public getCollidersFromModel(gltf: GLTF) {}
 
 	public getRotorsFromModel(gltf: GLTF): Object3D[] {
 		const rotors = [];
