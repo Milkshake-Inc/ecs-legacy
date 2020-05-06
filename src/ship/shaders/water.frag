@@ -48,7 +48,7 @@ void main() {
     gl_FragColor = waterColor;
   }
 
-  // float deptha = gl_FragCoord.z / gl_FragCoord.w;
+  // float deptha = gl_FragCoord.x / gl_FragCoord.y;
   // float fogFactor = smoothstep( 80.0, 90.0, deptha );
   // gl_FragColor = mix( gl_FragColor.rgba, vec4(gl_FragColor.r, gl_FragColor.g, gl_FragColor.b, 0.0), fogFactor);
 }

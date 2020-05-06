@@ -23,7 +23,9 @@ import {
 	PlaneBufferGeometry,
 	ShaderMaterial,
 	TextureLoader,
-	HemisphereLight
+	HemisphereLight,
+	CircleBufferGeometry,
+	AmbientLight
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import ThirdPersonTarget from '../../engine/plugins/3d/systems/ThirdPersonTarget';
@@ -32,7 +34,7 @@ import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
 import WaveMachineSystem from '../systems/WaveMachineSystem';
 import ThirdPersonCameraSystem from '../../engine/plugins/3d/systems/ThirdPersonCameraSystem';
-import { Material, Vec3 } from 'cannon-es';
+import { Material, Vec3, Quaternion } from 'cannon-es';
 import MathHelper from '@ecs/math/MathHelper';
 import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
@@ -40,6 +42,9 @@ import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 import CameraSwitchState, { CameraSwitchType } from '../components/CameraSwitchState';
 import Key from '@ecs/input/Key';
+import ParentTransformSystem from '../systems/ParentTransformSystem';
+import SkyBox from '../components/SkyBox';
+import Water from '../components/Water';
 
 const Acceleration = 0.3;
 const MaxSpeed = 30;
@@ -86,7 +91,19 @@ export class Ship extends Space {
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(Gravity, 10, false));
 
+
 		const player = new CharacterEntity(this.boxMan, new Vector3(-150, 20, -100));
+
+		this.addSystem(new ParentTransformSystem(
+			all(PerspectiveCamera),
+			[
+				any(SkyBox, Water)
+			], {
+				followZ: true,
+				followX: true,
+				followY: false
+			}))
+
 		// player.add(ThirdPersonTarget)
 		player.add(InputKeybindings.WASDINVERSE());
 		player.get(CannonBody).collisionFilterGroup = PhysicsGroup.Player;
@@ -185,6 +202,8 @@ export class Ship extends Space {
 						original.z = MathHelper.lerp(original.z, 0, 0.1);
 
 						body.quaternion.setFromEuler(original.x, original.y, original.z);
+					} else {
+
 					}
 
 					// Limit max speed
@@ -194,8 +213,28 @@ export class Ship extends Space {
 					if (body.velocity.length() < MaxSpeed) {
 						body.applyLocalForce(new Vec3(velocity.x, velocity.y, velocity.z), new Vec3(0, 0, 0));
 					}
+					// Check if airborn
+
+					body.velocity = body.velocity.scale(0.99);
 
 					body.angularVelocity.set(angularVelocity.x, angularVelocity.y, angularVelocity.z);
+
+					// const a = ;
+					// const x = Math.atan(body.velocity.x);
+					const targetY = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), Math.atan(body.velocity.y));
+					// const targetX = new Quaternion().setFromAxisAngle(new Vec3(0, -1, 0), Math.atan(body.velocity.x) + (Math.PI / 2));
+					// const targetZ = new Quaternion().setFromAxisAngle(new Vec3(0, 0, 1), Math.atan(body.velocity.z));
+
+					const target = new Quaternion();
+					target.mult(targetY, target);
+					// target.mult(targetX, target);
+
+
+					// const targetX = new Quaternion().setFromAxisAngle(new Vec3(1, 0, 0), a);
+					body.quaternion.slerp(target, 0.01, body.quaternion);
+					body.wakeUp()
+
+
 				}
 			})
 		);
@@ -229,8 +268,9 @@ export class Ship extends Space {
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 1));
+		light.add(new AmbientLight(new ThreeColor(Color.White), 0.4));
 		light.add(new HemisphereLight());
-		light.add(Transform, { x: 1, y: 1, z: 0 });
+		light.add(Transform, { x: 0, y: 1000, z: 1000 });
 		light.get(HemisphereLight).intensity = 0.35;
 
 		const cam = camera.get(PerspectiveCamera);
@@ -249,8 +289,14 @@ export class Ship extends Space {
 		});
 
 		// Water
-		const mesh = new Mesh(new PlaneBufferGeometry(window.innerWidth, window.innerHeight, 100, 100), this.postMaterial);
-		mesh.rotation.x = -Math.PI / 2;
+		const mesh = new Mesh(new CircleBufferGeometry(500, 30), this.postMaterial);
+
+
+		const waterEntity = new Entity();
+		waterEntity.add(Transform, { rx: -Math.PI / 2, });
+		waterEntity.add(mesh);
+		waterEntity.add(Water);
+
 
 		const entity = this.worldEngine.entities.find(any(ShipRenderState));
 		const renderState = entity.get(ShipRenderState);
@@ -259,17 +305,21 @@ export class Ship extends Space {
 
 		// Skybox
 		const textureFT = new TextureLoader().load('assets/prototype/textures/sky/nx.png');
-		const textureBK = new TextureLoader().load('assets/prototype/textures/sky/nz.png');
+		const textureLF = new TextureLoader().load('assets/prototype/textures/sky/px.png');
+
 		const textureUP = new TextureLoader().load('assets/prototype/textures/sky/ny.png');
 		const textureDN = new TextureLoader().load('assets/prototype/textures/sky/py.png');
+
+		const textureBK = new TextureLoader().load('assets/prototype/textures/sky/nz.png');
 		const textureRT = new TextureLoader().load('assets/prototype/textures/sky/pz.png');
-		const textureLF = new TextureLoader().load('assets/prototype/textures/sky/px.png');
+
 
 		const materialArray = [
 			new MeshBasicMaterial({ map: textureFT, fog: false }),
 			new MeshBasicMaterial({ map: textureBK, fog: false }),
-			new MeshBasicMaterial({ map: textureUP, fog: false }),
 			new MeshBasicMaterial({ map: textureDN, fog: false }),
+			new MeshBasicMaterial({ map: textureUP, fog: false }),
+
 			new MeshBasicMaterial({ map: textureRT, fog: false }),
 			new MeshBasicMaterial({ map: textureLF, fog: false })
 		];
@@ -284,7 +334,8 @@ export class Ship extends Space {
 			geometry: new BoxGeometry(1000, 1000, 1000),
 			material: materialArray
 		});
+		skyBox.add(SkyBox)
 
-		this.addEntities(light, camera, skyBox);
+		this.addEntities(light, camera, skyBox, waterEntity);
 	}
 }

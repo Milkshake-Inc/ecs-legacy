@@ -25,7 +25,13 @@ export const generateInstancedMesh = (mesh: Mesh | Group, count = 50, colorPalet
 
 	if (colorPalette && colorPalette.length > 0) {
 		// Override the material otherwise colors dont come out well. Maybe this could be improved.
-		instancedMesh.material = new MeshPhongMaterial();
+		instancedMesh.material = new MeshPhongMaterial({
+			flatShading: true,
+			reflectivity: 0,
+			specular: 0,
+			wireframe: false,
+			vertexColors: true
+		});
 		const colors = new Float32Array(count * 3);
 
 		instancedMeshForEach(instancedMesh, i => {

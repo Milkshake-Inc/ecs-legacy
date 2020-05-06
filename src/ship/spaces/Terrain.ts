@@ -1,17 +1,22 @@
-import Space from '@ecs/plugins/space/Space';
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { Mesh, MeshPhongMaterial, InstancedMesh, Vector3 as ThreeVector3, Object3D, PlaneBufferGeometry, BufferAttribute } from 'three';
-import Transform from '@ecs/plugins/Transform';
-import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import Color from '@ecs/math/Color';
+import Random from '@ecs/math/Random';
+import Vector3 from '@ecs/math/Vector';
+import { generateInstancedMesh, getMeshByMaterialName } from '@ecs/plugins/3d/utils/meshUtils';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import Space from '@ecs/plugins/space/Space';
+import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Heightfield, Material } from 'cannon-es';
+import { makeNoise3D, Noise3D } from 'open-simplex-noise';
+import { BufferAttribute, InstancedMesh, Mesh, MeshPhongMaterial, Object3D, PlaneBufferGeometry, Vector3 as ThreeVector3 } from 'three';
 import { PhysicsGroup } from './Ship';
-import { generateInstancedMesh, getMeshByMaterialName } from '@ecs/plugins/3d/utils/meshUtils';
-import Vector3 from '@ecs/math/Vector';
-import Random from '@ecs/math/Random';
+
+const width = 100;
+const height = 100;
+const detail = 1.5;
+const scale = 5;
 
 const GRASS = 0x82c62d;
 
@@ -40,7 +45,7 @@ export class Terrain extends Space {
 			count: 3000,
 			minScale: 5,
 			maxScale: 8,
-			leafColors: [Color.MediumPurple, Color.Indigo, Color.Violet, Color.CornflowerBlue, Color.White, Color.IndianRed],
+			leafColors: [GRASS, 0x76b02e, 0x96b02e, 0xbcd84d],
 			dummy: new Object3D(),
 			varieties: []
 		};
@@ -62,7 +67,8 @@ export class Terrain extends Space {
 					this.trees.count / trees.length,
 					this.trees.leafColors
 				),
-				woodMesh: generateInstancedMesh(getMeshByMaterialName(t.scene, 'woodBark'), this.trees.count / trees.length),
+				woodMesh: generateInstancedMesh(getMeshByMaterialName(t.scene, 'woodBark'), this.trees.count / trees.length,
+				[0x844734, 0x7B444A ]),
 				index: 0
 			};
 		});
@@ -146,10 +152,14 @@ export class Terrain extends Space {
 				const treeVariety = Random.fromArray(this.trees.varieties);
 
 				if (heightValue > 30 && treeVariety.index < treeVariety.leafMesh.count) {
-					const noise = linearNoise(this.noise(worldX / 60, 0, worldY / 60));
+					const noise = linearNoise(this.noise(worldX / 30, 0, worldY / 30)) + linearNoise(this.noise(worldX, 0, worldY)) / 4;
 
 					if (noise > 0.6) {
-						this.trees.dummy.position.copy(new ThreeVector3(worldY - scale / 2, heightValue, worldX - scale / 2));
+						const position = new ThreeVector3(worldY - scale / 2, heightValue, worldX - scale / 2);
+						position.x += Random.float(-1, 1);
+						position.z += Random.float(-1, 1);
+						this.trees.dummy.position.copy(position);
+						this.trees.dummy.rotateY(Random.float(-Math.PI, Math.PI));
 
 						this.trees.dummy.scale.setScalar(Random.int(this.trees.minScale, this.trees.maxScale));
 						this.trees.dummy.updateMatrix();

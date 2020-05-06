@@ -17,7 +17,7 @@ import {
 	PlaneGeometry,
 	RepeatWrapping,
 	Texture,
-	SphereGeometry
+	BoxGeometry,
 } from 'three';
 
 const Assets = {
@@ -55,7 +55,7 @@ export default class BaseSpace extends Space {
 		entity.add(Transform, { position });
 		entity.add(
 			new Mesh(
-				new SphereGeometry(radius),
+				new BoxGeometry(radius, radius, radius),
 				new MeshPhongMaterial({
 					map: this.redTexture,
 					flatShading: true,
@@ -76,7 +76,7 @@ export default class BaseSpace extends Space {
 	}
 
 	setup() {
-		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, false));
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, true));
 
 		const slippy = new Material('slippy');
 		slippy.friction = 0.04;
