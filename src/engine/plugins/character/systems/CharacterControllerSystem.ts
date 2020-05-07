@@ -85,7 +85,7 @@ export default class CharacterControllerSystem extends IterativeSystem {
 		}
 
 		if (input.jumpDown) {
-			impulse = impulse.add(Vector3.UP.multiF(5));
+			impulse = impulse.add(Vector3.UP.multiF(3));
 		}
 
 		const newState = impulse.magnitude() < 0.1 ? CharacterAnimationState.IDLE : CharacterAnimationState.RUN;

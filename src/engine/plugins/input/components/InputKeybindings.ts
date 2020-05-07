@@ -2,15 +2,11 @@ import Key from '@ecs/input/Key';
 
 export default class InputKeybindings {
 	public static WASD() {
-		return new InputKeybindings([Key.D], [Key.A], [Key.W], [Key.S]);
-	}
-
-	public static WASDINVERSE() {
-		return new InputKeybindings([Key.D], [Key.A], [Key.S], [Key.W]);
+		return new InputKeybindings([Key.D], [Key.A], [Key.W], [Key.S], [Key.SPACEBAR]);
 	}
 
 	public static ARROW() {
-		return new InputKeybindings([Key.RIGHT], [Key.LEFT], [Key.UP], [Key.DOWN]);
+		return new InputKeybindings([Key.RIGHT], [Key.LEFT], [Key.UP], [Key.DOWN], [Key.SPACEBAR]);
 	}
 
 	public static BOTH() {
