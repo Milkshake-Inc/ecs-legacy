@@ -12,6 +12,7 @@ import Vector3 from '@ecs/math/Vector';
 import MathHelper from '@ecs/math/MathHelper';
 import { ToVector3, ToThreeVector3 } from '@ecs/plugins/physics/utils/Conversions';
 import { Quaternion, Euler } from 'three';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
 
 export default class HelicopterControllerSystem extends IterativeSystem {
 	protected queries = useQueries(this, {
@@ -24,6 +25,7 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 
 	updateEntity(entity: Entity, dt: number) {
 		const heli = entity.get(Helicopter);
+		const sound = entity.get(Sound);
 
 		dt = dt / 1000;
 
@@ -33,6 +35,10 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 		} else {
 			if (heli.enginePower > 0) heli.enginePower -= dt * 0.06;
 			if (heli.enginePower < 0) heli.enginePower = 0;
+		}
+
+		if (sound) {
+			sound.rate = heli.enginePower;
 		}
 
 		heli.rotors.forEach(r => r.rotateX(heli.enginePower * dt * 30));

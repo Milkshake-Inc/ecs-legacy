@@ -49,6 +49,8 @@ import BoatControllerSystem from '@ecs/plugins/vehicle/systems/BoatControllerSys
 import MathHelper from '@ecs/math/MathHelper';
 import { Vec3 } from 'cannon-es';
 import CharacterTag from '@ecs/plugins/character/components/CharacterTag';
+import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
+import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
@@ -78,10 +80,11 @@ export class Ship extends Space {
 		this.setupEnvironment();
 
 		const player = new CharacterEntity(this.boxMan, new Vector3(-200, 10, -100));
-		const heli = new HelicopterEntity(this.heli, new Vector3(-190, 10, -100));
+		const heli = new HelicopterEntity(this.heli, new Vector3(-190, 10, -100), 'assets/prototype/sounds/helicopter.mp3');
 		const boat = new BoatEntity(this.shipModel, new Vector3(-180, 10, -100));
 		this.addEntities(player, heli, boat);
 
+		this.addSystem(new SoundSystem());
 		this.addSystem(new WaveMachineSystem());
 		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
 		this.addSystem(new InputSystem());
@@ -187,6 +190,7 @@ export class Ship extends Space {
 		camera.add(CameraSwitchState);
 		camera.add(Input);
 		camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
+		camera.add(SoundListener);
 
 		this.addSystem(
 			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox, Water)], {

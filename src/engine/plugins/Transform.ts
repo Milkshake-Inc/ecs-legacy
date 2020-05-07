@@ -134,4 +134,28 @@ export default class Transform {
 	public look(direction = Vector3.FORWARD) {
 		return this.quaternion.multiV(direction);
 	}
+
+	get forward() {
+		return this.look(Vector3.FORWARD);
+	}
+
+	get back() {
+		return this.look(Vector3.BACKWARD);
+	}
+
+	get left() {
+		return this.look(Vector3.LEFT);
+	}
+
+	get right() {
+		return this.look(Vector3.RIGHT);
+	}
+
+	get up() {
+		return this.look(Vector3.UP);
+	}
+
+	get down() {
+		return this.look(Vector3.DOWN);
+	}
 }

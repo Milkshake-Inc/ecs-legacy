@@ -11,14 +11,20 @@ import { Material } from 'cannon-es';
 import GLTFShape from '@ecs/plugins/physics/components/GLTFShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
+import SoundFollowTarget from '@ecs/plugins/sound/components/SoundFollowTarget';
 
 export default class HelicopterEntity extends Entity {
-	constructor(gltf: GLTF, spawnPosition: Vector3 = Vector3.ZERO) {
+	constructor(gltf: GLTF, spawnPosition: Vector3 = Vector3.ZERO, sfx?: string) {
 		super();
 
 		const mat = new Material('Mat');
 		mat.friction = 0.01;
 
+		if (sfx) {
+			this.add(Sound, { src: sfx, loop: true, seek: 0, volume: 2 });
+			this.add(SoundFollowTarget, { offset: new Vector3(0, 0, -5) });
+		}
 		this.add(Transform, { position: spawnPosition });
 		this.add(Vehicle);
 		this.add(Helicopter, { rotors: this.getRotorsFromModel(gltf) });

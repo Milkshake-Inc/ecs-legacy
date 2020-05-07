@@ -5,7 +5,10 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
 import Transform from '@ecs/plugins/Transform';
-import { useState } from '@ecs/ecs/helpers';
+import { useState, useQueries } from '@ecs/ecs/helpers';
+import SoundListener from '../components/SoundListener';
+import SoundFollowTarget from '../components/SoundFollowTarget';
+import { BoxGeometry, Mesh, MeshBasicMaterial, Group } from 'three';
 
 export class SoundState {
 	static fromStorage(): SoundState {
@@ -39,8 +42,10 @@ export class SoundState {
 export default class SoundSystem extends IterativeSystem {
 	protected engine: Engine;
 	protected sounds: Map<Entity, Howl> = new Map();
-
 	protected state = useState(this, SoundState.fromStorage());
+	protected queries = useQueries(this, {
+		listener: all(Transform, SoundListener)
+	});
 
 	constructor() {
 		super(makeQuery(all(Sound)));
@@ -50,7 +55,11 @@ export default class SoundSystem extends IterativeSystem {
 		Howler.volume(this.state.volume);
 
 		super.updateFixed(dt);
-		Howler.pos(1280 / 2, 720 / 2, 0);
+
+		if (this.listener) {
+			const listenerPos = this.listener.get(Transform);
+			Howler.pos(listenerPos.x, listenerPos.y, listenerPos.z);
+		}
 	}
 
 	protected updateEntityFixed(entity: Entity): void {
@@ -99,17 +108,33 @@ export default class SoundSystem extends IterativeSystem {
 			sound.seek = null;
 		}
 
-		if (entity.has(Transform)) {
+		if (entity.has(Transform) && entity.has(SoundFollowTarget)) {
 			const pos = entity.get(Transform);
-			howl.pos(pos.x, pos.y, 0);
-			howl.pannerAttr({
-				panningModel: 'HRTF',
-				refDistance: 0.8,
-				rolloffFactor: 0.5,
-				distanceModel: 'linear',
-				maxDistance: 1000
-			});
+			const target = entity.get(SoundFollowTarget);
+
+			const offset = target.offset.applyQuaternion(pos.quaternion);
+			const speakerPos = pos.position.add(offset);
+
+			if (target.debug) {
+				let mesh = target.debugMesh;
+				if (!mesh) {
+					mesh = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshBasicMaterial({ color: 0x00ff00 }));
+
+					const targetMesh = entity.get(Group) || entity.get(Mesh);
+					targetMesh.parent.add(mesh);
+					target.debugMesh = mesh;
+				}
+
+				mesh.position.set(speakerPos.x, speakerPos.y, speakerPos.z);
+			}
+
+			howl.pos(speakerPos.x, speakerPos.y, speakerPos.z);
+			howl.pannerAttr(target.options);
 		}
+	}
+
+	protected get listener() {
+		return this.queries.listener.first;
 	}
 
 	protected onSoundEnd(entity: Entity) {

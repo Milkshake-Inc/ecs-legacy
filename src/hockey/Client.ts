@@ -98,7 +98,7 @@ export class ClientHockey extends Hockey {
 		const background = new Entity();
 		background.add(Transform);
 		background.add(Sprite, { imageUrl: Assets.Background, anchor: Vector3.ZERO });
-		background.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.1 });
+		background.add(Sound, { src: 'assets/hockey/music.mp3', loop: true, seek: 0, volume: 0.05 });
 		this.addEntities(background);
 
 		this.addSystem(new ClientInputSenderSystem());
