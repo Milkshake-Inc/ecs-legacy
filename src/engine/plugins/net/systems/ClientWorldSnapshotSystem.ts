@@ -56,10 +56,10 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends It
 		}
 	}
 
-	updateFixed(deltaTime: number) {
+	updateFixed(dt: number, frameDt: number) {
 		this.state.snapshotHistory[this.serverTick] = this.takeSnapshot();
 
-		super.updateFixed(deltaTime);
+		super.updateFixed(dt, frameDt);
 	}
 
 	updateSnapshot({ snapshot, tick }: WorldSnapshot<TSnapshot>) {

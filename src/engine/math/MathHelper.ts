@@ -1,4 +1,4 @@
-import Vector3 from './Vector';
+import Vector3, { Vector } from './Vector';
 
 export default class MathHelper {
 	public static clamp(value: number, min: number, max: number): number {
@@ -8,7 +8,7 @@ export default class MathHelper {
 		return value < min ? min : value > max ? max : value;
 	}
 
-	public static clampVector3(value: Vector3, min: Vector3, max: Vector3) {
+	public static clampVector3(value: Vector3, min: Vector3 | Vector, max: Vector3 | Vector) {
 		const result: Vector3 = value.clone();
 		result.x = this.clamp(result.x, min.x, max.x);
 		result.y = this.clamp(result.y, min.y, max.y);
@@ -47,7 +47,7 @@ export default class MathHelper {
 		return this.hermite(valueA, 0, valueB, 0, this.clamp(amount, 0, 1));
 	}
 
-	public static smoothStepVector3(valueA: Vector3, valueB: Vector3, amount: number): Vector3 {
+	public static smoothStepVector3(valueA: Vector3 | Vector, valueB: Vector3 | Vector, amount: number): Vector3 {
 		const result: Vector3 = new Vector3();
 		result.x = this.smoothStep(valueA.x, valueB.x, amount);
 		result.y = this.smoothStep(valueA.y, valueB.y, amount);
@@ -63,7 +63,7 @@ export default class MathHelper {
 		return start + percent * (end - start);
 	}
 
-	public static lerpVector3(start: Vector3, end: Vector3, percent: number) {
+	public static lerpVector3(start: Vector3 | Vector, end: Vector3 | Vector, percent: number) {
 		const result: Vector3 = new Vector3();
 		result.x = this.lerp(start.x, end.x, percent);
 		result.y = this.lerp(start.y, end.y, percent);

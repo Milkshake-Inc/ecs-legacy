@@ -20,17 +20,4 @@ export class ThreeEngine extends TickerEngine {
 	public registerSpaces(...spaces: Space[]) {
 		spaces.forEach(v => this.spaces.set(v.name, v));
 	}
-
-	protected getTime(): number {
-		return performance.now();
-	}
-
-	protected buildCallback(callback: () => void) {
-		const handleAnimationFrame = () => {
-			callback();
-			requestAnimationFrame(handleAnimationFrame);
-		};
-
-		requestAnimationFrame(handleAnimationFrame);
-	}
 }

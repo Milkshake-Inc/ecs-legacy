@@ -181,18 +181,19 @@ export class Engine {
 	}
 
 	/**
-	 * Updates the engine. This cause updating all the systems in the engine in the order of priority they've been added.
+	 * Updates the engine. Called multiple times per frame. Useful for determinisitic systems such as physics that need to run the same regardless of framerate.
 	 *
-	 * @param dt Delta time in seconds
+	 * @param dt      Fixed Delta time in seconds
+	 * @param frameDt Frame Delta time in seconds
 	 */
-	public updateFixed(dt: number): void {
+	public updateFixed(dt: number, frameDt: number): void {
 		for (const system of this._systems) {
-			system.updateFixed(dt);
+			system.updateFixed(dt, frameDt);
 		}
 	}
 
 	/**
-	 * Updates the engine. This cause updating all the systems in the engine in the order of priority they've been added.
+	 * Updates the engine. Called once per frame. Most game logic should live here.
 	 *
 	 * @param dt Delta time in seconds
 	 */
@@ -200,6 +201,28 @@ export class Engine {
 		for (const system of this._systems) {
 			system.signalBeforeUpdate.emit();
 			system.update(dt);
+		}
+	}
+
+	/**
+	 * Updates the engine. Called once per frame, after update. Useful for updating cameras before updateRender is called.
+	 *
+	 * @param dt Delta time in seconds
+	 */
+	public updateLate(dt: number): void {
+		for (const system of this._systems) {
+			system.updateLate(dt);
+		}
+	}
+
+	/**
+	 * Updates the engine. Called once per frame, after updateLate and update. This is the last thing called in the frame, making it useful for any rendering.
+	 *
+	 * @param dt Delta time in seconds
+	 */
+	public updateRender(dt: number): void {
+		for (const system of this._systems) {
+			system.updateRender(dt);
 		}
 	}
 

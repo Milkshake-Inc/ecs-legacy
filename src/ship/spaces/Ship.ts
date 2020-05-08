@@ -86,7 +86,7 @@ export class Ship extends Space {
 
 		this.addSystem(new SoundSystem());
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
+		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, 3, false));
 		this.addSystem(new InputSystem());
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new HelicopterControllerSystem());

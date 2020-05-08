@@ -35,7 +35,8 @@ export default class HelicopterEntity extends Entity {
 				mass: 50,
 				collisionFilterGroup: ~CollisionGroups.Vehicles,
 				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Characters,
-				allowSleep: false
+				allowSleep: false,
+				interpolation: true
 			})
 		);
 		this.add(GLTFShape, { gltf });

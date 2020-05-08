@@ -51,10 +51,10 @@ export default class SoundSystem extends IterativeSystem {
 		super(makeQuery(all(Sound)));
 	}
 
-	public updateFixed(dt: number) {
+	public updateFixed(dt: number, frameDt: number) {
 		Howler.volume(this.state.volume);
 
-		super.updateFixed(dt);
+		super.updateFixed(dt, frameDt);
 
 		if (this.listener) {
 			const listenerPos = this.listener.get(Transform);

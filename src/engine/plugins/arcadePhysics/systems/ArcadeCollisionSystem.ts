@@ -19,8 +19,8 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 		shape.pos.y = y;
 	}
 
-	public updateFixed(deltaTime: number) {
-		super.updateFixed(deltaTime);
+	public updateFixed(dt: number, frameDt: number) {
+		super.updateFixed(dt, frameDt);
 
 		// Update all collision shapes position
 		for (const entity of this.entities) {

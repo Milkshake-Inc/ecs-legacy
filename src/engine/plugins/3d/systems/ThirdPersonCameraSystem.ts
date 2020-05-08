@@ -91,7 +91,8 @@ export default class ThirdPersonCameraSystem extends System {
 	// Rotation = Helpers.GetRotation(Vector3.Forward, newForward, Vector3.Up);
 	// Cannon.Shoot(Position, Rotation, this);
 
-	update(dt: number) {
+	public updateLate(dt: number) {
+		super.updateLate(dt);
 		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
 		this.acamera.quaternion.set(
 			this.acamera.quaternion.x,

@@ -42,8 +42,16 @@ export abstract class IterativeSystem extends ReactionSystem {
 		this.updateEntities(dt);
 	}
 
-	public updateFixed(dt: number) {
-		this.updateEntitiesFixed(dt);
+	public updateLate(dt: number) {
+		this.updateEntitiesLate(dt);
+	}
+
+	public updateRender(dt: number) {
+		this.updateEntitiesRender(dt);
+	}
+
+	public updateFixed(dt: number, frameDt: number) {
+		this.updateEntitiesFixed(dt, frameDt);
 	}
 
 	public onRemovedFromEngine(engine: Engine) {
@@ -58,10 +66,24 @@ export abstract class IterativeSystem extends ReactionSystem {
 		}
 	}
 
-	protected updateEntitiesFixed(dt: number) {
+	protected updateEntitiesLate(dt: number) {
 		for (const entity of this.query.entities) {
 			if (this._removed) return;
-			this.updateEntityFixed(entity, dt);
+			this.updateEntityLate(entity, dt);
+		}
+	}
+
+	protected updateEntitiesRender(dt: number) {
+		for (const entity of this.query.entities) {
+			if (this._removed) return;
+			this.updateEntityRender(entity, dt);
+		}
+	}
+
+	protected updateEntitiesFixed(dt: number, frameDt: number) {
+		for (const entity of this.query.entities) {
+			if (this._removed) return;
+			this.updateEntityFixed(entity, dt, frameDt);
 		}
 	}
 
@@ -74,10 +96,27 @@ export abstract class IterativeSystem extends ReactionSystem {
 	protected updateEntity(entity: Entity, dt: number): void {}
 
 	/**
-	 * Update Fixed entity
+	 * Update entity
 	 *
 	 * @param entity Entity to update
 	 * @param dt Delta time in seconds
 	 */
-	protected updateEntityFixed(entity: Entity, dt: number): void {}
+	protected updateEntityLate(entity: Entity, dt: number): void {}
+
+	/**
+	 * Update entity
+	 *
+	 * @param entity Entity to update
+	 * @param dt Delta time in seconds
+	 */
+	protected updateEntityRender(entity: Entity, dt: number): void {}
+
+	/**
+	 * Update Fixed entity
+	 *
+	 * @param entity Entity to update
+	 * @param dt Delta time in seconds
+	 * @param frameDt Fixed Delta time in seconds
+	 */
+	protected updateEntityFixed(entity: Entity, dt: number, frameDt: number): void {}
 }

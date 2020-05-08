@@ -19,8 +19,8 @@ export class DebugSystem extends IterativeSystem {
 		this.keyboard = new Keyboard();
 	}
 
-	public updateFixed(dt: number) {
-		super.updateFixed(dt);
+	public updateFixed(dt: number, frameDt: number) {
+		super.updateFixed(dt, frameDt);
 
 		if (this.keyboard.isEitherDown([Key.BACKWARD_TICK]) && !this.open) {
 			this.ecsGraph.toggle(true);

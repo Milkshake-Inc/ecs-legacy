@@ -8,7 +8,6 @@ import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { allRandom } from 'dog-names';
-import { performance } from 'perf_hooks';
 import Hockey, { PlayerConfig } from './spaces/Hockey';
 import { HockeyServerWorldSnapshotSystem } from './systems/HockeyServerWorldSnapshotSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
@@ -36,10 +35,6 @@ export class NetEngine extends TickerEngine {
 
 	public registerSpaces(...spaces: Space[]) {
 		spaces.forEach(v => this.spaces.set(v.name, v));
-	}
-
-	protected getTime(): number {
-		return performance.now();
 	}
 }
 

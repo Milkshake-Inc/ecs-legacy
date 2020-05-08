@@ -21,7 +21,7 @@ export default abstract class TickerEngine extends Engine {
 		this.tickRateMs = 1000 / tickRate;
 		this.updateRateMs = 1000 / updateRate;
 
-		this.currentTime = this.getTime();
+		this.currentTime = performance.now();
 		this.accumulator = 0;
 
 		this.buildCallback(this.intervalCalled.bind(this));
@@ -34,7 +34,7 @@ export default abstract class TickerEngine extends Engine {
 	}
 
 	private intervalCalled(): void {
-		const newTime = this.getTime();
+		const newTime = performance.now();
 		const frameTime = newTime - this.currentTime;
 
 		this.accumulator += frameTime * this.timeMultiplier;
@@ -46,14 +46,14 @@ export default abstract class TickerEngine extends Engine {
 		}
 
 		while (this.accumulator >= this.tickRateMs) {
-			this.updateFixed(this.tickRateMs);
+			this.updateFixed(this.tickRateMs, frameTime);
 			this.accumulator -= this.tickRateMs;
 		}
 
 		this.update(frameTime);
+		this.updateLate(frameTime);
+		this.updateRender(frameTime);
 
 		this.currentTime = newTime;
 	}
-
-	protected abstract getTime(): number;
 }

@@ -18,18 +18,33 @@ export abstract class System {
 	public priority = 0;
 
 	/**
-	 * Updates system
+	 * Called multiple times per frame. Useful for determinisitic systems such as physics that need to run the same regardless of framerate.
 	 *
-	 * @param dt Delta time in seconds
+	 * @param dt      Fixed Delta time in seconds
+	 * @param frameDt Frame Delta time in seconds
 	 */
-	public updateFixed(dt: number) {}
+	public updateFixed(dt: number, frameDt: number) {}
 
 	/**
-	 * Fixed updates system
+	 * Called once per frame. Most game logic should live here.
 	 *
 	 * @param dt Delta time in seconds
 	 */
 	public update(dt: number) {}
+
+	/**
+	 * Called once per frame, after update. Useful for updating cameras before updateRender is called.
+	 *
+	 * @param dt Delta time in seconds
+	 */
+	public updateLate(dt: number) {}
+
+	/**
+	 * Called once per frame, after updateLate and update. This is the last thing called in the frame, making it useful for any rendering.
+	 *
+	 * @param dt Delta time in seconds
+	 */
+	public updateRender(dt: number) {}
 
 	/**
 	 * Callback that will be invoked when system being added to engine

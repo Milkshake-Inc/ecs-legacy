@@ -39,7 +39,8 @@ export default class CharacterEntity extends Entity {
 				fixedRotation: true,
 				collisionFilterGroup: ~CollisionGroups.Characters,
 				collisionFilterMask: ~CollisionGroups.Default | CollisionGroups.Vehicles,
-				allowSleep: false
+				allowSleep: false,
+				interpolation: true
 			}),
 			{
 				offset: new Vector3(0, -0.2, 0)

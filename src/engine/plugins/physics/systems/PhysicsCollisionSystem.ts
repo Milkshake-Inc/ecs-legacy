@@ -12,8 +12,8 @@ export abstract class PhysicsCollisionSystem extends ReactionSystem {
 		super(makeQuery(all(PhysicsBody)));
 	}
 
-	public updateFixed(deltaTime: number) {
-		super.updateFixed(deltaTime);
+	public updateFixed(deltaTime: number, frameDt: number) {
+		super.updateFixed(deltaTime, frameDt);
 		const watch = this.query.entities.filter(this.queryA);
 
 		for (const entity of watch) {
