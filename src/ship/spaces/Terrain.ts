@@ -12,6 +12,8 @@ import { Heightfield, Material } from 'cannon-es';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import { BufferAttribute, InstancedMesh, Mesh, MeshPhongMaterial, Object3D, PlaneBufferGeometry, Vector3 as ThreeVector3 } from 'three';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import { ChunkSystem } from '@ecs/plugins/chunks/systems/ChunkSystem';
+import TerrainChunkSystem from '../systems/TerrainChunkSystem';
 
 const GRASS = 0x82c62d;
 
@@ -27,6 +29,8 @@ type TreeGenerator = {
 		index: 0;
 	}[];
 };
+
+
 
 export class Terrain extends Space {
 	protected noise: Noise3D;
@@ -72,21 +76,23 @@ export class Terrain extends Space {
 	}
 
 	setup() {
-		const terrain = this.getTerrain();
+		this.addSystem(new TerrainChunkSystem(this.worldEngine));
 
-		this.trees.varieties.forEach(v => {
-			const leaf = new Entity();
-			leaf.add(Transform, { y: -20 });
-			leaf.add(v.leafMesh);
+		// const terrain = this.getTerrain();
 
-			const wood = new Entity();
-			wood.add(Transform, { y: -20 });
-			wood.add(v.woodMesh);
+		// this.trees.varieties.forEach(v => {
+		// 	const leaf = new Entity();
+		// 	leaf.add(Transform, { y: -20 });
+		// 	leaf.add(v.leafMesh);
 
-			this.addEntities(leaf, wood);
-		});
+		// 	const wood = new Entity();
+		// 	wood.add(Transform, { y: -20 });
+		// 	wood.add(v.woodMesh);
 
-		this.addEntities(terrain);
+		// 	this.addEntities(leaf, wood);
+		// });
+
+		// this.addEntities(terrain);
 	}
 
 	getTerrain(): Entity {

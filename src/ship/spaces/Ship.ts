@@ -51,6 +51,7 @@ import { Vec3 } from 'cannon-es';
 import CharacterTag from '@ecs/plugins/character/components/CharacterTag';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
+import ChunkViewer from '@ecs/plugins/chunks/components/ChunkViewer';
 
 export class Ship extends Space {
 	protected shipModel: GLTF;
@@ -185,8 +186,10 @@ export class Ship extends Space {
 
 	protected setupEnvironment() {
 		const camera = new Entity();
+
 		camera.add(Transform, { y: 2, z: 25 });
-		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 1000));
+		camera.add(ChunkViewer);
+		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 5000));
 		camera.add(CameraSwitchState);
 		camera.add(Input);
 		camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
@@ -219,11 +222,12 @@ export class Ship extends Space {
 				tTime: { value: 0 }
 			},
 			transparent: true,
-			fog: true
+			fog: false
 		});
 
+
 		// Water
-		const mesh = new Mesh(new CircleBufferGeometry(500, 30), this.postMaterial);
+		const mesh = new Mesh(new CircleBufferGeometry(3000, 30), this.postMaterial);
 
 		const waterEntity = new Entity();
 		waterEntity.add(Transform, { rx: -Math.PI / 2 });
@@ -262,7 +266,7 @@ export class Ship extends Space {
 		const skyBox = new Entity();
 		skyBox.add(Transform, { y: 100 });
 		skyBox.add(Mesh, {
-			geometry: new BoxGeometry(1000, 1000, 1000),
+			geometry: new BoxGeometry(6000, 6000, 6000),
 			material: materialArray
 		});
 		skyBox.add(SkyBox);

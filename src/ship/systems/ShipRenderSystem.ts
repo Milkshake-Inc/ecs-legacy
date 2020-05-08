@@ -1,7 +1,7 @@
 import { useState } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
-import { DepthFormat, DepthTexture, NearestFilter, RGBFormat, Scene, WebGLRenderTarget, Camera, PerspectiveCamera } from 'three';
+import { DepthFormat, DepthTexture, NearestFilter, RGBFormat, Scene, WebGLRenderTarget, Camera, PerspectiveCamera, Fog } from 'three';
 
 export class ShipRenderState {
 	public depthTarget: WebGLRenderTarget;
@@ -13,7 +13,10 @@ export default class ShipRenderSystem extends RenderSystem {
 
 	constructor(width = 1280, height = 720, color: number = Color.White) {
 		super({
-			color: Color.White
+			color: Color.White,
+			configure: (renderer, scene) => {
+				scene.fog = new Fog(0x97d9e5, 2000, 3000);
+			}
 		});
 
 		this.waterState.waterScene = new Scene();
