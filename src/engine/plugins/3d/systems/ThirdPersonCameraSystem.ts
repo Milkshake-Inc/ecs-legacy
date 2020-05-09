@@ -6,6 +6,7 @@ import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 export default class ThirdPersonCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -92,7 +93,19 @@ export default class ThirdPersonCameraSystem extends System {
 	// Cannon.Shoot(Position, Rotation, this);
 
 	update(dt: number) {
-		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
+		const xAngle = -(this.cameraAngle.x * 2);
+		const yAngle = this.cameraAngle.y * 6;
+
+		const angleX = Math.cos(-xAngle) * this.zoom;
+		const angleY = Math.sin(-xAngle) * this.zoom;
+
+		this.camera.x = this.target.position.x + angleX;
+		this.camera.z = this.target.position.z + angleY;
+		this.camera.y = this.target.position.y + yAngle;
+
+		this.acamera.position.set(this.camera.x, this.camera.y, this.camera.z);
+
+		this.acamera.lookAt(this.target.position.x, this.target.position.y, this.target.position.z);
 		this.acamera.quaternion.set(
 			this.acamera.quaternion.x,
 			this.acamera.quaternion.y,
@@ -100,14 +113,6 @@ export default class ThirdPersonCameraSystem extends System {
 			this.acamera.quaternion.w
 		);
 
-		const xAngle = -(this.cameraAngle.x * 2);
-		const yAngle = this.cameraAngle.y * 6;
 
-		const angleX = Math.cos(-xAngle) * this.zoom;
-		const angleY = Math.sin(-xAngle) * this.zoom;
-
-		this.camera.x = this.target.x + angleX;
-		this.camera.z = this.target.z + angleY;
-		this.camera.y = this.target.y + yAngle;
 	}
 }

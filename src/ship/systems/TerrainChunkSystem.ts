@@ -27,7 +27,8 @@ const pds = new PoissonDiskSampling({
     shape: [5000, 5000],
     minDistance: 1500,
     maxDistance: 4000,
-    tries: 10
+	tries: 10,
+	rng: Math.random(),
 });
 
 

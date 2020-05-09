@@ -167,7 +167,7 @@ export class Ship extends Space {
 					const body = entity.get(CannonBody);
 
 					// Dont let stuff fall below water...
-					const depth = waterHeight;
+					const depth = waterHeight - 0.2;
 					if (body.position.y < depth) {
 						body.position.y = depth;
 						if (body.velocity.y < 0) {
