@@ -41,9 +41,8 @@ export default class CannonPhysicsSystem extends System {
 	protected debugRenderer;
 	protected debug = false;
 	protected gravity = DefaultGravity;
-	protected subSteps: number;
 
-	constructor(gravity = DefaultGravity, iterations = 10, subSteps = 3, debug = false) {
+	constructor(gravity = DefaultGravity, iterations = 10, debug = false) {
 		super();
 
 		const world = new World();
@@ -51,18 +50,16 @@ export default class CannonPhysicsSystem extends System {
 		(world.solver as GSSolver).iterations = iterations;
 		world.allowSleep = true;
 
-		this.subSteps = subSteps;
-
 		this.state.gravity = gravity;
 		this.state.world = world;
 		this.debug = debug;
 	}
 
-	updateFixed(dt: number, frameDt: number) {
-		super.updateFixed(dt, frameDt);
+	updateFixed(dt: number) {
+		super.updateFixed(dt);
 		this.state.frameTime = dt / 1000;
 		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
-		this.state.world.step(this.state.frameTime, frameDt / 1000, this.subSteps);
+		this.state.world.step(this.state.frameTime);
 
 		this.couples.forEach(couple => couple.update(dt));
 	}

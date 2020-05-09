@@ -67,8 +67,8 @@ export default class RenderSystem extends System {
 		this.render();
 	}
 
-	updateFixed(dt: number, frameDt: number) {
-		super.updateFixed(dt, frameDt);
+	updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.couples.forEach(couple => couple.update(dt));
 	}

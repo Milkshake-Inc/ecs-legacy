@@ -16,8 +16,8 @@ export class InputSystem extends IterativeSystem {
 		this.keyboard = new Keyboard();
 	}
 
-	public updateFixed(dt: number, frameDt: number) {
-		super.updateFixed(dt, frameDt);
+	public updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.keyboard.update();
 	}

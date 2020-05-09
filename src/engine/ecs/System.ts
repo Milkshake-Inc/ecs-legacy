@@ -21,9 +21,8 @@ export abstract class System {
 	 * Called multiple times per frame. Useful for determinisitic systems such as physics that need to run the same regardless of framerate.
 	 *
 	 * @param dt      Fixed Delta time in seconds
-	 * @param frameDt Frame Delta time in seconds
 	 */
-	public updateFixed(dt: number, frameDt: number) {}
+	public updateFixed(dt: number) {}
 
 	/**
 	 * Called once per frame. Most game logic should live here.

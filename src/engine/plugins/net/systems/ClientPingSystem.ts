@@ -16,13 +16,13 @@ export default class ClientPingSystem extends IterativeSystem {
 		this.state.serverTick = 0;
 	}
 
-	public updateFixed(dt: number, frameDt: number) {
+	public updateFixed(dt: number) {
 		if (this.state.tickInitialized) {
 			this.state.serverTime += dt;
 			this.state.serverTick = Math.floor(this.state.serverTime / this.state.serverTickRateMs);
 		}
 
-		super.updateFixed(dt, frameDt);
+		super.updateFixed(dt);
 	}
 
 	protected entityAdded = (snapshot: EntitySnapshot) => {

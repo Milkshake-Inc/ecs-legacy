@@ -17,8 +17,8 @@ export default class Ticker {
 	protected panic = false;
 	protected rafHandle = null;
 
-	public signalFrameStart: Signal<(dt: number, frameTimeStamp: number) => void> = new Signal();
-	public signalFixedUpdate: Signal<(dt: number, frameDt: number) => void> = new Signal();
+	public signalFrameStart: Signal<(dt: number, currentTime: number) => void> = new Signal();
+	public signalFixedUpdate: Signal<(dt: number) => void> = new Signal();
 	public signalUpdate: Signal<(dt: number) => void> = new Signal();
 	public signalLateUpdate: Signal<(dt: number) => void> = new Signal();
 	public signalRenderUpdate: Signal<(dt: number) => void> = new Signal();
@@ -108,7 +108,7 @@ export default class Ticker {
 		this.numUpdateSteps = 0;
 		let panic = false;
 		while (this.frameDelta >= this.simulationTimeStep) {
-			this.signalFixedUpdate.emit(this.simulationTimeStep, frameTime);
+			this.signalFixedUpdate.emit(this.simulationTimeStep);
 			this.frameDelta -= this.simulationTimeStep;
 
 			if (++this.numUpdateSteps >= 240) {

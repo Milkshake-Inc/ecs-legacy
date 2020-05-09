@@ -12,9 +12,9 @@ import { Heightfield, Material } from 'cannon-es';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 
-const noise = makeNoise3D(Date.now());
-
 const GRASS = 0x82c62d;
+const Seed = 1589029789694;
+const noise = makeNoise3D(Seed);
 
 // const islands = [
 // 	new Vector3(0, 0, 0),
@@ -28,7 +28,7 @@ const pds = new PoissonDiskSampling({
 	minDistance: 1500,
 	maxDistance: 4000,
 	tries: 10,
-	rng: Math.random()
+	rng: Random.seed(Seed).random()
 });
 
 const points = pds.fill();
@@ -40,8 +40,8 @@ type Island = {
 const islands: Island[] = points.map(a => {
 	return {
 		position: new Vector3(a[0], 0, a[1]),
-		size: Random.float(100, 600),
-		height: Random.float(0.3, 1.7)
+		size: Random.seed(Seed).float(100, 600),
+		height: Random.seed(Seed).float(0.3, 1.7)
 	};
 });
 

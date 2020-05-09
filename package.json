@@ -52,6 +52,7 @@
 		"poly-decomp": "^0.3.0",
 		"raw-loader": "^4.0.1",
 		"sat": "^0.8.0",
+		"seedrandom": "^3.0.5",
 		"three": "^0.115.0",
 		"typed-signals": "^1.0.5",
 		"yargs": "^15.3.1"
@@ -65,6 +66,7 @@
 		"@types/jest": "^25.2.1",
 		"@types/matter-js": "^0.14.2",
 		"@types/sat": "^0.0.30",
+		"@types/seedrandom": "^2.4.28",
 		"@typescript-eslint/eslint-plugin": "^2.26.0",
 		"@typescript-eslint/parser": "^2.26.0",
 		"chalk": "^4.0.0",

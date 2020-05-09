@@ -6,11 +6,11 @@ const windowOrGlobal: any = typeof window === 'object' ? window : global;
 export const requestAnimationFrame = PlatformHelper.IsClient()
 	? window.requestAnimationFrame.bind(window)
 	: (() => {
-			let lastTimestamp = Date.now(),
+			let lastTimestamp = performance.now(),
 				now,
 				timeout;
 			return callback => {
-				now = Date.now();
+				now = performance.now();
 				timeout = Math.max(0, 1000 / 60 - (now - lastTimestamp));
 				lastTimestamp = now + timeout;
 				return setTimeout(function () {

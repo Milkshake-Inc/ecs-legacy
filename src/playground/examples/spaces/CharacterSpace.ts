@@ -81,7 +81,7 @@ export default class AnimationSpace extends Space {
 	}
 
 	setup() {
-		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, 3, false));
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -10, 0), 1, false));
 
 		const slippy = new Material('slippy');
 		slippy.friction = 0.04;

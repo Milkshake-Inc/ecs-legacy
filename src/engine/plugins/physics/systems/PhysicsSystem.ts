@@ -49,13 +49,13 @@ export default class PhysicsSystem extends IterativeSystem {
 		});
 	}
 
-	public updateFixed(dt: number, frameDt: number) {
+	public updateFixed(dt: number) {
 		this.clearCollisions();
 
 		// console.log("update phsycis")
 		Engine.update(this.engine, dt, 1);
 
-		super.updateFixed(dt, frameDt);
+		super.updateFixed(dt);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {

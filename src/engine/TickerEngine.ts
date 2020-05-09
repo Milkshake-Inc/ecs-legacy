@@ -11,7 +11,7 @@ export default abstract class TickerEngine extends Engine {
 		this.tickRate = tickRate;
 
 		this.ticker = new Ticker(tickRate);
-		this.ticker.signalFixedUpdate.connect((dt, frameDt) => this.updateFixed(dt, frameDt));
+		this.ticker.signalFixedUpdate.connect(dt => this.updateFixed(dt));
 		this.ticker.signalUpdate.connect(dt => this.update(dt));
 		this.ticker.signalLateUpdate.connect(dt => this.updateLate(dt));
 		this.ticker.signalRenderUpdate.connect(dt => this.updateRender(dt));
