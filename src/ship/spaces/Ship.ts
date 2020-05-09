@@ -198,7 +198,16 @@ export class Ship extends Space {
 		camera.add(SoundListener);
 
 		this.addSystem(
-			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox, Water)], {
+			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox)], {
+				followZ: true,
+				followX: true,
+				followY: true,
+				offset: new Vector3(0, 1000, 0)
+			})
+		);
+
+		this.addSystem(
+			new ParentTransformSystem(all(PerspectiveCamera), [any(Water)], {
 				followZ: true,
 				followX: true,
 				followY: false
@@ -267,7 +276,7 @@ export class Ship extends Space {
 		const skyBox = new Entity();
 		skyBox.add(Transform, { y: 100 });
 		skyBox.add(Mesh, {
-			geometry: new BoxGeometry(6000, 6000, 6000),
+			geometry: new BoxGeometry(5000, 5000, 5000),
 			material: materialArray
 		});
 		skyBox.add(SkyBox);

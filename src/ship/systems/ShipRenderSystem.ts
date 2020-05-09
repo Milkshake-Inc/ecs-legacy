@@ -15,7 +15,7 @@ export default class ShipRenderSystem extends RenderSystem {
 		super({
 			color: Color.White,
 			configure: (renderer, scene) => {
-				scene.fog = new Fog(0x97d9e5, 2000, 3000);
+				scene.fog = new Fog(0xace1eb, 2000, 2500);
 			}
 		});
 
