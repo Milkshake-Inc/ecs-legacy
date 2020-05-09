@@ -1,16 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { PlatformHelper } from '@ecs/utils/Platform';
 
-const windowOrGlobal: any = typeof window === 'object' ? window : global;
-
 export const requestAnimationFrame = PlatformHelper.IsClient()
 	? window.requestAnimationFrame.bind(window)
 	: (() => {
-			let lastTimestamp = performance.now(),
-				now,
-				timeout;
+			let lastTimestamp = Date.now(),
+				now: number,
+				timeout: number;
 			return callback => {
-				now = performance.now();
+				now = Date.now();
 				timeout = Math.max(0, 1000 / 60 - (now - lastTimestamp));
 				lastTimestamp = now + timeout;
 				return setTimeout(function () {
@@ -19,4 +17,6 @@ export const requestAnimationFrame = PlatformHelper.IsClient()
 			};
 	  })();
 
-export const cancelAnimationFrame: (handle: number) => void = windowOrGlobal.cancelAnimationFrame || clearTimeout;
+export const cancelAnimationFrame: (handle: number) => void = PlatformHelper.IsClient()
+	? window.cancelAnimationFrame.bind(window)
+	: clearTimeout;
