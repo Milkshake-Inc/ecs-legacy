@@ -117,9 +117,9 @@ export default class Ticker {
 			}
 		}
 
-		this.signalUpdate.emit(this.frameDelta);
-		this.signalLateUpdate.emit(this.frameDelta);
-		this.signalRenderUpdate.emit(this.frameDelta / this.simulationTimeStep);
+		this.signalUpdate.emit(frameTime);
+		this.signalLateUpdate.emit(frameTime);
+		this.signalRenderUpdate.emit(frameTime / this.simulationTimeStep);
 		this.signalFrameEnd.emit(this.fps, panic);
 	}
 }
