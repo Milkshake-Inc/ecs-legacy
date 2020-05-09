@@ -31,7 +31,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 		this.renderState.application.stage.addChild(sprite);
 	};
 
-	public updateEntity(entity: Entity, dt: number) {
+	public updateEntityLate(entity: Entity, dt: number) {
 		const camera = entity.get(Camera);
 		const position = entity.get(Transform);
 

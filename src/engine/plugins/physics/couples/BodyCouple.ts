@@ -18,11 +18,19 @@ export const useBodyCouple = (system: System) =>
 		},
 		onUpdate: (entity, body, dt) => {
 			const transform = entity.get(Transform);
-
-			transform.position.set(body.position.x, body.position.y, body.position.z);
-			transform.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
-
 			const cannonBody = entity.get(CannonBody);
+
+			let pos = body.position;
+			let rot = body.quaternion;
+
+			if (cannonBody && cannonBody.interpolation) {
+				pos = body.interpolatedPosition;
+				rot = body.interpolatedQuaternion;
+			}
+
+			transform.position.set(pos.x, pos.y, pos.z);
+			transform.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+
 			if (cannonBody && cannonBody.offset) {
 				transform.position = transform.position.add(cannonBody.offset);
 			}

@@ -1,59 +1,26 @@
 import { Engine } from './ecs/Engine';
+import Ticker from './plugins/ticker/Ticker';
 
 export default abstract class TickerEngine extends Engine {
-	protected timeMultiplier = 1;
-
 	protected tickRate: number;
-	protected updateRate: number;
+	protected ticker: Ticker;
 
-	protected tickRateMs: number;
-	protected updateRateMs: number;
-
-	protected currentTime: number;
-	protected accumulator: number;
-
-	constructor(tickRate: number, updateRate: number = tickRate) {
+	constructor(tickRate = 60) {
 		super();
 
 		this.tickRate = tickRate;
-		this.updateRate = updateRate;
 
-		this.tickRateMs = 1000 / tickRate;
-		this.updateRateMs = 1000 / updateRate;
-
-		this.currentTime = this.getTime();
-		this.accumulator = 0;
-
-		this.buildCallback(this.intervalCalled.bind(this));
+		this.ticker = new Ticker(tickRate);
+		this.ticker.signalFixedUpdate.connect(dt => this.updateFixed(dt));
+		this.ticker.signalUpdate.connect(dt => this.update(dt));
+		this.ticker.signalLateUpdate.connect(dt => this.updateLate(dt));
+		this.ticker.signalRenderUpdate.connect(dt => this.updateRender(dt));
+		this.ticker.signalFrameEnd.connect((dt, panic) => {
+			if (panic) {
+				const oldFrameDelta = this.ticker.resetFrameDelta();
+				console.log(`⚠Ticker Panic⚠ - Ticker delta was ${oldFrameDelta} Resetting frame delta in ticker. May cause chaos.`);
+			}
+		});
+		this.ticker.start();
 	}
-
-	protected buildCallback(callback: () => void) {
-		setInterval(() => {
-			callback();
-		}, this.updateRateMs);
-	}
-
-	private intervalCalled(): void {
-		const newTime = this.getTime();
-		const frameTime = newTime - this.currentTime;
-
-		this.accumulator += frameTime * this.timeMultiplier;
-
-		// If client need to catch up more than 1min, skip updateFixed while loop
-		if (this.accumulator > 1000 * 60) {
-			this.accumulator = this.tickRateMs;
-			console.log('⚠ Client has over 1min of frames to catch up. Skipping `updateFixed`');
-		}
-
-		while (this.accumulator >= this.tickRateMs) {
-			this.updateFixed(this.tickRateMs);
-			this.accumulator -= this.tickRateMs;
-		}
-
-		this.update(frameTime);
-
-		this.currentTime = newTime;
-	}
-
-	protected abstract getTime(): number;
 }

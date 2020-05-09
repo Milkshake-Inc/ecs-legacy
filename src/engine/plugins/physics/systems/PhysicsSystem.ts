@@ -58,15 +58,6 @@ export default class PhysicsSystem extends IterativeSystem {
 		super.updateFixed(dt);
 	}
 
-	public updateFixedApple(dt: number) {
-		this.clearCollisions();
-
-		// console.log("update phsycis")
-		Engine.update(this.engine, dt, 0);
-
-		super.updateFixed(dt);
-	}
-
 	protected updateEntityFixed(entity: Entity): void {
 		const physicsBody = entity.get(PhysicsBody);
 		const position = entity.get(Transform);

@@ -89,7 +89,7 @@ export class Ship extends Space {
 
 		this.addSystem(new SoundSystem());
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 100, false));
+		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
 		this.addSystem(new InputSystem());
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new HelicopterControllerSystem());
@@ -227,12 +227,11 @@ export class Ship extends Space {
 			fog: false
 		});
 
-
 		// Water
 		const mesh = new Mesh(new CircleBufferGeometry(3000, 30), this.postMaterial);
 
 		const waterEntity = new Entity();
-		waterEntity.add(Transform, { y: waterHeight ,rx: -Math.PI / 2 });
+		waterEntity.add(Transform, { y: waterHeight, rx: -Math.PI / 2 });
 		waterEntity.add(mesh);
 		waterEntity.add(Water);
 

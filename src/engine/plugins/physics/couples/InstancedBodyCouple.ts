@@ -2,7 +2,7 @@ import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { useCannonCouple } from './CannonCouple';
-import CannonBody from '../components/CannonBody';
+import CannonBody, { CannonBodyOptions } from '../components/CannonBody';
 import CannonInstancedBody from '../components/CannonInstancedBody';
 import { InstancedMesh } from 'three';
 import Vector3 from '@ecs/math/Vector';
@@ -26,7 +26,7 @@ export const useInstancedBodyCouple = (system: System) =>
 
 				const body = new CannonBody({
 					position: ToCannonVector3(position),
-					...instancedBody.options
+					...(instancedBody.options as CannonBodyOptions)
 				});
 
 				instancedBody.bodies.push(body);

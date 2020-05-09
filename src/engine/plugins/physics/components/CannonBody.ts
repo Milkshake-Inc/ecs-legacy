@@ -3,11 +3,19 @@ import Vector3 from '@ecs/math/Vector';
 import MathHelper from '@ecs/math/MathHelper';
 import { ToCannonVector3 } from '../utils/Conversions';
 
+export interface CannonBodyOptions extends BodyOptions {
+	interpolation?: boolean;
+}
+
 export default class CannonBody extends Body {
 	public offset: Vector3 = null;
+	public interpolation = false;
 
-	constructor(options?: BodyOptions) {
+	constructor(options?: CannonBodyOptions) {
 		super(options);
+		if (options && options.interpolation) {
+			this.interpolation = options.interpolation;
+		}
 	}
 
 	rotate(euler: Vector3 | Vec3) {

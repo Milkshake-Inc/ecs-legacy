@@ -6,7 +6,6 @@ import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 export default class ThirdPersonCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -81,18 +80,11 @@ export default class ThirdPersonCameraSystem extends System {
 
 		this.cameraAngle.x += delta.x * 2;
 		this.cameraAngle.y -= delta.y * 2;
-
-		// this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
-
 		this.lastPosition = mouse;
 	}
 
-	// Vector3 newForward = Vector3.Normalize(Position - GameState.Avatar.Position);
-	// calc the rotation so the avatar faces the target
-	// Rotation = Helpers.GetRotation(Vector3.Forward, newForward, Vector3.Up);
-	// Cannon.Shoot(Position, Rotation, this);
-
-	update(dt: number) {
+	public updateLate(dt: number) {
+		super.updateLate(dt);
 		const xAngle = -(this.cameraAngle.x * 2);
 		const yAngle = this.cameraAngle.y * 6;
 
@@ -112,7 +104,5 @@ export default class ThirdPersonCameraSystem extends System {
 			this.acamera.quaternion.z,
 			this.acamera.quaternion.w
 		);
-
-
 	}
 }

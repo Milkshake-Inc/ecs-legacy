@@ -56,8 +56,8 @@ export default class CannonPhysicsSystem extends System {
 	}
 
 	updateFixed(dt: number) {
-		this.state.frameTime = dt / 1000;
 		super.updateFixed(dt);
+		this.state.frameTime = dt / 1000;
 		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
 		this.state.world.step(this.state.frameTime);
 
@@ -65,6 +65,7 @@ export default class CannonPhysicsSystem extends System {
 	}
 
 	update(dt: number) {
+		super.update(dt);
 		if (this.debug && !this.debugRenderer) {
 			this.createDebugRenderer();
 		}

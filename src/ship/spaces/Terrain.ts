@@ -12,10 +12,10 @@ import { Heightfield, Material } from 'cannon-es';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import { BufferAttribute, InstancedMesh, Mesh, MeshPhongMaterial, Object3D, PlaneBufferGeometry, Vector3 as ThreeVector3 } from 'three';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import { ChunkSystem } from '@ecs/plugins/chunks/systems/ChunkSystem';
 import TerrainChunkSystem from '../systems/TerrainChunkSystem';
 
 const GRASS = 0x82c62d;
+const Seed = 1589029789694;
 
 type TreeGenerator = {
 	count: number;
@@ -30,8 +30,6 @@ type TreeGenerator = {
 	}[];
 };
 
-
-
 export class Terrain extends Space {
 	protected noise: Noise3D;
 	protected trees: TreeGenerator;
@@ -39,7 +37,7 @@ export class Terrain extends Space {
 	constructor(engine: Engine) {
 		super(engine, 'terrain');
 
-		this.noise = makeNoise3D(Date.now());
+		this.noise = makeNoise3D(Seed);
 		this.trees = {
 			count: 3000,
 			minScale: 5,
@@ -145,19 +143,19 @@ export class Terrain extends Space {
 				colors.push((color >> 8) & 255);
 				colors.push(color & 255);
 
-				const treeVariety = Random.fromArray(this.trees.varieties);
+				const treeVariety = Random.seed(Seed).fromArray(this.trees.varieties);
 
 				if (heightValue > 30 && treeVariety.index < treeVariety.leafMesh.count) {
 					const noise = linearNoise(this.noise(worldX / 30, 0, worldY / 30)) + linearNoise(this.noise(worldX, 0, worldY)) / 4;
 
 					if (noise > 0.6) {
 						const position = new ThreeVector3(worldY - scale / 2, heightValue, worldX - scale / 2);
-						position.x += Random.float(-1, 1);
-						position.z += Random.float(-1, 1);
+						position.x += Random.seed(Seed).float(-1, 1);
+						position.z += Random.seed(Seed).float(-1, 1);
 						this.trees.dummy.position.copy(position);
-						this.trees.dummy.rotateY(Random.float(-Math.PI, Math.PI));
+						this.trees.dummy.rotateY(Random.seed(Seed).float(-Math.PI, Math.PI));
 
-						this.trees.dummy.scale.setScalar(Random.int(this.trees.minScale, this.trees.maxScale));
+						this.trees.dummy.scale.setScalar(Random.seed(Seed).int(this.trees.minScale, this.trees.maxScale));
 						this.trees.dummy.updateMatrix();
 
 						treeVariety.leafMesh.setMatrixAt(treeVariety.index, this.trees.dummy.matrix);

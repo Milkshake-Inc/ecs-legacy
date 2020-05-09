@@ -26,9 +26,9 @@ export default class ServerPingSystem extends IterativeSystem {
 		this.state.serverPingInterval = pingInterval;
 	}
 
-	public updateFixed(deltaTime: number) {
-		this.state.serverTime += deltaTime;
-		this.state.timeSinceLastPing += deltaTime;
+	public updateFixed(dt: number) {
+		this.state.serverTime += dt;
+		this.state.timeSinceLastPing += dt;
 		this.state.serverTick = Math.floor(this.state.serverTime / this.state.serverTickRateMs);
 
 		if (this.state.timeSinceLastPing >= this.state.serverPingInterval) {
@@ -45,7 +45,7 @@ export default class ServerPingSystem extends IterativeSystem {
 			);
 		}
 
-		super.updateFixed(deltaTime);
+		super.updateFixed(dt);
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number): void {

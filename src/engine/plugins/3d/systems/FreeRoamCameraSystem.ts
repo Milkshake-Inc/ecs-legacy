@@ -75,7 +75,8 @@ export default class FreeRoamCameraSystem extends System {
 		this.lastPosition = mouse;
 	}
 
-	public update(deltaTime: number) {
+	public updateLate(dt: number) {
+		super.updateLate(dt);
 		const camera = this.queries.camera.first.get(Transform);
 
 		const speed = this.keyboard.isDown(Key.SHIFT) ? 10 : 0.1;

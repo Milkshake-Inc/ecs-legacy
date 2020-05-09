@@ -3,7 +3,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Vector3 from '@ecs/math/Vector';
 import { ChunkSystem } from '@ecs/plugins/chunks/systems/ChunkSystem';
 import Transform from '@ecs/plugins/Transform';
-import { Mesh, MeshBasicMaterial, MeshPhongMaterial, PlaneBufferGeometry, BufferAttribute } from 'three';
+import { Mesh, MeshPhongMaterial, PlaneBufferGeometry, BufferAttribute } from 'three';
 import { makeNoise3D } from 'open-simplex-noise';
 import Color from '@ecs/math/Color';
 import PoissonDiskSampling from 'poisson-disk-sampling';
@@ -12,9 +12,9 @@ import { Heightfield, Material } from 'cannon-es';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 
-const noise = makeNoise3D(Date.now());
-
 const GRASS = 0x82c62d;
+const Seed = 1589029789694;
+const noise = makeNoise3D(Seed);
 
 // const islands = [
 // 	new Vector3(0, 0, 0),
@@ -24,45 +24,42 @@ const GRASS = 0x82c62d;
 // ]
 
 const pds = new PoissonDiskSampling({
-    shape: [5000, 5000],
-    minDistance: 1500,
-    maxDistance: 4000,
+	shape: [5000, 5000],
+	minDistance: 1500,
+	maxDistance: 4000,
 	tries: 10,
-	rng: Math.random(),
+	rng: Random.seed(Seed).random()
 });
-
 
 const points = pds.fill();
 type Island = {
 	position: Vector3;
 	size: number;
 	height: number;
-}
+};
 const islands: Island[] = points.map(a => {
 	return {
 		position: new Vector3(a[0], 0, a[1]),
-		size: Random.float(100, 600),
-		height: Random.float(0.3, 1.7),
-	}
+		size: Random.seed(Seed).float(100, 600),
+		height: Random.seed(Seed).float(0.3, 1.7)
+	};
 });
 
-
 const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size: number) => {
+	const scale = size;
+	const widthSegments = segments;
+	const depthSegments = segments;
 
-    const scale = size;
-    const widthSegments = segments;
-    const depthSegments = segments;
+	const xOffset = chunkX * size;
+	const yOffset = chunkY * size;
 
-    const xOffset = chunkX * size;
-    const yOffset = chunkY * size;
+	const sizePerQuad = scale / widthSegments;
 
-    const sizePerQuad = scale / widthSegments;
+	const widthVertices = widthSegments + 1;
+	const depthVertices = depthSegments + 1;
 
-    const widthVertices = widthSegments + 1;
-    const depthVertices = depthSegments + 1;
-
-    const geometry = new PlaneBufferGeometry(scale, scale, widthSegments, depthSegments);
-    const vertices = geometry.getAttribute('position').array as any;
+	const geometry = new PlaneBufferGeometry(scale, scale, widthSegments, depthSegments);
+	const vertices = geometry.getAttribute('position').array as any;
 
 	const colors = [];
 
@@ -70,12 +67,12 @@ const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size
 
 	const heightMap = new Array(widthVertices).fill(0).map(() => new Array(depthVertices).fill(0));
 
-	const chunkWorld = new Vector3(xOffset, 0, yOffset);
+	// const chunkWorld = new Vector3(xOffset, 0, yOffset);
 
-    for (let x = 0; x < widthVertices; x++) {
-        for (let y = 0; y < depthVertices; y++) {
-            const actualY = yOffset + (y * sizePerQuad);
-            const actualX = xOffset + (x * sizePerQuad);
+	for (let x = 0; x < widthVertices; x++) {
+		for (let y = 0; y < depthVertices; y++) {
+			const actualY = yOffset + y * sizePerQuad;
+			const actualX = xOffset + x * sizePerQuad;
 
 			const linearNoise = (value: number) => (value + 1) / 2;
 
@@ -86,14 +83,14 @@ const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size
 
 			const world = new Vector3(worldX, 0, worldY);
 
-			const cloests = islands.sort((a,b) => {
+			const cloests = islands.sort((a, b) => {
 				return a.position.distance(world) - b.position.distance(world);
 			})[0];
 
 			const distance = new Vector3(worldX, 0, worldY).distance(cloests.position);
 			let app = distance / cloests.size;
-			if(app < 0) app = 0;
-			if(app > 1) app = 1;
+			if (app < 0) app = 0;
+			if (app > 1) app = 1;
 
 			let heightValue = 0;
 			heightValue += linearNoise(noise(worldX / 60, 0, worldY / 60)) * 120;
@@ -109,35 +106,35 @@ const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size
 				throw 'HeightValue too small - may cause hell';
 			}
 
-			heightValues.push(heightValue)
+			heightValues.push(heightValue);
 
-            const vertexIndex = 3 * (x * widthVertices + y) + 2;
+			const vertexIndex = 3 * (x * widthVertices + y) + 2;
 
 			vertices[vertexIndex] = heightValue;
 			heightMap[x][y] = heightValue;
 
 			let color = heightValue > 80 ? GRASS : Color.SandyBrown;
-			if(heightValue > 160) color = Color.White;
+			if (heightValue > 160) color = Color.White;
 			colors.push((color >> 16) & 255);
 			colors.push((color >> 8) & 255);
 			colors.push(color & 255);
-        }
+		}
 	}
 
 	const isAboveWater = heightValues.filter(a => a > 60);
-	if(isAboveWater.length == 0) {
+	if (isAboveWater.length == 0) {
 		return null;
 	}
 
 	geometry.setAttribute('color', new BufferAttribute(new Uint8Array(colors), 3, true));
-    // Recalculate normals for lighting
-    geometry.computeVertexNormals();
+	// Recalculate normals for lighting
+	geometry.computeVertexNormals();
 
-    return {
+	return {
 		geometry,
 		heightMap
 	};
-}
+};
 
 const terrainMaterial = new Material('Terrain');
 terrainMaterial.friction = 0.03;
@@ -149,9 +146,9 @@ export default class TerrainChunkSystem extends ChunkSystem {
 
 	updateChunkLod(chunk: Entity, x: number, y: number, lodLevel: number, chunksize: number) {
 		const mesh = chunk.get(Mesh);
-		if(!mesh) return;
+		if (!mesh) return;
 
-		const material = mesh.material as MeshBasicMaterial;
+		// const material = mesh.material as MeshBasicMaterial;
 
 		// mesh.geometry.dispose();
 
@@ -161,17 +158,20 @@ export default class TerrainChunkSystem extends ChunkSystem {
 			const stuff = generateTerrainMesh(y, x, 120 / 2, chunksize);
 			mesh.geometry = stuff.geometry;
 
-			if(mesh.geometry) {
-				chunk.add(new Heightfield(stuff.heightMap, {
-					elementSize: chunksize/ (120 / 2)
-				}));
-				chunk.add(new CannonBody({
-					material: terrainMaterial,
-					collisionFilterGroup: ~CollisionGroups.Default,
-					collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
-				}))
+			if (mesh.geometry) {
+				chunk.add(
+					new Heightfield(stuff.heightMap, {
+						elementSize: chunksize / (120 / 2)
+					})
+				);
+				chunk.add(
+					new CannonBody({
+						material: terrainMaterial,
+						collisionFilterGroup: ~CollisionGroups.Default,
+						collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
+					})
+				);
 			}
-
 		}
 
 		if (lodLevel > 1) {
@@ -215,22 +215,22 @@ export default class TerrainChunkSystem extends ChunkSystem {
 
 		const apple = generateTerrainMesh(chunkZ, chunkX, 10, size);
 
-		if(apple && apple.geometry) {
-				chunk.add(
-					new Mesh(
-						apple.geometry,
-						new MeshPhongMaterial({
-							// map: texture,
-							flatShading: true,
-							reflectivity: 0,
-							specular: 0,
-							shininess: 0,
-							vertexColors: true
-							// wireframe: true,
-						})
-					)
-				);
-			}
+		if (apple && apple.geometry) {
+			chunk.add(
+				new Mesh(
+					apple.geometry,
+					new MeshPhongMaterial({
+						// map: texture,
+						flatShading: true,
+						reflectivity: 0,
+						specular: 0,
+						shininess: 0,
+						vertexColors: true
+						// wireframe: true,
+					})
+				)
+			);
+		}
 
 		return chunk;
 	}
