@@ -48,6 +48,7 @@
 		"pixi-particles": "^4.2.0",
 		"pixi-spine": "^2.1.8",
 		"pixi.js": "^5.2.1",
+		"poisson-disk-sampling": "^2.2.0",
 		"poly-decomp": "^0.3.0",
 		"raw-loader": "^4.0.1",
 		"sat": "^0.8.0",

@@ -80,35 +80,29 @@ export default class ThirdPersonCameraSystem extends System {
 
 		this.cameraAngle.x += delta.x * 2;
 		this.cameraAngle.y -= delta.y * 2;
-
-		// this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.3, 1);
-
 		this.lastPosition = mouse;
 	}
 
-	// Vector3 newForward = Vector3.Normalize(Position - GameState.Avatar.Position);
-	// calc the rotation so the avatar faces the target
-	// Rotation = Helpers.GetRotation(Vector3.Forward, newForward, Vector3.Up);
-	// Cannon.Shoot(Position, Rotation, this);
-
 	public updateLate(dt: number) {
 		super.updateLate(dt);
-		this.acamera.lookAt(this.target.x, this.target.position.y, this.target.position.z);
-		this.acamera.quaternion.set(
-			this.acamera.quaternion.x,
-			this.acamera.quaternion.y,
-			this.acamera.quaternion.z,
-			this.acamera.quaternion.w
-		);
-
 		const xAngle = -(this.cameraAngle.x * 2);
 		const yAngle = this.cameraAngle.y * 6;
 
 		const angleX = Math.cos(-xAngle) * this.zoom;
 		const angleY = Math.sin(-xAngle) * this.zoom;
 
-		this.camera.x = this.target.x + angleX;
-		this.camera.z = this.target.z + angleY;
-		this.camera.y = this.target.y + yAngle;
+		this.camera.x = this.target.position.x + angleX;
+		this.camera.z = this.target.position.z + angleY;
+		this.camera.y = this.target.position.y + yAngle;
+
+		this.acamera.position.set(this.camera.x, this.camera.y, this.camera.z);
+
+		this.acamera.lookAt(this.target.position.x, this.target.position.y, this.target.position.z);
+		this.acamera.quaternion.set(
+			this.acamera.quaternion.x,
+			this.acamera.quaternion.y,
+			this.acamera.quaternion.z,
+			this.acamera.quaternion.w
+		);
 	}
 }
