@@ -53,6 +53,8 @@ import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import ChunkViewer from '@ecs/plugins/chunks/components/ChunkViewer';
 
+const waterHeight = 60;
+
 export class Ship extends Space {
 	protected shipModel: GLTF;
 	protected islandModel: GLTF;
@@ -87,7 +89,7 @@ export class Ship extends Space {
 
 		this.addSystem(new SoundSystem());
 		this.addSystem(new WaveMachineSystem());
-		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 10, false));
+		this.addSystem(new CannonPhysicsSystem(DefaultGravity, 100, false));
 		this.addSystem(new InputSystem());
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new HelicopterControllerSystem());
@@ -165,7 +167,7 @@ export class Ship extends Space {
 					const body = entity.get(CannonBody);
 
 					// Dont let stuff fall below water...
-					const depth = -0.18;
+					const depth = waterHeight;
 					if (body.position.y < depth) {
 						body.position.y = depth;
 						if (body.velocity.y < 0) {
@@ -230,7 +232,7 @@ export class Ship extends Space {
 		const mesh = new Mesh(new CircleBufferGeometry(3000, 30), this.postMaterial);
 
 		const waterEntity = new Entity();
-		waterEntity.add(Transform, { rx: -Math.PI / 2 });
+		waterEntity.add(Transform, { y: waterHeight ,rx: -Math.PI / 2 });
 		waterEntity.add(mesh);
 		waterEntity.add(Water);
 

@@ -8,6 +8,9 @@ import { makeNoise3D } from 'open-simplex-noise';
 import Color from '@ecs/math/Color';
 import PoissonDiskSampling from 'poisson-disk-sampling';
 import Random from '@ecs/math/Random';
+import { Heightfield, Material } from 'cannon-es';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 
 const noise = makeNoise3D(Date.now());
 
@@ -64,6 +67,10 @@ const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size
 
 	const heightValues = [];
 
+	const heightMap = new Array(widthVertices).fill(0).map(() => new Array(depthVertices).fill(0));
+
+	const chunkWorld = new Vector3(xOffset, 0, yOffset);
+
     for (let x = 0; x < widthVertices; x++) {
         for (let y = 0; y < depthVertices; y++) {
             const actualY = yOffset + (y * sizePerQuad);
@@ -94,58 +101,49 @@ const generateTerrainMesh = (chunkX: number, chunkY: number, segments = 10, size
 			heightValue *= 1 - app;
 			heightValue += linearNoise(noise(worldX / 10, 0, worldY / 10)) * 5;
 			heightValue *= cloests.height;
-			heightValue -= 30;
+			heightValue += 30;
+
+			if (heightValue < 0) {
+				// Weird issue if height are small values kicks off...
+				throw 'HeightValue too small - may cause hell';
+			}
 
 			heightValues.push(heightValue)
-			// heightValue += linearNoise(noise(worldX / resolution, 0, worldY / resolution)) * 40;
-
-			// heightValue += linearNoise(noise(worldX / 500, 0, worldY / 500)) * 1000;
-			// heightValue += linearNoise(noise(worldX / 10, 0, worldY / 10)) * 5;
-			// heightValue -= 600;
-			// heightValue = Math.max(heightValue, -4);
-
-			// heightValue *= app;
-
 
             const vertexIndex = 3 * (x * widthVertices + y) + 2;
 
 			vertices[vertexIndex] = heightValue;
+			heightMap[x][y] = heightValue;
 
-			let color = heightValue > 10 ? GRASS : Color.SandyBrown;
-			if(heightValue > 100) color = Color.White;
+			let color = heightValue > 80 ? GRASS : Color.SandyBrown;
+			if(heightValue > 160) color = Color.White;
 			colors.push((color >> 16) & 255);
 			colors.push((color >> 8) & 255);
 			colors.push(color & 255);
         }
 	}
 
-	const isAboveWater = heightValues.filter(a => a > -20);
-
+	const isAboveWater = heightValues.filter(a => a > 60);
 	if(isAboveWater.length == 0) {
-		// const geometry = new PlaneBufferGeometry(scale, scale, 1, 1);
-		// const vertices = geometry.getAttribute('position').array as any;
-		// for (let x = 0; x < 2; x++) {
-		// 	for (let y = 0; y < 2; y++) {
-
-		// 		const vertexIndex = 3 * (x * 2 + y) + 2;
-
-		// 		vertices[vertexIndex] = -23;
-		// 	}
-		// }
-		// geometry.setAttribute('color', new BufferAttribute(new Uint8Array(colors), 3, true));
-    	return null;
+		return null;
 	}
 
 	geometry.setAttribute('color', new BufferAttribute(new Uint8Array(colors), 3, true));
     // Recalculate normals for lighting
     geometry.computeVertexNormals();
 
-    return geometry;
+    return {
+		geometry,
+		heightMap
+	};
 }
+
+const terrainMaterial = new Material('Terrain');
+terrainMaterial.friction = 0.03;
 
 export default class TerrainChunkSystem extends ChunkSystem {
 	constructor(engine: Engine) {
-		super(engine, 500, 5000, 16);
+		super(engine, 500 / 2, 5000, 16);
 	}
 
 	updateChunkLod(chunk: Entity, x: number, y: number, lodLevel: number, chunksize: number) {
@@ -154,34 +152,50 @@ export default class TerrainChunkSystem extends ChunkSystem {
 
 		const material = mesh.material as MeshBasicMaterial;
 
-
-
-		mesh.geometry.dispose();
+		// mesh.geometry.dispose();
 
 		// (mesh.material as MeshBasicMaterial).wireframe = true;
 		if (lodLevel == 0) {
 			// material.color.set(Color.White);
-			mesh.geometry = generateTerrainMesh(y, x, 120, chunksize);
+			const stuff = generateTerrainMesh(y, x, 120 / 2, chunksize);
+			mesh.geometry = stuff.geometry;
+
+			if(mesh.geometry) {
+				chunk.add(new Heightfield(stuff.heightMap, {
+					elementSize: chunksize/ (120 / 2)
+				}));
+				chunk.add(new CannonBody({
+					material: terrainMaterial,
+					collisionFilterGroup: ~CollisionGroups.Default,
+					collisionFilterMask: ~CollisionGroups.Characters | CollisionGroups.Vehicles
+				}))
+			}
+
+		}
+
+		if (lodLevel > 1) {
+			chunk.remove(Heightfield);
+			chunk.remove(CannonBody);
 		}
 
 		if (lodLevel == 1) {
 			// material.color.set(Color.Blue);
-			mesh.geometry = generateTerrainMesh(y, x, 80, chunksize);
+			mesh.geometry = generateTerrainMesh(y, x, 80 / 2, chunksize).geometry;
 		}
 
 		if (lodLevel == 2) {
 			// material.color.set(Color.Orange);
-			mesh.geometry = generateTerrainMesh(y, x, 40, chunksize);
+			mesh.geometry = generateTerrainMesh(y, x, 40 / 2, chunksize).geometry;
 		}
 
 		if (lodLevel == 3) {
 			// material.color.set(Color.Red);
-			mesh.geometry = generateTerrainMesh(y, x, 20, chunksize);
+			mesh.geometry = generateTerrainMesh(y, x, 20, chunksize).geometry;
 		}
 
 		if (lodLevel >= 4) {
 			// material.color.set(Color.Black);
-			mesh.geometry = generateTerrainMesh(y, x, 10, chunksize);
+			mesh.geometry = generateTerrainMesh(y, x, 10, chunksize).geometry;
 		}
 
 		// if (lodLevel > 4) {
@@ -198,24 +212,23 @@ export default class TerrainChunkSystem extends ChunkSystem {
 		const chunk = new Entity();
 		chunk.add(Transform, { position: worldPosition.clone(), rx: -Math.PI / 2 });
 
-		const mesh = generateTerrainMesh(chunkZ, chunkX, 10, size);
+		const apple = generateTerrainMesh(chunkZ, chunkX, 10, size);
 
-		if(mesh) {
-
-		chunk.add(
-			new Mesh(
-				mesh,
-				new MeshPhongMaterial({
-					// map: texture,
-					flatShading: true,
-					reflectivity: 0,
-					specular: 0,
-					shininess: 0,
-					vertexColors: true
-					// wireframe: true,
-				})
-			)
-		);
+		if(apple && apple.geometry) {
+				chunk.add(
+					new Mesh(
+						apple.geometry,
+						new MeshPhongMaterial({
+							// map: texture,
+							flatShading: true,
+							reflectivity: 0,
+							specular: 0,
+							shininess: 0,
+							vertexColors: true
+							// wireframe: true,
+						})
+					)
+				);
 			}
 
 		return chunk;
