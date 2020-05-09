@@ -24,7 +24,6 @@ export const useBodyCouple = (system: System) =>
 			let rot = body.quaternion;
 
 			if (cannonBody && cannonBody.interpolation) {
-				console.log(`${pos.z} ${body.interpolatedPosition.z}`);
 				pos = body.interpolatedPosition;
 				rot = body.interpolatedQuaternion;
 			}

@@ -62,7 +62,6 @@ export default class CannonPhysicsSystem extends System {
 		super.updateFixed(dt, frameDt);
 		this.state.frameTime = dt / 1000;
 		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
-		console.log(this.state.frameTime, frameDt / 1000);
 		this.state.world.step(this.state.frameTime, frameDt / 1000, this.subSteps);
 
 		this.couples.forEach(couple => couple.update(dt));

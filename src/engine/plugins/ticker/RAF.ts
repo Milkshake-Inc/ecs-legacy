@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { PlatformHelper } from '@ecs/utils/Platform';
 
 const windowOrGlobal: any = typeof window === 'object' ? window : global;

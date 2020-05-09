@@ -12,7 +12,6 @@ import { Heightfield, Material } from 'cannon-es';
 import { makeNoise3D, Noise3D } from 'open-simplex-noise';
 import { BufferAttribute, InstancedMesh, Mesh, MeshPhongMaterial, Object3D, PlaneBufferGeometry, Vector3 as ThreeVector3 } from 'three';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import { ChunkSystem } from '@ecs/plugins/chunks/systems/ChunkSystem';
 import TerrainChunkSystem from '../systems/TerrainChunkSystem';
 
 const GRASS = 0x82c62d;
@@ -29,8 +28,6 @@ type TreeGenerator = {
 		index: 0;
 	}[];
 };
-
-
 
 export class Terrain extends Space {
 	protected noise: Noise3D;

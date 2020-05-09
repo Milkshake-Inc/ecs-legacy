@@ -1,3 +1,1 @@
-export default class ChunkViewer {
-
-}
+export default class ChunkViewer {}
