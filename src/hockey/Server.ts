@@ -32,8 +32,8 @@ export class NetEngine extends TickerEngine {
 class ServerHockey extends Hockey {
 	private connections: ServerConnectionSystem;
 
-	constructor(engine: NetEngine) {
-		super(engine);
+	constructor(engine: NetEngine, open = false) {
+		super(engine, open);
 		this.connections = engine.connections;
 	}
 
@@ -62,5 +62,4 @@ const engine = new NetEngine();
 const spaces = new Entity();
 engine.addEntity(spaces);
 
-spaces.add(new ServerHockey(engine));
-spaces.get(ServerHockey).open();
+spaces.add(new ServerHockey(engine, true));

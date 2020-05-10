@@ -166,8 +166,8 @@ export default class Hockey extends Space {
 
 	protected puck: Entity;
 
-	constructor(engine: Engine) {
-		super(engine, 'hockey');
+	constructor(engine: Engine, open = false) {
+		super(engine, open, 'hockey');
 
 		this.paddleQuery = makeQuery(all(Paddle));
 		engine.addQuery(this.paddleQuery);

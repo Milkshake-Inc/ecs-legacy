@@ -15,13 +15,17 @@ export default class Space {
 	private systems: { system: System; priority: number }[];
 	private queries: Query[];
 
-	constructor(engine: Engine, name = 'space') {
+	constructor(engine: Engine, open = false, name = 'space') {
 		this.name = name;
 		this.worldEngine = engine;
 
 		this.entities = [];
 		this.systems = [];
 		this.queries = [];
+
+		if (open) {
+			this.open();
+		}
 	}
 
 	public addEntities(...entities: Entity[]) {

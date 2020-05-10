@@ -167,11 +167,9 @@ engine.addSystem(new ClientPingSystem());
 engine.addSystem(new DebugSystem());
 
 const spaces = new Entity();
-spaces.add(new Splash(engine));
+spaces.add(new Splash(engine, true));
 spaces.add(new ClientHockey(engine));
 engine.addEntity(spaces);
-
-spaces.get(Splash).open();
 
 setTimeout(() => {
 	spaces.get(Splash).close();

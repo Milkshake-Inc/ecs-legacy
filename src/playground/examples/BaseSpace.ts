@@ -1,4 +1,3 @@
-import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
@@ -35,10 +34,6 @@ export default class BaseSpace extends Space {
 	protected purpleTexture: Texture;
 	protected redTexture: Texture;
 	protected greenTexture: Texture;
-
-	constructor(engine: Engine, name = 'space') {
-		super(engine, name);
-	}
 
 	protected async preload() {
 		[this.darkTexture, this.orangeTexture, this.purpleTexture, this.redTexture, this.greenTexture] = await Promise.all([

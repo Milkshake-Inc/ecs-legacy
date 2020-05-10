@@ -1,4 +1,3 @@
-import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { functionalSystem } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
@@ -55,7 +54,7 @@ import ChunkViewer from '@ecs/plugins/chunks/components/ChunkViewer';
 
 const waterHeight = 60;
 
-export class Ship extends Space {
+export class ShipClient extends Space {
 	protected shipModel: GLTF;
 	protected islandModel: GLTF;
 	protected boxMan: GLTF;
@@ -65,10 +64,6 @@ export class Ship extends Space {
 	protected ship: Entity;
 	protected thirdPersonCameraSystem = new ThirdPersonCameraSystem();
 	protected freeRoamCameraSystem = new FreeRoamCameraSystem();
-
-	constructor(engine: Engine) {
-		super(engine, 'ship');
-	}
 
 	protected async preload() {
 		[this.shipModel, this.islandModel, this.boxMan, this.heli] = await Promise.all([

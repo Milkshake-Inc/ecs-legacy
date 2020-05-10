@@ -34,8 +34,8 @@ export class Terrain extends Space {
 	protected noise: Noise3D;
 	protected trees: TreeGenerator;
 
-	constructor(engine: Engine) {
-		super(engine, 'terrain');
+	constructor(engine: Engine, open = false) {
+		super(engine, open, 'terrain');
 
 		this.noise = makeNoise3D(Seed);
 		this.trees = {

@@ -20,11 +20,9 @@ const engine = new ThreeEngine(
 );
 
 const spaces = new Entity();
-spaces.add(new TerrainSpace(engine));
+spaces.add(new TerrainSpace(engine, true));
 spaces.add(new CharacterSpace(engine));
 spaces.add(new VoxelSpace(engine));
 engine.addEntity(spaces);
-
-spaces.get(TerrainSpace).open();
 
 console.log('🎉 Client');
