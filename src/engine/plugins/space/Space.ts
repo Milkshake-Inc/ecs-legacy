@@ -12,7 +12,7 @@ export default class Space {
 	private visible = false;
 
 	private entities: Entity[];
-	private systems: System[];
+	private systems: { system: System; priority: number }[];
 	private queries: Query[];
 
 	constructor(engine: Engine, name = 'space') {
@@ -33,16 +33,16 @@ export default class Space {
 		this.entities.push(entity);
 	}
 
-	public addSystem(system: System) {
-		this.systems.push(system);
+	public addSystem(system: System, priority = 0) {
+		this.systems.push({ system, priority });
 
 		if (this.visible) {
-			this.worldEngine.addSystem(system);
+			this.worldEngine.addSystem(system, priority);
 		}
 	}
 
 	public removeSystem(system: System) {
-		this.systems.slice(this.systems.indexOf(system), 1);
+		this.systems = this.systems.filter(s => s.system != system);
 
 		if (this.visible) {
 			this.worldEngine.removeSystem(system);
@@ -90,7 +90,7 @@ export default class Space {
 	private show() {
 		if (this.visible) return;
 		this.queries.forEach(q => this.worldEngine.addQuery(q));
-		this.systems.forEach(s => this.worldEngine.addSystem(s));
+		this.systems.forEach(({ system, priority }) => this.worldEngine.addSystem(system, priority));
 		this.entities.forEach(e => this.worldEngine.addEntity(e));
 
 		this.visible = true;
@@ -99,7 +99,7 @@ export default class Space {
 	private hide() {
 		if (!this.visible) return;
 		this.entities.forEach(e => this.worldEngine.removeEntity(e));
-		this.systems.forEach(s => this.worldEngine.removeSystem(s));
+		this.systems.forEach(({ system }) => this.worldEngine.removeSystem(system));
 		this.queries.forEach(q => this.worldEngine.removeQuery(q));
 		this.visible = false;
 	}
