@@ -67,7 +67,7 @@ export class ShipClient extends Space {
 
 	protected async preload() {
 		[this.shipModel, this.islandModel, this.boxMan, this.heli] = await Promise.all([
-			LoadGLTF('assets/prototype/models/boat_large.gltf'),
+			LoadGLTF('assets/prototype/models/boat_large.glb'),
 			LoadGLTF('assets/prototype/models/island.gltf'),
 			LoadGLTF('assets/prototype/models/boxman.glb'),
 			LoadGLTF('assets/prototype/models/heli.glb')

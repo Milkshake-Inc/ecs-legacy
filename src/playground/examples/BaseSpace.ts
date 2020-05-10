@@ -1,10 +1,10 @@
 import { Entity } from '@ecs/ecs/Entity';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import CannonPhysicsSystem, { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
-import { LoadTexture } from '@ecs/utils/ThreeHelper';
+import { LoadTexture, LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Material, Plane, Vec3, Sphere as CannonSphere } from 'cannon-es';
 import {
 	AmbientLight,
@@ -18,6 +18,8 @@ import {
 	Texture,
 	BoxGeometry
 } from 'three';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 const Assets = {
 	BOX_MAN: 'assets/prototype/models/boxman.glb',
@@ -34,14 +36,16 @@ export default class BaseSpace extends Space {
 	protected purpleTexture: Texture;
 	protected redTexture: Texture;
 	protected greenTexture: Texture;
+	protected boatModel: GLTF;
 
 	protected async preload() {
-		[this.darkTexture, this.orangeTexture, this.purpleTexture, this.redTexture, this.greenTexture] = await Promise.all([
+		[this.darkTexture, this.orangeTexture, this.purpleTexture, this.redTexture, this.greenTexture, this.boatModel] = await Promise.all([
 			LoadTexture(Assets.DARK_TEXTURE),
 			LoadTexture(Assets.ORANGE_TEXTURE),
 			LoadTexture(Assets.PURPLE_TEXTURE),
 			LoadTexture(Assets.RED_TEXTURE),
-			LoadTexture(Assets.GREEN_TEXTURE)
+			LoadTexture(Assets.GREEN_TEXTURE),
+			LoadGLTF('assets/prototype/models/boat_large.glb')
 		]);
 	}
 
@@ -93,15 +97,21 @@ export default class BaseSpace extends Space {
 		// Ground
 		const ground = new Entity();
 		ground.add(Transform, { rx: -Math.PI / 2 });
-		this.darkTexture.repeat.set(400, 400);
-		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
+
+		if (this.darkTexture) {
+			this.darkTexture.repeat.set(400, 400);
+			this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
+		}
+
 		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })), {
 			castShadow: true,
 			receiveShadow: true
 		});
 		ground.add(
-			new Body({
-				material: slippy
+			new CannonBody({
+				material: slippy,
+				collisionFilterGroup: ~CollisionGroups.Default,
+				collisionFilterMask: ~CollisionGroups.Vehicles | CollisionGroups.Characters
 			})
 		);
 		ground.add(new Plane());

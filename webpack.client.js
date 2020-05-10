@@ -2,7 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const {baseConfig, projectPath} = require('./webpack.base.js');
+const { baseConfig, projectPath } = require('./webpack.base.js');
 const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
@@ -20,15 +20,15 @@ const config = {
 			{
 				test: /\.(glsl|vs|fs|vert|frag)$/,
 				exclude: /node_modules/,
-				use: [
-					'raw-loader',
-					'glslify-loader'
-				]
+				use: ['raw-loader', 'glslify-loader']
 			}
 		]
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js']
+	},
+	node: {
+		fs: 'empty'
 	},
 	output: {
 		path: path.resolve(__dirname, 'bin/www'),

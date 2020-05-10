@@ -1,5 +1,7 @@
 import { Class } from '../utils/Class';
 
+const componentIds = new Map<string, number>();
+
 /**
  * Gets an id for a component class.
  *
@@ -9,19 +11,15 @@ import { Class } from '../utils/Class';
 export function getComponentId<T>(component: Class<T>, createIfNotExists = false): number | undefined {
 	if (component == undefined) return undefined;
 
-	const componentClass = component as ComponentId<T>;
-	let result: number | undefined = undefined;
-	if (Object.prototype.hasOwnProperty.call(componentClass, COMPONENT_CLASS_ID)) {
-		result = componentClass[COMPONENT_CLASS_ID];
+	const className = component.prototype.constructor.name;
+	if (componentIds.has(className)) {
+		return componentIds.get(className);
 	} else if (createIfNotExists) {
-		result = componentClass[COMPONENT_CLASS_ID] = componentClassId++;
+		componentIds.set(className, componentClassId++);
+		return componentIds.get(className);
 	}
-	return result;
+
+	return undefined;
 }
 
-const COMPONENT_CLASS_ID = '__componentClassId__';
 let componentClassId = 1;
-
-type ComponentId<T> = Class<T> & {
-	[key: string]: number;
-};

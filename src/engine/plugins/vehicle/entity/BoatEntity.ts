@@ -4,7 +4,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/Transform';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { Material } from 'cannon-es';
+import { Material, Box, Vec3 } from 'cannon-es';
 import MeshShape from '@ecs/plugins/physics/components/MeshShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Vehicle from '../components/Vehicle';
@@ -21,7 +21,7 @@ export default class BoatEntity extends Entity {
 		this.add(InputKeybindings.WASD());
 		this.add(Vehicle);
 		this.add(Boat);
-		this.add(gltf.scene.children[0]);
+		this.add(gltf.scene);
 		this.add(
 			new CannonBody({
 				mass: 20,

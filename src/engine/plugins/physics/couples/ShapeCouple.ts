@@ -403,6 +403,7 @@ export const applyToMeshesIndividually = (
 
 	object3d.traverse(mesh => {
 		mesh.updateWorldMatrix(true, false);
+		console.log('I am a mesh', mesh instanceof Mesh);
 		if (mesh instanceof Mesh) {
 			if (mesh.geometry instanceof BufferGeometry) {
 				mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
