@@ -166,13 +166,16 @@ engine.addSystem(new ClientConnectionSystem(engine), 1000); // has to be low pri
 engine.addSystem(new ClientPingSystem());
 engine.addSystem(new DebugSystem());
 
-engine.registerSpaces(new Splash(engine, 'splash'), new ClientHockey(engine));
+const spaces = new Entity();
+spaces.add(new Splash(engine));
+spaces.add(new ClientHockey(engine));
+engine.addEntity(spaces);
 
-engine.getSpace('splash').open();
+spaces.get(Splash).open();
 
 setTimeout(() => {
-	engine.getSpace('splash').close();
-	engine.getSpace('hockey').open();
+	spaces.get(Splash).close();
+	spaces.get(ClientHockey).open();
 }, 1000);
 
 console.log('🎉 Client');

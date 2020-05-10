@@ -33,8 +33,8 @@ export default class ParentTransformSystem extends System {
 	update() {
 		let parent = this.query.parent.first.get(Transform).position;
 
-		if(this.config.offset) {
-			parent = parent.add(this.config.offset)
+		if (this.config.offset) {
+			parent = parent.add(this.config.offset);
 		}
 
 		this.query.follower.forEach(follower => {

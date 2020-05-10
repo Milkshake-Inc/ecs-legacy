@@ -36,7 +36,7 @@ export default class BaseSpace extends Space {
 	protected redTexture: Texture;
 	protected greenTexture: Texture;
 
-	constructor(engine: Engine, name: string) {
+	constructor(engine: Engine, name = 'space') {
 		super(engine, name);
 	}
 

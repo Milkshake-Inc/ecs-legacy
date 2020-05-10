@@ -15,7 +15,7 @@ export default class Space {
 	private systems: System[];
 	private queries: Query[];
 
-	constructor(engine: Engine, name: string) {
+	constructor(engine: Engine, name = 'space') {
 		this.name = name;
 		this.worldEngine = engine;
 

@@ -4,6 +4,7 @@ import { Fog, PCFSoftShadowMap } from 'three';
 import TerrainSpace from './spaces/TerrainSpace';
 import CharacterSpace from './spaces/CharacterSpace';
 import VoxelSpace from './spaces/VoxelSpace';
+import { Entity } from '@ecs/ecs/Entity';
 
 const engine = new ThreeEngine(
 	new RenderSystem({
@@ -18,10 +19,12 @@ const engine = new ThreeEngine(
 	})
 );
 
-engine.registerSpaces(new TerrainSpace(engine, 'terrain'));
-engine.registerSpaces(new CharacterSpace(engine, 'animation'));
-engine.registerSpaces(new VoxelSpace(engine, 'voxel'));
+const spaces = new Entity();
+spaces.add(new TerrainSpace(engine));
+spaces.add(new CharacterSpace(engine));
+spaces.add(new VoxelSpace(engine));
+engine.addEntity(spaces);
 
-engine.getSpace('terrain').open();
+spaces.get(TerrainSpace).open();
 
 console.log('🎉 Client');

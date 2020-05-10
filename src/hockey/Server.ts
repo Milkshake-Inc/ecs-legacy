@@ -4,7 +4,6 @@ import { ServerAddInputToHistory } from '@ecs/plugins/net/systems/ServerAddInput
 import { ServerApplyInputFromHistory } from '@ecs/plugins/net/systems/ServerApplyInputFromHistory';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
 import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
-import Space from '@ecs/plugins/space/Space';
 import TickerEngine from '@ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { allRandom } from 'dog-names';
@@ -12,11 +11,11 @@ import Hockey, { PlayerConfig } from './spaces/Hockey';
 import { HockeyServerWorldSnapshotSystem } from './systems/HockeyServerWorldSnapshotSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
+import { Entity } from '@ecs/ecs/Entity';
 
 export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
 	public connections: ServerConnectionSystem;
-	protected spaces: Map<string, Space> = new Map();
 
 	constructor() {
 		super(60);
@@ -27,14 +26,6 @@ export class NetEngine extends TickerEngine {
 		this.addSystem(new ServerPingSystem(this.tickRate));
 
 		this.server.listen();
-	}
-
-	public getSpace(spaceName: string) {
-		return this.spaces.get(spaceName);
-	}
-
-	public registerSpaces(...spaces: Space[]) {
-		spaces.forEach(v => this.spaces.set(v.name, v));
 	}
 }
 
@@ -68,5 +59,8 @@ class ServerHockey extends Hockey {
 }
 
 const engine = new NetEngine();
-engine.registerSpaces(new ServerHockey(engine));
-engine.getSpace('hockey').open();
+const spaces = new Entity();
+engine.addEntity(spaces);
+
+spaces.add(new ServerHockey(engine));
+spaces.get(ServerHockey).open();
