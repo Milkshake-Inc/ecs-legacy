@@ -25,6 +25,11 @@ exports.baseConfig = {
 				test: /\.tsx?$/,
 				use: 'ts-loader',
 				exclude: [/node_modules/]
+			},
+			{
+				test: /\.js?$/,
+				use: 'babel-loader',
+				include: [path.resolve(__dirname, 'node_modules/three/examples/jsm')]
 			}
 		]
 	},

@@ -23,7 +23,11 @@ const config = {
 			color: 'orange'
 		})
 	],
-	externals: [nodeExternals()],
+	externals: [
+		nodeExternals({
+			whitelist: [/^three\/examples\/jsm/]
+		})
+	],
 	output: {
 		filename: 'server.js',
 		path: path.resolve(__dirname, 'bin')

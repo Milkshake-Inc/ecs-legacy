@@ -1,2 +1,1 @@
-import { performance } from 'perf_hooks';
-global['performance'] = performance;
+global['performance'] = require('perf_hooks').performance;
