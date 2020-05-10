@@ -77,7 +77,7 @@ export default class BaseSpace extends Space {
 		slippy.friction = 0.04;
 
 		const camera = new Entity();
-		camera.add(Transform, { z: 4, y: 4, x: 0, qx: -0.1 });
+		camera.add(Transform, { z: 4, y: 4, x: 0, qx: -0.5 });
 		const cameraa = new PerspectiveCamera(75, 1280 / 720, 0.1, 1000);
 		camera.add(cameraa);
 

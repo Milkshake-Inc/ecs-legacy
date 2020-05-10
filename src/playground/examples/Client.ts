@@ -5,6 +5,7 @@ import TerrainSpace from './spaces/TerrainSpace';
 import CharacterSpace from './spaces/CharacterSpace';
 import VoxelSpace from './spaces/VoxelSpace';
 import { Entity } from '@ecs/ecs/Entity';
+import { NetworkClientSpace } from './spaces/network/NetworkClientSpace';
 
 const engine = new ThreeEngine(
 	new RenderSystem({
@@ -20,9 +21,10 @@ const engine = new ThreeEngine(
 );
 
 const spaces = new Entity();
-spaces.add(new TerrainSpace(engine, true));
+spaces.add(new TerrainSpace(engine));
 spaces.add(new CharacterSpace(engine));
 spaces.add(new VoxelSpace(engine));
+spaces.add(new NetworkClientSpace(engine, true));
 engine.addEntity(spaces);
 
 console.log('🎉 Client');

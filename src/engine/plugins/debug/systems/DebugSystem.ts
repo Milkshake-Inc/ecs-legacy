@@ -33,7 +33,7 @@ export class DebugSystem extends IterativeSystem {
 
 	public onAddedToEngine(engine: Engine) {
 		this.engine = engine;
-		this.ecsGraph = new ECSGraph(engine, false, 'ecs graph');
+		this.ecsGraph = new ECSGraph(engine, false);
 		this.engine.onEntityAdded.connect(this.onEntityAdded.bind(this));
 		this.engine.onEntityRemoved.connect(this.onEntityRemoved.bind(this));
 	}

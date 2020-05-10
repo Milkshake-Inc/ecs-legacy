@@ -1,33 +1,15 @@
+import { NetEngine } from '@ecs/plugins/net/NetEngine';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import { ServerAddInputToHistory } from '@ecs/plugins/net/systems/ServerAddInputToHistory';
 import { ServerApplyInputFromHistory } from '@ecs/plugins/net/systems/ServerApplyInputFromHistory';
 import ServerConnectionSystem from '@ecs/plugins/net/systems/ServerConnectionSystem';
-import ServerPingSystem from '@ecs/plugins/net/systems/ServerPingSystem';
-import TickerEngine from '@ecs/TickerEngine';
-import geckosServer, { GeckosServer } from '@geckos.io/server/lib/server';
 import { allRandom } from 'dog-names';
 import Hockey, { PlayerConfig } from './spaces/Hockey';
 import { HockeyServerWorldSnapshotSystem } from './systems/HockeyServerWorldSnapshotSystem';
 import PlayerSpawnSystem from './systems/PlayerSpawnSystem';
 import PuckScoreSystem from './systems/PuckScoreSystem';
 import { Entity } from '@ecs/ecs/Entity';
-
-export class NetEngine extends TickerEngine {
-	public server: GeckosServer;
-	public connections: ServerConnectionSystem;
-
-	constructor() {
-		super(60);
-
-		this.server = geckosServer();
-
-		this.addSystem((this.connections = new ServerConnectionSystem(this, this.server)), 1000); // has to be low priority so systems get packets before the queue is cleared
-		this.addSystem(new ServerPingSystem(this.tickRate));
-
-		this.server.listen();
-	}
-}
 
 class ServerHockey extends Hockey {
 	private connections: ServerConnectionSystem;

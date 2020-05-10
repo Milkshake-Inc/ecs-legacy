@@ -46,7 +46,7 @@ export default class AnimationSpace extends Space {
 	protected greenTexture: Texture;
 
 	constructor(engine: Engine, open = false) {
-		super(engine, open, 'animation');
+		super(engine, open);
 	}
 
 	protected async preload() {

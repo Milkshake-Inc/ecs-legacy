@@ -15,8 +15,7 @@ export default class Space {
 	private systems: { system: System; priority: number }[];
 	private queries: Query[];
 
-	constructor(engine: Engine, open = false, name = 'space') {
-		this.name = name;
+	constructor(engine: Engine, open = false) {
 		this.worldEngine = engine;
 
 		this.entities = [];
@@ -61,7 +60,7 @@ export default class Space {
 	}
 
 	public async open(reset = false) {
-		console.log(`🚀opening space ${this.name}`);
+		console.log(`🚀opening space ${this.constructor.name}`);
 		if (reset && this.loaded) {
 			this.clear();
 		}
@@ -76,7 +75,7 @@ export default class Space {
 	}
 
 	public close(destroy = false) {
-		console.log(`🚀closing view ${this.name}`);
+		console.log(`🚀closing space ${this.constructor.name}`);
 		this.hide();
 		if (destroy) {
 			this.clear();
