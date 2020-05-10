@@ -4,7 +4,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/Transform';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { Material, Box, Vec3 } from 'cannon-es';
+import { Material } from 'cannon-es';
 import MeshShape from '@ecs/plugins/physics/components/MeshShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Vehicle from '../components/Vehicle';

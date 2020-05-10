@@ -25,7 +25,7 @@ const config = {
 	],
 	externals: [
 		nodeExternals({
-			whitelist: [/^three\/examples\/jsm/]
+			whitelist: [/^three/]
 		})
 	],
 	output: {
