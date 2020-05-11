@@ -5,7 +5,7 @@ import Random from '@ecs/math/Random';
 import Vector3 from '@ecs/math/Vector';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
+import BaseCharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import BoundingBoxShape from '@ecs/plugins/physics/components/BoundingBoxShape';
@@ -124,7 +124,7 @@ export default class AnimationSpace extends Space {
 		this.addEntities(light, camera, ground);
 		this.addSystem(new ThirdPersonCameraSystem());
 
-		const player = new CharacterEntity(this.boxman);
+		const player = new BaseCharacterEntity(this.boxman);
 		player.add(ThirdPersonTarget);
 		this.addEntity(player);
 

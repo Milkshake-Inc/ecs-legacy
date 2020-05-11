@@ -45,7 +45,7 @@ export default class BaseSpace extends Space {
 			LoadTexture(Assets.PURPLE_TEXTURE),
 			LoadTexture(Assets.RED_TEXTURE),
 			LoadTexture(Assets.GREEN_TEXTURE),
-			LoadGLTF('assets/prototype/models/boat_large.glb')
+			LoadGLTF('assets/prototype/models/boat_large.glb'),
 		]);
 	}
 

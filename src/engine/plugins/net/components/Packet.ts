@@ -5,7 +5,8 @@ export enum PacketOpcode {
 	CLIENT_SYNC_PONG,
 	SERVER_SYNC_RESULT,
 	WORLD,
-	PLAYER_INPUT
+	PLAYER_INPUT,
+	PLAYER_CUSTOM_INPUT
 }
 
 export type ServerSyncPing = {
@@ -40,4 +41,10 @@ export type PlayerInput = {
 	input: Input;
 };
 
-export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldSnapshot | PlayerInput;
+export type PlayerCustomInput<T = {}> = {
+	opcode: PacketOpcode.PLAYER_CUSTOM_INPUT;
+	tick: number;
+	input: T;
+};
+
+export type Packet = ServerSyncPing | ClientSyncPong | ServerSyncResult | WorldSnapshot | PlayerInput | PlayerCustomInput;

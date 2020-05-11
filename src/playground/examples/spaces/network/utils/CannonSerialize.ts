@@ -1,9 +1,5 @@
 import CannonBody from "@ecs/plugins/physics/components/CannonBody";
 
-export type Snapshot = {
-    boat: number[];
-};
-
 export const serialize = (cannonBody: CannonBody): number[] => {
     return [
         // Position
