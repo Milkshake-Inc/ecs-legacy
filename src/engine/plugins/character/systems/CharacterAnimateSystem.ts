@@ -21,8 +21,6 @@ export class CharacterAnimation {
 }
 
 export default class CharacterAnimateSystem extends IterativeSystem {
-
-
 	constructor() {
 		super(makeQuery(all(CharacterTag, Transform, CannonBody, CharacterAnimation)));
 	}

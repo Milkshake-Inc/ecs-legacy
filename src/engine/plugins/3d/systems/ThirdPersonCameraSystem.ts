@@ -86,9 +86,9 @@ export default class ThirdPersonCameraSystem extends System {
 	public updateLate(dt: number) {
 		super.updateLate(dt);
 
-		if(!this.queries.target.first) {
+		if (!this.queries.target.first) {
 			// Maybe should be an iterative system.
-			console.warn("No target!");
+			console.warn('No target!');
 		}
 
 		const xAngle = -(this.cameraAngle.x * 2);

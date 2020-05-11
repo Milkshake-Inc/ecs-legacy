@@ -45,7 +45,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 				if (localSessionEntity) {
 					console.log('Creating local player');
 				} else {
-					console.log("Remote ")
+					console.log('Remote ');
 					const entity = new Entity();
 					entity.add(RemoteSession, { id: remoteSnapshot.id });
 					this.engine.addEntity(entity);
@@ -65,10 +65,10 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 				return sessionId == remoteSnapshot.id;
 			});
 
-			if(localCreatedPaddle) {
+			if (localCreatedPaddle) {
 				deserialize(localCreatedPaddle.get(CannonBody), remoteSnapshot.snap);
 			} else {
-				console.log("Missing")
+				console.log('Missing');
 			}
 		});
 	}

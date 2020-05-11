@@ -28,6 +28,9 @@ import BoundingCapsuleShape from '../components/BoundingCapsuleShape';
 import CapsuleShape from '../components/CapsuleShape';
 import CannonInstancedBody from '../components/CannonInstancedBody';
 import GLTFShape from '../components/GLTFShape';
+import { getGeometry } from '@ecs/plugins/3d/utils/MeshUtils';
+import Vector3, { Vector } from '@ecs/math/Vector';
+import { ToCannonVector3 } from '../utils/Conversions';
 
 export const NoMeshError = new Error('no mesh found :(');
 export const UnexpectedShapeError = new Error('should not use shape on entity');
@@ -106,20 +109,40 @@ export const useShapeCouple = (system: System) =>
 						if (child.hasOwnProperty('userData')) {
 							if (child.userData.hasOwnProperty('data')) {
 								if (child.userData.data === 'collision') {
+									const pos = ToCannonVector3(child.getWorldPosition(new ThreeVector3()));
+									const visible = Boolean(child.userData.visible);
+
 									if (child.userData.shape === 'box') {
-										child.visible = false;
+										child.visible = visible;
 
 										const box = new Box(new Vec3(child.scale.x, child.scale.y, child.scale.z));
-										body.addShape(box, new Vec3(child.position.x, child.position.y, child.position.z));
+										body.addShape(box, pos);
 										shapes.push(box);
 									}
 
+									if (child.userData.shape === 'boundingbox') {
+										child.visible = visible;
+
+										const { shape, position } = generateBoundingBox(child as Mesh);
+
+										body.addShape(shape, ToCannonVector3(position));
+										shapes.push(shape);
+									}
+
 									if (child.userData.shape === 'sphere') {
-										child.visible = false;
+										child.visible = visible;
 
 										const sphere = new Sphere(child.scale.x);
-										body.addShape(sphere, new Vec3(child.position.x, child.position.y, child.position.z));
+										body.addShape(sphere, pos);
 										shapes.push(sphere);
+									}
+
+									if (child.userData.shape === 'mesh') {
+										child.visible = visible;
+
+										const shape = generateConvexPolyhedron(child as Mesh, child.scale);
+										body.addShape(shape, pos);
+										shapes.push(shape);
 									}
 								}
 							}
@@ -366,14 +389,8 @@ export const useShapeCouple = (system: System) =>
 					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
 						console.log(`generating MeshShape for ${mesh.name}`);
 
-						const convexGeometry = new ConvexGeometry(geometry.vertices);
-						// convexGeometry.
-						convexGeometry.scale(scale.x, scale.y, scale.z);
+						const shape = generateConvexPolyhedron(mesh, scale);
 
-						const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
-						const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
-
-						const shape = new ConvexPolyhedron({ vertices, faces });
 						body.addShape(
 							shape,
 							new Vec3(position.x, position.y, position.z),
@@ -388,6 +405,37 @@ export const useShapeCouple = (system: System) =>
 			}
 		}
 	);
+
+export const generateBoundingBox = (mesh: Mesh) => {
+	const geometry = getGeometry(mesh);
+
+	mesh.updateWorldMatrix(true, false);
+	const position = new ThreeVector3();
+	const scale = new ThreeVector3();
+	const rotation = new ThreeQuaternion();
+	mesh.matrixWorld.decompose(position, rotation, scale);
+
+	// Calculate bounding box and offset world position
+	geometry.computeBoundingBox();
+	const center = geometry.boundingBox.getCenter(new ThreeVector3());
+	const size = geometry.boundingBox.getSize(new ThreeVector3()).divideScalar(2);
+	position.add(center.applyQuaternion(rotation));
+
+	return { shape: new Box(new Vec3(size.x, size.y, size.z)), position };
+};
+
+export const generateConvexPolyhedron = (mesh: Mesh, scale: Vector | Vector3 = Vector3.ONE) => {
+	const geometry = getGeometry(mesh);
+
+	const convexGeometry = new ConvexGeometry(geometry.vertices);
+	// convexGeometry.
+	convexGeometry.scale(scale.x, scale.y, scale.z);
+
+	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
+	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
+
+	return new ConvexPolyhedron({ vertices, faces });
+};
 
 export const applyToMeshesIndividually = (
 	entity: Entity,
@@ -404,6 +452,8 @@ export const applyToMeshesIndividually = (
 	object3d.traverse(mesh => {
 		mesh.updateWorldMatrix(true, false);
 		if (mesh instanceof Mesh) {
+			if (mesh.userData.nocollider || mesh.parent.userData.nocollider) return;
+
 			if (mesh.geometry instanceof BufferGeometry) {
 				mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
 			}

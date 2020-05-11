@@ -51,6 +51,7 @@ import CharacterTag from '@ecs/plugins/character/components/CharacterTag';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import ChunkViewer from '@ecs/plugins/chunks/components/ChunkViewer';
+import GalleonEntity from '@ecs/plugins/vehicle/entity/GalleonEntity';
 
 const waterHeight = 60;
 
@@ -59,6 +60,7 @@ export class ShipClient extends Space {
 	protected islandModel: GLTF;
 	protected boxMan: GLTF;
 	protected heli: GLTF;
+	protected galleonModel: GLTF;
 	protected postMaterial: ShaderMaterial;
 	protected island: Entity;
 	protected ship: Entity;
@@ -66,21 +68,23 @@ export class ShipClient extends Space {
 	protected freeRoamCameraSystem = new FreeRoamCameraSystem();
 
 	protected async preload() {
-		[this.shipModel, this.islandModel, this.boxMan, this.heli] = await Promise.all([
+		[this.shipModel, this.islandModel, this.boxMan, this.heli, this.galleonModel] = await Promise.all([
 			LoadGLTF('assets/prototype/models/boat_large.glb'),
 			LoadGLTF('assets/prototype/models/island.gltf'),
 			LoadGLTF('assets/prototype/models/boxman.glb'),
-			LoadGLTF('assets/prototype/models/heli.glb')
+			LoadGLTF('assets/prototype/models/heli.glb'),
+			LoadGLTF('assets/prototype/models/galleon.glb')
 		]);
 	}
 
 	setup() {
 		this.setupEnvironment();
 
-		const player = new CharacterEntity(this.boxMan, new Vector3(-200, 10, -100));
+		const galleon = new GalleonEntity(this.galleonModel, new Vector3(-210, 10, -100));
+		const player = new CharacterEntity(this.boxMan, new Vector3(-200, 20, -100));
 		const heli = new HelicopterEntity(this.heli, new Vector3(-190, 10, -100), 'assets/prototype/sounds/helicopter.mp3');
 		const boat = new BoatEntity(this.shipModel, new Vector3(-180, 10, -100));
-		this.addEntities(player, heli, boat);
+		this.addEntities(player, heli, boat, galleon);
 
 		this.addSystem(new SoundSystem());
 		this.addSystem(new WaveMachineSystem());

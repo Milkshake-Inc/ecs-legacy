@@ -30,7 +30,6 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 	}
 }
 
-
 export class ClientCustomInputSenderSystem<T> extends IterativeSystem {
 	protected queries = useQueries(this, {
 		pingState: all(ClientPingState)

@@ -57,7 +57,7 @@ export default class ClientCharacterEntity extends Entity {
 		// Need to look into
 		const cloneHack = cloneGltf(gtlf);
 		const clonedGtlf = SkeletonUtils.clone(gtlf.scene);
-		cloneHack.scene = (clonedGtlf as any);
+		cloneHack.scene = clonedGtlf as any;
 
 		this.add(Transform, { position: spawnPosition, ry: 2 });
 		this.add(InputKeybindings.WASD());
@@ -65,7 +65,7 @@ export default class ClientCharacterEntity extends Entity {
 		this.add(CharacterTag);
 		this.add(clonedGtlf);
 		this.add(contactMaterial);
-		this.add(CharacterAnimation)
+		this.add(CharacterAnimation);
 		this.add(
 			new CannonBody({
 				mass: 1,
@@ -99,7 +99,7 @@ const cloneGltf = (gltf: GLTF) => {
 	});
 
 	const cloneBones = {};
-	const cloneSkinnedMeshes: {[index: string]: any } = { };
+	const cloneSkinnedMeshes: { [index: string]: any } = {};
 
 	clone.scene.traverse(node => {
 		if (node instanceof Bone) {
