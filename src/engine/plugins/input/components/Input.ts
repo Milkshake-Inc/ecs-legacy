@@ -9,6 +9,7 @@ export default class Input {
 		public pitchUpDown: boolean = false,
 		public pitchDownDown: boolean = false,
 		public yawLeftDown: boolean = false,
-		public yawRightDown: boolean = false
+		public yawRightDown: boolean = false,
+		public rotation = 0
 	) {}
 }

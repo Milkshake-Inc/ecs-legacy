@@ -8,7 +8,7 @@ import PhysicsState from '@ecs/plugins/physics/components/PhysicsState';
 import { useQueries } from '@ecs/ecs/helpers';
 import Boat from '../components/Boat';
 
-const Acceleration = 0.2;
+const Acceleration = 0.1;
 const RotateAcceleration = 0.02;
 
 export default class BoatControllerSystem extends IterativeSystem {

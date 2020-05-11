@@ -62,10 +62,9 @@ export default class HelicopterControllerSystem extends IterativeSystem {
 			body.velocity.y -= body.up.y * 0.15 * heli.enginePower;
 			body.velocity.z -= body.up.z * 0.15 * heli.enginePower;
 		}
-
 		const gravity = this.physicsState.gravity;
 		let gravityCompensation = new Vec3(-gravity.x, -gravity.y, -gravity.z).length();
-		gravityCompensation *= this.physicsState.frameTime;
+		gravityCompensation *= this.physicsState.frameTime || 0;
 		gravityCompensation *= 0.98;
 		const dot = Vector3.UP.dot(body.up);
 		gravityCompensation *= Math.sqrt(MathHelper.clamp(dot, 0, 1));

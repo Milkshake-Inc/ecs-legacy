@@ -29,7 +29,6 @@ export class BaseCharacterEntity extends Entity {
 		super();
 
 		this.add(Transform, { position: spawnPosition, ry: 2 });
-		this.add(InputKeybindings.WASD());
 		this.add(CharacterTag);
 		this.add(contactMaterial);
 		this.add(
@@ -60,7 +59,6 @@ export default class ClientCharacterEntity extends Entity {
 		cloneHack.scene = clonedGtlf as any;
 
 		this.add(Transform, { position: spawnPosition, ry: 2 });
-		this.add(InputKeybindings.WASD());
 		this.add(GLTFHolder, { value: cloneHack as any });
 		this.add(CharacterTag);
 		this.add(clonedGtlf);

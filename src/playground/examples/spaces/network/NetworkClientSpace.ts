@@ -7,7 +7,7 @@ import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterC
 import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
-import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
+import ClientInputSenderSystem, { ClientCustomInputSenderSystem } from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import BoatEntity from '@ecs/plugins/vehicle/entity/BoatEntity';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
@@ -15,14 +15,23 @@ import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import BaseSpace from '../../BaseSpace';
 import { PlayerSpawnSystem } from './Shared';
 import ClientSnapshotSystem from './systems/ClientSnapshotSystem';
+import { CharacterInputSystem } from '@ecs/plugins/character/systems/CharacterInputSystem';
+import CharacterInput from '@ecs/plugins/character/components/CharacterInput';
+import HelicopterEntity from '@ecs/plugins/vehicle/entity/HelicopterEntity';
+import HelicopterControllerSystem from '@ecs/plugins/vehicle/systems/HelicopterControllerSystem';
+import Vehicle from '@ecs/plugins/vehicle/components/Vehicle';
+import Transform from '@ecs/plugins/Transform';
+import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export class NetworkClientSpace extends BaseSpace {
 	protected boxModel: GLTF;
+	protected heliModel: GLTF;
 
 	protected async preload() {
 		await super.preload();
 
 		this.boxModel = await LoadGLTF('assets/prototype/models/boxman.glb');
+		this.heliModel = await LoadGLTF('assets/prototype/models/heli.glb');
 	}
 
 	setup() {
@@ -31,11 +40,13 @@ export class NetworkClientSpace extends BaseSpace {
 
 		this.addSystem(new ThirdPersonCameraSystem());
 
-		this.addSystem(new InputSystem());
-		this.addSystem(new ClientInputSenderSystem());
+		this.addSystem(new CharacterInputSystem());
 
+		this.addSystem(new ClientInputSenderSystem());
 		this.addSystem(new CharacterControllerSystem());
 		this.addSystem(new CharacterAnimateSystem());
+
+		// this.addSystem(new HelicopterControllerSystem());
 
 		super.setup();
 
@@ -48,6 +59,7 @@ export class NetworkClientSpace extends BaseSpace {
 				});
 				if (local) {
 					entity.add(Input);
+					entity.add(InputKeybindings.WASD())
 				}
 
 				entity.add(ThirdPersonTarget);
@@ -56,6 +68,15 @@ export class NetworkClientSpace extends BaseSpace {
 
 		const boat = new BoatEntity(this.boatModel, new Vector3(0, 10, 0));
 		this.addEntity(boat);
+
+		// const helicopter = new HelicopterEntity(this.heliModel, new Vector3(0, 1, 10));
+		// helicopter.add(Input);
+		// helicopter.get(Vehicle).controller = boat;
+		// this.addEntity(helicopter);
+
+		// setInterval(() => {
+		// 	console.log(helicopter.get(Transform).position);
+		// }, 1000);
 
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 	}

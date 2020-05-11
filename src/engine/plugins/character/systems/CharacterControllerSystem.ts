@@ -1,16 +1,17 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Vector3 from '@ecs/math/Vector';
-import Input from '@ecs/plugins/input/components/Input';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import Transform from '@ecs/plugins/Transform';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Vec3 } from 'cannon-es';
-import { PerspectiveCamera, Quaternion, Vector3 as ThreeVector3 } from 'three';
+import { Quaternion, Vector3 as ThreeVector3 } from 'three';
 import CharacterTag from '../components/CharacterTag';
+import CharacterInput from '../components/CharacterInput';
+import Input from '@ecs/plugins/input/components/Input';
 
 export default class CharacterControllerSystem extends IterativeSystem {
+
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
 	});
@@ -54,19 +55,15 @@ export default class CharacterControllerSystem extends IterativeSystem {
 		}
 
 		if (input.jumpDown) {
-			impulse = impulse.add(Vector3.UP.multiF(3));
+			impulse = impulse.add(Vector3.UP.multiF(6));
 		}
 
 		characterCanonBody.applyLocalImpulse(new Vec3(impulse.x, impulse.y, impulse.z), new Vec3(0, 0, 0));
 	}
 
 	private rotateToCameraDirection(entity: Entity) {
-		const cameraTransform = this.camera.get(Transform);
-		const characterTransform = entity.get(Transform);
+		const input = entity.get(Input);
 		const characterCanonBody = entity.get(CannonBody);
-
-		const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
-		const directionAngle = Math.atan2(directionVector.z, directionVector.x);
 
 		// We have to convert to ThreeQuaternion as has better helpers
 		const currentQuaternion = new Quaternion(
@@ -75,14 +72,10 @@ export default class CharacterControllerSystem extends IterativeSystem {
 			characterCanonBody.quaternion.z,
 			characterCanonBody.quaternion.w
 		);
-		const targetQuaternion = new Quaternion().setFromAxisAngle(new ThreeVector3(0, -1, 0), directionAngle + Math.PI / 2);
+		const targetQuaternion = new Quaternion().setFromAxisAngle(new ThreeVector3(0, -1, 0), input.rotation);
 
-		const slerpQuaternion = currentQuaternion.slerp(targetQuaternion, 0.3);
+		const slerpQuaternion = currentQuaternion.slerp(targetQuaternion, 0.9);
 
 		characterCanonBody.quaternion.set(slerpQuaternion.x, slerpQuaternion.y, slerpQuaternion.z, slerpQuaternion.w);
-	}
-
-	get camera() {
-		return this.queries.camera.first;
 	}
 }

@@ -4,14 +4,15 @@ import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterC
 import Input from '@ecs/plugins/input/components/Input';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import Session from '@ecs/plugins/net/components/Session';
-import { ServerAddInputToHistory } from '@ecs/plugins/net/systems/ServerAddInputToHistory';
-import { ServerApplyInputFromHistory } from '@ecs/plugins/net/systems/ServerApplyInputFromHistory';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import BoatEntity from '@ecs/plugins/vehicle/entity/BoatEntity';
 import { Vec3 } from 'cannon-es';
 import BaseSpace from '../../BaseSpace';
 import { PlayerSpawnSystem } from './Shared';
 import ServerSnapshotSystem from './systems/ServerSnapshotSystem';
+import CharacterInput from '@ecs/plugins/character/components/CharacterInput';
+import { ServerAddInputToHistory } from '@ecs/plugins/net/systems/ServerAddInputToHistory';
+import { ServerApplyInputFromHistory } from '@ecs/plugins/net/systems/ServerApplyInputFromHistory';
 
 export class NetworkServerSpace extends BaseSpace {
 	setup() {
@@ -31,13 +32,15 @@ export class NetworkServerSpace extends BaseSpace {
 
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
-				const player = new BaseCharacterEntity();
+				const player = new BaseCharacterEntity(new Vector3(0, 10, 0));
 
 				player.components.forEach(c => {
 					entity.add(c);
 				});
 				entity.add(Input);
 				entity.add(InputHistory);
+
+
 
 				console.log('Created player ' + entity.get(Session).id);
 			})
