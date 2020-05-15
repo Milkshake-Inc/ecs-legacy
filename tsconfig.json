@@ -6,13 +6,10 @@
 		"paths": {
 			"@ecs/*": ["./src/engine/*"]
 		},
-		"lib": ["es2015", "DOM", "ES7"],
+		"lib": ["es2015", "ES2019", "DOM", "ES7"],
 		"moduleResolution": "Node",
 		"esModuleInterop": true
 	},
-	"include": [
-		"./src",
-		"./src/ship/global.d.ts"
-	],
+	"include": ["./src", "./src/ship/global.d.ts"],
 	"exclude": ["node_modules", "test"]
 }

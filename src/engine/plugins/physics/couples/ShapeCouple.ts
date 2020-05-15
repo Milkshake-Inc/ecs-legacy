@@ -11,7 +11,8 @@ import {
 	ConvexPolyhedron,
 	Box,
 	Vec3,
-	Quaternion as CannonQuaternion
+	Quaternion as CannonQuaternion,
+	Trimesh
 } from 'cannon-es';
 import { System } from '@ecs/ecs/System';
 import { useCannonCouple } from './CannonCouple';
@@ -31,6 +32,7 @@ import GLTFShape from '../components/GLTFShape';
 import { getGeometry } from '@ecs/plugins/3d/utils/MeshUtils';
 import Vector3, { Vector } from '@ecs/math/Vector';
 import { ToCannonVector3 } from '../utils/Conversions';
+import TrimeshShape from '../components/TrimeshShape';
 
 export const NoMeshError = new Error('no mesh found :(');
 export const UnexpectedShapeError = new Error('should not use shape on entity');
@@ -49,8 +51,10 @@ export const useShapeCouple = (system: System) =>
 				Sphere,
 				ConvexPolyhedron,
 				Cylinder,
+				Trimesh,
 				Heightfield,
 				MeshShape,
+				TrimeshShape,
 				BoundingSphereShape,
 				BoundingBoxShape,
 				BoundingCylinderShape,
@@ -94,6 +98,11 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(ConvexPolyhedron)) {
 					body.addShape(entity.get(ConvexPolyhedron));
 					return entity.get(ConvexPolyhedron);
+				}
+
+				if (entity.has(Trimesh)) {
+					body.addShape(entity.get(Trimesh));
+					return entity.get(Trimesh);
 				}
 
 				if (entity.has(Cylinder)) {
@@ -377,6 +386,29 @@ export const useShapeCouple = (system: System) =>
 							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
 						);
 						shapes.push(bottomSphereShape);
+					});
+
+					entity.add(shapes);
+					return shapes;
+				}
+
+				if (entity.has(TrimeshShape)) {
+					const shapes: Trimesh[] = [];
+
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
+						console.log(`generating MeshShape for ${mesh.name}`);
+
+						const shape = new Trimesh(
+							geometry.vertices.flatMap(v => [v.x, v.y, v.z]),
+							geometry.faces.flatMap(f => [f.a, f.b, f.c])
+						);
+
+						body.addShape(
+							shape,
+							new Vec3(position.x, position.y, position.z),
+							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
+						);
+						shapes.push(shape);
 					});
 
 					entity.add(shapes);
