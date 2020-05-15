@@ -128,7 +128,7 @@ export default class Transform {
 	}
 
 	public clone(): Transform {
-		return JSON.parse(JSON.stringify(this));
+		return new Transform(this.position.clone(), this.quaternion.clone(), this.scale.clone())
 	}
 
 	public look(direction = Vector3.FORWARD) {
