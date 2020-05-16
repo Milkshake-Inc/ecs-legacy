@@ -24,6 +24,8 @@ export default class PixiUISystem extends System {
 
 		const renderState = this.queries.pixiRenderState.first.get(PixiRenderState);
 
+
+
 		this.state.uiTexture = new Texture(renderState.application.view);
         this.state.uiTexture.minFilter = LinearFilter;
 
@@ -38,7 +40,9 @@ export default class PixiUISystem extends System {
 
         // Add this to the UI Scene
         const golfRenderState = this.queries.uiState.first.get(GolfRenderState);
-		golfRenderState.uiScene.add(uiMesh);
+        golfRenderState.uiScene.add(uiMesh);
+
+        renderState.application.renderer.plugins.interaction.setTargetElement(golfRenderState.canvas)
     }
 
     update() {

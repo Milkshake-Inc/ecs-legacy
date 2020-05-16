@@ -39,6 +39,7 @@ import Sprite from '@ecs/plugins/render/components/Sprite';
 import Text from '@ecs/plugins/render/components/Text';
 import { GolfRenderState } from '../systems/GolfRenderSystem';
 import PixiUISystem from '../systems/PixiUISystem';
+import { Interactable } from '@ecs/plugins/render/components/Interactable';
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
 };
@@ -71,6 +72,8 @@ class TransformLerpSystem extends IterativeSystem {
 
 const Images = {
 	Background: 'assets/golf/logo.png',
+	Noise: 'assets/golf/noise.png',
+	Crosshair: 'assets/prototype/crosshair.png',
 }
 
 export default class GolfSpace extends Space {
@@ -114,7 +117,7 @@ export default class GolfSpace extends Space {
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.01, 1000));
 
 		const light = new Entity();
-		light.add(new DirectionalLight(new ThreeColor(Color.White), 1), {
+		light.add(new DirectionalLight(new ThreeColor(Color.White), 0.8), {
 			castShadow: true
 		});
 		light.get(DirectionalLight).shadow.mapSize.set(1024 * 4, 1024 * 4);
@@ -151,10 +154,30 @@ export default class GolfSpace extends Space {
 		background.add(Sprite, {
 			imageUrl: Images.Background,
 		});
+		background.add(Interactable);
 		this.addEntity(background);
+
+		// const noise = new Entity();
+		// noise.add(Transform, {
+		// 	position: new Vector3(1280 / 2, 720 / 2)
+		// });
+		// noise.add(Sprite, {
+		// 	imageUrl: Images.Noise,
+		// });
+		// noise.add(Interactable);
+		// this.addEntity(noise);
+
+		const crosshair = new Entity();
+		crosshair.add(Transform, {
+			position: new Vector3(1280 / 2, 720 / 2)
+		});
+		crosshair.add(Sprite, {
+			imageUrl: Images.Crosshair,
+		});
+		this.addEntity(crosshair);
 
 		setTimeout(() => {
 			this.worldEngine.removeEntity(background);
-		}, 1000)
+		}, 3000)
 	}
 }

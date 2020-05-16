@@ -5,10 +5,10 @@ import Key from "@ecs/input/Key";
 import Keyboard from "@ecs/input/Keyboard";
 import Vector3 from "@ecs/math/Vector";
 import CannonBody from "@ecs/plugins/physics/components/CannonBody";
-import { ToCannonVector3 } from "@ecs/plugins/physics/utils/Conversions";
+import { ToCannonVector3, ToThreeVector3 } from "@ecs/plugins/physics/utils/Conversions";
 import Transform from "@ecs/plugins/Transform";
 import { all, makeQuery } from "@ecs/utils/QueryHelper";
-import { PerspectiveCamera } from "three";
+import { PerspectiveCamera, ArrowHelper, Euler } from "three";
 import PlayerBall from "../components/PlayerBall";
 import { Graphics } from "pixi.js";
 import { Engine } from "@ecs/ecs/Engine";
@@ -26,6 +26,8 @@ export class BallControllerSystem extends IterativeSystem {
     graphics: Graphics;
     power = 0;
 
+    directionLine: Entity;
+
     constructor() {
         super(makeQuery(all(Transform, PlayerBall, CannonBody)));
         console.log("Created")
@@ -41,11 +43,37 @@ export class BallControllerSystem extends IterativeSystem {
         })
         powerBar.add(this.graphics = new Graphics())
         engine.addEntity(powerBar);
+
+        this.directionLine = new Entity();
+        this.directionLine.add(Transform);
+        this.directionLine.add(new ArrowHelper(
+            ToThreeVector3(Vector3.FORWARD),
+            ToThreeVector3(Vector3.ZERO),
+            10,
+            0xff0050
+        ))
+        engine.addEntity(this.directionLine);
     }
 
     updateEntityFixed(entity: Entity, deltaTime: number) {
 
         const camera = this.queries.camera.first;
+
+        const cameraTransform = camera.get(Transform);
+        const characterTransform = entity.get(Transform);
+
+        const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
+
+        this.directionLine.get(Transform).position = characterTransform.position.clone();
+        this.directionLine.get(Transform).rz = Math.PI / 2;
+        this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
+
+        // const helper = this.directionLine.get(ArrowHelper);
+        // helper.setRotationFromEuler(new Euler(directionVector.x,directionVector.y, directionVector.z) )
+        // helper.setLength(10);
+
+        // console.log(ToThreeVector3(directionVector));
+
 
         if (camera) {
 
@@ -58,20 +86,20 @@ export class BallControllerSystem extends IterativeSystem {
             if(this.keyboard.isDown(Key.X)) {
                 this.power += 1.2;
                 this.power = MathHelper.clamp(this.power, 0, 100);
+
+                this.directionLine.get(ArrowHelper).setLength(this.power / 10);
             }
 
             if(this.keyboard.isReleased(Key.X)) {
-                const cameraTransform = camera.get(Transform);
-                const characterTransform = entity.get(Transform);
 
                 const mappedPower = MathHelper.map(0, 100, 1, 10, this.power);
 
                 console.log(`Shot Power: ${mappedPower}`);
 
-                const directionVector = cameraTransform.position.sub(characterTransform.position).normalize().multiF(mappedPower);
+                const powerVector = directionVector.multiF(mappedPower);
                 // entity.get(CannonBody).velocity.set(-directionVector.x, 0, -directionVector.z);
                 entity.get(CannonBody).applyImpulse(
-                    ToCannonVector3(new Vector3(-directionVector.x, 0, -directionVector.z)),
+                    ToCannonVector3(new Vector3(-powerVector.x, 0, -powerVector.z)),
                     ToCannonVector3(Vector3.ZERO),
                 );
             }

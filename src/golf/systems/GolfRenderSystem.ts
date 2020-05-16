@@ -5,6 +5,7 @@ import { Camera, Fog, OrthographicCamera, PCFSoftShadowMap, PerspectiveCamera, S
 export class GolfRenderState {
     public uiScene: Scene;
     public uiCamera: OrthographicCamera;
+    public canvas: HTMLCanvasElement;
 }
 
 export default class GolfRenderSystem extends RenderSystem {
@@ -22,6 +23,8 @@ export default class GolfRenderSystem extends RenderSystem {
                 scene.fog = new Fog(0x262626, 10, 200);
             }
         });
+
+        this.golfRenderState.canvas = this.state.renderer.domElement;
 
         const width = 1280;
         const height = 720;

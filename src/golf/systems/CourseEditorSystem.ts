@@ -8,7 +8,7 @@ import Color from '@ecs/math/Color';
 import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
 import GLTFHolder from '@ecs/plugins/3d/components/GLTFHolder';
-import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
+import Raycast, { RaycastDebug, RaycastCamera } from '@ecs/plugins/3d/components/Raycaster';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
@@ -16,11 +16,13 @@ import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { Body, Sphere } from 'cannon-es';
-import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, SphereGeometry } from 'three';
+import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, SphereGeometry, GridHelper, PlaneGeometry } from 'three';
 import CoursePiece from '../components/CoursePice';
 import PlayerBall from '../components/PlayerBall';
 import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
+import { Graphics } from 'pixi.js';
+import Text from '@ecs/plugins/render/components/Text';
 
 export class CourseEditorSystem extends System {
 	protected engine: Engine;
@@ -47,9 +49,8 @@ export class CourseEditorSystem extends System {
 		this.models = models;
 
 		this.raycaster = new Entity();
-		this.raycaster.add(Transform, { y: 1 });
 		this.raycaster.add(RaycastDebug);
-		this.raycaster.add(Raycast);
+		this.raycaster.add(RaycastCamera);
 		this.engine.addEntity(this.raycaster);
 
 		this.currentPart = new Entity();
@@ -62,6 +63,22 @@ export class CourseEditorSystem extends System {
 		this.updateCurrentEditorPiece();
 
 		this.keyboard = new Keyboard();
+
+		document.addEventListener("click", () => this.placeCourcePiece());
+
+	}
+
+	public onAddedToEngine(engine: Engine) {
+		super.onAddedToEngine(engine);
+
+		const saveButton = new Entity();
+		saveButton.add(Transform, { position: new Vector3(60, 30 )})
+		saveButton.add(new Graphics().beginFill(0xff0050).drawRoundedRect(-50, -20, 100, 40, 5));
+		saveButton.add(Text, {
+			value: "Save",
+			tint: Color.White,
+		});
+		engine.addEntity(saveButton);
 	}
 
 	createBall(position: Vector3, radius = 0.04) {
@@ -80,7 +97,9 @@ export class CourseEditorSystem extends System {
 		);
 		entity.add(
 			new CannonBody({
-				mass: 1
+				mass: 1,
+				// linearDamping: 0.2,
+				// fixedRotation: true,
 			})
 		);
 		entity.add(new Sphere(radius));
@@ -150,6 +169,20 @@ export class CourseEditorSystem extends System {
 
 	update(deltaTime: number) {
 		this.elapsedTime += deltaTime;
+
+		const intersects = this.raycaster.get(RaycastCamera).intersects;
+
+		const floor = intersects.find((intersect) => {
+			if(intersect.object instanceof Mesh) {
+				// Work out it's the floor
+				return intersect.object.geometry instanceof PlaneGeometry;
+			}
+		});
+
+		if(floor) {
+			this.currentPart.get(TransfromLerp).x = Math.round(floor.point.x);
+			this.currentPart.get(TransfromLerp).z = Math.round(floor.point.z);
+		}
 
 		if (this.keyboard.isPressed(Key.V)) {
 			if (!this.ball) {
