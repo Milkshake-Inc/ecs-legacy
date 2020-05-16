@@ -9,6 +9,10 @@ export default class Quaternion {
 		return new Quaternion(value.x, value.y, value.z, value.w);
 	}
 
+	public static To(value: Quaternion) {
+		return { x: value.x, y: value.y, z: value.z, w: value.w };
+	}
+
 	public x: number;
 	public y: number;
 	public z: number;

@@ -158,4 +158,20 @@ export default class Transform {
 	get down() {
 		return this.look(Vector3.DOWN);
 	}
+
+	static To(value: Transform) {
+		return {
+			position: Vector3.To(value.position),
+			quaternion: Quaternion.To(value.quaternion),
+			scale: Vector3.To(value.scale),
+		}
+	}
+
+	static From(value: ReturnType<typeof Transform.To>) {
+		return new Transform(
+			Vector3.From(value.position),
+			Quaternion.From(value.quaternion),
+			Vector3.From(value.scale)
+		)
+	}
 }

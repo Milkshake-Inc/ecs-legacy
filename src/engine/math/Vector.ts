@@ -10,6 +10,10 @@ export default class Vector3 {
 		return new Vector3(value.x, value.y, value.z);
 	}
 
+	public static To(value: Vector3) {
+		return { x: value.x, y: value.y, z: value.z };
+	}
+
 	public static get ZERO(): Vector3 {
 		return Vector3.EQUAL(0);
 	}

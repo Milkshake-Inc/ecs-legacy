@@ -8,7 +8,6 @@ import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 
 export class CharacterInputSystem extends InputSystem {
-	keyboard: Keyboard;
 
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
@@ -16,8 +15,6 @@ export class CharacterInputSystem extends InputSystem {
 
 	constructor() {
 		super();
-
-		this.keyboard = new Keyboard();
 	}
 
 	protected updateEntityFixed(entity: Entity, dt: number) {

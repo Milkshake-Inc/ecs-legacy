@@ -21,6 +21,4 @@ const spaces = new Entity();
 spaces.add(new GolfSpace(engine, true));
 engine.addEntity(spaces);
 
-
-
 console.log('🎉 Client');

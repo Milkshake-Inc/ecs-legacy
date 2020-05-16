@@ -6,6 +6,7 @@ import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
+import MathHelper from '@ecs/math/MathHelper';
 
 export default class ThirdPersonCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -80,6 +81,9 @@ export default class ThirdPersonCameraSystem extends System {
 
 		this.cameraAngle.x += delta.x * 2;
 		this.cameraAngle.y -= delta.y * 2;
+
+		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, 0.98);
+
 		this.lastPosition = mouse;
 	}
 

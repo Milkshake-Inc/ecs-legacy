@@ -1,128 +1,248 @@
-import { System } from "@ecs/ecs/System";
-import { Engine } from "@ecs/ecs/Engine";
-import { Entity } from "@ecs/ecs/Entity";
-import { KenneyAssetsGLTF, TransfromLerp } from "../spaces/GolfSpace";
-import Transform from "@ecs/plugins/Transform";
-import { Group, Material, Mesh, Geometry, BoxGeometry, MeshBasicMaterial } from "three";
-import MathHelper from "@ecs/math/MathHelper";
-import Keyboard from "@ecs/input/Keyboard";
-import Key from "@ecs/input/Key";
-import { GLTF } from "three/examples/jsm/loaders/GLTFLoader";
+import { Engine } from '@ecs/ecs/Engine';
+import { Entity } from '@ecs/ecs/Entity';
+import { useQueries } from '@ecs/ecs/helpers';
+import { System } from '@ecs/ecs/System';
+import Key from '@ecs/input/Key';
+import Keyboard from '@ecs/input/Keyboard';
+import Color from '@ecs/math/Color';
+import MathHelper from '@ecs/math/MathHelper';
+import Vector3 from '@ecs/math/Vector';
+import GLTFHolder from '@ecs/plugins/3d/components/GLTFHolder';
+import Raycast, { RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
+import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
+import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
+import Transform from '@ecs/plugins/Transform';
+import { all } from '@ecs/utils/QueryHelper';
+import { Body, Sphere } from 'cannon-es';
+import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, SphereGeometry } from 'three';
+import CoursePiece from '../components/CoursePice';
+import PlayerBall from '../components/PlayerBall';
+import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
+import { BallControllerSystem } from './BallControllerSystem';
 
 export class CourseEditorSystem extends System {
+	protected engine: Engine;
+	protected models: KenneyAssetsGLTF;
 
-    protected engine: Engine;
-    protected models: KenneyAssetsGLTF;
+	protected elapsedTime = 0;
+	protected currentPart: Entity;
+	protected raycaster: Entity;
 
-    protected elapsedTime = 0;
-    protected currentPart: Entity;
-    protected index = 0;
+	protected index = 49;
 
-    protected keyboard: Keyboard;
+	protected keyboard: Keyboard;
+    private timer = 0;
+    private ball: Entity;
 
-    constructor(engine: Engine, models: KenneyAssetsGLTF) {
-        super();
+	protected queries = useQueries(this, {
+		camera: all(PerspectiveCamera),
+		pieces: all(CoursePiece)
+	});
 
-        this.engine = engine;
-        this.models = models;
+	constructor(engine: Engine, models: KenneyAssetsGLTF) {
+		super();
 
-        this.currentPart = new Entity();
-        this.currentPart.add(Transform);
-        this.currentPart.add(TransfromLerp);
-        this.currentPart.add(this.models.CASTLE.scene);
-        this.engine.addEntity(this.currentPart);
+		this.engine = engine;
+		this.models = models;
 
-        this.keyboard = new Keyboard();
-        console.log("Created")
-    }
+		this.raycaster = new Entity();
+		this.raycaster.add(Transform, { y: 1 });
+		this.raycaster.add(RaycastDebug);
+		this.raycaster.add(Raycast);
+		this.engine.addEntity(this.raycaster);
 
-    update(deltaTime: number) {
-        this.elapsedTime += deltaTime;
+		this.currentPart = new Entity();
+		this.currentPart.add(Transform);
+		this.currentPart.add(TransfromLerp);
+		this.currentPart.add(this.models.CASTLE.scene);
+		// this.currentPart.add(new GridHelper(11, 11, Color.Black, Color.Black));
+		this.engine.addEntity(this.currentPart);
 
-        // console.log(this.currentPart.get(TransfromLerp).position.z);
+		this.updateCurrentEditorPiece();
 
-        if(this.keyboard.isPressed(Key.I)) {
-            this.currentPart.get(TransfromLerp).position.z -= 1;
+		this.keyboard = new Keyboard();
+		console.log('Created');
+	}
 
-        }
+	createBall(position: Vector3, radius = 0.04) {
+		const entity = new Entity();
+		entity.add(Transform, { position });
+		entity.add(
+			new Mesh(
+				new SphereGeometry(radius, 10, 10),
+				new MeshPhongMaterial({
+					color: Color.White,
+					reflectivity: 0,
+					specular: 0
+				})
+			),
+			{ castShadow: true, receiveShadow: true }
+		);
+		entity.add(
+			new CannonBody({
+				mass: 1
+			})
+		);
+		entity.add(new Sphere(radius));
 
-        if(this.keyboard.isPressed(Key.K)) {
-            this.currentPart.get(TransfromLerp).position.z += 1;
-        }
+		return entity;
+	}
 
-        if(this.keyboard.isPressed(Key.J)) {
-            this.currentPart.get(TransfromLerp).position.x -= 1;
-        }
+	protected updateCurrentEditorPiece() {
+		const models = Object.values(this.models);
 
-        if(this.keyboard.isPressed(Key.L)) {
-            this.currentPart.get(TransfromLerp).position.x += 1;
-        }
+		if (this.index < 0) {
+			this.index = models.length - 1;
+		}
 
-        if(this.keyboard.isPressed(Key.U)) {
-            this.currentPart.get(TransfromLerp).ry += Math.PI / 2;
-        }
+		if (this.index > models.length - 1) {
+			this.index = 0;
+		}
 
-        if(this.keyboard.isPressed(Key.O)) {
-            this.currentPart.get(TransfromLerp).ry -= Math.PI / 2;
-        }
+		console.log(this.index);
 
-        const updateModel = () => {
+		this.currentPart.remove(Group);
+		this.currentPart.remove(GLTFHolder);
 
-            const models = Object.values(this.models);
+		this.currentPart.add(models[this.index].scene);
+		this.currentPart.add(new GLTFHolder(models[this.index]));
+	}
 
-            if(this.index < 0) {
-                this.index = models.length - 1;
-            }
+	protected createCourcePiece(model: Group, transform: Transform) {
+		const mesh = model.clone(true);
 
-            if(this.index > models.length) {
-                this.index = 0;
-            }
+		mesh.traverse(node => {
+			if (node instanceof Mesh && node.material instanceof Material) {
+				node.material = node.material.clone();
+				node.material.flatShading = true;
 
-            this.currentPart.remove(Group);
-            this.currentPart.add(models[this.index].scene);
-        }
+				node.material.transparent = false;
 
-        if(this.keyboard.isPressed(Key.M)) {
-            this.index++
-            updateModel();
-        }
+				node.castShadow = true;
+				node.receiveShadow = true;
+			}
+		});
 
-        if(this.keyboard.isPressed(Key.N)) {
-            this.index--;
-            updateModel();
-        }
+		const courcePiece = new Entity();
+		const modelName = Object.keys(this.models)[this.index];
+		courcePiece.add(transform);
+		courcePiece.add(mesh);
+		courcePiece.add(new CoursePiece(modelName));
+		courcePiece.add(new TrimeshShape());
+		courcePiece.add(new Body());
 
-        if(this.keyboard.isPressed(Key.SPACEBAR)) {
-            const newPart = new Entity();
-            newPart.add(this.currentPart.get(Transform).clone())
-            const mesh = this.currentPart.get(Group).clone(true);
-            mesh.traverse((node) => {
-                if (node instanceof Mesh && node.material instanceof Material) {
-                  node.material = node.material.clone();
-                  node.material.transparent = false;
-                }
-              });
-            newPart.add(mesh);
-            this.engine.addEntity(newPart);
+		this.engine.addEntity(courcePiece);
+	}
 
-            console.log("added");
-        }
+	protected placeCourcePiece() {
+		this.createCourcePiece(this.currentPart.get(Group), Transform.From(this.currentPart.get(TransfromLerp)));
+	}
 
-        this.keyboard.update();
+	serializeMap() {
+		return this.queries.pieces.entities.map(entity => {
+			const transform = entity.get(Transform);
+			const courcePiece = entity.get(CoursePiece);
+			console.log('sset');
+			return {
+				modelName: courcePiece.modelName,
+				transform: Transform.To(transform)
+			};
+		});
+	}
 
-        if(this.currentPart) {
-            const group = this.currentPart.get(Group);
+	deserializeMap(value: { modelName: string; transform: any }[]) {
+		value.forEach(piece => {
+			this.createCourcePiece(this.models[piece.modelName].scene, Transform.From(piece.transform));
+		});
+	}
 
-            group.traverse((children) => {
-                if(children instanceof Mesh) {
-                    if(children.material instanceof Material) {
-                        children.material.transparent = true;
-                        const remappedSin = MathHelper.map(-1, 1, 0.2, 0.5, Math.sin(this.elapsedTime / 200));
-                        children.material.opacity = remappedSin;
-                    }
+	update(deltaTime: number) {
+		const camera = this.queries.camera.first.get(PerspectiveCamera);
 
-                }
-            })
-        }
-    }
+		this.elapsedTime += deltaTime;
+
+		if (this.keyboard.isPressed(Key.V)) {
+			if (!this.ball) {
+				this.ball = this.createBall(new Vector3(0, 1, 0));
+
+				this.engine.addSystem(new ThirdPersonCameraSystem());
+				this.engine.addSystem(new BallControllerSystem());
+
+				this.ball.add(PlayerBall);
+				this.ball.add(ThirdPersonTarget);
+
+				this.engine.addEntity(this.ball);
+			}
+
+			this.ball.get(CannonBody).position.set(0, 1, 0);
+		}
+
+		if (this.keyboard.isPressed(Key.ONE)) {
+			const saveFile = this.serializeMap();
+			console.log(saveFile);
+			// localStorage.setItem("map", JSON.stringify(saveFile))
+		}
+
+		if (this.keyboard.isPressed(Key.TWO)) {
+			const saveFile = JSON.parse(localStorage.getItem('map'));
+			console.log(saveFile);
+			this.deserializeMap(saveFile);
+		}
+
+		if (this.keyboard.isPressed(Key.I)) {
+			this.currentPart.get(TransfromLerp).position.z -= 1;
+		}
+
+		if (this.keyboard.isPressed(Key.K)) {
+			this.currentPart.get(TransfromLerp).position.z += 1;
+		}
+
+		if (this.keyboard.isPressed(Key.J)) {
+			this.currentPart.get(TransfromLerp).position.x -= 1;
+		}
+
+		if (this.keyboard.isPressed(Key.L)) {
+			this.currentPart.get(TransfromLerp).position.x += 1;
+		}
+
+		if (this.keyboard.isPressed(Key.U)) {
+			this.currentPart.get(TransfromLerp).ry += Math.PI / 2;
+		}
+
+		if (this.keyboard.isPressed(Key.O)) {
+			this.currentPart.get(TransfromLerp).ry -= Math.PI / 2;
+		}
+
+		if (this.keyboard.isPressed(Key.M)) {
+			this.index++;
+			this.updateCurrentEditorPiece();
+		}
+
+		if (this.keyboard.isPressed(Key.N)) {
+			this.index--;
+			this.updateCurrentEditorPiece();
+		}
+
+		if (this.keyboard.isPressed(Key.SPACEBAR)) {
+			this.placeCourcePiece();
+		}
+
+		this.keyboard.update();
+
+		if (this.currentPart) {
+			const group = this.currentPart.get(Group);
+
+			group.traverse(children => {
+				if (children instanceof Mesh) {
+					if (children.material instanceof Material) {
+						children.material.transparent = true;
+						const remappedSin = MathHelper.map(-1, 1, 0.2, 0.5, Math.sin(this.elapsedTime / 200));
+						children.material.opacity = remappedSin;
+					}
+				}
+			});
+		}
+	}
 }
