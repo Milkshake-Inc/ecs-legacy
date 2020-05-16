@@ -33,7 +33,7 @@ export class BallControllerSystem extends IterativeSystem {
 			const cameraTransform = camera.get(Transform);
 			const characterTransform = entity.get(Transform);
 
-			const directionVector = cameraTransform.position.sub(characterTransform.position).normalize().multiF(2);
+			const directionVector = cameraTransform.position.sub(characterTransform.position).normalize().multiF(4);
 
             if(this.keyboard.isPressed(Key.X)) {
                 console.log("Shooot");

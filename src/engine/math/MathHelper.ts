@@ -111,4 +111,12 @@ export default class MathHelper {
 			y: Math.sin(radians) * length
 		};
 	}
+
+	public static mod(value: number, max: number) {
+		return (value % max + max) % max;
+	}
+
+	public static sin(value: number, min = 0, max = 1) {
+		return MathHelper.map(-1, 1, min, max, Math.sin(value));
+	}
 }

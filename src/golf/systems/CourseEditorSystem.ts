@@ -33,7 +33,6 @@ export class CourseEditorSystem extends System {
 	protected index = 49;
 
 	protected keyboard: Keyboard;
-    private timer = 0;
     private ball: Entity;
 
 	protected queries = useQueries(this, {
@@ -63,7 +62,6 @@ export class CourseEditorSystem extends System {
 		this.updateCurrentEditorPiece();
 
 		this.keyboard = new Keyboard();
-		console.log('Created');
 	}
 
 	createBall(position: Vector3, radius = 0.04) {
@@ -93,15 +91,7 @@ export class CourseEditorSystem extends System {
 	protected updateCurrentEditorPiece() {
 		const models = Object.values(this.models);
 
-		if (this.index < 0) {
-			this.index = models.length - 1;
-		}
-
-		if (this.index > models.length - 1) {
-			this.index = 0;
-		}
-
-		console.log(this.index);
+		this.index = MathHelper.mod(this.index, models.length);
 
 		this.currentPart.remove(Group);
 		this.currentPart.remove(GLTFHolder);
@@ -159,13 +149,13 @@ export class CourseEditorSystem extends System {
 	}
 
 	update(deltaTime: number) {
-		const camera = this.queries.camera.first.get(PerspectiveCamera);
-
 		this.elapsedTime += deltaTime;
 
 		if (this.keyboard.isPressed(Key.V)) {
 			if (!this.ball) {
 				this.ball = this.createBall(new Vector3(0, 1, 0));
+
+				this.engine.removeEntity(this.currentPart);
 
 				this.engine.addSystem(new ThirdPersonCameraSystem());
 				this.engine.addSystem(new BallControllerSystem());
@@ -182,7 +172,7 @@ export class CourseEditorSystem extends System {
 		if (this.keyboard.isPressed(Key.ONE)) {
 			const saveFile = this.serializeMap();
 			console.log(saveFile);
-			// localStorage.setItem("map", JSON.stringify(saveFile))
+			localStorage.setItem("map", JSON.stringify(saveFile))
 		}
 
 		if (this.keyboard.isPressed(Key.TWO)) {
@@ -231,6 +221,7 @@ export class CourseEditorSystem extends System {
 
 		this.keyboard.update();
 
+		//
 		if (this.currentPart) {
 			const group = this.currentPart.get(Group);
 
@@ -238,7 +229,7 @@ export class CourseEditorSystem extends System {
 				if (children instanceof Mesh) {
 					if (children.material instanceof Material) {
 						children.material.transparent = true;
-						const remappedSin = MathHelper.map(-1, 1, 0.2, 0.5, Math.sin(this.elapsedTime / 200));
+						const remappedSin = MathHelper.sin(this.elapsedTime / 200, 0.2, 0.5);
 						children.material.opacity = remappedSin;
 					}
 				}
