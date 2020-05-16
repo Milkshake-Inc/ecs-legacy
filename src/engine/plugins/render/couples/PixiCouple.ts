@@ -4,7 +4,7 @@ import { System } from '@ecs/ecs/System';
 import Transform from '@ecs/plugins/Transform';
 import { all, QueryPattern } from '@ecs/utils/QueryHelper';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
-import RenderState from '../components/RenderState';
+import PixiRenderState from '../components/RenderState';
 import { Interactable } from '../components/Interactable';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {
@@ -27,14 +27,14 @@ export const usePixiCouple = <T extends DisplayObject>(
 	callbacks: Optional<CoupleCallbacks<T>, 'onUpdate' | 'onDestroy'>
 ) => {
 	const query = useQueries(system, {
-		renderState: all(RenderState),
+		renderState: all(PixiRenderState),
 		displayObjectQuery
 	});
 
 	const events = useEvents(system);
 
 	const getRenderState = () => {
-		return query.renderState.first.get(RenderState);
+		return query.renderState.first.get(PixiRenderState);
 	};
 
 	return useCouple<T>(query.displayObjectQuery, {

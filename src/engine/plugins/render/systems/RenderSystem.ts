@@ -3,7 +3,7 @@ import { System } from '@ecs/ecs/System';
 import CameraRenderState from '@ecs/plugins/camera/components/CameraRenderState';
 import { all } from '@ecs/utils/QueryHelper';
 import { Application, Container, RenderTexture, Sprite as PixiSprite } from 'pixi.js';
-import RenderState from '../components/RenderState';
+import PixiRenderState from '../components/RenderState';
 import { useGraphicsCouple } from '../couples/GraphicsCouple';
 import { useParticleCouple } from '../couples/ParticleCouple';
 import { useSpriteCouple } from '../couples/SpriteCouple';
@@ -11,7 +11,7 @@ import { useTextCouple } from '../couples/TextCouple';
 import { useSpineCouple } from '../couples/SpineCouple';
 
 export default class RenderSystem extends System {
-	protected state = useState(this, new RenderState());
+	protected state = useState(this, new PixiRenderState());
 
 	protected queries = useQueries(this, {
 		cameraState: all(CameraRenderState)
@@ -30,15 +30,15 @@ export default class RenderSystem extends System {
 		useSpineCouple(this)
 	];
 
-	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1) {
+	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1, addCanvas = true) {
 		super();
 
 		this.state.container = new Container();
 		this.state.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
-			backgroundColor,
 			width,
 			height,
+			transparent: true,
 			antialias: false,
 			autoStart: false
 		});
@@ -55,7 +55,10 @@ export default class RenderSystem extends System {
 		this.state.container.interactive = true;
 		this.state.container.interactiveChildren = true;
 
-		document.body.appendChild(this.state.application.view);
+		if(addCanvas) {
+			document.body.appendChild(this.state.application.view);
+		}
+
 	}
 
 	update(dt: number) {

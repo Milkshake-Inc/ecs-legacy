@@ -5,7 +5,7 @@ import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import Bounds from '@ecs/plugins/render/components/Bounds';
-import RenderState from '@ecs/plugins/render/components/RenderState';
+import PixiRenderState from '@ecs/plugins/render/components/RenderState';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { RenderTexture, Sprite } from 'pixi.js';
 import Camera from '../components/Camera';
@@ -16,7 +16,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 	protected state = useState(this, new CameraRenderState());
 
 	protected queries = useQueries(this, {
-		rendererState: all(RenderState),
+		rendererState: all(PixiRenderState),
 		targets: all(CameraTarget)
 	});
 
@@ -112,6 +112,6 @@ export default class CameraRenderSystem extends IterativeSystem {
 	}
 
 	protected get renderState() {
-		return this.queries.rendererState.first.get(RenderState);
+		return this.queries.rendererState.first.get(PixiRenderState);
 	}
 }

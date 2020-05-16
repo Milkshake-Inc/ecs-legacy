@@ -22,12 +22,23 @@ import {
 	PerspectiveCamera,
 	PlaneGeometry,
 	RepeatWrapping,
-	Texture
+	Texture,
+	MeshBasicMaterial,
+	DoubleSide,
+	LinearFilter
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { CourseEditorSystem } from '../systems/CourseEditorSystem';
 import { KenneyAssets } from './../constants/Assets';
-
+import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
+import { useQueries } from '@ecs/ecs/helpers';
+import { System } from '@ecs/ecs/System';
+import PixiRenderState from '@ecs/plugins/render/components/RenderState';
+import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
+import Sprite from '@ecs/plugins/render/components/Sprite';
+import Text from '@ecs/plugins/render/components/Text';
+import { GolfRenderState } from '../systems/GolfRenderSystem';
+import PixiUISystem from '../systems/PixiUISystem';
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
 };
@@ -58,6 +69,10 @@ class TransformLerpSystem extends IterativeSystem {
 	}
 }
 
+const Images = {
+	Background: 'assets/golf/logo.png',
+}
+
 export default class GolfSpace extends Space {
 	protected darkTexture: Texture;
 
@@ -69,6 +84,7 @@ export default class GolfSpace extends Space {
 
 	protected async preload() {
 		[this.darkTexture] = await Promise.all([LoadTexture(Assets.DARK_TEXTURE)]);
+		await LoadPixiAssets(Images);
 
 		const loadModels = Object.keys(KenneyAssets).map(async key => {
 			const gltf = await LoadGLTF('assets/golf/' + KenneyAssets[key]);
@@ -106,7 +122,7 @@ export default class GolfSpace extends Space {
 		light.add(Transform, { x: 5 / 10, y: 10 / 10, z: 5 / 10 });
 
 		const ground = new Entity();
-		ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
+		ground.add(Transform, { rx: -Math.PI / 2, y: -0 });
 		this.darkTexture.repeat.set(1000, 1000);
 		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
 		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })), {
@@ -124,5 +140,21 @@ export default class GolfSpace extends Space {
 		this.addSystem(new TransformLerpSystem());
 
 		this.addSystem(new CourseEditorSystem(this.worldEngine, this.kenneyAssets));
+
+		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
+		this.addSystem(new PixiUISystem());
+
+		const background = new Entity();
+		background.add(Transform, {
+			position: new Vector3(1280 / 2, 720 / 2)
+		});
+		background.add(Sprite, {
+			imageUrl: Images.Background,
+		});
+		this.addEntity(background);
+
+		setTimeout(() => {
+			this.worldEngine.removeEntity(background);
+		}, 1000)
 	}
 }
