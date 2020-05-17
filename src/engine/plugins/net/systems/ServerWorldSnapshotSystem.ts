@@ -15,14 +15,11 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 		const { serverTick } = this.serverPingState;
 		const { broadcast } = this.serverConnectionState;
 
-		broadcast(
-			{
-				opcode: PacketOpcode.WORLD,
-				tick: serverTick,
-				snapshot: this.generateSnapshot()
-			},
-			true
-		);
+		broadcast({
+			opcode: PacketOpcode.WORLD,
+			tick: serverTick,
+			snapshot: this.generateSnapshot()
+		});
 	}
 
 	abstract generateSnapshot(): S;

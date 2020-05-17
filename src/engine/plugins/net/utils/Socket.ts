@@ -3,11 +3,14 @@ import { ServerChannel } from '@geckos.io/server';
 import { Packet, PacketOpcode } from '../components/Packet';
 import { encode, decode } from '@msgpack/msgpack';
 
+export type PacketHandler = (packet: Packet) => void;
+const RELIABLE_MESSAGE = 'reliableRawMessage';
+
 export default class Socket {
 	public readonly id: string;
 	protected socket: ServerChannel | ClientChannel;
 	protected incoming: Packet[] = [];
-	protected outgoing: Packet[] = [];
+	protected handlers: PacketHandler[] = [];
 
 	public bytesIn = 0;
 	public bytesOut = 0;
@@ -16,36 +19,21 @@ export default class Socket {
 		this.socket = socket;
 		this.id = socket.id;
 
-		this.handleImmediate(p => this.receive(p));
-	}
-
-	public send(packet: Packet) {
-		this.outgoing.push(packet);
-	}
-
-	protected receive(packet: Packet) {
-		this.incoming.push(packet);
+		this.socket.onRaw((data: ArrayBuffer) => this.onMessage(data));
+		this.socket.on(RELIABLE_MESSAGE, (data: ArrayBuffer) => this.onMessage(Object.values(data)));
 	}
 
 	public handle<T extends Packet>(opcode: PacketOpcode): T[] {
 		return this.incoming.filter(p => p.opcode == opcode) as T[];
 	}
 
-	public sendImmediate(packet: Packet) {
-		this.emit(encode(packet));
-	}
-
 	public handleImmediate(handler: (packet: Packet) => void) {
-		this.socket.onRaw((data: ArrayBuffer) => {
-			this.bytesIn += data.byteLength;
-			handler(decode(data as ArrayBuffer) as Packet);
-		});
+		this.handlers.push(handler);
 	}
 
-	public update() {
-		this.outgoing.forEach(packet => this.emit(encode(packet)));
-		this.incoming = [];
-		this.outgoing = [];
+	public send(packet: Packet, reliable = false) {
+		const data = encode(packet);
+		reliable ? this.emitReliable(data) : this.emit(data);
 	}
 
 	public disconnect() {
@@ -55,8 +43,25 @@ export default class Socket {
 		}
 	}
 
+	public update() {
+		this.incoming = [];
+	}
+
+	protected onMessage(data: ArrayLike<number> | ArrayBuffer) {
+		this.bytesIn += data instanceof ArrayBuffer ? data.byteLength : data.length;
+
+		const packet = decode(data) as Packet;
+		this.incoming.push(packet);
+		this.handlers.forEach(h => h(packet));
+	}
+
 	protected emit(data: ArrayBuffer) {
 		this.bytesOut += data.byteLength;
 		this.socket.raw.emit(data);
+	}
+
+	protected emitReliable(data: ArrayBuffer) {
+		this.bytesOut += data.byteLength;
+		this.socket.emit(RELIABLE_MESSAGE, data, { reliable: true });
 	}
 }

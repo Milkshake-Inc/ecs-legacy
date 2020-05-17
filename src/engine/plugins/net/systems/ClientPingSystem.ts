@@ -38,7 +38,7 @@ export default class ClientPingSystem extends IterativeSystem {
 	protected handlePacket(entity: Entity, session: Session, packet: Packet) {
 		switch (packet.opcode) {
 			case PacketOpcode.SERVER_SYNC_PING: {
-				session.socket.sendImmediate({
+				session.socket.send({
 					opcode: PacketOpcode.CLIENT_SYNC_PONG,
 					clientTime: performance.now(),
 					serverTime: packet.serverTime

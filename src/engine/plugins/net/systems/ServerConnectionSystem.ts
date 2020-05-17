@@ -39,10 +39,9 @@ export default class ServerConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Server started!`);
 	}
 
-	public broadcast(packet: Packet, immediate = false) {
+	public broadcast(packet: Packet, reliable = false) {
 		for (const entity of this.query.entities) {
-			const socket = entity.get(Session).socket;
-			immediate ? socket.sendImmediate(packet) : socket.send(packet);
+			entity.get(Session).socket.send(packet, reliable);
 		}
 	}
 

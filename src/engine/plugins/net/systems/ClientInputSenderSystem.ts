@@ -22,7 +22,7 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 		const input = entity.get(Input);
 		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-		session.socket.sendImmediate({
+		session.socket.send({
 			opcode: PacketOpcode.PLAYER_INPUT,
 			input: input,
 			tick: serverTick
@@ -30,10 +30,8 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 	}
 }
 
-
 // Make this fallback to Input if no CustomInput sent?
 export class ClientCustomInputSenderSystem<T = Input> extends IterativeSystem {
-
 	protected queries = useQueries(this, {
 		pingState: all(ClientPingState)
 	});
@@ -51,7 +49,7 @@ export class ClientCustomInputSenderSystem<T = Input> extends IterativeSystem {
 		const input = entity.get(this.inputClass);
 		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-		session.socket.sendImmediate({
+		session.socket.send({
 			opcode: PacketOpcode.PLAYER_CUSTOM_INPUT,
 			input: input,
 			tick: serverTick

@@ -36,13 +36,10 @@ export default class ServerPingSystem extends IterativeSystem {
 
 			const { broadcast } = this.queries.serverConnection.first.get(ServerConnectionState);
 
-			broadcast(
-				{
-					opcode: PacketOpcode.SERVER_SYNC_PING,
-					serverTime: performance.now()
-				},
-				true
-			);
+			broadcast({
+				opcode: PacketOpcode.SERVER_SYNC_PING,
+				serverTime: performance.now()
+			});
 		}
 
 		super.updateFixed(dt);
@@ -62,7 +59,7 @@ export default class ServerPingSystem extends IterativeSystem {
 
 	protected entityAdded = (entity: EntitySnapshot) => {
 		const session = entity.get(Session);
-		session.socket.sendImmediate({
+		session.socket.send({
 			opcode: PacketOpcode.SERVER_SYNC_PING,
 			serverTime: performance.now()
 		});
@@ -73,7 +70,7 @@ export default class ServerPingSystem extends IterativeSystem {
 					session.lastPongResponse = performance.now();
 					const rtt = performance.now() - packet.serverTime;
 					console.log(`⏱ Server estimated RTT: ${rtt}`);
-					session.socket.sendImmediate({
+					session.socket.send({
 						opcode: PacketOpcode.SERVER_SYNC_RESULT,
 						clientTime: packet.clientTime,
 						serverTime: this.state.serverTime,
