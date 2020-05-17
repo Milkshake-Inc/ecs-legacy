@@ -35,7 +35,7 @@ export class CourseEditorSystem extends System {
 	protected index = 49;
 
 	protected keyboard: Keyboard;
-    private ball: Entity;
+	private ball: Entity;
 
 	protected queries = useQueries(this, {
 		camera: all(PerspectiveCamera),
@@ -64,19 +64,30 @@ export class CourseEditorSystem extends System {
 
 		this.keyboard = new Keyboard();
 
-		document.addEventListener("click", () => this.placeCourcePiece());
+		document.body.addEventListener('click', event => {
+			if (event.button == 0) {
+				this.placeCourcePiece();
+			}
+			if (event.button == 2) {
+				this.unplaceCoursePiece();
+			}
+		});
 
+		document.body.addEventListener('mousewheel', (event: MouseWheelEvent) => {
+			event.deltaY > 0 ? this.index++ : this.index--;
+			this.updateCurrentEditorPiece();
+		});
 	}
 
 	public onAddedToEngine(engine: Engine) {
 		super.onAddedToEngine(engine);
 
 		const saveButton = new Entity();
-		saveButton.add(Transform, { position: new Vector3(60, 30 )})
+		saveButton.add(Transform, { position: new Vector3(60, 30) });
 		saveButton.add(new Graphics().beginFill(0xff0050).drawRoundedRect(-50, -20, 100, 40, 5));
 		saveButton.add(Text, {
-			value: "Save",
-			tint: Color.White,
+			value: 'Save',
+			tint: Color.White
 		});
 		engine.addEntity(saveButton);
 	}
@@ -97,7 +108,7 @@ export class CourseEditorSystem extends System {
 		);
 		entity.add(
 			new CannonBody({
-				mass: 1,
+				mass: 1
 				// linearDamping: 0.2,
 				// fixedRotation: true,
 			})
@@ -120,6 +131,8 @@ export class CourseEditorSystem extends System {
 	}
 
 	protected createCourcePiece(model: Group, transform: Transform) {
+		this.removeCoursePiece(transform);
+
 		const mesh = model.clone(true);
 
 		mesh.traverse(node => {
@@ -145,8 +158,27 @@ export class CourseEditorSystem extends System {
 		this.engine.addEntity(courcePiece);
 	}
 
+	protected removeCoursePiece(transform: Transform) {
+		const coursePiece = this.getPieceAtTransform(transform);
+
+		if (coursePiece) {
+			this.engine.removeEntity(coursePiece);
+		}
+	}
+
+	protected getPieceAtTransform(transform: Transform): Entity {
+		return this.queries.pieces.firstBy(p => {
+			const t = p.get(Transform);
+			return transform.position.equals(t.position);
+		});
+	}
+
 	protected placeCourcePiece() {
 		this.createCourcePiece(this.currentPart.get(Group), Transform.From(this.currentPart.get(TransfromLerp)));
+	}
+
+	protected unplaceCoursePiece() {
+		this.removeCoursePiece(Transform.From(this.currentPart.get(TransfromLerp)));
 	}
 
 	serializeMap() {
@@ -172,14 +204,14 @@ export class CourseEditorSystem extends System {
 
 		const intersects = this.raycaster.get(RaycastCamera).intersects;
 
-		const floor = intersects.find((intersect) => {
-			if(intersect.object instanceof Mesh) {
+		const floor = intersects.find(intersect => {
+			if (intersect.object instanceof Mesh) {
 				// Work out it's the floor
 				return intersect.object.geometry instanceof PlaneGeometry;
 			}
 		});
 
-		if(floor) {
+		if (floor) {
 			this.currentPart.get(TransfromLerp).x = Math.round(floor.point.x);
 			this.currentPart.get(TransfromLerp).z = Math.round(floor.point.z);
 		}
@@ -205,7 +237,7 @@ export class CourseEditorSystem extends System {
 		if (this.keyboard.isPressed(Key.ONE)) {
 			const saveFile = this.serializeMap();
 			console.log(saveFile);
-			localStorage.setItem("map", JSON.stringify(saveFile))
+			localStorage.setItem('map', JSON.stringify(saveFile));
 		}
 
 		if (this.keyboard.isPressed(Key.TWO)) {
@@ -214,27 +246,23 @@ export class CourseEditorSystem extends System {
 			this.deserializeMap(saveFile);
 		}
 
-		if (this.keyboard.isPressed(Key.I)) {
+		if (this.keyboard.isPressed(Key.UP)) {
 			this.currentPart.get(TransfromLerp).position.z -= 1;
 		}
 
-		if (this.keyboard.isPressed(Key.K)) {
+		if (this.keyboard.isPressed(Key.DOWN)) {
 			this.currentPart.get(TransfromLerp).position.z += 1;
 		}
 
-		if (this.keyboard.isPressed(Key.J)) {
+		if (this.keyboard.isPressed(Key.LEFT)) {
 			this.currentPart.get(TransfromLerp).position.x -= 1;
 		}
 
-		if (this.keyboard.isPressed(Key.L)) {
+		if (this.keyboard.isPressed(Key.RIGHT)) {
 			this.currentPart.get(TransfromLerp).position.x += 1;
 		}
 
-		if (this.keyboard.isPressed(Key.U)) {
-			this.currentPart.get(TransfromLerp).ry += Math.PI / 2;
-		}
-
-		if (this.keyboard.isPressed(Key.O)) {
+		if (this.keyboard.isPressed(Key.R)) {
 			this.currentPart.get(TransfromLerp).ry -= Math.PI / 2;
 		}
 

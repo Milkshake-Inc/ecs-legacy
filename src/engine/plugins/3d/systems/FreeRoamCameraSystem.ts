@@ -44,6 +44,7 @@ export default class FreeRoamCameraSystem extends System {
 	}
 
 	handleMouseMove(event: MouseEvent) {
+		event.preventDefault();
 		if (!this.camera) return;
 
 		const mouse = this.locked
