@@ -41,8 +41,10 @@ export const usePixiCouple = <T extends DisplayObject>(
 		onCreate: entity => {
 			const createdDisplayObject = callbacks.onCreate(entity);
 
-			createdDisplayObject.on('click', () => {
-				events.dispatchEntity(entity, 'CLICK');
+			createdDisplayObject.on('click', (e) => {
+				e.stopPropagation();
+				// events.dispatchEntity(entity, 'CLICK');
+				events.dispatchGlobal('CLICK', entity)
 			});
 
 			return getRenderState().container.addChild(createdDisplayObject);

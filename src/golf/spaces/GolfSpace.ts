@@ -137,7 +137,7 @@ export default class GolfSpace extends Space {
 
 		this.addEntities(light, camera, ground);
 
-		this.addSystem(new FreeRoamCameraSystem());
+		this.addSystem(new FreeRoamCameraSystem(false));
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new TransformLerpSystem());

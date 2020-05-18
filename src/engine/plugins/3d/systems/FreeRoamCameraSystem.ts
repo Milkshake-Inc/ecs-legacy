@@ -19,21 +19,24 @@ export default class FreeRoamCameraSystem extends System {
 		camera: all(Transform, PerspectiveCamera)
 	});
 
-	constructor() {
+	constructor(bindLockToBody = true) {
 		super();
 
-		const requestedElement = document.body;
+		if(bindLockToBody) {
+			const requestedElement = document.body;
 
-		requestedElement.addEventListener('click', () => {
-			document.body.requestPointerLock();
-		});
+			requestedElement.addEventListener('click', () => {
+				document.body.requestPointerLock();
+			});
+		}
+
 
 		document.body.addEventListener('mousemove', this.handleMouseMove.bind(this));
 
 		document.addEventListener(
 			'pointerlockchange',
 			event => {
-				this.locked = document.pointerLockElement === requestedElement;
+				this.locked = document.pointerLockElement != null;
 			},
 			false
 		);
@@ -63,8 +66,8 @@ export default class FreeRoamCameraSystem extends System {
 					y: mouse.y
 			  }
 			: {
-					x: mouse.x - this.lastPosition.x,
-					y: mouse.y - this.lastPosition.y
+					x: 0,
+					y: 0
 			  };
 
 		this.cameraAngle.x += delta.x * 2;
@@ -80,7 +83,7 @@ export default class FreeRoamCameraSystem extends System {
 		super.updateLate(dt);
 		const camera = this.queries.camera.first.get(Transform);
 
-		const speed = this.keyboard.isDown(Key.SHIFT) ? 10 : 0.1;
+		const speed = this.keyboard.isDown(Key.SHIFT) ? 1 : 0.1;
 		let movement = Vector3.ZERO;
 
 		if (this.keyboard.isDown(Key.W)) {

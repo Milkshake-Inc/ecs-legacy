@@ -9,7 +9,7 @@ export class Events {
 }
 
 // Should this be split into useEvents & useEventsGlobal?
-export const useEvents = <TEvents extends { [index: string]: () => void }>(system: System, eventCallbacks?: TEvents) => {
+export const useEvents = <TEvents extends { [index: string]: (data: any) => void }>(system: System, eventCallbacks?: TEvents) => {
 	const entityEventsToClear: Entity[] = [];
 
 	const queuedEvents: (() => void)[] = [];
@@ -30,7 +30,7 @@ export const useEvents = <TEvents extends { [index: string]: () => void }>(syste
 			const entityEvents = entity.get(Events);
 			for (const event of entityEvents.events) {
 				if (eventCallbacks && eventCallbacks[event.type]) {
-					eventCallbacks[event.type]();
+					eventCallbacks[event.type](event.data);
 				}
 			}
 		});
@@ -42,8 +42,8 @@ export const useEvents = <TEvents extends { [index: string]: () => void }>(syste
 	});
 
 	return {
-		dispatchGlobal: (type: string) => {
-			state.events.push({ type: type });
+		dispatchGlobal: (type: string, data?: any ) => {
+			state.events.push({ type, data });
 		},
 		dispatchEntity: (entity: Entity, type: string) => {
 			// We queue up event so is dispatched next update

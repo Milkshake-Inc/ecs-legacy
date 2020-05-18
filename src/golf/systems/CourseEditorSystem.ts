@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useEvents } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Key from '@ecs/input/Key';
 import Keyboard from '@ecs/input/Keyboard';
@@ -23,6 +23,9 @@ import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
 import { Graphics } from 'pixi.js';
 import Text from '@ecs/plugins/render/components/Text';
+import { Interactable } from '@ecs/plugins/render/components/Interactable';
+import Tag from '@ecs/plugins/Tag';
+import MouseButton from '@ecs/input/MouseButton';
 
 export class CourseEditorSystem extends System {
 	protected engine: Engine;
@@ -41,6 +44,18 @@ export class CourseEditorSystem extends System {
 		camera: all(PerspectiveCamera),
 		pieces: all(CoursePiece)
 	});
+
+	protected events = useEvents(this, {
+		CLICK: (entity: Entity) => {
+			if(Tag.is(entity, "pointer")) {
+				document.body.requestPointerLock();
+			}
+
+			if(Tag.is(entity, "save")) {
+				console.log("Saved button")
+			}
+		}
+	})
 
 	constructor(engine: Engine, models: KenneyAssetsGLTF) {
 		super();
@@ -65,22 +80,42 @@ export class CourseEditorSystem extends System {
 		this.keyboard = new Keyboard();
 
 		document.body.addEventListener('click', event => {
-			if (event.button == 0) {
-				this.placeCourcePiece();
-			}
-			if (event.button == 2) {
-				this.unplaceCoursePiece();
+			if(document.pointerLockElement) {
+				if (event.button == MouseButton.LEFT) {
+					this.placeCourcePiece();
+				}
+				if (event.button == MouseButton.RIGHT) {
+					this.unplaceCoursePiece();
+				}
 			}
 		});
 
 		document.body.addEventListener('mousewheel', (event: MouseWheelEvent) => {
-			event.deltaY > 0 ? this.index++ : this.index--;
+			this.delta += event.deltaY;
+
+			if(this.delta > 10){
+				this.index++
+				this.delta = 0;
+			}
+			if(this.delta < -10) {
+				this.index--;
+				this.delta = 0;
+			}
 			this.updateCurrentEditorPiece();
 		});
 	}
 
+	protected delta = 0;
+
 	public onAddedToEngine(engine: Engine) {
 		super.onAddedToEngine(engine);
+
+		const background = new Entity();
+		background.add(Transform);
+		background.add(new Graphics().beginFill(0xff0050, 0.01).drawRect(0, 0, 1280, 720));
+		background.add(Interactable);
+		background.add(Tag, { value: "pointer" })
+		engine.addEntity(background);
 
 		const saveButton = new Entity();
 		saveButton.add(Transform, { position: new Vector3(60, 30) });
@@ -89,7 +124,11 @@ export class CourseEditorSystem extends System {
 			value: 'Save',
 			tint: Color.White
 		});
+		saveButton.add(Tag, { value: "save" })
+		saveButton.add(Interactable);
 		engine.addEntity(saveButton);
+
+
 	}
 
 	createBall(position: Vector3, radius = 0.04) {
@@ -185,7 +224,7 @@ export class CourseEditorSystem extends System {
 		return this.queries.pieces.entities.map(entity => {
 			const transform = entity.get(Transform);
 			const courcePiece = entity.get(CoursePiece);
-			console.log('sset');
+
 			return {
 				modelName: courcePiece.modelName,
 				transform: Transform.To(transform)
