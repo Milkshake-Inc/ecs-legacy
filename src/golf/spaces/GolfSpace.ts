@@ -66,6 +66,7 @@ class TransformLerpSystem extends IterativeSystem {
 		}
 
 		current.position = MathHelper.lerpVector3(current.position, target.position, 0.4);
+		current.scale = MathHelper.lerpVector3(current.scale, target.scale, 0.4);
 		current.quaternion = current.quaternion.slerp(target.quaternion, 0.4);
 	}
 }

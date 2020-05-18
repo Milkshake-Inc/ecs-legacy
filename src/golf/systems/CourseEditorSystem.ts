@@ -1,31 +1,37 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries, useEvents } from '@ecs/ecs/helpers';
+import { useEvents, useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Key from '@ecs/input/Key';
 import Keyboard from '@ecs/input/Keyboard';
+import MouseButton from '@ecs/input/MouseButton';
 import Color from '@ecs/math/Color';
 import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
 import GLTFHolder from '@ecs/plugins/3d/components/GLTFHolder';
-import Raycast, { RaycastDebug, RaycastCamera } from '@ecs/plugins/3d/components/Raycaster';
+import { RaycastCamera, RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
+import { ToVector3 } from '@ecs/plugins/physics/utils/Conversions';
+import { Interactable } from '@ecs/plugins/render/components/Interactable';
+import Text from '@ecs/plugins/render/components/Text';
+import Tag from '@ecs/plugins/Tag';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { Body, Sphere } from 'cannon-es';
-import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, SphereGeometry, GridHelper, PlaneGeometry } from 'three';
+import { Graphics } from 'pixi.js';
+import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
 import CoursePiece from '../components/CoursePice';
 import PlayerBall from '../components/PlayerBall';
 import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
-import { Graphics } from 'pixi.js';
-import Text from '@ecs/plugins/render/components/Text';
-import { Interactable } from '@ecs/plugins/render/components/Interactable';
-import Tag from '@ecs/plugins/Tag';
-import MouseButton from '@ecs/input/MouseButton';
+
+enum EditorMode {
+	EDIT,
+	TEST
+}
 
 export class CourseEditorSystem extends System {
 	protected engine: Engine;
@@ -40,6 +46,8 @@ export class CourseEditorSystem extends System {
 	protected keyboard: Keyboard;
 	private ball: Entity;
 
+	private mode: EditorMode = EditorMode.EDIT;
+
 	protected queries = useQueries(this, {
 		camera: all(PerspectiveCamera),
 		pieces: all(CoursePiece)
@@ -47,15 +55,15 @@ export class CourseEditorSystem extends System {
 
 	protected events = useEvents(this, {
 		CLICK: (entity: Entity) => {
-			if(Tag.is(entity, "pointer")) {
+			if (Tag.is(entity, 'pointer')) {
 				document.body.requestPointerLock();
 			}
 
-			if(Tag.is(entity, "save")) {
-				console.log("Saved button")
+			if (Tag.is(entity, 'save')) {
+				console.log('Saved button');
 			}
 		}
-	})
+	});
 
 	constructor(engine: Engine, models: KenneyAssetsGLTF) {
 		super();
@@ -80,7 +88,7 @@ export class CourseEditorSystem extends System {
 		this.keyboard = new Keyboard();
 
 		document.body.addEventListener('click', event => {
-			if(document.pointerLockElement) {
+			if (document.pointerLockElement && this.mode == EditorMode.EDIT) {
 				if (event.button == MouseButton.LEFT) {
 					this.placeCourcePiece();
 				}
@@ -93,11 +101,11 @@ export class CourseEditorSystem extends System {
 		document.body.addEventListener('mousewheel', (event: MouseWheelEvent) => {
 			this.delta += event.deltaY;
 
-			if(this.delta > 10){
-				this.index++
+			if (this.delta > 10) {
+				this.index++;
 				this.delta = 0;
 			}
-			if(this.delta < -10) {
+			if (this.delta < -10) {
 				this.index--;
 				this.delta = 0;
 			}
@@ -114,7 +122,7 @@ export class CourseEditorSystem extends System {
 		background.add(Transform);
 		background.add(new Graphics().beginFill(0xff0050, 0.01).drawRect(0, 0, 1280, 720));
 		background.add(Interactable);
-		background.add(Tag, { value: "pointer" })
+		background.add(Tag, { value: 'pointer' });
 		engine.addEntity(background);
 
 		const saveButton = new Entity();
@@ -124,16 +132,14 @@ export class CourseEditorSystem extends System {
 			value: 'Save',
 			tint: Color.White
 		});
-		saveButton.add(Tag, { value: "save" })
+		saveButton.add(Tag, { value: 'save' });
 		saveButton.add(Interactable);
 		engine.addEntity(saveButton);
-
-
 	}
 
-	createBall(position: Vector3, radius = 0.04) {
+	createBall(radius = 0.04) {
 		const entity = new Entity();
-		entity.add(Transform, { position });
+		entity.add(Transform);
 		entity.add(
 			new Mesh(
 				new SphereGeometry(radius, 10, 10),
@@ -195,6 +201,8 @@ export class CourseEditorSystem extends System {
 		courcePiece.add(new Body());
 
 		this.engine.addEntity(courcePiece);
+
+		return courcePiece;
 	}
 
 	protected removeCoursePiece(transform: Transform) {
@@ -233,7 +241,7 @@ export class CourseEditorSystem extends System {
 	}
 
 	deserializeMap(value: { modelName: string; transform: any }[]) {
-		value.forEach(piece => {
+		value.forEach((piece, index) => {
 			this.createCourcePiece(this.models[piece.modelName].scene, Transform.From(piece.transform));
 		});
 	}
@@ -256,21 +264,33 @@ export class CourseEditorSystem extends System {
 		}
 
 		if (this.keyboard.isPressed(Key.V)) {
-			if (!this.ball) {
-				this.ball = this.createBall(new Vector3(0, 1, 0));
-
-				this.engine.removeEntity(this.currentPart);
+			if (this.mode == EditorMode.EDIT) {
+				this.mode = EditorMode.TEST;
 
 				this.engine.addSystem(new ThirdPersonCameraSystem());
 				this.engine.addSystem(new BallControllerSystem());
 
-				this.ball.add(PlayerBall);
-				this.ball.add(ThirdPersonTarget);
+				if (!this.ball) {
+					this.ball = this.createBall();
+					this.ball.add(PlayerBall);
+					this.ball.add(ThirdPersonTarget);
+				}
 
+				this.ball.get(Transform).position = ToVector3(intersects[0].point).add({ x: 0, y: 1, z: 0 });
+				this.ball.get(CannonBody).velocity.set(0, 0, 0);
+				this.ball.get(CannonBody).angularVelocity.set(0, 0, 0);
+
+				this.engine.removeEntity(this.currentPart);
 				this.engine.addEntity(this.ball);
-			}
+			} else {
+				this.mode = EditorMode.EDIT;
 
-			this.ball.get(CannonBody).position.set(0, 1, 0);
+				this.engine.removeSystem(this.engine.getSystem(ThirdPersonCameraSystem));
+				this.engine.removeSystem(this.engine.getSystem(BallControllerSystem));
+
+				this.engine.addEntity(this.currentPart);
+				this.engine.removeEntity(this.ball);
+			}
 		}
 
 		if (this.keyboard.isPressed(Key.ONE)) {

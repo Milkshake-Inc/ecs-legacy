@@ -26,6 +26,7 @@ export class BallControllerSystem extends IterativeSystem {
     graphics: Graphics;
     power = 0;
 
+    powerBar: Entity;
     directionLine: Entity;
 
     constructor() {
@@ -36,13 +37,13 @@ export class BallControllerSystem extends IterativeSystem {
 
     public onAddedToEngine(engine: Engine) {
         super.onAddedToEngine(engine);
-        console.log("Added")
-        const powerBar = new Entity();
-        powerBar.add(Transform, {
+
+        this.powerBar = new Entity();
+        this.powerBar.add(Transform, {
             position: new Vector3(1280 / 2 - 200, 600)
         })
-        powerBar.add(this.graphics = new Graphics())
-        engine.addEntity(powerBar);
+        this.powerBar.add(this.graphics = new Graphics())
+        engine.addEntity(this.powerBar);
 
         this.directionLine = new Entity();
         this.directionLine.add(Transform);
@@ -53,6 +54,13 @@ export class BallControllerSystem extends IterativeSystem {
             0xff0050
         ))
         engine.addEntity(this.directionLine);
+    }
+
+    public onRemovedFromEngine(engine: Engine) {
+        super.onRemovedFromEngine(engine);
+
+        engine.removeEntity(this.directionLine);
+        engine.removeEntity(this.powerBar);
     }
 
     updateEntityFixed(entity: Entity, deltaTime: number) {
