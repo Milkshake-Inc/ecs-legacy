@@ -285,24 +285,22 @@ export class CourseEditorSystem extends System {
 			this.deserializeMap(saveFile);
 		}
 
+		const heightDelta = 0.1465; // Wtf kenney
+
+		const lerpTransform = this.currentPart.get(TransfromLerp);
+
 		if (this.keyboard.isPressed(Key.UP)) {
-			this.currentPart.get(TransfromLerp).position.z -= 1;
+			lerpTransform.y += heightDelta;
 		}
 
 		if (this.keyboard.isPressed(Key.DOWN)) {
-			this.currentPart.get(TransfromLerp).position.z += 1;
+			lerpTransform.y -= heightDelta;
 		}
 
-		if (this.keyboard.isPressed(Key.LEFT)) {
-			this.currentPart.get(TransfromLerp).position.x -= 1;
-		}
-
-		if (this.keyboard.isPressed(Key.RIGHT)) {
-			this.currentPart.get(TransfromLerp).position.x += 1;
-		}
+		lerpTransform.y = Math.max(lerpTransform.y, 0);
 
 		if (this.keyboard.isPressed(Key.R)) {
-			this.currentPart.get(TransfromLerp).ry -= Math.PI / 2;
+			lerpTransform.ry -= Math.PI / 2;
 		}
 
 		if (this.keyboard.isPressed(Key.M)) {

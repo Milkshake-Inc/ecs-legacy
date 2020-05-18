@@ -71,7 +71,7 @@ class TransformLerpSystem extends IterativeSystem {
 }
 
 const Images = {
-	Background: 'assets/golf/logo.png',
+	Logo: 'assets/golf/logo.png',
 	Noise: 'assets/golf/noise.png',
 	Crosshair: 'assets/prototype/crosshair.png',
 }
@@ -147,16 +147,6 @@ export default class GolfSpace extends Space {
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 		this.addSystem(new PixiUISystem());
 
-		const background = new Entity();
-		background.add(Transform, {
-			position: new Vector3(1280 / 2, 720 / 2)
-		});
-		background.add(Sprite, {
-			imageUrl: Images.Background,
-		});
-		background.add(Interactable);
-		this.addEntity(background);
-
 		// const noise = new Entity();
 		// noise.add(Transform, {
 		// 	position: new Vector3(1280 / 2, 720 / 2)
@@ -175,9 +165,5 @@ export default class GolfSpace extends Space {
 			imageUrl: Images.Crosshair,
 		});
 		this.addEntity(crosshair);
-
-		setTimeout(() => {
-			this.worldEngine.removeEntity(background);
-		}, 3000)
 	}
 }
