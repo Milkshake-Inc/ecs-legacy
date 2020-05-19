@@ -1,17 +1,17 @@
-import { useState, useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
+import Vector3 from '@ecs/math/Vector';
+import RenderState from '@ecs/plugins/3d/components/RenderState';
+import { any } from '@ecs/utils/QueryHelper';
+import { GSSolver, World } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 import { useBodyCouple } from '../couples/BodyCouple';
-import { useShapeCouple } from '../couples/ShapeCouple';
-import { useContactMaterialCouple } from '../couples/ContactMaterialCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';
-import { useMaterialCouple } from '../couples/MaterialCouple';
-import { World, SAPBroadphase, GSSolver } from 'cannon-es';
-import Vector3 from '@ecs/math/Vector';
-import { any } from '@ecs/utils/QueryHelper';
-import RenderState from '@ecs/plugins/3d/components/RenderState';
-import CannonDebugRenderer from '../utils/CannonRenderer';
+import { useContactMaterialCouple } from '../couples/ContactMaterialCouple';
 import { useInstancedBodyCouple } from '../couples/InstancedBodyCouple';
+import { useMaterialCouple } from '../couples/MaterialCouple';
+import { useShapeCouple } from '../couples/ShapeCouple';
+import CannonDebugRenderer from '../utils/CannonRenderer';
 
 export const DefaultGravity = new Vector3(0, -9.81, 0);
 
@@ -38,34 +38,41 @@ export default class CannonPhysicsSystem extends System {
 		renderState: any(RenderState)
 	});
 
-	protected debugRenderer;
+	protected debugRenderer: CannonDebugRenderer;
 	protected debug = false;
 	protected gravity = DefaultGravity;
+	protected subSteps = 1;
 
-	constructor(gravity = DefaultGravity, iterations = 10, debug = false) {
+	constructor(gravity = DefaultGravity, iterations = 10, debug = false, subSteps = 1) {
 		super();
 
-		const world = new World();
-		world.broadphase = new SAPBroadphase(world);
-		(world.solver as GSSolver).iterations = iterations;
-		world.allowSleep = true;
+		this.state.world = new World();
+		(this.state.world.solver as GSSolver).iterations = iterations;
 
 		this.state.gravity = gravity;
-		this.state.world = world;
 		this.debug = debug;
+		this.subSteps = subSteps;
 	}
 
 	updateFixed(dt: number) {
 		super.updateFixed(dt);
-		this.state.frameTime = dt / 1000;
+
 		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
-		this.state.world.step(this.state.frameTime);
+
+		this.state.frameTime = (dt / 1000);
+
+		const subStepFrameTime = this.state.frameTime / this.subSteps;
+
+		for (let subStep = 0; subStep < this.subSteps; subStep++) {
+			this.state.world.step(subStepFrameTime);
+		}
 
 		this.couples.forEach(couple => couple.update(dt));
 	}
 
 	update(dt: number) {
 		super.update(dt);
+
 		if (this.debug && !this.debugRenderer) {
 			this.createDebugRenderer();
 		}

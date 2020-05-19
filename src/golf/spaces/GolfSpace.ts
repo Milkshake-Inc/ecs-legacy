@@ -111,7 +111,7 @@ export default class GolfSpace extends Space {
 	}
 
 	setup() {
-		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 50, false));
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 50, false, 3));
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });

@@ -27,6 +27,7 @@ import CoursePiece from '../components/CoursePice';
 import PlayerBall from '../components/PlayerBall';
 import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
+import { FLOOR_MATERIAL } from '../constants/Materials';
 
 enum EditorMode {
 	EDIT,
@@ -153,7 +154,8 @@ export class CourseEditorSystem extends System {
 		);
 		entity.add(
 			new CannonBody({
-				mass: 1
+				mass: 1,
+				material: FLOOR_MATERIAL,
 				// linearDamping: 0.2,
 				// fixedRotation: true,
 			})
@@ -198,7 +200,9 @@ export class CourseEditorSystem extends System {
 		courcePiece.add(mesh);
 		courcePiece.add(new CoursePiece(modelName));
 		courcePiece.add(new TrimeshShape());
-		courcePiece.add(new Body());
+		courcePiece.add(new Body({
+			material: FLOOR_MATERIAL,
+		}));
 
 		this.engine.addEntity(courcePiece);
 
