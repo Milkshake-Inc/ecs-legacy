@@ -25,7 +25,7 @@ import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
 import CoursePiece from '../components/CoursePice';
 import PlayerBall from '../components/PlayerBall';
-import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/GolfSpace';
+import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/ClientGolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
 import { FLOOR_MATERIAL } from '../constants/Materials';
 

@@ -37,7 +37,7 @@ import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 import CameraSwitchState, { CameraSwitchType } from '../components/CameraSwitchState';
 import Key from '@ecs/input/Key';
-import ParentTransformSystem from '../systems/ParentTransformSystem';
+import ParentTransformSystem from '../../engine/plugins/misc/ParentTransformSystem';
 import SkyBox from '../components/SkyBox';
 import Water from '../components/Water';
 import HelicopterEntity from '@ecs/plugins/vehicle/entity/HelicopterEntity';
