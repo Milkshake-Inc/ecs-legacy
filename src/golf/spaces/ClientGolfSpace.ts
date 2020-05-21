@@ -20,6 +20,9 @@ import PixiUISystem from '../systems/PixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
+import { System } from '@ecs/ecs/System';
+import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
+import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
 };
@@ -57,6 +60,18 @@ const Images = {
 	Crosshair: 'assets/prototype/crosshair.png',
 }
 
+class ClientMapSystem extends System {
+    network = useNetworking(this)
+
+    constructor() {
+		super()
+
+		this.network.on(PacketOpcode.SERVER_SYNC_RESULT, (data) => {
+			console.log("Saw result: " + data.serverTime)
+		});
+    }
+}
+
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
 
@@ -76,6 +91,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
+		this.addSystem(new ClientMapSystem());
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
