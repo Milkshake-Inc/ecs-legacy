@@ -1,6 +1,6 @@
 import { ClientChannel } from '@geckos.io/client';
 import { ServerChannel } from '@geckos.io/server';
-import { Packet, PacketOpcode } from '../components/Packet';
+import { Packet, PacketOpcode, BasePacket } from '../components/Packet';
 import { encode, decode } from '@msgpack/msgpack';
 
 export type PacketHandler = (packet: Packet) => void;
@@ -31,7 +31,7 @@ export default class Socket {
 		this.handlers.push(handler);
 	}
 
-	public send(packet: Packet, reliable = false) {
+	public send<TPacketType = Packet>(packet: TPacketType, reliable = false) {
 		const data = encode(packet);
 		reliable ? this.emitReliable(data) : this.emit(data);
 	}

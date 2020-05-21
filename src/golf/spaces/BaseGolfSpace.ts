@@ -6,22 +6,20 @@ import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Plane } from 'cannon-es';
-import { Mesh, MeshPhongMaterial, MeshStandardMaterial, PlaneGeometry, RepeatWrapping } from 'three';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import { KenneyAssets } from '../constants/Assets';
-
-type AssetsMap<T, K> = {
-	[P in keyof T]: K;
-};
-
-export type KenneyAssetsGLTF = Partial<AssetsMap<typeof KenneyAssets, GLTF>>;
+import GolfAssets from '../components/GolfAssets';
 
 export default class BaseGolfSpace extends Space {
 
-	protected kenneyAssets: KenneyAssetsGLTF = {};
+	protected golfAssets: GolfAssets;
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
+
+		const kenneyAssetsEntity = new Entity();
+		kenneyAssetsEntity.add(this.golfAssets = new GolfAssets())
+		engine.addEntity(kenneyAssetsEntity);
 	}
 
 	protected async preload() {
@@ -39,7 +37,7 @@ export default class BaseGolfSpace extends Space {
 				}
 			});
 
-			this.kenneyAssets[key] = gltf;
+			this.golfAssets.gltfs[key] = gltf;
 		});
 
 		await Promise.all(loadModels);

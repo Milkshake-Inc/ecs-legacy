@@ -1,27 +1,13 @@
 
 import { Engine } from '@ecs/ecs/Engine';
-import BaseGolfSpace from './BaseGolfSpace';
-import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
-import { System } from '@ecs/ecs/System';
 import { Entity } from '@ecs/ecs/Entity';
+import { System } from '@ecs/ecs/System';
 import Session from '@ecs/plugins/net/components/Session';
-import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
-
-export enum GolfPacketOpcode {
-	SEND_MAP = 6,
-}
-
-export type ServerSendMap = {
-	opcode: GolfPacketOpcode.SEND_MAP;
-	map: string;
-};
-
-export type GolfPackets = ServerSendMap;
+import { GolfPacketOpcode, GolfPackets, useGolfNetworking } from '../constants/GolfNetworking';
+import { Maps } from '../constants/Maps';
+import BaseGolfSpace from './BaseGolfSpace';
 
 export default class ServerGolfSpace extends BaseGolfSpace {
-
-
-
 	constructor(engine: Engine, open = false) {
         super(engine, open);
 
@@ -36,7 +22,7 @@ export default class ServerGolfSpace extends BaseGolfSpace {
 }
 
 class ServerMapSystem extends System {
-    network = useNetworking(this, {
+    network = useGolfNetworking(this, {
         connect: (e) => this.handleConnection(e)
     })
 
@@ -46,9 +32,11 @@ class ServerMapSystem extends System {
 
     handleConnection(entity: Entity) {
         const session = entity.get(Session);
+
         session.socket.send<GolfPackets>({
             opcode: GolfPacketOpcode.SEND_MAP,
-            map: "cool_map_bro"
-        });
+            data: Maps.DefaultMap,
+            name: "Default Map"
+        }, true);
     }
 }

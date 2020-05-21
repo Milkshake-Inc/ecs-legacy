@@ -1,11 +1,14 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { System } from '@ecs/ecs/System';
 import Color from '@ecs/math/Color';
 import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
+import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Transform from '@ecs/plugins/Transform';
@@ -13,25 +16,13 @@ import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { LoadTexture } from '@ecs/utils/ThreeHelper';
 import { AmbientLight, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture } from 'three';
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import { KenneyAssets } from '../constants/Assets';
+import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
 import { CourseEditorSystem } from '../systems/CourseEditorSystem';
 import PixiUISystem from '../systems/PixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
-import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
-import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
-import { System } from '@ecs/ecs/System';
-import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
-import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
 };
-
-type AssetsMap<T, K> = {
-	[P in keyof T]: K;
-};
-
-export type KenneyAssetsGLTF = Partial<AssetsMap<typeof KenneyAssets, GLTF>>;
 
 export class TransfromLerp extends Transform {}
 
@@ -61,19 +52,21 @@ const Images = {
 }
 
 class ClientMapSystem extends System {
-    network = useNetworking(this)
+    network = useGolfNetworking(this)
 
     constructor() {
 		super()
 
-		this.network.on(PacketOpcode.SERVER_SYNC_RESULT, (data) => {
-			console.log("Saw result: " + data.serverTime)
-		});
+		this.network.on(GolfPacketOpcode.SEND_MAP, (data) => {
+			console.log(data);
+		})
     }
 }
 
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
+
+
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
@@ -112,7 +105,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new InputSystem());
 		this.addSystem(new TransformLerpSystem());
 
-		this.addSystem(new CourseEditorSystem(this.worldEngine, this.kenneyAssets));
+		this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
 
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 		this.addSystem(new PixiUISystem());

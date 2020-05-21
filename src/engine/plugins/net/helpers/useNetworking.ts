@@ -5,22 +5,24 @@ import { all, makeQuery } from "@ecs/utils/QueryHelper";
 import Session from "../components/Session";
 import { Packet, PacketOpcode } from "../components/Packet";
 
-type NetworkingCallbacks = {
+export type NetworkingCallbacks = {
     connect?: (entity: Entity) => void;
     disconnect?: (entity: Entity) => void;
 }
 
-export const useNetworking = (system: System, callbacks?: NetworkingCallbacks) => {
+export const useBaseNetworking = (system: System, callbacks?: NetworkingCallbacks) => useNetworking<PacketOpcode, Packet>(system, callbacks);
+
+export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System, callbacks?: NetworkingCallbacks) => {
 
     const sessionQuery = makeQuery(all(Session));
 
-    const packetHandlers: ((packet: Packet) => void)[] = [];
+    const packetHandlers: ((packet: TPackets) => void)[] = [];
 
 	const onAddedCallback = (engine: Engine) => {
 		engine.addQuery(sessionQuery);
     };
 
-    const handlePacket = (entity: Entity, packet: Packet) => {
+    const handlePacket = (entity: Entity, packet: TPackets) => {
         packetHandlers.forEach((packetHandle) => packetHandle(packet));
     }
 
@@ -31,7 +33,7 @@ export const useNetworking = (system: System, callbacks?: NetworkingCallbacks) =
 
         // Bind to packets - NOT update synced.
         const session = snapshot.entity.get(Session);
-        session.socket.handleImmediate((packet) => handlePacket(snapshot.entity, packet));
+        session.socket.handleImmediate((packet) => handlePacket(snapshot.entity, packet as any));
     })
 
     sessionQuery.onEntityRemoved.connect((snapshot) => {
@@ -43,11 +45,11 @@ export const useNetworking = (system: System, callbacks?: NetworkingCallbacks) =
 	system.signalOnAddedToEngine.connect(onAddedCallback);
     system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
 
-    type PacketsOfType<T extends PacketOpcode> = Extract<Packet, { opcode: T }>;
+    type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
     return {
-        on: <T extends PacketOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>) => void) => {
-            const hanlderFunction = (packet: Packet) => {
+        on: <T extends TOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>) => void) => {
+            const hanlderFunction = (packet: TPackets) => {
                 if (packet.opcode === opcode) {
                     onPacket(packet as PacketsOfType<T>);
                 }

@@ -25,9 +25,11 @@ import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
 import CoursePiece from '../components/CoursePice';
 import PlayerBall from '../components/PlayerBall';
-import { KenneyAssetsGLTF, TransfromLerp } from '../spaces/ClientGolfSpace';
+import { TransfromLerp } from '../spaces/ClientGolfSpace';
 import { BallControllerSystem } from './BallControllerSystem';
 import { FLOOR_MATERIAL } from '../constants/Materials';
+import { KenneyAssetsGLTF } from '../components/GolfAssets';
+import { useGolfNetworking, GolfPacketOpcode } from '../constants/GolfNetworking';
 
 enum EditorMode {
 	EDIT,
@@ -53,6 +55,8 @@ export class CourseEditorSystem extends System {
 		camera: all(PerspectiveCamera),
 		pieces: all(CoursePiece)
 	});
+
+	protected network = useGolfNetworking(this)
 
 	protected events = useEvents(this, {
 		CLICK: (entity: Entity) => {
@@ -112,6 +116,10 @@ export class CourseEditorSystem extends System {
 			}
 			this.updateCurrentEditorPiece();
 		});
+
+		this.network.on(GolfPacketOpcode.SEND_MAP, (data) => {
+			this.deserializeMap(data.data);
+		})
 	}
 
 	protected delta = 0;
