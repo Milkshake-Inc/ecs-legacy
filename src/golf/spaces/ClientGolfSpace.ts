@@ -1,49 +1,31 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { System } from '@ecs/ecs/System';
 import Color from '@ecs/math/Color';
-import MathHelper from '@ecs/math/MathHelper';
 import Vector3 from '@ecs/math/Vector';
-import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
+import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
+import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
+import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Transform from '@ecs/plugins/Transform';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { LoadTexture } from '@ecs/utils/ThreeHelper';
-import { AmbientLight, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, Texture } from 'three';
-import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
-import { CourseEditorSystem } from '../systems/CourseEditorSystem';
+import { AmbientLight, Color as ThreeColor, DirectionalLight, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, RepeatWrapping, SphereGeometry, Texture } from 'three';
+import PlayerBall from '../components/PlayerBall';
+import ChatBoxSystem from '../systems/ChatBoxSystem';
+import ClientBallControllerSystem from '../systems/client/ClientBallControllerSystem';
+import ClientMapSystem from '../systems/client/ClientMapSystem';
+import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import PixiUISystem from '../systems/PixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
+import { PlayerSpawnSystem } from '../utils/GolfShared';
+
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
 };
-
-export class TransfromLerp extends Transform {}
-
-class TransformLerpSystem extends IterativeSystem {
-	constructor() {
-		super(makeQuery(all(Transform, TransfromLerp)));
-	}
-
-	updateEntity(entity: Entity, deltaTime: number) {
-		const target = entity.get(TransfromLerp);
-		const current = entity.get(Transform);
-
-		if (!target.position) {
-			target.position = current.position.clone();
-		}
-
-		current.position = MathHelper.lerpVector3(current.position, target.position, 0.4);
-		current.scale = MathHelper.lerpVector3(current.scale, target.scale, 0.4);
-		current.quaternion = current.quaternion.slerp(target.quaternion, 0.4);
-	}
-}
 
 const Images = {
 	Logo: 'assets/golf/logo.png',
@@ -51,22 +33,8 @@ const Images = {
 	Crosshair: 'assets/prototype/crosshair.png',
 }
 
-class ClientMapSystem extends System {
-    network = useGolfNetworking(this)
-
-    constructor() {
-		super()
-
-		this.network.on(GolfPacketOpcode.SEND_MAP, (data) => {
-			console.log(data);
-		})
-    }
-}
-
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
-
-
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
@@ -80,11 +48,56 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 	}
 
 	setup() {
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, false, 0));
 		super.setup();
 
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
-		this.addSystem(new ClientMapSystem());
+		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
+		// this.addSystem(new FreeRoamCameraSystem(true));
+		this.addSystem(new ThirdPersonCameraSystem());
+
+		this.addSystem(new InputSystem());
+		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
+		this.addSystem(new PixiUISystem());
+
+
+
+		this.addSystem(new ChatBoxSystem())
+		this.addSystem(new ClientSnapshotSystem(this.worldEngine, (entity, local) => {
+			const player = this.createBall();
+
+			player.components.forEach(c => {
+				entity.add(c);
+			});
+
+			entity.add(PlayerBall);
+
+			if(local) {
+				console.log("Added third person camera")
+				entity.add(ThirdPersonTarget);
+			}
+		}));
+		this.addSystem(new ClientBallControllerSystem());
+
+		// this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
+		// this.addSystem(new TransformLerpSystem());
+
+		// this.addSystem(
+		// 	new PlayerSpawnSystem(
+		// );
+
+		this.setupEntities();
+	}
+
+	setupEntities() {
+		const crosshair = new Entity();
+		crosshair.add(Transform, {
+			position: new Vector3(1280 / 2, 720 / 2)
+		});
+		crosshair.add(Sprite, {
+			imageUrl: Images.Crosshair,
+		});
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
@@ -98,26 +111,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		light.add(new AmbientLight(new ThreeColor(Color.White), 0.5));
 		light.add(Transform, { x: 5 / 10, y: 10 / 10, z: 5 / 10 });
 
-		this.addEntities(light, camera);
-
-		this.addSystem(new FreeRoamCameraSystem(false));
-
-		this.addSystem(new InputSystem());
-		this.addSystem(new TransformLerpSystem());
-
-		this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
-
-		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
-		this.addSystem(new PixiUISystem());
-
-		const crosshair = new Entity();
-		crosshair.add(Transform, {
-			position: new Vector3(1280 / 2, 720 / 2)
-		});
-		crosshair.add(Sprite, {
-			imageUrl: Images.Crosshair,
-		});
-		this.addEntity(crosshair);
+		this.addEntities(light, camera, crosshair);
 	}
 
 	createGround() {
@@ -129,5 +123,23 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 			receiveShadow: true
 		});
 		return ground;
+	}
+
+	createBall() {
+		const ball = super.createBall();
+
+		ball.add(
+			new Mesh(
+				new SphereGeometry(0.04, 10, 10),
+				new MeshPhongMaterial({
+					color: Color.White,
+					reflectivity: 0,
+					specular: 0
+				})
+			),
+			{ castShadow: true, receiveShadow: true }
+		);
+
+		return ball;
 	}
 }

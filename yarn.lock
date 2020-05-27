@@ -1053,6 +1053,11 @@
   dependencies:
     source-map "^0.6.1"
 
+"@types/webfontloader@^1.6.31":
+  version "1.6.31"
+  resolved "https://registry.yarnpkg.com/@types/webfontloader/-/webfontloader-1.6.31.tgz#bd161c9a091dc5f28c2bdb33ce06dff825a3d415"
+  integrity sha512-cBSMUmGBeX/5fUdcCLt6DNeypor/MP7vxHVHZYc+Ewi/pjXUNUbxnO1JQL0iVNjLVp+It+rEIP300hlqs4quIg==
+
 "@types/webpack-sources@*":
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/@types/webpack-sources/-/webpack-sources-0.1.7.tgz#0a330a9456113410c74a5d64180af0cbca007141"
@@ -9141,6 +9146,11 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   integrity sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==
   dependencies:
     minimalistic-assert "^1.0.0"
+
+webfontloader@^1.6.28:
+  version "1.6.28"
+  resolved "https://registry.yarnpkg.com/webfontloader/-/webfontloader-1.6.28.tgz#db786129253cb6e8eae54c2fb05f870af6675bae"
+  integrity sha1-23hhKSU8tujq5UwvsF+HCvZnW64=
 
 webidl-conversions@^4.0.2:
   version "4.0.2"

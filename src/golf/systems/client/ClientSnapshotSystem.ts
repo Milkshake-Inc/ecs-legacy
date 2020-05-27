@@ -4,8 +4,8 @@ import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { snapshotUseQuery, Snapshot } from '../Shared';
-import { deserialize } from '../../../../../engine/plugins/physics/utils/CannonSerialize';
+import { snapshotUseQuery, Snapshot } from '../../utils/GolfShared';
+import { deserialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 
 const getSessionId = (entity: Entity): string => {
 	if (entity.has(Session)) {
@@ -23,44 +23,54 @@ const getSessionId = (entity: Entity): string => {
 
 export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem<Snapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
+	protected buildPlayer: (entity: Entity, local: boolean) => void;
 
-	constructor(protected engine: Engine) {
+	constructor(protected engine: Engine, playerGenerator: (entity: Entity, local: boolean) => void) {
 		super();
+
+		this.buildPlayer = playerGenerator;
 	}
 
 	createEntitiesFromSnapshot(snapshot: Snapshot) {
+		const ballsToRemove = new Set(this.snapshotQueries.balls.entities);
+
 		// We probs want some way of creating RemoteSession on client easier...
-		snapshot.players.forEach(remoteSnapshot => {
-			const createdPlayer = this.snapshotQueries.players.entities.find(entity => {
+		snapshot.balls.forEach(remoteSnapshot => {
+			const matchingLocalBall = this.snapshotQueries.balls.entities.find(entity => {
 				const sessionId = getSessionId(entity);
 				return sessionId == remoteSnapshot.id;
 			});
 
-			const localSessionEntity = this.snapshotQueries.sessions.entities.find(entity => {
+			const matchingLocalSession = this.snapshotQueries.sessions.entities.find(entity => {
 				return entity.get(Session).id == remoteSnapshot.id;
 			});
 
+			ballsToRemove.delete(matchingLocalBall);
+
 			// Paddle doesn't excist on client - create it!
-			if (!createdPlayer) {
-				if (localSessionEntity) {
-					console.log('Creating local player');
+			if (!matchingLocalBall) {
+				if (matchingLocalSession) {
+					console.log(`Creating local player ${remoteSnapshot.id}`);
+					this.buildPlayer(matchingLocalSession, true)
 				} else {
-					console.log('Remote ');
+					console.log(`Creating remote player ${remoteSnapshot.id}`);
 					const entity = new Entity();
 					entity.add(RemoteSession, { id: remoteSnapshot.id });
+					this.buildPlayer(entity, false)
 					this.engine.addEntity(entity);
 				}
 			}
 		});
+
+		ballsToRemove.forEach(entity => {
+			console.log(`Remove player ${getSessionId(entity)}`);
+			this.engine.removeEntity(entity);
+		});
 	}
 
 	applySnapshot(snapshot: Snapshot) {
-		const boat = this.snapshotQueries.boats.first;
-		const body = boat.get(CannonBody);
-		deserialize(body, snapshot.boat);
-
-		snapshot.players.forEach(remoteSnapshot => {
-			const localCreatedPaddle = this.snapshotQueries.players.entities.find(entity => {
+		snapshot.balls.forEach(remoteSnapshot => {
+			const localCreatedPaddle = this.snapshotQueries.balls.entities.find(entity => {
 				const sessionId = getSessionId(entity);
 				return sessionId == remoteSnapshot.id;
 			});

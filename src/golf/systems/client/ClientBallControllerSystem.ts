@@ -1,27 +1,32 @@
+import { Engine } from "@ecs/ecs/Engine";
 import { Entity } from "@ecs/ecs/Entity";
 import { useQueries } from "@ecs/ecs/helpers";
 import { IterativeSystem } from "@ecs/ecs/IterativeSystem";
 import Key from "@ecs/input/Key";
 import Keyboard from "@ecs/input/Keyboard";
-import Vector3 from "@ecs/math/Vector";
-import CannonBody from "@ecs/plugins/physics/components/CannonBody";
-import { ToCannonVector3, ToThreeVector3 } from "@ecs/plugins/physics/utils/Conversions";
-import Transform from "@ecs/plugins/Transform";
-import { all, makeQuery } from "@ecs/utils/QueryHelper";
-import { PerspectiveCamera, ArrowHelper, Euler } from "three";
-import PlayerBall from "../components/PlayerBall";
-import { Graphics } from "pixi.js";
-import { Engine } from "@ecs/ecs/Engine";
 import Color from "@ecs/math/Color";
 import MathHelper from "@ecs/math/MathHelper";
+import Vector3 from "@ecs/math/Vector";
+import CannonBody from "@ecs/plugins/physics/components/CannonBody";
+import { ToThreeVector3 } from "@ecs/plugins/physics/utils/Conversions";
+import Transform from "@ecs/plugins/Transform";
+import { all, makeQuery } from "@ecs/utils/QueryHelper";
+import { Graphics } from "pixi.js";
+import { ArrowHelper, PerspectiveCamera } from "three";
+import PlayerBall from "../../components/PlayerBall";
+import { GolfPacketOpcode, useGolfNetworking } from "../../constants/GolfNetworking";
+import ThirdPersonTarget from "@ecs/plugins/3d/systems/ThirdPersonTarget";
+import Session from "@ecs/plugins/net/components/Session";
 
-export class BallControllerSystem extends IterativeSystem {
+export default class ClientBallControllerSystem extends IterativeSystem {
 
     protected keyboard: Keyboard;
 
     protected queries = useQueries(this, {
         camera: all(PerspectiveCamera)
     })
+
+    protected networking = useGolfNetworking(this);
 
     graphics: Graphics;
     power = 0;
@@ -30,9 +35,11 @@ export class BallControllerSystem extends IterativeSystem {
     directionLine: Entity;
 
     constructor() {
-        super(makeQuery(all(Transform, PlayerBall, CannonBody)));
+        super(makeQuery(all(Transform, PlayerBall, CannonBody, ThirdPersonTarget)));
         console.log("Created")
         this.keyboard = new Keyboard();
+
+
     }
 
     public onAddedToEngine(engine: Engine) {
@@ -76,19 +83,16 @@ export class BallControllerSystem extends IterativeSystem {
         this.directionLine.get(Transform).rz = Math.PI / 2;
         this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
 
-        // const helper = this.directionLine.get(ArrowHelper);
-        // helper.setRotationFromEuler(new Euler(directionVector.x,directionVector.y, directionVector.z) )
-        // helper.setLength(10);
-
-        // console.log(ToThreeVector3(directionVector));
-
-
         if (camera) {
 
             if(this.keyboard.isPressed(Key.X)) {
                 this.power = 1;
-                entity.get(CannonBody).velocity.set(0, 0, 0);
-                entity.get(CannonBody).angularVelocity.set(0, 0, 0);
+
+                this.networking.send({
+                    opcode: GolfPacketOpcode.PREP_SHOOT,
+                })
+                // entity.get(CannonBody).velocity.set(0, 0, 0);
+                // entity.get(CannonBody).angularVelocity.set(0, 0, 0);
             }
 
             if(this.keyboard.isDown(Key.X)) {
@@ -102,14 +106,22 @@ export class BallControllerSystem extends IterativeSystem {
 
                 const mappedPower = MathHelper.map(0, 100, 1, 10, this.power);
 
-                console.log(`Shot Power: ${mappedPower}`);
+                console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
 
                 const powerVector = directionVector.multiF(mappedPower);
-                // entity.get(CannonBody).velocity.set(-directionVector.x, 0, -directionVector.z);
-                entity.get(CannonBody).applyImpulse(
-                    ToCannonVector3(new Vector3(-powerVector.x, 0, -powerVector.z)),
-                    ToCannonVector3(Vector3.ZERO),
-                );
+
+                this.networking.send({
+                    opcode: GolfPacketOpcode.SHOOT_BALL,
+                    velocity: {
+                        x: -powerVector.x,
+                        z: -powerVector.z
+                    }
+                });
+                // entity.get(CannonBody).velocity.set(, 0, -directionVector.z);
+                // entity.get(CannonBody).applyImpulse(
+                //     ToCannonVector3(new Vector3(-powerVector.x, 0, -powerVector.z)),
+                //     ToCannonVector3(Vector3.ZERO),
+                // );
             }
 		}
 

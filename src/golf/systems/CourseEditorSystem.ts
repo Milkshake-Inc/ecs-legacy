@@ -13,23 +13,24 @@ import { RaycastCamera, RaycastDebug } from '@ecs/plugins/3d/components/Raycaste
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import { ToVector3 } from '@ecs/plugins/physics/utils/Conversions';
 import { Interactable } from '@ecs/plugins/render/components/Interactable';
 import Text from '@ecs/plugins/render/components/Text';
 import Tag from '@ecs/plugins/Tag';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
-import { Body, Sphere } from 'cannon-es';
+import { Sphere } from 'cannon-es';
 import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
 import CoursePiece from '../components/CoursePice';
-import PlayerBall from '../components/PlayerBall';
-import { TransfromLerp } from '../spaces/ClientGolfSpace';
-import { BallControllerSystem } from './BallControllerSystem';
-import { FLOOR_MATERIAL } from '../constants/Materials';
 import { KenneyAssetsGLTF } from '../components/GolfAssets';
-import { useGolfNetworking, GolfPacketOpcode } from '../constants/GolfNetworking';
+import PlayerBall from '../components/PlayerBall';
+import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
+import { FLOOR_MATERIAL } from '../constants/Materials';
+import { buildCourcePieceEntity } from '../utils/CourcePiece';
+import { deserializeMap, serializeCourseEntity, serializeMap } from '../utils/Serialization';
+import ClientBallControllerSystem from './client/ClientBallControllerSystem';
+import { TransfromLerp } from '@ecs/plugins/lerp/components/TransfromLerp';
 
 enum EditorMode {
 	EDIT,
@@ -85,6 +86,7 @@ export class CourseEditorSystem extends System {
 		this.currentPart.add(Transform);
 		this.currentPart.add(TransfromLerp);
 		this.currentPart.add(this.models.CASTLE.scene);
+		this.currentPart.add(new CoursePiece("CASTLE"));
 		// this.currentPart.add(new GridHelper(11, 11, Color.Black, Color.Black));
 		this.engine.addEntity(this.currentPart);
 
@@ -118,7 +120,11 @@ export class CourseEditorSystem extends System {
 		});
 
 		this.network.on(GolfPacketOpcode.SEND_MAP, (data) => {
-			this.deserializeMap(data.data);
+			this.engine.addEntities(...deserializeMap(this.models, data.data));
+		})
+
+		this.network.on(GolfPacketOpcode.PLACE_PART, ({data}) => {
+			this.createCourcePiece(data.modelName, Transform.From(data.transform));
 		})
 	}
 
@@ -164,8 +170,6 @@ export class CourseEditorSystem extends System {
 			new CannonBody({
 				mass: 1,
 				material: FLOOR_MATERIAL,
-				// linearDamping: 0.2,
-				// fixedRotation: true,
 			})
 		);
 		entity.add(new Sphere(radius));
@@ -178,43 +182,24 @@ export class CourseEditorSystem extends System {
 
 		this.index = MathHelper.mod(this.index, models.length);
 
+		const modelNames = Object.keys(this.models)[this.index];
+
 		this.currentPart.remove(Group);
 		this.currentPart.remove(GLTFHolder);
 
 		this.currentPart.add(models[this.index].scene);
 		this.currentPart.add(new GLTFHolder(models[this.index]));
+
+		this.currentPart.get(CoursePiece).modelName = modelNames;
 	}
 
-	protected createCourcePiece(model: Group, transform: Transform) {
+	protected createCourcePiece(modelName: string, transform: Transform) {
 		this.removeCoursePiece(transform);
 
-		const mesh = model.clone(true);
+		const entity = buildCourcePieceEntity(this.models, modelName, transform);
+		this.engine.addEntity(entity);
 
-		mesh.traverse(node => {
-			if (node instanceof Mesh && node.material instanceof Material) {
-				node.material = node.material.clone();
-				node.material.flatShading = true;
-
-				node.material.transparent = false;
-
-				node.castShadow = true;
-				node.receiveShadow = true;
-			}
-		});
-
-		const courcePiece = new Entity();
-		const modelName = Object.keys(this.models)[this.index];
-		courcePiece.add(transform);
-		courcePiece.add(mesh);
-		courcePiece.add(new CoursePiece(modelName));
-		courcePiece.add(new TrimeshShape());
-		courcePiece.add(new Body({
-			material: FLOOR_MATERIAL,
-		}));
-
-		this.engine.addEntity(courcePiece);
-
-		return courcePiece;
+		return entity;
 	}
 
 	protected removeCoursePiece(transform: Transform) {
@@ -233,29 +218,18 @@ export class CourseEditorSystem extends System {
 	}
 
 	protected placeCourcePiece() {
-		this.createCourcePiece(this.currentPart.get(Group), Transform.From(this.currentPart.get(TransfromLerp)));
+		const currentPiece = this.currentPart.get(CoursePiece);
+
+		const newItem = this.createCourcePiece(currentPiece.modelName, Transform.From(this.currentPart.get(TransfromLerp)));
+
+		this.network.send({
+			opcode: GolfPacketOpcode.PLACE_PART,
+			data: serializeCourseEntity(newItem)
+		});
 	}
 
 	protected unplaceCoursePiece() {
 		this.removeCoursePiece(Transform.From(this.currentPart.get(TransfromLerp)));
-	}
-
-	serializeMap() {
-		return this.queries.pieces.entities.map(entity => {
-			const transform = entity.get(Transform);
-			const courcePiece = entity.get(CoursePiece);
-
-			return {
-				modelName: courcePiece.modelName,
-				transform: Transform.To(transform)
-			};
-		});
-	}
-
-	deserializeMap(value: { modelName: string; transform: any }[]) {
-		value.forEach((piece, index) => {
-			this.createCourcePiece(this.models[piece.modelName].scene, Transform.From(piece.transform));
-		});
 	}
 
 	update(deltaTime: number) {
@@ -280,7 +254,7 @@ export class CourseEditorSystem extends System {
 				this.mode = EditorMode.TEST;
 
 				this.engine.addSystem(new ThirdPersonCameraSystem());
-				this.engine.addSystem(new BallControllerSystem());
+				this.engine.addSystem(new ClientBallControllerSystem());
 
 				if (!this.ball) {
 					this.ball = this.createBall();
@@ -294,11 +268,15 @@ export class CourseEditorSystem extends System {
 
 				this.engine.removeEntity(this.currentPart);
 				this.engine.addEntity(this.ball);
+
+				this.network.send({
+					opcode: GolfPacketOpcode.SPAWN_PLAYER
+				});
 			} else {
 				this.mode = EditorMode.EDIT;
 
 				this.engine.removeSystem(this.engine.getSystem(ThirdPersonCameraSystem));
-				this.engine.removeSystem(this.engine.getSystem(BallControllerSystem));
+				this.engine.removeSystem(this.engine.getSystem(ClientBallControllerSystem));
 
 				this.engine.addEntity(this.currentPart);
 				this.engine.removeEntity(this.ball);
@@ -306,15 +284,15 @@ export class CourseEditorSystem extends System {
 		}
 
 		if (this.keyboard.isPressed(Key.ONE)) {
-			const saveFile = this.serializeMap();
-			console.log(saveFile);
+			const saveFile = serializeMap(this.queries.pieces);
 			localStorage.setItem('map', JSON.stringify(saveFile));
 		}
 
 		if (this.keyboard.isPressed(Key.TWO)) {
 			const saveFile = JSON.parse(localStorage.getItem('map'));
 			console.log(saveFile);
-			this.deserializeMap(saveFile);
+			const entities = deserializeMap(this.models, saveFile)
+			this.engine.addEntities(...entities);
 		}
 
 		const heightDelta = 0.1465; // Wtf kenney

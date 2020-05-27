@@ -1,17 +1,18 @@
 import Session from '@ecs/plugins/net/components/Session';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { snapshotUseQuery, Snapshot } from '../Shared';
-import { serialize } from '../../../../../engine/plugins/physics/utils/CannonSerialize';
+import { Snapshot, snapshotUseQuery } from '../../utils/GolfShared';
+import { serialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
 
-	generateSnapshot(): Snapshot {
-		const boat = this.snapshotQueries.boats.first;
-		const body = boat.get(CannonBody);
+	constructor() {
+		super(30);
+	}
 
-		const players = this.snapshotQueries.players.map(entity => {
+	generateSnapshot(): Snapshot {
+		const players = this.snapshotQueries.balls.map(entity => {
 			return {
 				id: entity.get(Session).id,
 				snap: serialize(entity.get(CannonBody))
@@ -19,8 +20,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snap
 		});
 
 		return {
-			boat: serialize(body),
-			players
+			balls: players
 		};
 	}
 }

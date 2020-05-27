@@ -11,15 +11,31 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 		serverConnection: all(ServerConnectionState)
 	});
 
+	protected elaspedMs: number;
+	protected updateMs: number;
+
+	constructor(updateRate = 60) {
+		super();
+
+		this.elaspedMs = 0;
+		this.updateMs = 1000 / updateRate;
+	}
+
 	public updateFixed(deltaTime: number) {
 		const { serverTick } = this.serverPingState;
 		const { broadcast } = this.serverConnectionState;
 
-		broadcast({
-			opcode: PacketOpcode.WORLD,
-			tick: serverTick,
-			snapshot: this.generateSnapshot()
-		});
+		this.elaspedMs += deltaTime;
+
+		if(this.elaspedMs >= this.updateMs) {
+			this.elaspedMs -= this.updateMs;
+
+			broadcast({
+				opcode: PacketOpcode.WORLD,
+				tick: serverTick,
+				snapshot: this.generateSnapshot()
+			});
+		}
 	}
 
 	abstract generateSnapshot(): S;

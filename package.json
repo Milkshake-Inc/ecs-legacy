@@ -35,6 +35,7 @@
 		"vueIndentScriptAndStyle": false
 	},
 	"dependencies": {
+		"@types/webfontloader": "^1.6.31",
 		"cannon-es": "^0.9.1",
 		"dat.gui": "^0.7.7",
 		"dog-names": "^2.0.0",
@@ -55,6 +56,7 @@
 		"seedrandom": "^3.0.5",
 		"three": "^0.115.0",
 		"typed-signals": "^1.0.5",
+		"webfontloader": "^1.6.28",
 		"yargs": "^15.3.1"
 	},
 	"devDependencies": {

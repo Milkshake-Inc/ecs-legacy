@@ -3,6 +3,11 @@ import { Entity } from '../Entity';
 import { System } from '../System';
 import { useQueries } from './useQueries';
 import { useState } from './useState';
+import { EventEmitter } from 'events';
+
+const EVENT_BUS = new EventEmitter();
+
+export const useSimpleEvents = () => EVENT_BUS;
 
 export class Events {
 	public events: { type: string; data?: any }[] = [];
