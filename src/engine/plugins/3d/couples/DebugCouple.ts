@@ -12,14 +12,12 @@ export const useDebugCouple = (system: RenderSystem) =>
 				return new DirectionalLightHelper(directionalLight);
 			}
 
-			if(entity.has(GridHelper)) {
+			if (entity.has(GridHelper)) {
 				return entity.get(GridHelper);
 			}
 
-			if(entity.has(ArrowHelper)) {
+			if (entity.has(ArrowHelper)) {
 				return entity.get(ArrowHelper);
 			}
-
-
 		}
 	});

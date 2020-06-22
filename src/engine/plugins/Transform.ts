@@ -128,7 +128,7 @@ export default class Transform {
 	}
 
 	public clone(): Transform {
-		return new Transform(this.position.clone(), this.quaternion.clone(), this.scale.clone())
+		return new Transform(this.position.clone(), this.quaternion.clone(), this.scale.clone());
 	}
 
 	public look(direction = Vector3.FORWARD) {
@@ -163,15 +163,11 @@ export default class Transform {
 		return {
 			position: Vector3.To(value.position),
 			quaternion: Quaternion.To(value.quaternion),
-			scale: Vector3.To(value.scale),
-		}
+			scale: Vector3.To(value.scale)
+		};
 	}
 
 	static From(value: ReturnType<typeof Transform.To>) {
-		return new Transform(
-			Vector3.From(value.position),
-			Quaternion.From(value.quaternion),
-			Vector3.From(value.scale)
-		)
+		return new Transform(Vector3.From(value.position), Quaternion.From(value.quaternion), Vector3.From(value.scale));
 	}
 }

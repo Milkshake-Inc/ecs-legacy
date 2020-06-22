@@ -37,10 +37,9 @@ export class ServerCustomApplyInputFromHistory<T> extends IterativeSystem {
 
 	private inputClass: Class<T>;
 
-
 	constructor(inputClass: Class<T>) {
 		super(makeQuery(all(Session, inputClass, InputHistory)));
-		console.log("Create" + inputClass);
+		console.log(`Create${inputClass}`);
 		this.inputClass = inputClass;
 	}
 

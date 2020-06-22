@@ -1,17 +1,17 @@
-import { all, makeQuery, any, not } from "@ecs/utils/QueryHelper";
-import PlayerBall from "../components/PlayerBall";
-import { useQueries } from "@ecs/ecs/helpers";
-import { System } from "@ecs/ecs/System";
-import { IterativeSystem } from "@ecs/ecs/IterativeSystem";
-import { Entity } from "@ecs/ecs/Entity";
-import RemoteSession from "@ecs/plugins/net/components/RemoteSession";
-import Session from "@ecs/plugins/net/components/Session";
-import { Player } from "../components/Player";
+import { all, makeQuery, any, not } from '@ecs/utils/QueryHelper';
+import PlayerBall from '../components/PlayerBall';
+import { useQueries } from '@ecs/ecs/helpers';
+import { System } from '@ecs/ecs/System';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { Entity } from '@ecs/ecs/Entity';
+import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
+import Session from '@ecs/plugins/net/components/Session';
+import { Player } from '../components/Player';
 
 export const snapshotUseQuery = (system: System) => {
 	return useQueries(system, {
 		balls: all(PlayerBall),
-		sessions: all(Session),
+		sessions: all(Session)
 	});
 };
 

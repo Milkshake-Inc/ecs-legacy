@@ -59,7 +59,7 @@ export default class CannonPhysicsSystem extends System {
 
 		this.state.world.gravity.set(this.state.gravity.x, this.state.gravity.y, this.state.gravity.z);
 
-		this.state.frameTime = (dt / 1000);
+		this.state.frameTime = dt / 1000;
 
 		const subStepFrameTime = this.state.frameTime / this.subSteps;
 

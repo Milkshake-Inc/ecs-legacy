@@ -7,12 +7,11 @@ import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Textu
 import { GolfRenderState } from '../systems/GolfRenderSystem';
 
 export class PixiUIState {
-    public uiTexture: Texture;
+	public uiTexture: Texture;
 }
 
 export default class PixiUISystem extends System {
-
-    protected state = useState(this, new PixiUIState());
+	protected state = useState(this, new PixiUIState());
 
 	protected queries = useQueries(this, {
 		pixiRenderState: all(PixiRenderState),
@@ -24,28 +23,26 @@ export default class PixiUISystem extends System {
 
 		const renderState = this.queries.pixiRenderState.first.get(PixiRenderState);
 
-
-
 		this.state.uiTexture = new Texture(renderState.application.view);
-        this.state.uiTexture.minFilter = LinearFilter;
+		this.state.uiTexture.minFilter = LinearFilter;
 
 		const uiMesh = new Mesh(
 			new PlaneGeometry(1280, 720),
 			new MeshBasicMaterial({
-                map: this.state.uiTexture,
-                transparent: true,
-                side: DoubleSide
-            })
-        );
+				map: this.state.uiTexture,
+				transparent: true,
+				side: DoubleSide
+			})
+		);
 
-        // Add this to the UI Scene
-        const golfRenderState = this.queries.uiState.first.get(GolfRenderState);
-        golfRenderState.uiScene.add(uiMesh);
+		// Add this to the UI Scene
+		const golfRenderState = this.queries.uiState.first.get(GolfRenderState);
+		golfRenderState.uiScene.add(uiMesh);
 
-        renderState.application.renderer.plugins.interaction.setTargetElement(golfRenderState.canvas)
-    }
+		renderState.application.renderer.plugins.interaction.setTargetElement(golfRenderState.canvas);
+	}
 
-    update() {
-        this.state.uiTexture.needsUpdate = true;
-    }
+	update() {
+		this.state.uiTexture.needsUpdate = true;
+	}
 }

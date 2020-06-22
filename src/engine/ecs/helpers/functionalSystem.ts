@@ -4,7 +4,7 @@ import { IterativeSystem } from '../IterativeSystem';
 import { System } from '../System';
 import { useQueries, ToQueries } from './useQueries';
 
-export type FunctionalSystemStuff = {
+export type FunctionalSystemCallbacks = {
 	setup?: () => void;
 	update?: (dt: number) => void;
 	updateFixed?: (dt: number) => void;
@@ -14,7 +14,7 @@ export type FunctionalSystemStuff = {
 	entityRemoved?: (entity: Entity) => void;
 };
 
-export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: FunctionalSystemStuff) => {
+export const functionalSystem = <Q extends QueryPattern[]>(query: Q, callbacks: FunctionalSystemCallbacks) => {
 	const system = class CustomSystem extends IterativeSystem {
 		constructor() {
 			super(makeQuery(...query));

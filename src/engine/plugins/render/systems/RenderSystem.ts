@@ -55,10 +55,9 @@ export default class RenderSystem extends System {
 		this.state.container.interactive = true;
 		this.state.container.interactiveChildren = true;
 
-		if(addCanvas) {
+		if (addCanvas) {
 			document.body.appendChild(this.state.application.view);
 		}
-
 	}
 
 	update(dt: number) {

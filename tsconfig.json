@@ -8,7 +8,9 @@
 		},
 		"lib": ["es2015", "ES2019", "DOM", "ES7"],
 		"moduleResolution": "Node",
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"jsx": "react",
+		"jsxFactory": "h"
 	},
 	"include": ["./src", "./src/ship/global.d.ts"],
 	"exclude": ["node_modules", "test"]

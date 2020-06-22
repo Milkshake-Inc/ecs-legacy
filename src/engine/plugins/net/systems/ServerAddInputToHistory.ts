@@ -36,7 +36,7 @@ export class ServerAddInputToHistory extends IterativeSystem {
 		// console.log(clientAhead + " Client: " + tick + " Server: " + serverTick);
 
 		if (clientAhead < 1) {
-			console.log('Client sending old input packets ' + clientAhead);
+			console.log(`Client sending old input packets ${clientAhead}`);
 		}
 
 		if (!inputHistory) {
@@ -76,7 +76,7 @@ export class ServerCustomAddInputToHistory extends IterativeSystem {
 		// console.log(clientAhead + " Client: " + tick + " Server: " + serverTick);
 
 		if (clientAhead < 1) {
-			console.log('Client sending old input packets ' + clientAhead);
+			console.log(`Client sending old input packets ${clientAhead}`);
 		}
 
 		if (!inputHistory) {

@@ -24,7 +24,7 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 
 		session.socket.send({
 			opcode: PacketOpcode.PLAYER_INPUT,
-			input: input,
+			input,
 			tick: serverTick
 		});
 	}
@@ -51,7 +51,7 @@ export class ClientCustomInputSenderSystem<T = Input> extends IterativeSystem {
 
 		session.socket.send({
 			opcode: PacketOpcode.PLAYER_CUSTOM_INPUT,
-			input: input,
+			input,
 			tick: serverTick
 		});
 	}

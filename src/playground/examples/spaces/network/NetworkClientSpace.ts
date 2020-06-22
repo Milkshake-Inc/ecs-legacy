@@ -5,9 +5,8 @@ import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterAnimateSystem from '@ecs/plugins/character/systems/CharacterAnimateSystem';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import Input from '@ecs/plugins/input/components/Input';
-import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
-import ClientInputSenderSystem, { ClientCustomInputSenderSystem } from '@ecs/plugins/net/systems/ClientInputSenderSystem';
+import ClientInputSenderSystem from '@ecs/plugins/net/systems/ClientInputSenderSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import BoatEntity from '@ecs/plugins/vehicle/entity/BoatEntity';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
@@ -16,11 +15,6 @@ import BaseSpace from '../../BaseSpace';
 import { PlayerSpawnSystem } from './Shared';
 import ClientSnapshotSystem from './systems/ClientSnapshotSystem';
 import { CharacterInputSystem } from '@ecs/plugins/character/systems/CharacterInputSystem';
-import CharacterInput from '@ecs/plugins/character/components/CharacterInput';
-import HelicopterEntity from '@ecs/plugins/vehicle/entity/HelicopterEntity';
-import HelicopterControllerSystem from '@ecs/plugins/vehicle/systems/HelicopterControllerSystem';
-import Vehicle from '@ecs/plugins/vehicle/components/Vehicle';
-import Transform from '@ecs/plugins/Transform';
 import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export class NetworkClientSpace extends BaseSpace {
@@ -59,7 +53,7 @@ export class NetworkClientSpace extends BaseSpace {
 				});
 				if (local) {
 					entity.add(Input);
-					entity.add(InputKeybindings.WASD())
+					entity.add(InputKeybindings.WASD());
 				}
 
 				entity.add(ThirdPersonTarget);

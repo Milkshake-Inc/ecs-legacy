@@ -1,6 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries } from '@ecs/ecs/helpers';
-import Keyboard from '@ecs/input/Keyboard';
 import Input from '@ecs/plugins/input/components/Input';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import Transform from '@ecs/plugins/Transform';
@@ -8,7 +7,6 @@ import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 
 export class CharacterInputSystem extends InputSystem {
-
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
 	});

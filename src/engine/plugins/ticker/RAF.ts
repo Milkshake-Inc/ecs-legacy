@@ -11,7 +11,7 @@ export const requestAnimationFrame = PlatformHelper.IsClient()
 				now = performance.now();
 				timeout = Math.max(0, 1000 / 60 - (now - lastTimestamp));
 				lastTimestamp = now + timeout;
-				return setTimeout(function () {
+				return setTimeout(() => {
 					callback(now + timeout);
 				}, timeout);
 			};

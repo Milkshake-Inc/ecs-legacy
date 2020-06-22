@@ -35,12 +35,7 @@ export default class Quaternion {
 	}
 
 	clone() {
-		return new Quaternion(
-			this.x,
-			this.y,
-			this.z,
-			this.w,
-		);
+		return new Quaternion(this.x, this.y, this.z, this.w);
 	}
 
 	setFromEuler({ x, y, z }: Vector3) {
@@ -166,44 +161,41 @@ export default class Quaternion {
 	}
 
 	slerp(target: Quaternion, t: number) {
+		if (t === 0) return this;
+		if (t === 1) return target.clone();
 
-		if (t === 0 ) return this;
-		if (t === 1 ) return target.clone();
-
-		const x = this.x, y = this.y, z = this.z, w = this.w;
+		const x = this.x,
+			y = this.y,
+			z = this.z,
+			w = this.w;
 
 		// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
 
 		let cosHalfTheta = w * target.w + x * target.x + y * target.y + z * target.z;
 
-		if ( cosHalfTheta < 0 ) {
+		if (cosHalfTheta < 0) {
+			this.w = -target.w;
+			this.x = -target.x;
+			this.y = -target.y;
+			this.z = -target.z;
 
-			this.w = - target.w;
-			this.x = - target.x;
-			this.y = - target.y;
-			this.z = - target.z;
-
-			cosHalfTheta = - cosHalfTheta;
-
+			cosHalfTheta = -cosHalfTheta;
 		} else {
 			this.set(target.x, target.y, target.z, target.w);
 		}
 
-		if ( cosHalfTheta >= 1.0 ) {
-
+		if (cosHalfTheta >= 1.0) {
 			this.w = w;
 			this.x = x;
 			this.y = y;
 			this.z = z;
 
 			return this;
-
 		}
 
 		const sqrSinHalfTheta = 1.0 - cosHalfTheta * cosHalfTheta;
 
-		if ( sqrSinHalfTheta <= Number.EPSILON ) {
-
+		if (sqrSinHalfTheta <= Number.EPSILON) {
 			const s = 1 - t;
 			this.w = s * w + t * this.w;
 			this.x = s * x + t * this.x;
@@ -213,18 +205,17 @@ export default class Quaternion {
 			this.normalize();
 
 			return this;
-
 		}
 
-		const sinHalfTheta = Math.sqrt( sqrSinHalfTheta );
-		const halfTheta = Math.atan2( sinHalfTheta, cosHalfTheta );
-		const ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
-			ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+		const sinHalfTheta = Math.sqrt(sqrSinHalfTheta);
+		const halfTheta = Math.atan2(sinHalfTheta, cosHalfTheta);
+		const ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta,
+			ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
 
-		this.w = ( w * ratioA + this.w * ratioB );
-		this.x = ( x * ratioA + this.x * ratioB );
-		this.y = ( y * ratioA + this.y * ratioB );
-		this.z = ( z * ratioA + this.z * ratioB );
+		this.w = w * ratioA + this.w * ratioB;
+		this.x = x * ratioA + this.x * ratioB;
+		this.y = y * ratioA + this.y * ratioB;
+		this.z = z * ratioA + this.z * ratioB;
 
 		return this;
 	}

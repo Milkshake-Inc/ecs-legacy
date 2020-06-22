@@ -1,4 +1,3 @@
-
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries } from '@ecs/ecs/helpers';
@@ -21,69 +20,73 @@ import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSyste
 
 export default class ServerGolfSpace extends BaseGolfSpace {
 	constructor(engine: Engine, open = false) {
-        super(engine, open);
-    }
+		super(engine, open);
+	}
 
-    setup() {
-        this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, false, 3));
-        super.setup();
+	setup() {
+		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, false, 3));
+		super.setup();
 
-        this.addSystem(new ServerMapSystem(this.golfAssets.gltfs));
+		this.addSystem(new ServerMapSystem(this.golfAssets.gltfs));
 
-        this.addSystem(
+		this.addSystem(
 			new PlayerSpawnSystem(entity => {
-                const player = this.createBall(new Vector3(0, 2, 0));
-                player.add(PlayerBall);
-                console.log("Created")
+				const player = this.createBall(new Vector3(0, 2, 0));
+				player.add(PlayerBall);
+				console.log('Created');
 				player.components.forEach(c => {
 					entity.add(c);
 				});
 			})
 		);
 
-        this.addSystem(new ServerBallControllerSystem())
+		this.addSystem(new ServerBallControllerSystem());
 		this.addSystem(new ServerSnapshotSystem());
-    }
+	}
 }
 
 class ServerMapSystem extends System {
-    network = useGolfNetworking(this, {
-        connect: (e) => this.handleConnection(e)
-    })
+	network = useGolfNetworking(this, {
+		connect: e => this.handleConnection(e)
+	});
 
-    protected queries = useQueries(this, {
+	protected queries = useQueries(this, {
 		pieces: all(CoursePiece)
-    });
+	});
 
-    protected assets: KenneyAssetsGLTF;
-    protected engine: Engine;
+	protected assets: KenneyAssetsGLTF;
+	protected engine: Engine;
 
-    constructor(assets: KenneyAssetsGLTF) {
-        super();
+	constructor(assets: KenneyAssetsGLTF) {
+		super();
 
-        this.assets = assets;
+		this.assets = assets;
 
-        this.network.on(GolfPacketOpcode.PLACE_PART, (packet, entity) => {
-            // Broadcast
-            const transform = Transform.From(packet.data.transform);
-            this.engine.addEntities(buildCourcePieceEntity(assets, packet.data.modelName, transform));
-            this.network.sendExcept(entity, packet);
-        })
-    }
+		this.network.on(GolfPacketOpcode.PLACE_PART, (packet, entity) => {
+			// Broadcast
+			const transform = Transform.From(packet.data.transform);
+			this.engine.addEntities(buildCourcePieceEntity(assets, packet.data.modelName, transform));
+			this.network.sendExcept(entity, packet);
+		});
+	}
 
-    public onAddedToEngine(engine: Engine) {
-        super.onAddedToEngine(engine);
+	public onAddedToEngine(engine: Engine) {
+		super.onAddedToEngine(engine);
 
-        this.engine = engine;
+		this.engine = engine;
 
-        engine.addEntities(...deserializeMap(this.assets, Maps.DefaultMap));
-    }
+		engine.addEntities(...deserializeMap(this.assets, Maps.DefaultMap));
+	}
 
-    handleConnection(entity: Entity) {
-        this.network.sendTo(entity, {
-            opcode: GolfPacketOpcode.SEND_MAP,
-            data: serializeMap(this.queries.pieces),
-            name: "Default Map"
-        }, true);
-    }
+	handleConnection(entity: Entity) {
+		this.network.sendTo(
+			entity,
+			{
+				opcode: GolfPacketOpcode.SEND_MAP,
+				data: serializeMap(this.queries.pieces),
+				name: 'Default Map'
+			},
+			true
+		);
+	}
 }

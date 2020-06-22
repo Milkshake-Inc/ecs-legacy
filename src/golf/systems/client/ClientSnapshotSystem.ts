@@ -51,12 +51,12 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 			if (!matchingLocalBall) {
 				if (matchingLocalSession) {
 					console.log(`Creating local player ${remoteSnapshot.id}`);
-					this.buildPlayer(matchingLocalSession, true)
+					this.buildPlayer(matchingLocalSession, true);
 				} else {
 					console.log(`Creating remote player ${remoteSnapshot.id}`);
 					const entity = new Entity();
 					entity.add(RemoteSession, { id: remoteSnapshot.id });
-					this.buildPlayer(entity, false)
+					this.buildPlayer(entity, false);
 					this.engine.addEntity(entity);
 				}
 			}

@@ -1,18 +1,17 @@
-import { IterativeSystem } from "@ecs/ecs/IterativeSystem";
-import { makeQuery, all } from "@ecs/utils/QueryHelper";
-import Transform from "@ecs/plugins/Transform";
-import { TransfromLerp } from "../components/TransfromLerp";
-import { Entity } from "@ecs/ecs/Entity";
-import MathHelper from "@ecs/math/MathHelper";
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
+import Transform from '@ecs/plugins/Transform';
+import { TransfromLerp } from '../components/TransfromLerp';
+import { Entity } from '@ecs/ecs/Entity';
+import MathHelper from '@ecs/math/MathHelper';
 
 export default class TransformLerpSystem extends IterativeSystem {
-
-    protected multiplier: number;
+	protected multiplier: number;
 
 	constructor(multiplier = 0.4) {
-        super(makeQuery(all(Transform, TransfromLerp)));
+		super(makeQuery(all(Transform, TransfromLerp)));
 
-        this.multiplier = multiplier;
+		this.multiplier = multiplier;
 	}
 
 	updateEntity(entity: Entity, deltaTime: number) {

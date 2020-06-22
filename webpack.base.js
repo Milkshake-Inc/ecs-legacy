@@ -35,7 +35,17 @@ exports.baseConfig = {
 	},
 	resolve: {
 		extensions: ['.tsx', '.ts', '.js'],
-		alias: resolveTsconfigPathsToAlias()
+		alias: Object.assign(
+			{
+				react: 'preact/compat',
+				'react-dom': 'preact/compat',
+				// Not necessary unless you consume a module using `createClass`
+				'create-react-class': 'preact/compat/lib/create-react-class',
+				// Not necessary unless you consume a module requiring `react-dom-factories`
+				'react-dom-factories': 'preact/compat/lib/react-dom-factories'
+			},
+			resolveTsconfigPathsToAlias()
+		)
 	},
 	output: {
 		path: path.resolve(__dirname, 'bin')

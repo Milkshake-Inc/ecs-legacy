@@ -22,14 +22,13 @@ export default class FreeRoamCameraSystem extends System {
 	constructor(bindLockToBody = true) {
 		super();
 
-		if(bindLockToBody) {
+		if (bindLockToBody) {
 			const requestedElement = document.body;
 
 			requestedElement.addEventListener('click', () => {
 				document.body.requestPointerLock();
 			});
 		}
-
 
 		document.body.addEventListener('mousemove', this.handleMouseMove.bind(this));
 

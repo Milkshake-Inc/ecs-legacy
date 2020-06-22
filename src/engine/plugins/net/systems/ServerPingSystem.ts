@@ -49,7 +49,7 @@ export default class ServerPingSystem extends IterativeSystem {
 		// Disconnect players that don't respond to ping
 		const session = entity.get(Session);
 		if (session.lastPongResponse != -1 && performance.now() - session.lastPongResponse > this.state.serverPingInterval + 1000) {
-			console.log('Disconnecting player ' + (performance.now() - session.lastPongResponse));
+			console.log(`Disconnecting player ${performance.now() - session.lastPongResponse}`);
 			console.log(this.state.serverPingInterval);
 			// We should send a disconnect packet to player...
 			const { disconnect } = this.queries.serverConnection.first.get(ServerConnectionState);

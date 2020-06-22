@@ -25,7 +25,7 @@ import { System } from './System';
  * }
  */
 export abstract class ReactionSystem extends System {
-	protected readonly query: Query;
+	public readonly query: Query;
 
 	protected constructor(query: Query) {
 		super();

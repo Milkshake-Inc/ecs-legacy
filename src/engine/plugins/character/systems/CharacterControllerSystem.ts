@@ -11,7 +11,6 @@ import { PerspectiveCamera, Quaternion, Vector3 as ThreeVector3 } from 'three';
 import CharacterTag from '../components/CharacterTag';
 
 export default class CharacterControllerSystem extends IterativeSystem {
-
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
 	});

@@ -17,7 +17,7 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 	protected queries = useQueriesManual(this, generateSnapshotQueries);
 
 	protected events = useEvents(this, {
-		['GOT_GOAL']: () => {
+		GOT_GOAL: () => {
 			console.log('Cool dude!');
 		}
 	});

@@ -47,7 +47,7 @@ export const useEvents = <TEvents extends { [index: string]: (data: any) => void
 	});
 
 	return {
-		dispatchGlobal: (type: string, data?: any ) => {
+		dispatchGlobal: (type: string, data?: any) => {
 			state.events.push({ type, data });
 		},
 		dispatchEntity: (entity: Entity, type: string) => {

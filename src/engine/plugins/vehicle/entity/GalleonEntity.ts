@@ -32,7 +32,7 @@ export default class GalleonEntity extends Entity {
 				allowSleep: false
 			})
 		);
-		this.add(GLTFShape, { gltf: gltf });
+		this.add(GLTFShape, { gltf });
 	}
 
 	public parseModel(gltf: GLTF): GalleonData {

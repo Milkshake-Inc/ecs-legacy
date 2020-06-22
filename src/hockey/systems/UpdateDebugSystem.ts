@@ -47,11 +47,9 @@ export class UpdateDebugSystem extends System {
 
 		if (this.startTime == -1) {
 			this.resetClock();
-		} else {
-			if (Date.now() - this.startTime >= 1000) {
-				this.bitmapText.value = `Update: ${this.updateCalls}\n Fixed: ${this.updateFixedCalls}`;
-				this.resetClock();
-			}
+		} else if (Date.now() - this.startTime >= 1000) {
+			this.bitmapText.value = `Update: ${this.updateCalls}\n Fixed: ${this.updateFixedCalls}`;
+			this.resetClock();
 		}
 	}
 }

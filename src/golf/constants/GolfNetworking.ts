@@ -1,5 +1,5 @@
-import { System } from "@ecs/ecs/System";
-import { NetworkingCallbacks, useNetworking } from "@ecs/plugins/net/helpers/useNetworking";
+import { System } from '@ecs/ecs/System';
+import { NetworkingCallbacks, useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
 
 export enum GolfPacketOpcode {
 	SEND_MAP = 6,
@@ -7,7 +7,7 @@ export enum GolfPacketOpcode {
 	REMOVE_PART,
 	SPAWN_PLAYER,
 	SHOOT_BALL,
-	PREP_SHOOT,
+	PREP_SHOOT
 }
 
 export type ServerSendMap = {
@@ -39,4 +39,5 @@ export type PrepShot = {
 
 export type GolfPackets = ServerSendMap | PlacePart | SpawnPlayer | ShootBall | PrepShot;
 
-export const useGolfNetworking = (system: System, callbacks?: NetworkingCallbacks) => useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);
+export const useGolfNetworking = (system: System, callbacks?: NetworkingCallbacks) =>
+	useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);

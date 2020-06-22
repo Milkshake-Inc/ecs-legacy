@@ -27,7 +27,7 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 
 		this.elaspedMs += deltaTime;
 
-		if(this.elaspedMs >= this.updateMs) {
+		if (this.elaspedMs >= this.updateMs) {
 			this.elaspedMs -= this.updateMs;
 
 			broadcast({

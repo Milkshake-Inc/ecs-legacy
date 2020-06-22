@@ -25,8 +25,8 @@ export default class ParentTransformSystem extends System {
 		this.config = config;
 
 		this.query = useQueries(this, {
-			parent: parent,
-			follower: follower
+			parent,
+			follower
 		});
 	}
 

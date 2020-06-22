@@ -57,7 +57,7 @@ export class CourseEditorSystem extends System {
 		pieces: all(CoursePiece)
 	});
 
-	protected network = useGolfNetworking(this)
+	protected network = useGolfNetworking(this);
 
 	protected events = useEvents(this, {
 		CLICK: (entity: Entity) => {
@@ -86,7 +86,7 @@ export class CourseEditorSystem extends System {
 		this.currentPart.add(Transform);
 		this.currentPart.add(TransfromLerp);
 		this.currentPart.add(this.models.CASTLE.scene);
-		this.currentPart.add(new CoursePiece("CASTLE"));
+		this.currentPart.add(new CoursePiece('CASTLE'));
 		// this.currentPart.add(new GridHelper(11, 11, Color.Black, Color.Black));
 		this.engine.addEntity(this.currentPart);
 
@@ -119,13 +119,13 @@ export class CourseEditorSystem extends System {
 			this.updateCurrentEditorPiece();
 		});
 
-		this.network.on(GolfPacketOpcode.SEND_MAP, (data) => {
+		this.network.on(GolfPacketOpcode.SEND_MAP, data => {
 			this.engine.addEntities(...deserializeMap(this.models, data.data));
-		})
+		});
 
-		this.network.on(GolfPacketOpcode.PLACE_PART, ({data}) => {
+		this.network.on(GolfPacketOpcode.PLACE_PART, ({ data }) => {
 			this.createCourcePiece(data.modelName, Transform.From(data.transform));
-		})
+		});
 	}
 
 	protected delta = 0;
@@ -169,7 +169,7 @@ export class CourseEditorSystem extends System {
 		entity.add(
 			new CannonBody({
 				mass: 1,
-				material: FLOOR_MATERIAL,
+				material: FLOOR_MATERIAL
 			})
 		);
 		entity.add(new Sphere(radius));
@@ -291,7 +291,7 @@ export class CourseEditorSystem extends System {
 		if (this.keyboard.isPressed(Key.TWO)) {
 			const saveFile = JSON.parse(localStorage.getItem('map'));
 			console.log(saveFile);
-			const entities = deserializeMap(this.models, saveFile)
+			const entities = deserializeMap(this.models, saveFile);
 			this.engine.addEntities(...entities);
 		}
 

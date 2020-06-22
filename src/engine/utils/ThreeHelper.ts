@@ -10,9 +10,8 @@ export const LoadGLTF = (content: string): Promise<GLTF> => {
 
 			loader.parse(trimBuffer(data), '', resolve, reject);
 			return;
-		} else {
-			loader.load(content, resolve, undefined, reject);
 		}
+		loader.load(content, resolve, undefined, reject);
 	});
 };
 

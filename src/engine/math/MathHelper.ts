@@ -113,7 +113,7 @@ export default class MathHelper {
 	}
 
 	public static mod(value: number, max: number) {
-		return (value % max + max) % max;
+		return ((value % max) + max) % max;
 	}
 
 	public static sin(value: number, min = 0, max = 1) {

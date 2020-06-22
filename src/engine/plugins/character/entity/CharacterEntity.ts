@@ -8,7 +8,6 @@ import GLTFHolder from '../../3d/components/GLTFHolder';
 import CharacterTag from './../components/CharacterTag';
 import CapsuleShape from '@ecs/plugins/physics/components/CapsuleShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
 import { SkinnedMesh, Bone, Skeleton } from 'three';
 import { CharacterAnimation } from '../systems/CharacterAnimateSystem';

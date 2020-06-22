@@ -10,7 +10,6 @@ import { Vec3 } from 'cannon-es';
 import BaseSpace from '../../BaseSpace';
 import { PlayerSpawnSystem } from './Shared';
 import ServerSnapshotSystem from './systems/ServerSnapshotSystem';
-import CharacterInput from '@ecs/plugins/character/components/CharacterInput';
 import { ServerAddInputToHistory } from '@ecs/plugins/net/systems/ServerAddInputToHistory';
 import { ServerApplyInputFromHistory } from '@ecs/plugins/net/systems/ServerApplyInputFromHistory';
 
@@ -40,9 +39,7 @@ export class NetworkServerSpace extends BaseSpace {
 				entity.add(Input);
 				entity.add(InputHistory);
 
-
-
-				console.log('Created player ' + entity.get(Session).id);
+				console.log(`Created player ${entity.get(Session).id}`);
 			})
 		);
 
