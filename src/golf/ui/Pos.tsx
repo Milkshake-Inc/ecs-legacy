@@ -7,7 +7,7 @@ export const Pos = (props: { query: QueryPattern }) => {
 	const query = useQuery(props.query);
 	const pos = query.first?.get(Transform);
 
-	if (!pos) return <h1>no player found :(</h1>;
+	if (!pos) return <p>no player found :(</p>;
 
 	return (
 		<div>
