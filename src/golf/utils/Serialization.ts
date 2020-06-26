@@ -1,7 +1,7 @@
 import { Query } from '@ecs/ecs/Query';
 import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/Transform';
-import CoursePiece from '../components/CoursePice';
+import CoursePiece from '../components/CoursePiece';
 import { buildCourcePieceEntity } from './CourcePiece';
 import { KenneyAssetsGLTF } from '../components/GolfAssets';
 

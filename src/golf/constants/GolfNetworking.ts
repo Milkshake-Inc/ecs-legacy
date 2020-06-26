@@ -7,7 +7,10 @@ export enum GolfPacketOpcode {
 	REMOVE_PART,
 	SPAWN_PLAYER,
 	SHOOT_BALL,
-	PREP_SHOOT
+	PREP_SHOOT,
+	ALL_GAMES_REQUEST,
+	ALL_GAMES_RESPONSE,
+	JOIN_GAME,
 }
 
 export type ServerSendMap = {
@@ -25,6 +28,20 @@ export type SpawnPlayer = {
 	opcode: GolfPacketOpcode.SPAWN_PLAYER;
 };
 
+export type AllGamesRequest = {
+	opcode: GolfPacketOpcode.ALL_GAMES_REQUEST;
+};
+
+export type AllGamesResponse = {
+	opcode: GolfPacketOpcode.ALL_GAMES_RESPONSE;
+	games: string[];
+};
+
+export type JoinRoom = {
+	opcode: GolfPacketOpcode.JOIN_GAME;
+	roomId: string;
+};
+
 export type ShootBall = {
 	opcode: GolfPacketOpcode.SHOOT_BALL;
 	velocity: {
@@ -37,7 +54,7 @@ export type PrepShot = {
 	opcode: GolfPacketOpcode.PREP_SHOOT;
 };
 
-export type GolfPackets = ServerSendMap | PlacePart | SpawnPlayer | ShootBall | PrepShot;
+export type GolfPackets = ServerSendMap | PlacePart | SpawnPlayer | ShootBall | PrepShot | AllGamesRequest | AllGamesResponse | JoinRoom;
 
 export const useGolfNetworking = (system: System, callbacks?: NetworkingCallbacks) =>
 	useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);

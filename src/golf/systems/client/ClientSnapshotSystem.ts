@@ -95,7 +95,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 
 				if (localCreatedPaddle) {
 					const body = localCreatedPaddle.get(CannonBody);
-					console.log(latestSnapshot.percentage)
+
 					body.position.x = remoteSnapshot.x as number;
 					body.position.y = remoteSnapshot.y as number;
 					body.position.z = remoteSnapshot.z as number;

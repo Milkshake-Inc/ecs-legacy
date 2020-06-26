@@ -22,7 +22,7 @@ import { all } from '@ecs/utils/QueryHelper';
 import { Sphere } from 'cannon-es';
 import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
-import CoursePiece from '../components/CoursePice';
+import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../components/GolfAssets';
 import PlayerBall from '../components/PlayerBall';
 import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';

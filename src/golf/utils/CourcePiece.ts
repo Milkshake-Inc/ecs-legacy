@@ -3,7 +3,7 @@ import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import Transform from '@ecs/plugins/Transform';
 import { Body } from 'cannon-es';
 import { Material, Mesh } from 'three';
-import CoursePiece from '../components/CoursePice';
+import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../components/GolfAssets';
 import { FLOOR_MATERIAL } from '../constants/Materials';
 

@@ -3,12 +3,14 @@ import { System } from '@ecs/ecs/System';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import { ServerConnectionState } from '@ecs/plugins/net/systems/ServerConnectionSystem';
-import { all } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import Session from '../components/Session';
 
 export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
+
 	protected queries = useQueries(this, {
-		serverPing: all(ServerPingState),
-		serverConnection: all(ServerConnectionState)
+		sessions: all(Session)
 	});
 
 	protected elaspedMs: number;
@@ -22,29 +24,23 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 	}
 
 	public updateFixed(deltaTime: number) {
-		const { serverTick } = this.serverPingState;
-		const { broadcast } = this.serverConnectionState;
-
 		this.elaspedMs += deltaTime;
 
 		if (this.elaspedMs >= this.updateMs) {
 			this.elaspedMs -= this.updateMs;
 
-			broadcast({
+			const packet = {
 				opcode: PacketOpcode.WORLD,
-				tick: serverTick,
+				tick: 0,
 				snapshot: this.generateSnapshot()
+			}
+
+			this.queries.sessions.forEach(entity => {
+				const session = entity.get(Session);
+				session.socket.send(packet)
 			});
 		}
 	}
 
 	abstract generateSnapshot(): S;
-
-	protected get serverPingState() {
-		return this.queries.serverPing.first.get(ServerPingState);
-	}
-
-	protected get serverConnectionState() {
-		return this.queries.serverConnection.first.get(ServerConnectionState);
-	}
 }

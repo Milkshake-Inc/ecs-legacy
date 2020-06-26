@@ -92,7 +92,7 @@ export default class ThirdPersonCameraSystem extends System {
 
 		if (!this.queries.target.first) {
 			// Maybe should be an iterative system.
-			console.warn('No target!');
+			// console.warn('No target!');
 			return;
 		}
 

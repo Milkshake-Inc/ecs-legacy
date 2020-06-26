@@ -32,6 +32,7 @@ import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import PixiUISystem from '../systems/PixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
+import { useGolfNetworking } from '../constants/GolfNetworking';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'

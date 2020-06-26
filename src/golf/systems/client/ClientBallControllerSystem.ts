@@ -98,7 +98,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
 
 				const powerVector = directionVector.multiF(mappedPower);
-
+				console.log(entity.get(Session).id);
 				this.networking.send({
 					opcode: GolfPacketOpcode.SHOOT_BALL,
 					velocity: {
