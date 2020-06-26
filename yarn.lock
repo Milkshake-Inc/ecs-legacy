@@ -315,28 +315,34 @@
     resolve-from "^5.0.0"
     resolve-global "^1.0.0"
 
-"@geckos.io/client@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@geckos.io/client/-/client-1.3.0.tgz#2284ebdf1672ed7fb9c3255024162af6fd7ec810"
-  integrity sha512-lq37uksBflPWyrFB1Be3X1iPjLzh2LJOEYvQ7zo2zCiQGve9LBn6/T7DhRSww3fjKVasEDJ30EtsmZUq+fNckA==
+"@geckos.io/client@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@geckos.io/client/-/client-1.5.0.tgz#f8228ff242fba4af80bc1f87a2e5f269a6e82dd7"
+  integrity sha512-XAndA4YSURXg3mBEgWOg7RITjRejpjhgXl1U/SZZ05PHUrNCJ9I8kty0vQcWUgT7PQjGBltcOQcxjiSFwzoF3Q==
   dependencies:
-    "@geckos.io/common" "^1.3.0"
+    "@geckos.io/common" "^1.5.0"
 
-"@geckos.io/common@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@geckos.io/common/-/common-1.3.0.tgz#59ad84ccc38fb6eec88a3ad41f8015f178fc1f9e"
-  integrity sha512-IRZoHP+grE7yl6NfI7ieG6MkBZAjfZwgCZen6o4ubazzkXOK54cm+ecoeUIAweNeUvOp4jUqNzV6RTi0nV0VXA==
+"@geckos.io/common@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@geckos.io/common/-/common-1.5.0.tgz#10d104702a5ff406feca5109c7018a85671a4c4c"
+  integrity sha512-nAmEXkYyRaY63rnSKkgKbKCPTJv+RidWZNssKmuOAn5Q+sQWE9ldWey/dId+E0nM1Emc/UOKzDq44Y1KvaNHxA==
   dependencies:
     eventemitter3 "^4.0.0"
+    object-sizeof "^1.6.0"
 
-"@geckos.io/server@^1.3.0":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@geckos.io/server/-/server-1.3.0.tgz#4e60f8533cd8e0affe8239708b0058900c00d126"
-  integrity sha512-uXbZVEE/yuP/vEpidTBIc8otMmCkrW2lQIIWphFceayX/+XPNT8i27X6zcH59mHZVU7Km37Gpkwzw1GSMy2JtQ==
+"@geckos.io/server@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@geckos.io/server/-/server-1.5.0.tgz#ebf9d0f52aa6ac5670efb3dc36ad9f48c5c04996"
+  integrity sha512-AJ9NgY3Ed6LJRt4GeV/KN4jo7kMayniTkBsrNWNBMMrUOknizKOQyz0AieT29K3BuPMF/w9XD0IVj05MUqwBjg==
   dependencies:
-    "@geckos.io/common" "^1.3.0"
+    "@geckos.io/common" "^1.5.0"
     eventemitter3 "^4.0.0"
     wrtc "^0.4.4"
+
+"@geckos.io/snapshot-interpolation@^0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@geckos.io/snapshot-interpolation/-/snapshot-interpolation-0.0.5.tgz#34706f6bc383605cc631675b8db2091e6a6f86d9"
+  integrity sha512-4nTVndjAFal45lKiCa54Gzl4OBihIbDNeURETDLNHOgtLx/SCX8p1CqfzDcE0CP06c8Xv4uSM6ghYtadMcbWQQ==
 
 "@hapi/address@2.x.x":
   version "2.1.4"
@@ -1957,6 +1963,14 @@ buffer@^4.3.0:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
     isarray "^1.0.0"
+
+buffer@^5.6.0:
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/buffer/-/buffer-5.6.0.tgz#a31749dc7d81d84db08abf937b6b8c4033f62786"
+  integrity sha512-/gDYp/UtU0eA1ys8bOs9J6a+E/KWIY+DZ+Q2WESNUA0jFRsJOc0SNUO6xJ5SGA1xueg3NL65W6s+NY5l9cunuw==
+  dependencies:
+    base64-js "^1.0.2"
+    ieee754 "^1.1.4"
 
 builtin-status-codes@^3.0.0:
   version "3.0.0"
@@ -6557,6 +6571,13 @@ object-keys@^1.0.11, object-keys@^1.0.12, object-keys@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/object-keys/-/object-keys-1.1.1.tgz#1c47f272df277f3b1daf061677d9c82e2322c60e"
   integrity sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==
+
+object-sizeof@^1.6.0:
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/object-sizeof/-/object-sizeof-1.6.1.tgz#35971f3fd2102bd8b51c67b0a53ed773ff77ab56"
+  integrity sha512-gNKGcRnDRXwEpAdwUY3Ef+aVZIrcQVXozSaVzHz6Pv4JxysH8vf5F+nIgsqW5T/YNwZNveh0mIW7PEH1O2MrDw==
+  dependencies:
+    buffer "^5.6.0"
 
 object-visit@^1.0.0:
   version "1.0.1"

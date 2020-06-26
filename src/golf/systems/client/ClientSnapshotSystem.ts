@@ -4,8 +4,10 @@ import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { snapshotUseQuery, Snapshot } from '../../utils/GolfShared';
+import { snapshotUseQuery } from '../../utils/GolfShared';
 import { deserialize } from '@ecs/plugins/physics/utils/CannonSerialize';
+import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
+import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
 
 const getSessionId = (entity: Entity): string => {
 	if (entity.has(Session)) {
@@ -24,6 +26,7 @@ const getSessionId = (entity: Entity): string => {
 export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem<Snapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
 	protected buildPlayer: (entity: Entity, local: boolean) => void;
+	protected snapshotInterpolation = new SnapshotInterpolation(15)
 
 	constructor(protected engine: Engine, playerGenerator: (entity: Entity, local: boolean) => void) {
 		super();
@@ -32,10 +35,13 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	}
 
 	createEntitiesFromSnapshot(snapshot: Snapshot) {
+		const latestSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
+
 		const ballsToRemove = new Set(this.snapshotQueries.balls.entities);
 
+		if(!latestSnapshot) return;
 		// We probs want some way of creating RemoteSession on client easier...
-		snapshot.balls.forEach(remoteSnapshot => {
+		latestSnapshot.state.forEach(remoteSnapshot => {
 			const matchingLocalBall = this.snapshotQueries.balls.entities.find(entity => {
 				const sessionId = getSessionId(entity);
 				return sessionId == remoteSnapshot.id;
@@ -69,17 +75,34 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	}
 
 	applySnapshot(snapshot: Snapshot) {
-		snapshot.balls.forEach(remoteSnapshot => {
-			const localCreatedPaddle = this.snapshotQueries.balls.entities.find(entity => {
-				const sessionId = getSessionId(entity);
-				return sessionId == remoteSnapshot.id;
-			});
+		this.snapshotInterpolation.snapshot.add(snapshot);
 
-			if (localCreatedPaddle) {
-				deserialize(localCreatedPaddle.get(CannonBody), remoteSnapshot.snap);
-			} else {
-				console.log('Missing');
-			}
-		});
+
+	}
+
+	updateFixed(deltaTime: number) {
+		super.updateFixed(deltaTime);
+
+		const latestSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
+
+		if(latestSnapshot && latestSnapshot.state.length > 0) {
+			latestSnapshot.state.forEach(remoteSnapshot => {
+
+				const localCreatedPaddle = this.snapshotQueries.balls.entities.find(entity => {
+					const sessionId = getSessionId(entity);
+					return sessionId == remoteSnapshot.id;
+				});
+
+				if (localCreatedPaddle) {
+					const body = localCreatedPaddle.get(CannonBody);
+					console.log(latestSnapshot.percentage)
+					body.position.x = remoteSnapshot.x as number;
+					body.position.y = remoteSnapshot.y as number;
+					body.position.z = remoteSnapshot.z as number;
+				} else {
+					console.log('Missing');
+				}
+			});
+		}
 	}
 }

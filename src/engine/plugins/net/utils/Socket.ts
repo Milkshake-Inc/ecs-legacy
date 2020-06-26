@@ -37,10 +37,10 @@ export default class Socket {
 	}
 
 	public disconnect() {
-		if (this.socket instanceof ServerChannel) {
+		// if (this.socket instanceof ServerChannel) {
 			this.socket.close();
-			this.socket.eventEmitter.removeAllListeners();
-		}
+			// this.socket.eventEmitter.removeAllListeners();
+		// }
 	}
 
 	public update() {
