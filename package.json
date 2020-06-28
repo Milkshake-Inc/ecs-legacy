@@ -54,6 +54,7 @@
 		"poisson-disk-sampling": "^2.2.0",
 		"poly-decomp": "^0.3.0",
 		"preact": "^10.4.4",
+		"query-string": "^6.13.1",
 		"raw-loader": "^4.0.1",
 		"sat": "^0.8.0",
 		"seedrandom": "^3.0.5",

@@ -6,19 +6,23 @@ import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
 import { Engine } from '@ecs/ecs/Engine';
 import { deserializeMap } from '../../utils/Serialization';
 import Random from '@ecs/math/Random';
+import * as QueryString from 'query-string';
 
 export default class ClientMapSystem extends System {
 	events = useSimpleEvents();
 
 	network = useGolfNetworking(this, {
 		connect: () => {
-
 			setTimeout(() => {
-				console.log("Sending ALL_GAMES_REQUEST	")
-				this.network.send({
-					opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
-				});
-			}, 0)
+				if (this.room) {
+					this.joinRoom(this.room);
+				} else {
+					console.log('Sending ALL_GAMES_REQUEST');
+					this.network.send({
+						opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
+					});
+				}
+			}, 0);
 
 			this.events.emit(CREATE_CHAT_MSG, 'Connected');
 		},
@@ -44,11 +48,32 @@ export default class ClientMapSystem extends System {
 
 		this.network.on(GolfPacketOpcode.ALL_GAMES_RESPONSE, data => {
 			const randomGame = Random.fromArray(data.games);
-			console.log("Join random game: " + randomGame)
-			this.network.send({
-				opcode: GolfPacketOpcode.JOIN_GAME,
-				roomId: randomGame,
-			})
-		})
+			console.log('Join random game: ' + randomGame);
+			this.joinRoom(randomGame);
+		});
+	}
+
+	joinRoom(roomId: string) {
+		console.log('Joining room: ' + roomId);
+
+		this.room = roomId;
+
+		this.network.send({
+			opcode: GolfPacketOpcode.JOIN_GAME,
+			roomId
+		});
+	}
+
+	get room() {
+		return QueryString.parse(location.search).room as string;
+	}
+
+	set room(roomId: string) {
+		const query = QueryString.stringify({
+			...QueryString.parse(location.search),
+			room: roomId
+		});
+		const path = location.pathname;
+		history.replaceState(history.state, '', `${path}?${query}`);
 	}
 }

@@ -13,7 +13,7 @@ const argv = yargs
 	.help()
 	.alias('help', 'h').argv;
 
-exports.project = argv.project || 'ship';
+exports.project = argv.project || 'golf';
 
 exports.projectPath = `./src/${exports.project}`;
 
