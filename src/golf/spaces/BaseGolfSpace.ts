@@ -7,7 +7,7 @@ import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Plane, Sphere } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import { KenneyAssets } from '../constants/Assets';
-import GolfAssets from '../components/GolfAssets';
+import GolfAssets from '../constants/GolfAssets';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { FLOOR_MATERIAL } from '../constants/Materials';
 

@@ -1,8 +1,8 @@
 import { System } from '@ecs/ecs/System';
 import { useSimpleEvents } from '@ecs/ecs/helpers';
 import { useGolfNetworking, GolfPacketOpcode } from '../../constants/GolfNetworking';
-import { CREATE_CHAT_MSG } from '../ChatBoxSystem';
-import { KenneyAssetsGLTF } from '../../components/GolfAssets';
+import { CREATE_CHAT_MSG } from './ClientChatBoxSystem';
+import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
 import { Engine } from '@ecs/ecs/Engine';
 import { deserializeMap } from '../../utils/Serialization';
 import Random from '@ecs/math/Random';

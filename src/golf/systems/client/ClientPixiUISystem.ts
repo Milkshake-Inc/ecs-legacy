@@ -4,13 +4,13 @@ import { System } from '@ecs/ecs/System';
 import PixiRenderState from '@ecs/plugins/render/components/RenderState';
 import { all } from '@ecs/utils/QueryHelper';
 import { DoubleSide, LinearFilter, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from 'three';
-import { GolfRenderState } from '../systems/GolfRenderSystem';
+import { GolfRenderState } from '../GolfRenderSystem';
 
 export class PixiUIState {
 	public uiTexture: Texture;
 }
 
-export default class PixiUISystem extends System {
+export default class ClientPixiUISystem extends System {
 	protected state = useState(this, new PixiUIState());
 
 	protected queries = useQueries(this, {

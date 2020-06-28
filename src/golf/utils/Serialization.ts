@@ -3,7 +3,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/Transform';
 import CoursePiece from '../components/CoursePiece';
 import { buildCourcePieceEntity } from './CourcePiece';
-import { KenneyAssetsGLTF } from '../components/GolfAssets';
+import { KenneyAssetsGLTF } from '../constants/GolfAssets';
 
 export const serializeCourseEntity = (entity: Entity) => {
 	const transform = entity.get(Transform);

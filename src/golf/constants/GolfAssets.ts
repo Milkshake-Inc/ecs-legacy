@@ -1,4 +1,4 @@
-import { KenneyAssets } from '../constants/Assets';
+import { KenneyAssets } from './Assets';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 
 type AssetsMap<T, K> = {

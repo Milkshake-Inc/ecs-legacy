@@ -12,6 +12,7 @@ import GLTFHolder from '@ecs/plugins/3d/components/GLTFHolder';
 import { RaycastCamera, RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
+import { TransfromLerp } from '@ecs/plugins/lerp/components/TransfromLerp';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { ToVector3 } from '@ecs/plugins/physics/utils/Conversions';
 import { Interactable } from '@ecs/plugins/render/components/Interactable';
@@ -22,15 +23,13 @@ import { all } from '@ecs/utils/QueryHelper';
 import { Sphere } from 'cannon-es';
 import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
-import CoursePiece from '../components/CoursePiece';
-import { KenneyAssetsGLTF } from '../components/GolfAssets';
-import PlayerBall from '../components/PlayerBall';
-import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
-import { FLOOR_MATERIAL } from '../constants/Materials';
-import { buildCourcePieceEntity } from '../utils/CourcePiece';
-import { deserializeMap, serializeCourseEntity, serializeMap } from '../utils/Serialization';
-import ClientBallControllerSystem from './client/ClientBallControllerSystem';
-import { TransfromLerp } from '@ecs/plugins/lerp/components/TransfromLerp';
+import CoursePiece from '../../components/CoursePiece';
+import PlayerBall from '../../components/PlayerBall';
+import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
+import { FLOOR_MATERIAL } from '../../constants/Materials';
+import { buildCourcePieceEntity } from '../../utils/CourcePiece';
+import { deserializeMap, serializeMap } from '../../utils/Serialization';
+import ClientBallControllerSystem from './ClientBallControllerSystem';
 
 enum EditorMode {
 	EDIT,
@@ -56,8 +55,6 @@ export class CourseEditorSystem extends System {
 		camera: all(PerspectiveCamera),
 		pieces: all(CoursePiece)
 	});
-
-	protected network = useGolfNetworking(this);
 
 	protected events = useEvents(this, {
 		CLICK: (entity: Entity) => {
@@ -117,14 +114,6 @@ export class CourseEditorSystem extends System {
 				this.delta = 0;
 			}
 			this.updateCurrentEditorPiece();
-		});
-
-		this.network.on(GolfPacketOpcode.SEND_MAP, data => {
-			this.engine.addEntities(...deserializeMap(this.models, data.data));
-		});
-
-		this.network.on(GolfPacketOpcode.PLACE_PART, ({ data }) => {
-			this.createCourcePiece(data.modelName, Transform.From(data.transform));
 		});
 	}
 
@@ -219,13 +208,7 @@ export class CourseEditorSystem extends System {
 
 	protected placeCourcePiece() {
 		const currentPiece = this.currentPart.get(CoursePiece);
-
-		const newItem = this.createCourcePiece(currentPiece.modelName, Transform.From(this.currentPart.get(TransfromLerp)));
-
-		this.network.send({
-			opcode: GolfPacketOpcode.PLACE_PART,
-			data: serializeCourseEntity(newItem)
-		});
+		this.createCourcePiece(currentPiece.modelName, Transform.From(this.currentPart.get(TransfromLerp)));
 	}
 
 	protected unplaceCoursePiece() {
@@ -268,10 +251,6 @@ export class CourseEditorSystem extends System {
 
 				this.engine.removeEntity(this.currentPart);
 				this.engine.addEntity(this.ball);
-
-				this.network.send({
-					opcode: GolfPacketOpcode.SPAWN_PLAYER
-				});
 			} else {
 				this.mode = EditorMode.EDIT;
 

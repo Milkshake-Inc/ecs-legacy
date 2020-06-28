@@ -17,7 +17,7 @@ class ChatBoxState {
 	}
 }
 
-export default class ChatBoxSystem extends System {
+export default class ClientChatBoxSystem extends System {
 	protected events = useSimpleEvents();
 
 	protected entity = useEntity(this, entity => {
@@ -38,7 +38,7 @@ export default class ChatBoxSystem extends System {
 
 		WebFont.load({
 			google: {
-				families: ['Quicksand:700']
+				families: ['Quicksand:700','Quicksand:400']
 			}
 		});
 

@@ -7,14 +7,20 @@ import PlayerBall from '../components/PlayerBall';
 import { Hud } from './Hud';
 import { Pos } from './Pos';
 import { Ping } from './Ping';
+import { Lobby } from './Lobby';
+import { Splash } from './Splash';
+import { Scoreboard } from './Scoreboard';
 
 export default class App extends Component<{ engine: Engine }> {
 	render() {
 		return (
 			<EngineContext.Provider value={this.props.engine}>
 				<Hud>
-					<Pos query={all(Transform, PlayerBall)} />
-					<Ping />
+					{/* <Pos query={all(Transform, PlayerBall)} /> */}
+					{/* <Ping /> */}
+					{/* <Lobby /> */}
+					{/* <Splash /> */}
+					<Scoreboard />
 				</Hud>
 			</EngineContext.Provider>
 		);

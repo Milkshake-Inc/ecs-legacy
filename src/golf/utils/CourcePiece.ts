@@ -4,7 +4,7 @@ import Transform from '@ecs/plugins/Transform';
 import { Body } from 'cannon-es';
 import { Material, Mesh } from 'three';
 import CoursePiece from '../components/CoursePiece';
-import { KenneyAssetsGLTF } from '../components/GolfAssets';
+import { KenneyAssetsGLTF } from '../constants/GolfAssets';
 import { FLOOR_MATERIAL } from '../constants/Materials';
 
 export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: string, transform: Transform) => {

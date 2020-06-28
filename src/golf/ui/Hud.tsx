@@ -3,9 +3,11 @@ import { h } from 'preact';
 export const Hud = props => {
 	const style = {
 		position: 'absolute',
-		paddingLeft: '15px',
 		color: 'white',
-		fontFamily: 'Quicksand'
+		fontFamily: 'Quicksand',
+		fontWeight: 700,
+		width: '1280px',
+		height: '720px'
 	};
 
 	return <div style={style}>{props.children}</div>;

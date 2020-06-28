@@ -1,10 +1,7 @@
 import { NetEngine } from '@ecs/plugins/net/NetEngine';
-import { GolfRoomSystem } from './spaces/ServerGolfSpace';
+import { ServerRoomSystem } from './systems/server/ServerRoomSystem';
 
 const engine = new NetEngine();
-engine.addSystem(new GolfRoomSystem());
-// const spaces = new Entity();
-// spaces.add(new ServerGolfSpace(engine, true));
-// engine.addEntity(spaces);
+engine.addSystem(new ServerRoomSystem());
 
 console.log('🎉 Server');

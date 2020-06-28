@@ -26,11 +26,11 @@ import {
 	Texture
 } from 'three';
 import PlayerBall from '../components/PlayerBall';
-import ChatBoxSystem from '../systems/ChatBoxSystem';
+import ClientChatBoxSystem from '../systems/client/ClientChatBoxSystem';
 import ClientBallControllerSystem from '../systems/client/ClientBallControllerSystem';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
-import PixiUISystem from '../systems/PixiUISystem';
+import ClientPixiUISystem from '../systems/client/ClientPixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import { useGolfNetworking } from '../constants/GolfNetworking';
 
@@ -70,9 +70,9 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
-		this.addSystem(new PixiUISystem());
+		this.addSystem(new ClientPixiUISystem());
 
-		this.addSystem(new ChatBoxSystem());
+		this.addSystem(new ClientChatBoxSystem());
 		this.addSystem(
 			new ClientSnapshotSystem(this.worldEngine, (entity, local) => {
 				const player = this.createBall();
