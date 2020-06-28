@@ -7,11 +7,11 @@ import { Entity } from '@ecs/ecs/Entity';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { Player } from '../components/Player';
+import GolfPlayer from '../components/GolfPlayer';
 
 export const snapshotUseQuery = (system: System) => {
 	return useQueries(system, {
-		balls: all(PlayerBall),
-		sessions: all(Session)
+		players: all(GolfPlayer)
 	});
 };
 

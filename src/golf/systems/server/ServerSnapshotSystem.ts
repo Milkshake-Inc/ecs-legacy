@@ -5,6 +5,7 @@ import { snapshotUseQuery } from '../../utils/GolfShared';
 import { serialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
+import GolfPlayer from '../../components/GolfPlayer';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
@@ -17,16 +18,14 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snap
 	}
 
 	generateSnapshot(): Snapshot {
-		const players = this.snapshotQueries.balls.map(entity => {
-			const body = entity.get(CannonBody);
+		const players = this.snapshotQueries.players.map(entity => {
+			const body = entity.get(Session);
 			return {
-				id: entity.get(Session).id,
-				x: body.position.x,
-				y: body.position.y,
-				z: body.position.z,
+				id: entity.get(GolfPlayer).id,
+				name: entity.get(GolfPlayer).name,
+				color: entity.get(GolfPlayer).color,
 			};
 		});
-
 		return this.snapshotInterpolation.snapshot.create(players);
 	}
 }

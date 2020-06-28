@@ -6,6 +6,9 @@ import { ServerBallControllerSystem } from '../systems/server/ServerBallControll
 import ServerSnapshotSystem from '../systems/server/ServerSnapshotSystem';
 import { PlayerSpawnSystem } from '../utils/GolfShared';
 import BaseGolfSpace from './BaseGolfSpace';
+import GolfPlayer from '../components/GolfPlayer';
+import Session from '@ecs/plugins/net/components/Session';
+import { allRandom } from 'dog-names';
 
 export class ServerGolfSpace extends BaseGolfSpace {
 	constructor(engine: Engine, open = false) {
@@ -13,12 +16,16 @@ export class ServerGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(
 			new PlayerSpawnSystem(entity => {
-				const player = this.createBall(new Vector3(0, 2, 0));
-				player.add(PlayerBall);
-				console.log('Created');
-				player.components.forEach(c => {
-					entity.add(c);
-				});
+				// const player = this.createBall(new Vector3(0, 2, 0));
+				// player.add(PlayerBall);
+				// console.log('Created');
+				// player.components.forEach(c => {
+				// 	entity.add(c);
+				// });
+
+				//
+				const session = entity.get(Session);
+				entity.add(new GolfPlayer(session.id));
 			})
 		);
 

@@ -8,19 +8,10 @@ import { snapshotUseQuery } from '../../utils/GolfShared';
 import { deserialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
+import GolfPlayer from '../../components/GolfPlayer';
 
 const getSessionId = (entity: Entity): string => {
-	if (entity.has(Session)) {
-		const session = entity.get(Session);
-		return session.id;
-	}
-
-	if (entity.has(RemoteSession)) {
-		const session = entity.get(RemoteSession);
-		return session.id;
-	}
-
-	return '';
+	return entity.get(GolfPlayer).id;
 };
 
 export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem<Snapshot> {
@@ -37,31 +28,36 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	createEntitiesFromSnapshot(snapshot: Snapshot) {
 		const latestSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
 
-		const ballsToRemove = new Set(this.snapshotQueries.balls.entities);
+		const ballsToRemove = new Set(this.snapshotQueries.players.entities);
 
 		if(!latestSnapshot) return;
 		// We probs want some way of creating RemoteSession on client easier...
 		latestSnapshot.state.forEach(remoteSnapshot => {
-			const matchingLocalBall = this.snapshotQueries.balls.entities.find(entity => {
+			const matchingLocalBall = this.snapshotQueries.players.entities.find(entity => {
 				const sessionId = getSessionId(entity);
 				return sessionId == remoteSnapshot.id;
 			});
 
-			const matchingLocalSession = this.snapshotQueries.sessions.entities.find(entity => {
-				return entity.get(Session).id == remoteSnapshot.id;
+			const matchingLocalSession = this.snapshotQueries.players.entities.find(entity => {
+				return entity.get(GolfPlayer).id == remoteSnapshot.id;
 			});
 
 			ballsToRemove.delete(matchingLocalBall);
 
 			// Paddle doesn't excist on client - create it!
 			if (!matchingLocalBall) {
+				console.log("here");
+
+
+
 				if (matchingLocalSession) {
 					console.log(`Creating local player ${remoteSnapshot.id}`);
+					matchingLocalSession.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
 					this.buildPlayer(matchingLocalSession, true);
 				} else {
 					console.log(`Creating remote player ${remoteSnapshot.id}`);
 					const entity = new Entity();
-					entity.add(RemoteSession, { id: remoteSnapshot.id });
+					entity.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
 					this.buildPlayer(entity, false);
 					this.engine.addEntity(entity);
 				}
@@ -88,7 +84,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 		if(latestSnapshot && latestSnapshot.state.length > 0) {
 			latestSnapshot.state.forEach(remoteSnapshot => {
 
-				const localCreatedPaddle = this.snapshotQueries.balls.entities.find(entity => {
+				const localCreatedPaddle = this.snapshotQueries.players.entities.find(entity => {
 					const sessionId = getSessionId(entity);
 					return sessionId == remoteSnapshot.id;
 				});

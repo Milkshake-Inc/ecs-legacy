@@ -66,11 +66,11 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientPingSystem());
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
 		// this.addSystem(new FreeRoamCameraSystem(true));
-		this.addSystem(new ThirdPersonCameraSystem());
+		// this.addSystem(new ThirdPersonCameraSystem());
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
-		this.addSystem(new ClientPixiUISystem());
+		// this.addSystem(new ClientPixiUISystem());
 
 		this.addSystem(new ClientChatBoxSystem());
 		this.addSystem(
@@ -89,7 +89,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 				}
 			})
 		);
-		this.addSystem(new ClientBallControllerSystem());
+		// this.addSystem(new ClientBallControllerSystem());
 
 		// this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
 		// this.addSystem(new TransformLerpSystem());

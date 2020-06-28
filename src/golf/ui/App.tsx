@@ -18,9 +18,9 @@ export default class App extends Component<{ engine: Engine }> {
 				<Hud>
 					{/* <Pos query={all(Transform, PlayerBall)} /> */}
 					{/* <Ping /> */}
-					{/* <Lobby /> */}
+					<Lobby />
 					{/* <Splash /> */}
-					<Scoreboard />
+					{/* <Scoreboard /> */}
 				</Hud>
 			</EngineContext.Provider>
 		);

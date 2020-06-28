@@ -1,21 +1,31 @@
-import { QueryPattern } from '@ecs/utils/QueryHelper';
+import { QueryPattern, all } from '@ecs/utils/QueryHelper';
 import { h } from 'preact';
 import { FullscreenModal } from './FullscreenModal';
 import { Block, Row, Box } from 'jsxstyle/preact';
 import { Flex, H1, H2, FlexCenter, Colors } from './Shared';
+import { useQuery } from '@ecs/plugins/reactui';
+import Session from '@ecs/plugins/net/components/Session';
+import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
+import GolfPlayer from '../components/GolfPlayer';
 
 export const Lobby = () => {
 
-	const players = [
-		{ name: 'Buster', color: '#7e32ec' },
-		{ name: 'Lucy', color: '#ec324c' },
-		{ name: 'Ruby', color: '#32ec9f' },
-		{ name: 'Rover', color: '#ecc732' }
-	];
+	const sessions = useQuery(all(GolfPlayer));
+
+	const players = sessions.map((entity) => {
+		return entity.get(GolfPlayer)
+	})
+
+	// const players = [
+	// 	{ name: 'Buster', color: '#7e32ec' },
+	// 	{ name: 'Lucy', color: '#ec324c' },
+	// 	{ name: 'Ruby', color: '#32ec9f' },
+	// 	{ name: 'Rover', color: '#ecc732' }
+	// ];
 
 	const createPlayer = (player, index) => {
 		return <H2
-			color={player.color}
+			color={`#${player.color.toString(16)}`}
 			background={ index % 2 && '#00000036' }
 			margin={0}
 			padding={8}

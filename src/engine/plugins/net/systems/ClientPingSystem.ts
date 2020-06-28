@@ -54,15 +54,15 @@ export default class ClientPingSystem extends IterativeSystem {
 				// We push the client ahead of time HRTT + 1 Tick (Hacked to 2)
 				newServerTime += this.state.rtt / 2 + this.state.serverTickRateMs * 2;
 
-				console.log(
-					`Client estimated RTT: ${this.state.rtt} ServerTime: ${packet.serverTime} Estimated ServerTime: ${this.state.serverTime}`
-				);
+				// console.log(
+				// 	`Client estimated RTT: ${this.state.rtt} ServerTime: ${packet.serverTime} Estimated ServerTime: ${this.state.serverTime}`
+				// );
 
-				if (this.state.serverTime) {
-					console.log(`⏱ Server time diff ${this.state.serverTime - newServerTime}`);
-				} else {
-					console.log(`⏱ Server time set ${newServerTime}`);
-				}
+				// if (this.state.serverTime) {
+				// 	console.log(`⏱ Server time diff ${this.state.serverTime - newServerTime}`);
+				// } else {
+				// 	console.log(`⏱ Server time set ${newServerTime}`);
+				// }
 
 				if (!this.state.tickInitialized) {
 					this.state.serverTime = newServerTime;

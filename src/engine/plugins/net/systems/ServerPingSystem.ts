@@ -69,7 +69,7 @@ export default class ServerPingSystem extends IterativeSystem {
 				case PacketOpcode.CLIENT_SYNC_PONG: {
 					session.lastPongResponse = performance.now();
 					const rtt = performance.now() - packet.serverTime;
-					console.log(`⏱ Server estimated RTT: ${rtt}`);
+					// console.log(`⏱ Server estimated RTT: ${rtt}`);
 					session.socket.send({
 						opcode: PacketOpcode.SERVER_SYNC_RESULT,
 						clientTime: packet.clientTime,
