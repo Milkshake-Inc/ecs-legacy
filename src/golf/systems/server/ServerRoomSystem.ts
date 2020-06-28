@@ -1,7 +1,7 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { System } from '@ecs/ecs/System';
-import { useGolfNetworking, GolfPacketOpcode, AllGamesRequest, JoinRoom } from './../../constants/GolfNetworking';
+import { useGolfNetworking, GolfPacketOpcode, AllGamesRequest, JoinRoom, StartGame } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import Session from '@ecs/plugins/net/components/Session';
 
@@ -22,6 +22,7 @@ export class ServerRoomSystem extends System {
 
 		this.networking.on(GolfPacketOpcode.ALL_GAMES_REQUEST, this.handleAllGamesRequest.bind(this))
 		this.networking.on(GolfPacketOpcode.JOIN_GAME, this.handleJoinGamesRequest.bind(this))
+		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this))
 
 		this.createRoom("default");
 		this.createRoom("lucas");
@@ -46,6 +47,11 @@ export class ServerRoomSystem extends System {
 		this.rooms.set(name, newEngine);
 
 		console.log(`🏠 Created new room ${name}`);
+	}
+
+
+	handleStartGame(packet: StartGame, entity: Entity) {
+
 	}
 
 	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {

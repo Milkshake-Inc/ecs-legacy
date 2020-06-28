@@ -13,7 +13,7 @@ export type NetworkingCallbacks = {
 export const useBaseNetworking = (system: System, callbacks?: NetworkingCallbacks) =>
 	useNetworking<PacketOpcode, Packet>(system, callbacks);
 
-export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System, callbacks?: NetworkingCallbacks) => {
+export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System | Engine, callbacks?: NetworkingCallbacks) => {
 	const sessionQuery = makeQuery(all(Session));
 
 	const packetHandlers: ((packet: TPackets, entity: Entity) => void)[] = [];
@@ -42,8 +42,13 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		}
 	});
 
-	system.signalOnAddedToEngine.connect(onAddedCallback);
-	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+	if(system instanceof System) {
+		system.signalOnAddedToEngine.connect(onAddedCallback);
+		system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+	} else {
+		onAddedCallback(system);
+	}
+
 
 	type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
@@ -56,9 +61,9 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 			};
 			packetHandlers.push(hanlderFunction);
 		},
-		send: (packet: TPackets) => {
+		send: (packet: TPackets, reliable = false) => {
 			sessionQuery.forEach(entity => {
-				entity.get(Session).socket.send(packet);
+				entity.get(Session).socket.send(packet, reliable);
 			});
 		},
 		sendTo: (entity: Entity, packet: TPackets, reliable = false) => {

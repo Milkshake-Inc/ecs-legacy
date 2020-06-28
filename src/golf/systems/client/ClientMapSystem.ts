@@ -7,12 +7,19 @@ import { Engine } from '@ecs/ecs/Engine';
 import { deserializeMap } from '../../utils/Serialization';
 import Random from '@ecs/math/Random';
 import * as QueryString from 'query-string';
+import App from '../../../golf/ui/App';
 
 export default class ClientMapSystem extends System {
 	events = useSimpleEvents();
 
 	network = useGolfNetworking(this, {
 		connect: () => {
+			console.warn("Connected")
+
+			setTimeout(() => {
+				App.TOGGLE_LOBBY();
+			}, 1000);
+
 			setTimeout(() => {
 				if (this.room) {
 					this.joinRoom(this.room);
@@ -22,6 +29,7 @@ export default class ClientMapSystem extends System {
 						opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
 					});
 				}
+
 			}, 0);
 
 			this.events.emit(CREATE_CHAT_MSG, 'Connected');

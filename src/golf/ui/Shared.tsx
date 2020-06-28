@@ -11,19 +11,21 @@ export const Colors = {
     LIGHT: '#cdcdcd'
 }
 
-export const Flex = (props) => <Col {...props} display="flex" />;
-export const FlexCenter = (props) => <Flex {...props} justifyContent="center" alignItems="center" />;
+export const Flex = (props) => <Col display="flex" {...props} />;
+export const FlexCenter = (props) => <Flex justifyContent="center" alignItems="center" {...props} />;
 
 export const H1 = (props) => <Box {...props} fontSize="35px" />;
 export const H2 = (props) => <Box {...props} fontSize="30px" />;
 
 export const Button = (props) => <FlexCenter
-    {...props}
     fontSize="30px"
     background={Colors.PINK}
     borderRadius={5}
     padding="5px 20px"
     letterSpacing={2}
+    hoverBackgroundColor={HexAdjust(Colors.PINK, 15)}
+    cursor="pointer"
+    {...props}
 />;
 
 export const NoiseBackground = (props) => <Box
@@ -50,6 +52,10 @@ export const FullscreenNoise = (props) => {
     </NoiseBackground>;
 };
 
+
+export const HexAdjust = (color: string, amount: number) => {
+    return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
+}
 
 export const HexAlpha = (hex: string, alpha: number = 1) => {
     const alphaHex = Math.round(alpha * 255).toString(16);
