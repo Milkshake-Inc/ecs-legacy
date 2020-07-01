@@ -10,30 +10,29 @@ import { Ping } from './Ping';
 import { Lobby } from './Lobby';
 import { Splash } from './Splash';
 import { Scoreboard } from './Scoreboard';
-import { useState } from 'preact/hooks';
+import { ViewController, View } from '@ecs/plugins/reactui/View';
 
 export default class App extends Component<{ engine: Engine }, { visible: true }> {
-	public static TOGGLE_LOBBY: () => void;
-
-	constructor() {
-		super()
-
-		App.TOGGLE_LOBBY = () => this.setState({
-			visible: true
-		});
-	}
-
 	render() {
-
 		return (
 			<EngineContext.Provider value={this.props.engine}>
-				<Hud>
-					{/* <Pos query={all(Transform, PlayerBall)} /> */}
-					{/* <Ping /> */}
-					{ this.state.visible && <Lobby /> }
-					{/* <Splash /> */}
-					{/* <Scoreboard /> */}
-				</Hud>
+				<ViewController>
+					<Hud>
+						<View name='debug'>
+							<Pos query={all(Transform, PlayerBall)} />
+							<Ping />
+						</View>
+						<View name='splash'>
+							<Splash />
+						</View>
+						<View name='score'>
+							<Scoreboard />
+						</View>
+						<View name='lobby'>
+							<Lobby />
+						</View>
+					</Hud>
+				</ViewController>
 			</EngineContext.Provider>
 		);
 	}

@@ -1,7 +1,8 @@
-import { makeQuery, QueryPattern } from '@ecs/utils/QueryHelper';
+import { makeQuery, QueryPattern, all } from '@ecs/utils/QueryHelper';
 import { Engine } from '../Engine';
 import { Query } from '../Query';
 import { System } from '../System';
+import { Class } from '@ecs/utils/Class';
 
 export type Queries = { [index: string]: Query };
 
@@ -9,7 +10,10 @@ export type ToQueries<T> = {
 	[P in keyof T]?: Query;
 };
 
-export const useQueries = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(system: System, queries?: Q): ToQueries<Q> => {
+export const useQueries = <Q extends { [index: string]: QueryPattern | QueryPattern[] }>(
+	systemOrEngine: System | Engine,
+	queries?: Q
+): ToQueries<Q> => {
 	const queriesObject = {};
 
 	if (queries) {
@@ -26,8 +30,12 @@ export const useQueries = <Q extends { [index: string]: QueryPattern | QueryPatt
 		Object.values(queriesObject).forEach((query: Query) => engine.addQuery(query));
 	};
 
-	system.signalOnAddedToEngine.connect(onAddedCallback);
-	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+	if (systemOrEngine instanceof System) {
+		systemOrEngine.signalOnAddedToEngine.connect(onAddedCallback);
+		systemOrEngine.signalOnRemovedFromEngine.disconnect(onAddedCallback);
+	} else {
+		onAddedCallback(systemOrEngine);
+	}
 
 	return queriesObject;
 };
@@ -45,4 +53,10 @@ export const useQueriesManual = <Q extends Queries = {}>(system: System, queries
 	system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
 
 	return queries;
+};
+
+export const useSingletonQuery = <T>(system, component: Class<T>) => {
+	const queries = useQueries(system, { singleton: all(component) });
+
+	return () => queries.singleton.first.get(component);
 };

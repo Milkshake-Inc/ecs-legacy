@@ -11,9 +11,9 @@ export const Pos = (props: { query: QueryPattern }) => {
 
 	return (
 		<div>
-			<p>x: {pos.x.toFixed(2)}</p>
-			<p>y: {pos.y.toFixed(2)}</p>
-			<p>z: {pos.z.toFixed(2)}</p>
+			<p>x: {pos.x?.toFixed(2)}</p>
+			<p>y: {pos.y?.toFixed(2)}</p>
+			<p>z: {pos.z?.toFixed(2)}</p>
 		</div>
 	);
 };

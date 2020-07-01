@@ -1,5 +1,5 @@
 import { System } from '@ecs/ecs/System';
-import { useSimpleEvents } from '@ecs/ecs/helpers';
+import { useSimpleEvents, useSingletonQuery } from '@ecs/ecs/helpers';
 import { useGolfNetworking, GolfPacketOpcode } from '../../constants/GolfNetworking';
 import { CREATE_CHAT_MSG } from './ClientChatBoxSystem';
 import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
@@ -7,17 +7,18 @@ import { Engine } from '@ecs/ecs/Engine';
 import { deserializeMap } from '../../utils/Serialization';
 import Random from '@ecs/math/Random';
 import * as QueryString from 'query-string';
-import App from '../../../golf/ui/App';
+import { Views } from '@ecs/plugins/reactui/View';
 
 export default class ClientMapSystem extends System {
 	events = useSimpleEvents();
+	protected views = useSingletonQuery(this, Views);
 
 	network = useGolfNetworking(this, {
 		connect: () => {
-			console.warn("Connected")
+			console.warn('Connected');
 
 			setTimeout(() => {
-				App.TOGGLE_LOBBY();
+				this.views().open('lobby');
 			}, 1000);
 
 			setTimeout(() => {
@@ -29,7 +30,6 @@ export default class ClientMapSystem extends System {
 						opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
 					});
 				}
-
 			}, 0);
 
 			this.events.emit(CREATE_CHAT_MSG, 'Connected');
