@@ -6,6 +6,8 @@ import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import GolfAssets, { KenneyAssets } from '../constants/GolfAssets';
+import { deserializeMap } from '../utils/Serialization';
+import { Maps } from '../constants/Maps';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -45,6 +47,8 @@ export default class BaseGolfSpace extends Space {
 		const ground = this.createGround();
 
 		this.addEntities(ground);
+
+		this.addEntities(...deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap));
 	}
 
 	protected createGround(): Entity {

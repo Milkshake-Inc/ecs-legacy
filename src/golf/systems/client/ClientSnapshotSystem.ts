@@ -10,6 +10,10 @@ import { snapshotUseQuery } from '../../utils/GolfShared';
 import PlayerBall from '../../components/PlayerBall';
 import { createBallClient } from '../../helpers/CreateBall';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
+import ClientBallControllerSystem from './ClientBallControllerSystem';
+import { useSingletonQuery } from '@ecs/ecs/helpers';
+import { Views } from '@ecs/plugins/reactui/View';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
@@ -21,10 +25,10 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	protected buildPlayer: (entity: Entity, local: boolean) => void;
 	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
 
-	constructor(protected engine: Engine, playerGenerator: (entity: Entity, local: boolean) => void) {
-		super();
+	protected views = useSingletonQuery(this, Views);
 
-		this.buildPlayer = playerGenerator;
+	constructor(protected engine: Engine) {
+		super();
 	}
 
 	applySnapshot(snapshot: Snapshot) {
@@ -62,7 +66,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	}
 
 	updatePlayer(entity: Entity, playerSnapshot: GolfSnapshotPlayer) {
-		if(!entity.has(PlayerBall) && playerSnapshot.x != undefined) {
+		if(playerSnapshot.state == 'playing' && !entity.has(PlayerBall)) {
 			console.log("⏫  Upgrading player to ball")
 
 			// Need a nicer way - maybe pass entity in?
@@ -78,8 +82,15 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 
 			if (isLocalPlayer) {
 				entity.add(ThirdPersonTarget);
-				// this.addSystem(new ClientBallControllerSystem());
+
+				this.engine.addSystem(new ClientBallControllerSystem());
+				this.views().close('lobby');
 			}
+		}
+
+		if(playerSnapshot.state == 'playing') {
+			const body = entity.get(CannonBody);
+			body.position.set(playerSnapshot.x, playerSnapshot.y, playerSnapshot.z);
 		}
 	}
 

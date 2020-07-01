@@ -1,5 +1,5 @@
 import { Engine } from '@ecs/ecs/Engine';
-import { Entity } from '@ecs/ecs/Entity';
+import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { useSingletonQuery } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
@@ -33,6 +33,11 @@ import ClientBallControllerSystem from '../systems/client/ClientBallControllerSy
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import BaseGolfSpace from './BaseGolfSpace';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
+import Session from '@ecs/plugins/net/components/Session';
+import { deserializeMap } from '../utils/Serialization';
+import { Maps } from '../constants/Maps';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -47,7 +52,7 @@ const Images = {
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
 
-	protected views = useSingletonQuery(this.worldEngine, Views);
+
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
@@ -73,26 +78,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 
-		this.addSystem(
-			new ClientSnapshotSystem(this.worldEngine, (entity, local) => {
-				const player = createBallClient();
-
-				player.components.forEach(c => {
-					entity.add(c);
-				});
-
-				entity.add(PlayerBall);
-
-				if (local) {
-					console.log('Added third person camera');
-					entity.add(ThirdPersonTarget);
-				}
-				console.log("CLOSE VIEW");
-				this.addSystem(new ClientBallControllerSystem());
-				this.views().close('lobby');
-			})
-		);
-
+		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 
 		// this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
 		// this.addSystem(new TransformLerpSystem());
