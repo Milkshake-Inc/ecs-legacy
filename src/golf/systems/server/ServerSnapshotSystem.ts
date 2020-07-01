@@ -20,12 +20,24 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snap
 	generateSnapshot(): Snapshot {
 		const players = this.snapshotQueries.players.map(entity => {
 			const body = entity.get(Session);
-			return {
+			const result = {
 				id: entity.get(GolfPlayer).id,
 				name: entity.get(GolfPlayer).name,
 				color: entity.get(GolfPlayer).color,
 			};
+
+			if(entity.has(CannonBody)) {
+				const position = entity.get(CannonBody).position;
+				result['position'] = {
+					x: position.x,
+					y: position.y,
+					z: position.z
+				};
+			}
+
+			return result;
 		});
+
 		return this.snapshotInterpolation.snapshot.create(players);
 	}
 }

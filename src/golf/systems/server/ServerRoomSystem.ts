@@ -4,6 +4,20 @@ import { System } from '@ecs/ecs/System';
 import { useGolfNetworking, GolfPacketOpcode, AllGamesRequest, JoinRoom, StartGame } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import Session from '@ecs/plugins/net/components/Session';
+import { makeQuery, all } from '@ecs/utils/QueryHelper';
+import GolfPlayer from '../../../golf/components/GolfPlayer';
+import Vector3 from '@ecs/math/Vector';
+import PlayerBall from '../../../golf/components/PlayerBall';
+
+class GolfGameServerEngine extends Engine {
+
+	public space: ServerGolfSpace;
+
+	constructor() {
+		super();
+		this.space = new ServerGolfSpace(this, true);
+	}
+}
 
 export class ServerRoomSystem extends System {
 
@@ -11,8 +25,8 @@ export class ServerRoomSystem extends System {
 		disconnect: (entity) => this.handleDisconnect(entity)
 	})
 
-	protected rooms: Map<string, Engine>;
-	protected entityToRoomEngine: Map<Entity, Engine>;
+	protected rooms: Map<string, GolfGameServerEngine>;
+	protected entityToRoomEngine: Map<Entity, GolfGameServerEngine>;
 
 	constructor() {
 		super();
@@ -42,8 +56,7 @@ export class ServerRoomSystem extends System {
 	}
 
 	createRoom(name: string) {
-		const newEngine = new Engine();
-		new ServerGolfSpace(newEngine, true);
+		const newEngine = new GolfGameServerEngine();
 		this.rooms.set(name, newEngine);
 
 		console.log(`🏠 Created new room ${name}`);
@@ -51,7 +64,22 @@ export class ServerRoomSystem extends System {
 
 
 	handleStartGame(packet: StartGame, entity: Entity) {
+		const engine = this.entityToRoomEngine.get(entity);
 
+		const playersQuery = makeQuery(all(GolfPlayer, Session));
+
+		engine.addQuery(playersQuery);
+
+		playersQuery.entities.forEach(entity => {
+			const player = engine.space.createBall(new Vector3(0, 2, 0));
+			player.add(PlayerBall);
+			console.log('Creating balls');
+			player.components.forEach(c => {
+				entity.add(c);
+			});
+		});
+		// Start game some how
+		// Add systems?
 	}
 
 	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {

@@ -59,7 +59,7 @@ export default class BaseGolfSpace extends Space {
 		return ground;
 	}
 
-	protected createBall(position?: Vector3): Entity {
+	public createBall(position?: Vector3): Entity {
 		const entity = new Entity();
 		entity.add(Transform, { position: position ? position : Vector3.ZERO });
 		entity.add(

@@ -33,6 +33,8 @@ import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import ClientPixiUISystem from '../systems/client/ClientPixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import { useGolfNetworking } from '../constants/GolfNetworking';
+import { useSingletonQuery } from '@ecs/ecs/helpers';
+import { Views } from '@ecs/plugins/reactui/View';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -46,6 +48,8 @@ const Images = {
 
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
+
+	protected views = useSingletonQuery(this.worldEngine, Views);
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
@@ -66,11 +70,11 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientPingSystem());
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
 		// this.addSystem(new FreeRoamCameraSystem(true));
-		// this.addSystem(new ThirdPersonCameraSystem());
+		this.addSystem(new ThirdPersonCameraSystem());
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
-		// this.addSystem(new ClientPixiUISystem());
+		this.addSystem(new ClientPixiUISystem());
 
 		this.addSystem(new ClientChatBoxSystem());
 		this.addSystem(
@@ -87,9 +91,12 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 					console.log('Added third person camera');
 					entity.add(ThirdPersonTarget);
 				}
+				console.log("CLOSE VIEW");
+				this.addSystem(new ClientBallControllerSystem());
+				this.views().close('lobby');
 			})
 		);
-		// this.addSystem(new ClientBallControllerSystem());
+
 
 		// this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
 		// this.addSystem(new TransformLerpSystem());

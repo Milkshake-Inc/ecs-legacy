@@ -17,9 +17,7 @@ export default class ClientMapSystem extends System {
 		connect: () => {
 			console.warn('Connected');
 
-			setTimeout(() => {
-				this.views().open('lobby');
-			}, 1000);
+			this.views().open('lobby');
 
 			setTimeout(() => {
 				if (this.room) {

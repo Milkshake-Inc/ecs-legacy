@@ -9,6 +9,7 @@ import { deserialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
 import GolfPlayer from '../../components/GolfPlayer';
+import PlayerBall from '../../../golf/components/PlayerBall';
 
 const getSessionId = (entity: Entity): string => {
 	return entity.get(GolfPlayer).id;
@@ -46,20 +47,22 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 
 			// Paddle doesn't excist on client - create it!
 			if (!matchingLocalBall) {
-				console.log("here");
-
-
-
 				if (matchingLocalSession) {
 					console.log(`Creating local player ${remoteSnapshot.id}`);
 					matchingLocalSession.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
-					this.buildPlayer(matchingLocalSession, true);
+					// this.buildPlayer(matchingLocalSession, true);
 				} else {
 					console.log(`Creating remote player ${remoteSnapshot.id}`);
 					const entity = new Entity();
 					entity.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
-					this.buildPlayer(entity, false);
+					// this.buildPlayer(entity, false);
 					this.engine.addEntity(entity);
+				}
+			} else {
+				console.log(matchingLocalBall.has(PlayerBall));
+				if(remoteSnapshot.position && !matchingLocalBall.has(PlayerBall)) {
+					console.log("Build player")
+					this.buildPlayer(matchingLocalBall, true)
 				}
 			}
 		});
@@ -73,7 +76,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	applySnapshot(snapshot: Snapshot) {
 		this.snapshotInterpolation.snapshot.add(snapshot);
 
-
+		console.log(snapshot)
 	}
 
 	updateFixed(deltaTime: number) {
@@ -89,12 +92,14 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 					return sessionId == remoteSnapshot.id;
 				});
 
-				if (localCreatedPaddle) {
+				if (localCreatedPaddle && remoteSnapshot.position) {
 					const body = localCreatedPaddle.get(CannonBody);
 
-					body.position.x = remoteSnapshot.x as number;
-					body.position.y = remoteSnapshot.y as number;
-					body.position.z = remoteSnapshot.z as number;
+					const pos = remoteSnapshot.position as any;
+
+					body.position.x = pos.x as number;
+					body.position.y = pos.y as number;
+					body.position.z = pos.z as number;
 				} else {
 					console.log('Missing');
 				}
