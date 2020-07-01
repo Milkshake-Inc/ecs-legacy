@@ -1,15 +1,11 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Vector3 from '@ecs/math/Vector';
 import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
-import { Body, Plane, Sphere } from 'cannon-es';
+import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
-import { KenneyAssets } from '../constants/Assets';
-import GolfAssets from '../constants/GolfAssets';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { FLOOR_MATERIAL } from '../constants/Materials';
+import GolfAssets, { KenneyAssets } from '../constants/GolfAssets';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -57,19 +53,5 @@ export default class BaseGolfSpace extends Space {
 		ground.add(new Body());
 		ground.add(new Plane());
 		return ground;
-	}
-
-	public createBall(position?: Vector3): Entity {
-		const entity = new Entity();
-		entity.add(Transform, { position: position ? position : Vector3.ZERO });
-		entity.add(
-			new CannonBody({
-				mass: 1,
-				material: FLOOR_MATERIAL
-			})
-		);
-		entity.add(new Sphere(0.04));
-
-		return entity;
 	}
 }

@@ -2,6 +2,22 @@ import { System } from '@ecs/ecs/System';
 import { NetworkingCallbacks, useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
 import { Engine } from '@ecs/ecs/Engine';
 
+export const TICK_RATE = 30;
+
+export type GolfSnapshotPlayer = {
+	id: string;
+	name: string;
+	color: number;
+	state: 'spectating' | 'playing';
+	x?: number;
+	y?: number;
+	z?: number;
+};
+
+export type GolfSnapshotState = {
+	players: GolfSnapshotPlayer[];
+};
+
 export enum GolfPacketOpcode {
 	SEND_MAP = 6,
 	PLACE_PART,

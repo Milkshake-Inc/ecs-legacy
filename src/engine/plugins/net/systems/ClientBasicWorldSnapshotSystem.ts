@@ -10,7 +10,6 @@ export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}> exten
 	}
 
 	abstract applySnapshot(snapshot: TSnapshot): void;
-	abstract createEntitiesFromSnapshot(snapshot: TSnapshot): void;
 
 	updateEntityFixed(entity: Entity, deltaTime: number) {
 		// Handle world packets
@@ -23,8 +22,6 @@ export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}> exten
 	}
 
 	updateSnapshot({ snapshot }: WorldSnapshot<TSnapshot>) {
-		this.createEntitiesFromSnapshot(snapshot);
-
 		this.applySnapshot(snapshot);
 	}
 }

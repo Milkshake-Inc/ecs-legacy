@@ -1,5 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { useSingletonQuery } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
@@ -8,6 +9,7 @@ import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import { Views } from '@ecs/plugins/reactui/View';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Transform from '@ecs/plugins/Transform';
@@ -22,19 +24,15 @@ import {
 	PerspectiveCamera,
 	PlaneGeometry,
 	RepeatWrapping,
-	SphereGeometry,
+
 	Texture
 } from 'three';
 import PlayerBall from '../components/PlayerBall';
-import ClientChatBoxSystem from '../systems/client/ClientChatBoxSystem';
+import { createBallClient } from '../helpers/CreateBall';
 import ClientBallControllerSystem from '../systems/client/ClientBallControllerSystem';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
-import ClientPixiUISystem from '../systems/client/ClientPixiUISystem';
 import BaseGolfSpace from './BaseGolfSpace';
-import { useGolfNetworking } from '../constants/GolfNetworking';
-import { useSingletonQuery } from '@ecs/ecs/helpers';
-import { Views } from '@ecs/plugins/reactui/View';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -74,12 +72,10 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
-		this.addSystem(new ClientPixiUISystem());
 
-		this.addSystem(new ClientChatBoxSystem());
 		this.addSystem(
 			new ClientSnapshotSystem(this.worldEngine, (entity, local) => {
-				const player = this.createBall();
+				const player = createBallClient();
 
 				player.components.forEach(c => {
 					entity.add(c);
@@ -143,21 +139,21 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		return ground;
 	}
 
-	createBall() {
-		const ball = super.createBall();
+	// createBall() {
+	// 	const ball = super.createBall();
 
-		ball.add(
-			new Mesh(
-				new SphereGeometry(0.04, 10, 10),
-				new MeshPhongMaterial({
-					color: Color.White,
-					reflectivity: 0,
-					specular: 0
-				})
-			),
-			{ castShadow: true, receiveShadow: true }
-		);
+	// 	ball.add(
+	// 		new Mesh(
+	// 			new SphereGeometry(0.04, 10, 10),
+	// 			new MeshPhongMaterial({
+	// 				color: Color.White,
+	// 				reflectivity: 0,
+	// 				specular: 0
+	// 			})
+	// 		),
+	// 		{ castShadow: true, receiveShadow: true }
+	// 	);
 
-		return ball;
-	}
+	// 	return ball;
+	// }
 }

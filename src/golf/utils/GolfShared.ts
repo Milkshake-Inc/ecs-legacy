@@ -11,7 +11,8 @@ import GolfPlayer from '../components/GolfPlayer';
 
 export const snapshotUseQuery = (system: System) => {
 	return useQueries(system, {
-		players: all(GolfPlayer)
+		players: all(GolfPlayer),
+		sessions: all(Session)
 	});
 };
 

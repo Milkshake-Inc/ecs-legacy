@@ -1,24 +1,25 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { snapshotUseQuery } from '../../utils/GolfShared';
-import { deserialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
+import { GolfSnapshotPlayer as GolfSnapshotPlayer, TICK_RATE } from '../../../golf/constants/GolfNetworking';
 import GolfPlayer from '../../components/GolfPlayer';
-import PlayerBall from '../../../golf/components/PlayerBall';
+import { snapshotUseQuery } from '../../utils/GolfShared';
+import PlayerBall from '../../components/PlayerBall';
+import { createBallClient } from '../../helpers/CreateBall';
+import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 
-const getSessionId = (entity: Entity): string => {
-	return entity.get(GolfPlayer).id;
-};
+const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
+const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
 
 export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem<Snapshot> {
-	protected snapshotQueries = snapshotUseQuery(this);
+
+	protected queries = snapshotUseQuery(this);
+
 	protected buildPlayer: (entity: Entity, local: boolean) => void;
-	protected snapshotInterpolation = new SnapshotInterpolation(15)
+	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
 
 	constructor(protected engine: Engine, playerGenerator: (entity: Entity, local: boolean) => void) {
 		super();
@@ -26,84 +27,83 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 		this.buildPlayer = playerGenerator;
 	}
 
-	createEntitiesFromSnapshot(snapshot: Snapshot) {
-		const latestSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
-
-		const ballsToRemove = new Set(this.snapshotQueries.players.entities);
-
-		if(!latestSnapshot) return;
-		// We probs want some way of creating RemoteSession on client easier...
-		latestSnapshot.state.forEach(remoteSnapshot => {
-			const matchingLocalBall = this.snapshotQueries.players.entities.find(entity => {
-				const sessionId = getSessionId(entity);
-				return sessionId == remoteSnapshot.id;
-			});
-
-			const matchingLocalSession = this.snapshotQueries.players.entities.find(entity => {
-				return entity.get(GolfPlayer).id == remoteSnapshot.id;
-			});
-
-			ballsToRemove.delete(matchingLocalBall);
-
-			// Paddle doesn't excist on client - create it!
-			if (!matchingLocalBall) {
-				if (matchingLocalSession) {
-					console.log(`Creating local player ${remoteSnapshot.id}`);
-					matchingLocalSession.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
-					// this.buildPlayer(matchingLocalSession, true);
-				} else {
-					console.log(`Creating remote player ${remoteSnapshot.id}`);
-					const entity = new Entity();
-					entity.add(GolfPlayer, { id: remoteSnapshot.id, color: remoteSnapshot.color as number, name: remoteSnapshot.name as string });
-					// this.buildPlayer(entity, false);
-					this.engine.addEntity(entity);
-				}
-			} else {
-				console.log(matchingLocalBall.has(PlayerBall));
-				if(remoteSnapshot.position && !matchingLocalBall.has(PlayerBall)) {
-					console.log("Build player")
-					this.buildPlayer(matchingLocalBall, true)
-				}
-			}
-		});
-
-		ballsToRemove.forEach(entity => {
-			console.log(`Remove player ${getSessionId(entity)}`);
-			this.engine.removeEntity(entity);
-		});
-	}
-
 	applySnapshot(snapshot: Snapshot) {
 		this.snapshotInterpolation.snapshot.add(snapshot);
+	}
 
-		console.log(snapshot)
+	createDeletePlayers(latestPlayersSnapshot: GolfPlayer[]) {
+		const playersToRemove = new Set(this.queries.players.entities);
+		const playersToCreate: Entity[] = [];
+
+		for(const playerSnapshot of latestPlayersSnapshot) {
+			const existingEntity = this.queries.players.find(findGolfPlayerById(playerSnapshot.id));
+
+			if(existingEntity) {
+				playersToRemove.delete(existingEntity)
+			} else {
+				const localSession = this.queries.sessions.find(findEntityBySessionId(playerSnapshot.id));
+				const entity = localSession ? localSession : new Entity();
+				entity.add(GolfPlayer, {
+					id: playerSnapshot.id,
+					color: playerSnapshot.color,
+					name: playerSnapshot.name,
+				});
+
+				console.log(`🔨  Created new entity ${playerSnapshot.id} local: ${localSession != undefined}`)
+
+				playersToCreate.push(entity);
+			}
+		}
+
+		return {
+			create: playersToCreate,
+			remove: playersToRemove
+		}
+	}
+
+	updatePlayer(entity: Entity, playerSnapshot: GolfSnapshotPlayer) {
+		if(!entity.has(PlayerBall) && playerSnapshot.x != undefined) {
+			console.log("⏫  Upgrading player to ball")
+
+			// Need a nicer way - maybe pass entity in?
+			const ballPrefab = createBallClient();
+			ballPrefab.components.forEach(component => {
+				entity.add(component);
+			});
+
+			// Tag up player
+			entity.add(PlayerBall);
+
+			const isLocalPlayer = entity.has(Session);
+
+			if (isLocalPlayer) {
+				entity.add(ThirdPersonTarget);
+				// this.addSystem(new ClientBallControllerSystem());
+			}
+		}
 	}
 
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		const latestSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
+		const interpolatedPlayersSnapshot = this.snapshotInterpolation.calcInterpolation("x y z", "players");
 
-		if(latestSnapshot && latestSnapshot.state.length > 0) {
-			latestSnapshot.state.forEach(remoteSnapshot => {
+		if(interpolatedPlayersSnapshot) {
+			const interpolatedPlayerState = interpolatedPlayersSnapshot.state as any as GolfSnapshotPlayer[];
 
-				const localCreatedPaddle = this.snapshotQueries.players.entities.find(entity => {
-					const sessionId = getSessionId(entity);
-					return sessionId == remoteSnapshot.id;
-				});
+			const result = this.createDeletePlayers(interpolatedPlayerState)
+			this.engine.addEntities(...result.create);
+			this.engine.removeEntities(...result.remove);
 
-				if (localCreatedPaddle && remoteSnapshot.position) {
-					const body = localCreatedPaddle.get(CannonBody);
+			for(const playerSnapshot of interpolatedPlayerState) {
+				const entity = this.queries.players.find(findGolfPlayerById(playerSnapshot.id));
 
-					const pos = remoteSnapshot.position as any;
-
-					body.position.x = pos.x as number;
-					body.position.y = pos.y as number;
-					body.position.z = pos.z as number;
+				if(entity) {
+					this.updatePlayer(entity, playerSnapshot);
 				} else {
-					console.log('Missing');
+					console.log(`🤷‍♀️ Here be dragons`)
 				}
-			});
+			}
 		}
 	}
 }

@@ -1,43 +1,49 @@
-import Session from '@ecs/plugins/net/components/Session';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { snapshotUseQuery } from '../../utils/GolfShared';
-import { serialize } from '@ecs/plugins/physics/utils/CannonSerialize';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
 import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
 import GolfPlayer from '../../components/GolfPlayer';
+import { TICK_RATE, GolfSnapshotState, GolfSnapshotPlayer } from '../../constants/GolfNetworking';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
 	protected snapshotInterpolation: SnapshotInterpolation;
 
 	constructor() {
-		super(15);
+		super(TICK_RATE);
 
-		this.snapshotInterpolation = new SnapshotInterpolation(15)
+		this.snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
 	}
 
 	generateSnapshot(): Snapshot {
-		const players = this.snapshotQueries.players.map(entity => {
-			const body = entity.get(Session);
-			const result = {
-				id: entity.get(GolfPlayer).id,
-				name: entity.get(GolfPlayer).name,
-				color: entity.get(GolfPlayer).color,
+		const players: GolfSnapshotPlayer[] = this.snapshotQueries.players.map(entity => {
+
+			const player = entity.get(GolfPlayer);
+
+			const result: GolfSnapshotPlayer = {
+				id: player.id,
+				name: player.name,
+				color: player.color,
+				state: 'spectating'
 			};
 
 			if(entity.has(CannonBody)) {
 				const position = entity.get(CannonBody).position;
-				result['position'] = {
-					x: position.x,
-					y: position.y,
-					z: position.z
-				};
+
+				result.state = 'playing';
+				result.x = position.x;
+				result.y = position.y;
+				result.z = position.z;
 			}
 
 			return result;
 		});
 
-		return this.snapshotInterpolation.snapshot.create(players);
+		const state: GolfSnapshotState = {
+			players,
+		}
+
+		return this.snapshotInterpolation.snapshot.create(state);
 	}
 }

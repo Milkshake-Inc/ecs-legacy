@@ -71,6 +71,10 @@ export class Query {
 		return this._entities.filter(predicate);
 	}
 
+	public find(predicate: (entity: Entity) => boolean): Entity {
+		return this._entities.find(predicate);
+	}
+
 	public forEach(predicate: (value: Entity, index: number, array: Entity[]) => void): void {
 		this._entities.forEach(predicate);
 	}

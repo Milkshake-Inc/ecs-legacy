@@ -8,6 +8,7 @@ import { makeQuery, all } from '@ecs/utils/QueryHelper';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import Vector3 from '@ecs/math/Vector';
 import PlayerBall from '../../../golf/components/PlayerBall';
+import { createBall } from '../../../golf/helpers/CreateBall';
 
 class GolfGameServerEngine extends Engine {
 
@@ -71,7 +72,7 @@ export class ServerRoomSystem extends System {
 		engine.addQuery(playersQuery);
 
 		playersQuery.entities.forEach(entity => {
-			const player = engine.space.createBall(new Vector3(0, 2, 0));
+			const player = createBall(new Vector3(0, 2, 0));
 			player.add(PlayerBall);
 			console.log('Creating balls');
 			player.components.forEach(c => {
