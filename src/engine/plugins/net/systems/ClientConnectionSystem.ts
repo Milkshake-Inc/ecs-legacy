@@ -23,10 +23,8 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		super(makeQuery());
 		this.engine = engine;
 
-		const token = localStorage.getItem('token');
-
 		const client = geckosClient({
-			authorization: token // replace with "" to get new id every connection
+			authorization: '' // localStorage.getItem('token'); // <-- persist connections
 		});
 
 		client.onConnect(error => this.handleConnection(client, error));

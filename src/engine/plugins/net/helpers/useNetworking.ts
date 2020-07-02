@@ -32,8 +32,9 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		}
 
 		// Bind to packets - NOT update synced.
-		const session = snapshot.entity.get(Session);
-		session.socket.handleImmediate(packet => handlePacket(snapshot.entity, packet as any));
+		const entity = snapshot.entity;
+		const session = entity.get(Session);
+		session.socket.handleImmediate(packet => handlePacket(entity, packet as any));
 	});
 
 	sessionQuery.onEntityRemoved.connect(snapshot => {
@@ -42,24 +43,23 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		}
 	});
 
-	if(system instanceof System) {
+	if (system instanceof System) {
 		system.signalOnAddedToEngine.connect(onAddedCallback);
 		system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
 	} else {
 		onAddedCallback(system);
 	}
 
-
 	type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
 	return {
 		on: <T extends TOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>, entity?: Entity) => void) => {
-			const hanlderFunction = (packet: TPackets, entity: Entity) => {
+			const handler = (packet: TPackets, entity: Entity) => {
 				if (packet.opcode === opcode) {
 					onPacket(packet as PacketsOfType<T>, entity);
 				}
 			};
-			packetHandlers.push(hanlderFunction);
+			packetHandlers.push(handler);
 		},
 		send: (packet: TPackets, reliable = false) => {
 			sessionQuery.forEach(entity => {
