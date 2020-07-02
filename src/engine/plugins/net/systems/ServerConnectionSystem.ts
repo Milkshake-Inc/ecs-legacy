@@ -3,7 +3,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import { useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
-import { GeckosServer, ServerChannel } from '@geckos.io/server/lib/server';
+import { GeckosServer, ServerChannel } from '@geckos.io/server';
 import { Packet } from '../components/Packet';
 import Session from '../components/Session';
 import Socket from '../utils/Socket';
@@ -46,24 +46,26 @@ export default class ServerConnectionSystem extends IterativeSystem {
 	}
 
 	public disconnect(entity: Entity) {
-		this.handleDisconnection(entity);
+		const session = entity.get(Session);
+		session.socket.disconnect();
 	}
 
-	protected handleConnection(socket: ServerChannel) {
-		console.log(`🔌 Socket connected ${socket.id}`);
-
+	protected handleConnection(channel: ServerChannel) {
 		const session = new Entity();
-		session.add(Session, { id: socket.id, socket: new Socket(socket) });
+		const socket = new Socket(channel);
+		session.add(Session, { id: socket.id, socket });
 		this.engine.addEntity(session);
 
-		socket.onDisconnect(() => this.handleDisconnection(session));
+		channel.onDisconnect(() => this.handleDisconnection(session));
+
+		console.log(`🔌 Socket connected ${socket.id}`);
 	}
 
 	protected handleDisconnection(entity: Entity) {
 		const session = entity.get(Session);
-		console.log(`🔌 Socket disconnected ${session.id}`);
 		this.engine.removeEntity(entity);
-		session.socket.disconnect();
+
+		console.log(`🔌 Socket disconnected ${session.id}`);
 	}
 
 	protected updateEntityFixed(entity: Entity): void {

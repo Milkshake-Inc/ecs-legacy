@@ -2,7 +2,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import { Engine } from '@ecs/ecs/Engine';
 import { makeQuery } from '@ecs/utils/QueryHelper';
 import Session from '../components/Session';
-import geckosClient, { ClientChannel } from '@geckos.io/client/lib/client';
+import geckosClient, { ClientChannel } from '@geckos.io/client';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Socket from '../utils/Socket';
 import { useState } from '@ecs/ecs/helpers';
@@ -14,7 +14,6 @@ export class ConnectionStatistics {
 
 export default class ClientConnectionSystem extends IterativeSystem {
 	private engine: Engine;
-	private socket: Socket;
 	private sessionEntity: Entity;
 	private time = 0;
 
@@ -24,7 +23,11 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		super(makeQuery());
 		this.engine = engine;
 
-		const client = geckosClient();
+		const token = localStorage.getItem('token');
+
+		const client = geckosClient({
+			authorization: token // replace with "" to get new id every connection
+		});
 
 		client.onConnect(error => this.handleConnection(client, error));
 		client.onDisconnect(() => this.handleDisconnection());
@@ -32,17 +35,22 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		console.log(`🔌 Server started!`);
 	}
 
-	protected handleConnection(client: ClientChannel, error?: Error) {
+	protected handleConnection(channel: ClientChannel, error?: Error) {
 		if (error) {
 			console.log(`🔌 Socket failed to connect`);
 			throw error;
 		}
 
+		// Persist session
+		const token = channel.userData['token'];
+		localStorage.setItem('token', token);
+
 		this.sessionEntity = new Entity();
-		this.sessionEntity.add(Session, { id: client.id, socket: this.socket = new Socket(client) });
+		const socket = new Socket(channel);
+		this.sessionEntity.add(Session, { id: socket.id, socket });
 		this.engine.addEntity(this.sessionEntity);
 
-		console.log(`🔌 Socket connected ${this.socket.id}`);
+		console.log(`🔌 Socket connected ${socket.id}`);
 	}
 
 	protected handleDisconnection() {

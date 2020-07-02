@@ -17,7 +17,7 @@ export default class Socket {
 
 	constructor(socket: ServerChannel | ClientChannel) {
 		this.socket = socket;
-		this.id = socket.id;
+		this.id = socket.userData['id'];
 
 		this.socket.onRaw((data: ArrayBuffer) => this.onMessage(data));
 		this.socket.on(RELIABLE_MESSAGE, (data: ArrayBuffer) => this.onMessage(Object.values(data)));
@@ -38,8 +38,8 @@ export default class Socket {
 
 	public disconnect() {
 		// if (this.socket instanceof ServerChannel) {
-			this.socket.close();
-			// this.socket.eventEmitter.removeAllListeners();
+		this.socket.close();
+		// this.socket.eventEmitter.removeAllListeners();
 		// }
 	}
 
