@@ -1,14 +1,19 @@
 import { Entity } from '@ecs/ecs/Entity';
 import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import Transform from '@ecs/plugins/Transform';
-import { Body } from 'cannon-es';
-import { Material, Mesh } from 'three';
+import { Body, Cylinder, Sphere } from 'cannon-es';
+import { Material, Mesh, Vector3 } from 'three';
 import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../constants/GolfAssets';
 import { FLOOR_MATERIAL } from '../constants/Materials';
+import Hole from '../components/Hole';
 
 export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: string, transform: Transform) => {
+	const entities: Entity[] = [];
+
 	const model = golfAssets[modelName].scene.clone(true);
+
+	let hasHole = false;
 
 	model.traverse(node => {
 		if (node instanceof Mesh && node.material instanceof Material) {
@@ -18,6 +23,12 @@ export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: 
 			node.material.transparent = false;
 			node.castShadow = true;
 			node.receiveShadow = true;
+
+			// e.g "Mesh holeRound_2"
+			if (node.name.match('hole.*2')) {
+				hasHole = true;
+				node.parent.remove(node);
+			}
 		}
 	});
 
@@ -31,6 +42,21 @@ export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: 
 			material: FLOOR_MATERIAL
 		})
 	);
+	entities.push(entity);
 
-	return entity;
+	if (hasHole) {
+		const hole = new Entity();
+		hole.add(transform);
+		hole.add(Hole);
+		hole.add(
+			new Body({
+				collisionResponse: false // Make hole not collidable
+			})
+		);
+		hole.add(new Sphere(0.08));
+
+		entities.push(hole);
+	}
+
+	return entities;
 };

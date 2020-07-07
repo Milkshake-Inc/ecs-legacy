@@ -8,6 +8,7 @@ import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import GolfAssets, { KenneyAssets } from '../constants/GolfAssets';
 import { deserializeMap } from '../utils/Serialization';
 import { Maps } from '../constants/Maps';
+import CoursePiece from '../components/CoursePiece';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -50,7 +51,7 @@ export default class BaseGolfSpace extends Space {
 
 		const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
 
-		mapPieces.forEach(piece => piece.get(Transform).position.y += 1)
+		mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
 
 		this.addEntities(...mapPieces);
 	}

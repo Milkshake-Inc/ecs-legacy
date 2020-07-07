@@ -20,5 +20,5 @@ export const serializeMap = (coursePiecesEntites: Query) => {
 };
 
 export const deserializeMap = (golfAssets: KenneyAssetsGLTF, value: { modelName: string; transform: any }[]): Entity[] => {
-	return value.map(piece => buildCourcePieceEntity(golfAssets, piece.modelName, Transform.From(piece.transform)));
+	return value.flatMap(piece => buildCourcePieceEntity(golfAssets, piece.modelName, Transform.From(piece.transform)));
 };

@@ -185,10 +185,10 @@ export class CourseEditorSystem extends System {
 	protected createCourcePiece(modelName: string, transform: Transform) {
 		this.removeCoursePiece(transform);
 
-		const entity = buildCourcePieceEntity(this.models, modelName, transform);
-		this.engine.addEntity(entity);
+		const entities = buildCourcePieceEntity(this.models, modelName, transform);
+		this.engine.addEntities(...entities);
 
-		return entity;
+		return entities;
 	}
 
 	protected removeCoursePiece(transform: Transform) {
