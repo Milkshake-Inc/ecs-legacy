@@ -28,6 +28,7 @@ import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import GolfViewSystem from '../systems/client/GolfViewSystem';
+import GolfCameraSystem from '../systems/client/GolfCameraSystem';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -63,13 +64,12 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientPingSystem());
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
 
-		this.addSystem(new ThirdPersonCameraSystem());
-
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 		this.addSystem(new GolfViewSystem());
+		this.addSystem(new GolfCameraSystem(this.worldEngine));
 
 		this.setupEntities();
 	}

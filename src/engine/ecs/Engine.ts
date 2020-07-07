@@ -142,6 +142,10 @@ export class Engine {
 		return this._systems.find(value => value instanceof systemClass) as T;
 	}
 
+	public hasSystem<T extends System>(systemClass: Class<T>): boolean {
+		return this.getSystem(systemClass) != undefined;
+	}
+
 	/**
 	 * Remove all systems
 	 */
