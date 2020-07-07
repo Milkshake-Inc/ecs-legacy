@@ -7,6 +7,7 @@ import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
+import { Engine } from '@ecs/ecs/Engine';
 
 export default class FreeRoamCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -19,10 +20,12 @@ export default class FreeRoamCameraSystem extends System {
 		camera: all(Transform, PerspectiveCamera)
 	});
 
-	constructor(bindLockToBody = true) {
+	constructor(protected bindLockToBody = true) {
 		super();
+	}
 
-		if (bindLockToBody) {
+	onAddedToEngine(engine: Engine) {
+		if (this.bindLockToBody) {
 			const requestedElement = document.body;
 
 			requestedElement.addEventListener('click', () => {

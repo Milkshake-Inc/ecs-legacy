@@ -1,22 +1,53 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import { useGolfNetworking, GolfPacketOpcode, AllGamesRequest, JoinRoom, StartGame } from './../../constants/GolfNetworking';
-import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
-import Session from '@ecs/plugins/net/components/Session';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
-import GolfPlayer from '../../../golf/components/GolfPlayer';
 import Vector3 from '@ecs/math/Vector';
+import Session from '@ecs/plugins/net/components/Session';
+import { all } from '@ecs/utils/QueryHelper';
+import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../../golf/helpers/CreateBall';
+import { AllGamesRequest, GameState, GolfPacketOpcode, JoinRoom, StartGame, useGolfNetworking } from './../../constants/GolfNetworking';
+import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
+
+export class GolfGameState {
+	ingame: GameState
+}
 
 class GolfGameServerEngine extends Engine {
 
 	public space: ServerGolfSpace;
 
+	private playerQueries = useQueries(this, {
+		players: all(GolfPlayer, Session)
+	});
+
+	private networking = useGolfNetworking(this);
+
+	private state = useState(this, new GolfGameState(), {
+		ingame: GameState.LOBBY
+	});
+
 	constructor() {
 		super();
+
 		this.space = new ServerGolfSpace(this, true);
+
+		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this))
+	}
+
+	handleStartGame(packet: StartGame, entity: Entity) {
+		this.playerQueries.players.entities.forEach(entity => {
+			const player = createBall(new Vector3(0, 2, 0));
+			player.add(PlayerBall);
+			console.log('Creating balls');
+			player.components.forEach(c => {
+				entity.add(c);
+			});
+		});
+
+		this.state.ingame = GameState.INGAME;
 	}
 }
 
@@ -37,7 +68,7 @@ export class ServerRoomSystem extends System {
 
 		this.networking.on(GolfPacketOpcode.ALL_GAMES_REQUEST, this.handleAllGamesRequest.bind(this))
 		this.networking.on(GolfPacketOpcode.JOIN_GAME, this.handleJoinGamesRequest.bind(this))
-		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this))
+
 
 		this.createRoom("default");
 		this.createRoom("lucas");
@@ -64,24 +95,7 @@ export class ServerRoomSystem extends System {
 	}
 
 
-	handleStartGame(packet: StartGame, entity: Entity) {
-		const engine = this.entityToRoomEngine.get(entity);
 
-		const playersQuery = makeQuery(all(GolfPlayer, Session));
-
-		engine.addQuery(playersQuery);
-
-		playersQuery.entities.forEach(entity => {
-			const player = createBall(new Vector3(0, 2, 0));
-			player.add(PlayerBall);
-			console.log('Creating balls');
-			player.components.forEach(c => {
-				entity.add(c);
-			});
-		});
-		// Start game some how
-		// Add systems?
-	}
 
 	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {
 		this.networking.sendTo(entity, {

@@ -19,6 +19,14 @@ export class Views {
 		this.views.set(name, false);
 	}
 
+	isOpen(name: string) {
+		return this.views.has(name) && this.views.get(name) == true;
+	}
+
+	isClosed(name: string) {
+		return !this.isOpen(name)
+	}
+
 	toggle(name: string) {
 		this.views.set(name, !this.views.get(name));
 	}

@@ -1,4 +1,7 @@
 export const Maps = {
+	Hole: {
+		x: 5, y: 1, z: 1.979144248929774
+	},
 	DefaultMap: [
 		{
 			modelName: 'END',

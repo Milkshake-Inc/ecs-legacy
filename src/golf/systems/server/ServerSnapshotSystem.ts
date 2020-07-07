@@ -1,14 +1,17 @@
+import { useSingletonQuery } from '@ecs/ecs/helpers';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { snapshotUseQuery } from '../../utils/GolfShared';
-import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation'
-import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
+import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import GolfPlayer from '../../components/GolfPlayer';
-import { TICK_RATE, GolfSnapshotState, GolfSnapshotPlayer } from '../../constants/GolfNetworking';
+import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../constants/GolfNetworking';
+import { snapshotUseQuery } from '../../utils/GolfShared';
+import { GolfGameState } from './ServerRoomSystem';
 
-export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snapshot> {
+export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
 	protected snapshotInterpolation: SnapshotInterpolation;
+
+	protected gameState = useSingletonQuery(this, GolfGameState);
 
 	constructor() {
 		super(TICK_RATE);
@@ -16,7 +19,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snap
 		this.snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
 	}
 
-	generateSnapshot(): Snapshot {
+	generateSnapshot(): GolfWorldSnapshot {
 		const players: GolfSnapshotPlayer[] = this.snapshotQueries.players.map(entity => {
 
 			const player = entity.get(GolfPlayer);
@@ -40,10 +43,9 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Snap
 			return result;
 		});
 
-		const state: GolfSnapshotState = {
-			players,
-		}
-
-		return this.snapshotInterpolation.snapshot.create(state);
+		return {
+			players: this.snapshotInterpolation.snapshot.create(players),
+			state: this.gameState().ingame,
+		};
 	}
 }

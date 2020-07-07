@@ -1,6 +1,7 @@
 import { System } from '@ecs/ecs/System';
 import { NetworkingCallbacks, useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
 import { Engine } from '@ecs/ecs/Engine';
+import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
 
 export const TICK_RATE = 30;
 
@@ -14,8 +15,19 @@ export type GolfSnapshotPlayer = {
 	z?: number;
 };
 
-export type GolfSnapshotState = {
+export enum GameState {
+	LOBBY,
+	INGAME
+}
+
+export type GolfWorldSnapshot = {
+	players: Snapshot;
+	state: GameState;
+}
+
+export type GolfWorldState = {
 	players: GolfSnapshotPlayer[];
+	state: GameState;
 };
 
 export enum GolfPacketOpcode {

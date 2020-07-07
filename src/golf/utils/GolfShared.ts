@@ -12,15 +12,15 @@ import GolfPlayer from '../components/GolfPlayer';
 export const snapshotUseQuery = (system: System) => {
 	return useQueries(system, {
 		players: all(GolfPlayer),
-		sessions: all(Session)
+		sessions: all(Session),
 	});
 };
 
-export type PhysicSnapshot = number[];
+// export type PhysicSnapshot = number[];
 
-export type Snapshot = {
-	balls: { id: string; snap: PhysicSnapshot }[];
-};
+// export type Snapshot = {
+// 	balls: { id: string; snap: PhysicSnapshot }[];
+// };
 
 export class PlayerSpawnSystem extends IterativeSystem {
 	private playerGenerator: (entity: Entity, local: boolean) => void;

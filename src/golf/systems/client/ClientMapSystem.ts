@@ -1,13 +1,11 @@
-import { System } from '@ecs/ecs/System';
-import { useSimpleEvents, useSingletonQuery } from '@ecs/ecs/helpers';
-import { useGolfNetworking, GolfPacketOpcode } from '../../constants/GolfNetworking';
-import { CREATE_CHAT_MSG } from './ClientChatBoxSystem';
-import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
 import { Engine } from '@ecs/ecs/Engine';
-import { deserializeMap } from '../../utils/Serialization';
+import { useSimpleEvents, useSingletonQuery } from '@ecs/ecs/helpers';
+import { System } from '@ecs/ecs/System';
 import Random from '@ecs/math/Random';
-import * as QueryString from 'query-string';
 import { Views } from '@ecs/plugins/reactui/View';
+import * as QueryString from 'query-string';
+import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
+import { GolfPacketOpcode, useGolfNetworking } from '../../constants/GolfNetworking';
 
 export default class ClientMapSystem extends System {
 	events = useSimpleEvents();
@@ -17,9 +15,7 @@ export default class ClientMapSystem extends System {
 		connect: () => {
 			console.warn('Connected');
 
-			this.views().open('lobby');
-
-			setTimeout(() => {
+			// setTimeout(() => {
 				if (this.room) {
 					this.joinRoom(this.room);
 				} else {
@@ -28,13 +24,8 @@ export default class ClientMapSystem extends System {
 						opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
 					});
 				}
-			}, 0);
-
-			this.events.emit(CREATE_CHAT_MSG, 'Connected');
+			// }, 0);
 		},
-		disconnect: () => {
-			this.events.emit(CREATE_CHAT_MSG, 'Disconnected');
-		}
 	});
 
 	assets: KenneyAssetsGLTF;
@@ -47,10 +38,6 @@ export default class ClientMapSystem extends System {
 
 	onAddedToEngine(engine: Engine) {
 		super.onAddedToEngine(engine);
-
-		this.network.on(GolfPacketOpcode.SEND_MAP, data => {
-			engine.addEntities(...deserializeMap(this.assets, data.data));
-		});
 
 		this.network.on(GolfPacketOpcode.ALL_GAMES_RESPONSE, data => {
 			const randomGame = Random.fromArray(data.games);

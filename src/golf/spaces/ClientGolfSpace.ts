@@ -1,15 +1,12 @@
 import { Engine } from '@ecs/ecs/Engine';
-import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
-import { useSingletonQuery } from '@ecs/ecs/helpers';
+import { Entity } from '@ecs/ecs/Entity';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
 import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import { Views } from '@ecs/plugins/reactui/View';
 import Sprite from '@ecs/plugins/render/components/Sprite';
 import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
 import Transform from '@ecs/plugins/Transform';
@@ -27,17 +24,9 @@ import {
 
 	Texture
 } from 'three';
-import PlayerBall from '../components/PlayerBall';
-import { createBallClient } from '../helpers/CreateBall';
-import ClientBallControllerSystem from '../systems/client/ClientBallControllerSystem';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import BaseGolfSpace from './BaseGolfSpace';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { makeQuery, all } from '@ecs/utils/QueryHelper';
-import Session from '@ecs/plugins/net/components/Session';
-import { deserializeMap } from '../utils/Serialization';
-import { Maps } from '../constants/Maps';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -72,20 +61,13 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
-		// this.addSystem(new FreeRoamCameraSystem(true));
+
 		this.addSystem(new ThirdPersonCameraSystem());
 
 		this.addSystem(new InputSystem());
 		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
-
-		// this.addSystem(new CourseEditorSystem(this.worldEngine, this.golfAssets.gltfs));
-		// this.addSystem(new TransformLerpSystem());
-
-		// this.addSystem(
-		// 	new PlayerSpawnSystem(
-		// );
 
 		this.setupEntities();
 	}

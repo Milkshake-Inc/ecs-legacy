@@ -1,38 +1,56 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
+import { useQueries, useSingletonQuery } from '@ecs/ecs/helpers';
+import { System } from '@ecs/ecs/System';
+import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
+import { PacketOpcode, WorldSnapshot } from '@ecs/plugins/net/components/Packet';
 import Session from '@ecs/plugins/net/components/Session';
-import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
+import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import { Views } from '@ecs/plugins/reactui/View';
+import { all } from '@ecs/utils/QueryHelper';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
-import { GolfSnapshotPlayer as GolfSnapshotPlayer, TICK_RATE } from '../../../golf/constants/GolfNetworking';
+import { GameState, GolfSnapshotPlayer as GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../../golf/constants/GolfNetworking';
 import GolfPlayer from '../../components/GolfPlayer';
-import { snapshotUseQuery } from '../../utils/GolfShared';
 import PlayerBall from '../../components/PlayerBall';
 import { createBallClient } from '../../helpers/CreateBall';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
-import { useSingletonQuery } from '@ecs/ecs/helpers';
-import { Views } from '@ecs/plugins/reactui/View';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
 
-export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem<Snapshot> {
+export default class ClientSnapshotSystem extends System {
 
-	protected queries = snapshotUseQuery(this);
+	protected queries = useQueries(this, {
+		players: all(GolfPlayer),
+		sessions: all(Session),
+	});
 
-	protected buildPlayer: (entity: Entity, local: boolean) => void;
-	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
+	protected network = useNetworking(this)
 
 	protected views = useSingletonQuery(this, Views);
 
+	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
+
 	constructor(protected engine: Engine) {
 		super();
+
+		this.network.on(PacketOpcode.WORLD, (packet) => this.handleWorldUpdate(packet));
 	}
 
-	applySnapshot(snapshot: Snapshot) {
-		this.snapshotInterpolation.snapshot.add(snapshot);
+	handleWorldUpdate({ snapshot }: WorldSnapshot<GolfWorldSnapshot>) {
+		this.snapshotInterpolation.snapshot.add(snapshot.players);
+
+		const views = this.views();
+
+		if(snapshot.state == GameState.LOBBY && this.views().isClosed("lobby")) {
+			views.open("lobby");
+		}
+
+		if(snapshot.state == GameState.INGAME && this.views().isOpen("lobby")) {
+			views.close("lobby");
+		}
 	}
 
 	createDeletePlayers(latestPlayersSnapshot: GolfPlayer[]) {
@@ -82,11 +100,15 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 
 			if (isLocalPlayer) {
 				entity.add(ThirdPersonTarget);
-
 				this.engine.addSystem(new ClientBallControllerSystem());
-				this.views().close('lobby');
 			}
 		}
+
+		// Maybe use a state machine here
+		// if(playerSnapshot.state == 'spectating' && !this.engine.getSystem(FreeRoamCameraSystem)) {
+		// 	console.log("Free Roam")
+		// 	this.engine.addSystem(new FreeRoamCameraSystem());
+		// }
 
 		if(playerSnapshot.state == 'playing') {
 			const body = entity.get(CannonBody);
@@ -97,7 +119,7 @@ export default class ClientSnapshotSystem extends ClientBasicWorldSnapshotSystem
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		const interpolatedPlayersSnapshot = this.snapshotInterpolation.calcInterpolation("x y z", "players");
+		const interpolatedPlayersSnapshot = this.snapshotInterpolation.calcInterpolation("x y z");
 
 		if(interpolatedPlayersSnapshot) {
 			const interpolatedPlayerState = interpolatedPlayersSnapshot.state as any as GolfSnapshotPlayer[];
