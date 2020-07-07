@@ -7,6 +7,8 @@ import { Sphere } from "cannon-es";
 import { Mesh, SphereGeometry, MeshPhongMaterial } from "three";
 import Color from "@ecs/math/Color";
 
+const BALL_SIZE = 0.02;
+
 export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
     const entity = new Entity();
     entity.add(Transform, { position });
@@ -16,7 +18,7 @@ export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
             material: FLOOR_MATERIAL
         })
     );
-    entity.add(new Sphere(0.04));
+    entity.add(new Sphere(BALL_SIZE));
 
     return entity;
 }
@@ -26,7 +28,7 @@ export const createBallClient = (position: Vector3 = Vector3.ZERO): Entity => {
 
     entity.add(
         new Mesh(
-            new SphereGeometry(0.04, 10, 10),
+            new SphereGeometry(BALL_SIZE, 10, 10),
             new MeshPhongMaterial({
                 color: Color.White,
                 reflectivity: 0,
