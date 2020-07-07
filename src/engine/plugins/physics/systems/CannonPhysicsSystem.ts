@@ -70,6 +70,10 @@ export default class CannonPhysicsSystem extends System {
 		this.couples.forEach(couple => couple.update(dt));
 	}
 
+	updateLate(dt: number) {
+		this.couples.forEach(couple => couple.lateUpdate(dt));
+	}
+
 	update(dt: number) {
 		super.update(dt);
 

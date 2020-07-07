@@ -8,18 +8,24 @@ import { all } from '@ecs/utils/QueryHelper';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../../golf/helpers/CreateBall';
-import { AllGamesRequest, GameState, GolfPacketOpcode, JoinRoom, StartGame, useGolfNetworking, GolfGameState } from './../../constants/GolfNetworking';
+import {
+	AllGamesRequest,
+	GameState,
+	GolfPacketOpcode,
+	JoinRoom,
+	StartGame,
+	useGolfNetworking,
+	GolfGameState
+} from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
-
 class GolfGameServerEngine extends Engine {
-
 	public space: ServerGolfSpace;
 
 	private playerQueries = useQueries(this, {
 		players: all(GolfPlayer, Session),
-		balls: all(CannonBody, Session),
+		balls: all(CannonBody, Session)
 	});
 
 	private networking = useGolfNetworking(this);
@@ -33,7 +39,7 @@ class GolfGameServerEngine extends Engine {
 
 		this.space = new ServerGolfSpace(this, true);
 
-		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this))
+		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this));
 	}
 
 	handleStartGame(packet: StartGame, entity: Entity) {
@@ -52,18 +58,17 @@ class GolfGameServerEngine extends Engine {
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		if(this.state.state == GameState.INGAME && this.playerQueries.balls.length == 0) {
-			console.log(`🏠  Reset lobby`)
+		if (this.state.state == GameState.INGAME && this.playerQueries.balls.length == 0) {
+			console.log(`🏠  Reset lobby`);
 			this.state.state = GameState.LOBBY;
 		}
 	}
 }
 
 export class ServerRoomSystem extends System {
-
 	protected networking = useGolfNetworking(this, {
-		disconnect: (entity) => this.handleDisconnect(entity)
-	})
+		disconnect: entity => this.handleDisconnect(entity)
+	});
 
 	protected rooms: Map<string, GolfGameServerEngine>;
 	protected entityToRoomEngine: Map<Entity, GolfGameServerEngine>;
@@ -74,17 +79,16 @@ export class ServerRoomSystem extends System {
 		this.rooms = new Map();
 		this.entityToRoomEngine = new Map();
 
-		this.networking.on(GolfPacketOpcode.ALL_GAMES_REQUEST, this.handleAllGamesRequest.bind(this))
-		this.networking.on(GolfPacketOpcode.JOIN_GAME, this.handleJoinGamesRequest.bind(this))
+		this.networking.on(GolfPacketOpcode.ALL_GAMES_REQUEST, this.handleAllGamesRequest.bind(this));
+		this.networking.on(GolfPacketOpcode.JOIN_GAME, this.handleJoinGamesRequest.bind(this));
 
-
-		this.createRoom("default");
-		this.createRoom("lucas");
-		this.createRoom("jeff");
+		this.createRoom('default');
+		this.createRoom('lucas');
+		this.createRoom('jeff');
 	}
 
 	handleDisconnect(entity: Entity): void {
-		if(this.entityToRoomEngine.has(entity)) {
+		if (this.entityToRoomEngine.has(entity)) {
 			const currentRoom = this.entityToRoomEngine.get(entity);
 
 			currentRoom.removeEntity(entity);
@@ -105,25 +109,23 @@ export class ServerRoomSystem extends System {
 	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {
 		this.networking.sendTo(entity, {
 			opcode: GolfPacketOpcode.ALL_GAMES_RESPONSE,
-			games: this.allRoomIds(),
+			games: this.allRoomIds()
 		});
 	}
 
 	handleJoinGamesRequest(packet: JoinRoom, entity: Entity) {
-		if(this.entityToRoomEngine.has(entity)) {
+		if (this.entityToRoomEngine.has(entity)) {
 			const currentRoom = this.entityToRoomEngine.get(entity);
 
 			currentRoom.removeEntity(entity);
 		}
 
-		if(this.rooms.has(packet.roomId)) {
+		if (this.rooms.has(packet.roomId)) {
 			const newRoom = this.rooms.get(packet.roomId);
-
 
 			newRoom.addEntity(entity);
 			this.entityToRoomEngine.set(entity, newRoom);
 		}
-
 	}
 
 	update(deltaTime: number) {
@@ -136,6 +138,18 @@ export class ServerRoomSystem extends System {
 	updateFixed(deltaTime: number) {
 		for (const room of this.rooms.values()) {
 			room.updateFixed(deltaTime);
+		}
+	}
+
+	updateLate(deltaTime: number) {
+		for (const room of this.rooms.values()) {
+			room.updateLate(deltaTime);
+		}
+	}
+
+	updateRender(deltaTime: number) {
+		for (const room of this.rooms.values()) {
+			room.updateRender(deltaTime);
 		}
 	}
 }

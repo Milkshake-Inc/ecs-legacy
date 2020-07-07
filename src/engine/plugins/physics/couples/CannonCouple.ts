@@ -53,6 +53,11 @@ export const useCannonCouple = <T extends Body | Shape | Shape[] | Constraint | 
 				callbacks.onUpdate(entity, physicsObject, dt);
 			}
 		},
+		onLateUpdate: (entity, physicsObject, dt) => {
+			if (callbacks.onLateUpdate) {
+				callbacks.onLateUpdate(entity, physicsObject, dt);
+			}
+		},
 		onDestroy: (entity, physicsObject) => {
 			if (physicsObject instanceof Body) {
 				getPhysicsState().world.removeBody(physicsObject);

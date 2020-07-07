@@ -9,10 +9,13 @@ import { GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/
 import PlayerBall from '../../components/PlayerBall';
 import Session from '@ecs/plugins/net/components/Session';
 import Transform from '@ecs/plugins/Transform';
+import Hole from '../../components/Hole';
+import Collisions from '@ecs/plugins/physics/components/Collisions';
 
 export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
-		balls: all(PlayerBall)
+		balls: all(PlayerBall),
+		hole: all(Hole)
 	});
 
 	protected network = useGolfNetworking(this);
@@ -28,10 +31,16 @@ export class ServerBallControllerSystem extends System {
 		this.queries.balls.forEach(ball => {
 			const transform = ball.get(Transform);
 			// Below the level
-			if(transform.y < 0.3) {
+			if (transform.y < 0.3) {
 				this.resetBall(ball);
 			}
-		})
+
+			if (ball.get(Collisions).hasCollidedWith(this.queries.hole.first)) {
+				// Debounce incase called twice?
+				console.log('SUNSHINE DAYS!');
+				setTimeout(() => this.resetBall(ball), 1000);
+			}
+		});
 	}
 
 	resetBall(entity: Entity) {
