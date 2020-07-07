@@ -10,6 +10,7 @@ import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../../golf/helpers/CreateBall';
 import { AllGamesRequest, GameState, GolfPacketOpcode, JoinRoom, StartGame, useGolfNetworking } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
 export class GolfGameState {
 	ingame: GameState
@@ -20,7 +21,8 @@ class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
 
 	private playerQueries = useQueries(this, {
-		players: all(GolfPlayer, Session)
+		players: all(GolfPlayer, Session),
+		balls: all(CannonBody, Session),
 	});
 
 	private networking = useGolfNetworking(this);
@@ -48,6 +50,15 @@ class GolfGameServerEngine extends Engine {
 		});
 
 		this.state.ingame = GameState.INGAME;
+	}
+
+	updateFixed(deltaTime: number) {
+		super.updateFixed(deltaTime);
+
+		if(this.state.ingame == GameState.INGAME && this.playerQueries.balls.length == 0) {
+			console.log(`🏠  Reset lobby`)
+			this.state.ingame = GameState.LOBBY;
+		}
 	}
 }
 
