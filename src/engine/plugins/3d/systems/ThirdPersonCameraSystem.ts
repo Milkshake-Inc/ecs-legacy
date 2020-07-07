@@ -7,8 +7,10 @@ import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
 import MathHelper from '@ecs/math/MathHelper';
+import { Engine } from '@ecs/ecs/Engine';
 
 export default class ThirdPersonCameraSystem extends System {
+	private requestedElement = document.body;
 	private lastPosition = { x: 0, y: 0 };
 	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
@@ -19,14 +21,8 @@ export default class ThirdPersonCameraSystem extends System {
 		target: all(Transform, ThirdPersonTarget)
 	});
 
-	constructor() {
-		super();
-
-		const requestedElement = document.body;
-
-		requestedElement.addEventListener('click', () => {
-			document.body.requestPointerLock();
-		});
+	onAddedToEngine(engine: Engine) {
+		this.requestedElement.addEventListener('click', this.handleClick);
 
 		document.body.addEventListener('mousemove', this.handleMouseMove.bind(this));
 		window.addEventListener('wheel', this.handleMouseWheel.bind(this));
@@ -34,13 +30,20 @@ export default class ThirdPersonCameraSystem extends System {
 		document.addEventListener(
 			'pointerlockchange',
 			event => {
-				this.locked = document.pointerLockElement === requestedElement;
+				this.locked = document.pointerLockElement === this.requestedElement;
 			},
 			false
 		);
 	}
 
-	changeCallback() {}
+	onRemovedFromEngine(engine: Engine) {
+		this.requestedElement.removeEventListener('click', this.handleClick);
+		document.exitPointerLock();
+	}
+
+	handleClick() {
+		document.body.requestPointerLock();
+	}
 
 	get target() {
 		return this.queries.target.first.get(Transform);
