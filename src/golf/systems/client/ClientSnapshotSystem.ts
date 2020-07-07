@@ -95,16 +95,9 @@ export default class ClientSnapshotSystem extends System {
 			const isLocalPlayer = entity.has(Session);
 
 			if (isLocalPlayer) {
-				entity.add(ThirdPersonTarget);
 				this.engine.addSystem(new ClientBallControllerSystem());
 			}
 		}
-
-		// Maybe use a state machine here
-		// if(playerSnapshot.state == 'spectating' && !this.engine.getSystem(FreeRoamCameraSystem)) {
-		// 	console.log("Free Roam")
-		// 	this.engine.addSystem(new FreeRoamCameraSystem());
-		// }
 
 		if(playerSnapshot.state == 'playing') {
 			const body = entity.get(CannonBody);

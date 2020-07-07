@@ -34,7 +34,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	directionLine: Entity;
 
 	constructor() {
-		super(makeQuery(all(Transform, PlayerBall, CannonBody, ThirdPersonTarget)));
+		super(makeQuery(all(Transform, PlayerBall, CannonBody, Session)));
 		console.log('Created');
 		this.keyboard = new Keyboard();
 	}
