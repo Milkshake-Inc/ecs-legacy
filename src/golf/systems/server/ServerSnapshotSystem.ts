@@ -3,9 +3,8 @@ import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldS
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import GolfPlayer from '../../components/GolfPlayer';
-import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../constants/GolfNetworking';
+import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState } from '../../constants/GolfNetworking';
 import { snapshotUseQuery } from '../../utils/GolfShared';
-import { GolfGameState } from './ServerRoomSystem';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
 	protected snapshotQueries = snapshotUseQuery(this);
@@ -45,7 +44,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 
 		return {
 			players: this.snapshotInterpolation.snapshot.create(players),
-			state: this.gameState().ingame,
+			state: this.gameState(),
 		};
 	}
 }

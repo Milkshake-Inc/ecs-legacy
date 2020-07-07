@@ -30,6 +30,16 @@ export class Views {
 	toggle(name: string) {
 		this.views.set(name, !this.views.get(name));
 	}
+
+	set(name: string, open: boolean) {
+		if(open && this.isClosed(name)) {
+			this.open(name);
+		}
+
+		if(!open && this.isOpen(name)) {
+			this.close(name);
+		}
+	}
 }
 
 export const ViewController = props => {

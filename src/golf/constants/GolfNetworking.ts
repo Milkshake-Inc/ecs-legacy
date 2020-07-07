@@ -20,9 +20,14 @@ export enum GameState {
 	INGAME
 }
 
+export class GolfGameState {
+	state: GameState
+}
+
+
 export type GolfWorldSnapshot = {
 	players: Snapshot;
-	state: GameState;
+	state: GolfGameState;
 }
 
 export type GolfWorldState = {

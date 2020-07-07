@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries, useSingletonQuery } from '@ecs/ecs/helpers';
+import { useQueries, useSingletonQuery, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import { PacketOpcode, WorldSnapshot } from '@ecs/plugins/net/components/Packet';
@@ -10,12 +10,11 @@ import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { Views } from '@ecs/plugins/reactui/View';
 import { all } from '@ecs/utils/QueryHelper';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { GameState, GolfSnapshotPlayer as GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../../golf/constants/GolfNetworking';
+import { GameState, GolfSnapshotPlayer as GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState } from '../../../golf/constants/GolfNetworking';
 import GolfPlayer from '../../components/GolfPlayer';
 import PlayerBall from '../../components/PlayerBall';
 import { createBallClient } from '../../helpers/CreateBall';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
-import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
@@ -33,6 +32,10 @@ export default class ClientSnapshotSystem extends System {
 
 	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
 
+	private state = useState(this, new GolfGameState(), {
+		state: GameState.LOBBY
+	});
+
 	constructor(protected engine: Engine) {
 		super();
 
@@ -42,15 +45,8 @@ export default class ClientSnapshotSystem extends System {
 	handleWorldUpdate({ snapshot }: WorldSnapshot<GolfWorldSnapshot>) {
 		this.snapshotInterpolation.snapshot.add(snapshot.players);
 
-		const views = this.views();
-
-		if(snapshot.state == GameState.LOBBY && this.views().isClosed("lobby")) {
-			views.open("lobby");
-		}
-
-		if(snapshot.state == GameState.INGAME && this.views().isOpen("lobby")) {
-			views.close("lobby");
-		}
+		// Apply updates to state
+		Object.assign(this.state, snapshot.state);
 	}
 
 	createDeletePlayers(latestPlayersSnapshot: GolfPlayer[]) {

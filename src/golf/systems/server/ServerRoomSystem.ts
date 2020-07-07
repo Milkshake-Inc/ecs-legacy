@@ -8,13 +8,10 @@ import { all } from '@ecs/utils/QueryHelper';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../../golf/helpers/CreateBall';
-import { AllGamesRequest, GameState, GolfPacketOpcode, JoinRoom, StartGame, useGolfNetworking } from './../../constants/GolfNetworking';
+import { AllGamesRequest, GameState, GolfPacketOpcode, JoinRoom, StartGame, useGolfNetworking, GolfGameState } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 
-export class GolfGameState {
-	ingame: GameState
-}
 
 class GolfGameServerEngine extends Engine {
 
@@ -28,7 +25,7 @@ class GolfGameServerEngine extends Engine {
 	private networking = useGolfNetworking(this);
 
 	private state = useState(this, new GolfGameState(), {
-		ingame: GameState.LOBBY
+		state: GameState.LOBBY
 	});
 
 	constructor() {
@@ -49,15 +46,15 @@ class GolfGameServerEngine extends Engine {
 			});
 		});
 
-		this.state.ingame = GameState.INGAME;
+		this.state.state = GameState.INGAME;
 	}
 
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		if(this.state.ingame == GameState.INGAME && this.playerQueries.balls.length == 0) {
+		if(this.state.state == GameState.INGAME && this.playerQueries.balls.length == 0) {
 			console.log(`🏠  Reset lobby`)
-			this.state.ingame = GameState.LOBBY;
+			this.state.state = GameState.LOBBY;
 		}
 	}
 }
@@ -104,9 +101,6 @@ export class ServerRoomSystem extends System {
 
 		console.log(`🏠 Created new room ${name}`);
 	}
-
-
-
 
 	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {
 		this.networking.sendTo(entity, {

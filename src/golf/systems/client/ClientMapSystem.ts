@@ -15,7 +15,7 @@ export default class ClientMapSystem extends System {
 		connect: () => {
 			console.warn('Connected');
 
-			// setTimeout(() => {
+			setTimeout(() => {
 				if (this.room) {
 					this.joinRoom(this.room);
 				} else {
@@ -24,7 +24,7 @@ export default class ClientMapSystem extends System {
 						opcode: GolfPacketOpcode.ALL_GAMES_REQUEST
 					});
 				}
-			// }, 0);
+			}, 0);
 		},
 	});
 
