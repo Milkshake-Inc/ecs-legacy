@@ -14,9 +14,11 @@ import { all, makeQuery } from '@ecs/utils/QueryHelper';
 import { Graphics } from 'pixi.js';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
-import { GolfPacketOpcode, useGolfNetworking } from '../../constants/GolfNetworking';
+import { GolfPacketOpcode, useGolfNetworking, PotBall } from '../../constants/GolfNetworking';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
 import Session from '@ecs/plugins/net/components/Session';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
+import Random from '@ecs/math/Random';
 
 export default class ClientBallControllerSystem extends IterativeSystem {
 	protected keyboard: Keyboard;
@@ -37,6 +39,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		super(makeQuery(all(Transform, PlayerBall, CannonBody, Session)));
 		console.log('Created');
 		this.keyboard = new Keyboard();
+
+		this.networking.on(GolfPacketOpcode.POT_BALL, (packet, entity) => this.handleBallPot(packet, entity));
 	}
 
 	public onAddedToEngine(engine: Engine) {
@@ -106,6 +110,11 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 						z: -powerVector.z
 					}
 				});
+
+				entity.add(Sound, {
+					src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
+				});
+
 				// entity.get(CannonBody).velocity.set(, 0, -directionVector.z);
 				// entity.get(CannonBody).applyImpulse(
 				//     ToCannonVector3(new Vector3(-powerVector.x, 0, -powerVector.z)),
@@ -142,5 +151,9 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		const threequater = ((400 - 10) / 100) * 75;
 		this.graphics.beginFill(Color.White);
 		this.graphics.drawRect(5 + threequater, 5, 2, 50 - 10);
+	}
+
+	handleBallPot(packet: PotBall, entity: Entity) {
+		entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
 	}
 }

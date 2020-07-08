@@ -21,7 +21,6 @@ import {
 	PerspectiveCamera,
 	PlaneGeometry,
 	RepeatWrapping,
-
 	Texture
 } from 'three';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
@@ -29,6 +28,8 @@ import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import GolfViewSystem from '../systems/client/GolfViewSystem';
 import GolfCameraSystem from '../systems/client/GolfCameraSystem';
+import SoundListener from '@ecs/plugins/sound/components/SoundListener';
+import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -42,8 +43,6 @@ const Images = {
 
 export default class ClientGolfSpace extends BaseGolfSpace {
 	protected darkTexture: Texture;
-
-
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
@@ -70,6 +69,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 		this.addSystem(new GolfViewSystem());
 		this.addSystem(new GolfCameraSystem(this.worldEngine));
+		this.addSystem(new SoundSystem());
 
 		this.setupEntities();
 	}
@@ -86,6 +86,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.01, 1000));
+		camera.add(SoundListener);
 
 		const light = new Entity();
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 0.8), {

@@ -18,13 +18,13 @@ export class ServerBallControllerSystem extends System {
 		hole: all(Hole)
 	});
 
-	protected network = useGolfNetworking(this);
+	protected networking = useGolfNetworking(this);
 
 	constructor() {
 		super();
 
-		this.network.on(GolfPacketOpcode.SHOOT_BALL, (packet, entity) => this.handleShootBall(packet, entity));
-		this.network.on(GolfPacketOpcode.PREP_SHOOT, (packet, entity) => this.handlePrepShot(packet, entity));
+		this.networking.on(GolfPacketOpcode.SHOOT_BALL, (packet, entity) => this.handleShootBall(packet, entity));
+		this.networking.on(GolfPacketOpcode.PREP_SHOOT, (packet, entity) => this.handlePrepShot(packet, entity));
 	}
 
 	updateFixed(deltaTime: number) {
@@ -37,8 +37,7 @@ export class ServerBallControllerSystem extends System {
 
 			if (ball.get(Collisions).hasCollidedWith(this.queries.hole.first)) {
 				// Debounce incase called twice?
-				console.log('SUNSHINE DAYS!');
-				setTimeout(() => this.resetBall(ball), 1000);
+				this.handleBallPot(ball);
 			}
 		});
 	}
@@ -63,5 +62,10 @@ export class ServerBallControllerSystem extends System {
 		const cannonBody = entity.get(CannonBody);
 
 		cannonBody.applyImpulse(ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z)), ToCannonVector3(Vector3.ZERO));
+	}
+
+	handleBallPot(entity: Entity) {
+		this.networking.sendTo(entity, { opcode: GolfPacketOpcode.POT_BALL });
+		setTimeout(() => this.resetBall(entity), 1000);
 	}
 }

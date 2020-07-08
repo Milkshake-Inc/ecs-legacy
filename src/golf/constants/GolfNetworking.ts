@@ -21,14 +21,13 @@ export enum GameState {
 }
 
 export class GolfGameState {
-	state: GameState
+	state: GameState;
 }
-
 
 export type GolfWorldSnapshot = {
 	players: Snapshot;
 	state: GolfGameState;
-}
+};
 
 export type GolfWorldState = {
 	players: GolfSnapshotPlayer[];
@@ -43,6 +42,7 @@ export enum GolfPacketOpcode {
 	ALL_GAMES_RESPONSE,
 	JOIN_GAME,
 	START_GAME,
+	POT_BALL
 }
 
 export type AllGamesRequest = {
@@ -75,7 +75,11 @@ export type StartGame = {
 	opcode: GolfPacketOpcode.START_GAME;
 };
 
-export type GolfPackets = PrepShot | ShootBall | AllGamesRequest | AllGamesResponse | JoinRoom | StartGame;
+export type PotBall = {
+	opcode: GolfPacketOpcode.POT_BALL;
+};
+
+export type GolfPackets = PrepShot | ShootBall | AllGamesRequest | AllGamesResponse | JoinRoom | StartGame | PotBall;
 
 export const useGolfNetworking = (system: System | Engine, callbacks?: NetworkingCallbacks) =>
 	useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);
