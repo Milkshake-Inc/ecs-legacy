@@ -1,12 +1,14 @@
 import { Entity } from '@ecs/ecs/Entity';
 import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import Transform from '@ecs/plugins/Transform';
-import { Body, Cylinder, Sphere } from 'cannon-es';
-import { Material, Mesh, Vector3 } from 'three';
+import { Body, Sphere } from 'cannon-es';
+import { Material, Mesh } from 'three';
 import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../constants/GolfAssets';
 import { FLOOR_MATERIAL } from '../constants/Materials';
 import Hole from '../components/Hole';
+import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import Vector3 from '@ecs/math/Vector';
 
 export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: string, transform: Transform) => {
 	const entities: Entity[] = [];
@@ -53,7 +55,7 @@ export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: 
 				collisionResponse: false // Make hole not collidable
 			})
 		);
-		hole.add(new Sphere(0.08));
+		hole.add(new Sphere(0.02));
 
 		entities.push(hole);
 	}
