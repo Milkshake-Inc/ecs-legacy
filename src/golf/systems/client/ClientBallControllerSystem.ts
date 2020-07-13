@@ -1,24 +1,25 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Key from '@ecs/input/Key';
 import Keyboard from '@ecs/input/Keyboard';
-import Color from '@ecs/math/Color';
 import MathHelper from '@ecs/math/MathHelper';
+import Random from '@ecs/math/Random';
 import Vector3 from '@ecs/math/Vector';
+import Session from '@ecs/plugins/net/components/Session';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { ToThreeVector3 } from '@ecs/plugins/physics/utils/Conversions';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
 import Transform from '@ecs/plugins/Transform';
 import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { Graphics } from 'pixi.js';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
-import { GolfPacketOpcode, useGolfNetworking, PotBall } from '../../constants/GolfNetworking';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import Session from '@ecs/plugins/net/components/Session';
-import { Sound } from '@ecs/plugins/sound/components/Sound';
-import Random from '@ecs/math/Random';
+import { GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
+
+export class BallControllerState {
+	public power: number;
+}
 
 export default class ClientBallControllerSystem extends IterativeSystem {
 	protected keyboard: Keyboard;
@@ -27,17 +28,17 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		camera: all(PerspectiveCamera)
 	});
 
+	protected state = useState(this, new BallControllerState(), {
+		power: 0
+	})
+
 	protected networking = useGolfNetworking(this);
 
-	graphics: Graphics;
-	power = 0;
-
-	powerBar: Entity;
 	directionLine: Entity;
 
 	constructor() {
 		super(makeQuery(all(Transform, PlayerBall, CannonBody, Session)));
-		console.log('Created');
+
 		this.keyboard = new Keyboard();
 
 		this.networking.on(GolfPacketOpcode.POT_BALL, (packet, entity) => this.handleBallPot(packet, entity));
@@ -45,13 +46,6 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 	public onAddedToEngine(engine: Engine) {
 		super.onAddedToEngine(engine);
-
-		this.powerBar = new Entity();
-		this.powerBar.add(Transform, {
-			position: new Vector3(1280 / 2 - 200, 600)
-		});
-		this.powerBar.add((this.graphics = new Graphics()));
-		engine.addEntity(this.powerBar);
 
 		this.directionLine = new Entity();
 		this.directionLine.add(Transform);
@@ -63,7 +57,6 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		super.onRemovedFromEngine(engine);
 
 		engine.removeEntity(this.directionLine);
-		engine.removeEntity(this.powerBar);
 	}
 
 	updateEntityFixed(entity: Entity, deltaTime: number) {
@@ -80,24 +73,22 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 		if (camera) {
 			if (this.keyboard.isPressed(Key.X)) {
-				this.power = 1;
+				this.state.power = 1;
 
 				this.networking.send({
 					opcode: GolfPacketOpcode.PREP_SHOOT
 				});
-				// entity.get(CannonBody).velocity.set(0, 0, 0);
-				// entity.get(CannonBody).angularVelocity.set(0, 0, 0);
 			}
 
 			if (this.keyboard.isDown(Key.X)) {
-				this.power += 1.2;
-				this.power = MathHelper.clamp(this.power, 0, 100);
+				this.state.power += 1.2;
+				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
 
-				this.directionLine.get(ArrowHelper).setLength(this.power / 10);
+				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
 			if (this.keyboard.isReleased(Key.X)) {
-				const mappedPower = MathHelper.map(0, 100, 1, 10, this.power);
+				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
 
@@ -114,46 +105,40 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				entity.add(Sound, {
 					src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
 				});
-
-				// entity.get(CannonBody).velocity.set(, 0, -directionVector.z);
-				// entity.get(CannonBody).applyImpulse(
-				//     ToCannonVector3(new Vector3(-powerVector.x, 0, -powerVector.z)),
-				//     ToCannonVector3(Vector3.ZERO),
-				// );
 			}
 		}
 
 		this.keyboard.update();
-
-		this.drawPowerBar();
-	}
-
-	drawPowerBar() {
-		this.graphics.clear();
-		this.graphics.beginFill(Color.White);
-		this.graphics.drawRect(0, 0, 400, 50);
-
-		this.graphics.beginFill(Color.Gray);
-		this.graphics.drawRect(5, 5, 400 - 10, 50 - 10);
-
-		this.graphics.beginFill(0xff0050);
-		const width = ((400 - 10) / 100) * this.power;
-		this.graphics.drawRect(5, 5, width, 50 - 10);
-
-		const quater = ((400 - 10) / 100) * 25;
-		this.graphics.beginFill(Color.White);
-		this.graphics.drawRect(5 + quater, 5, 2, 50 - 10);
-
-		const half = ((400 - 10) / 100) * 50;
-		this.graphics.beginFill(Color.White);
-		this.graphics.drawRect(5 + half, 5, 2, 50 - 10);
-
-		const threequater = ((400 - 10) / 100) * 75;
-		this.graphics.beginFill(Color.White);
-		this.graphics.drawRect(5 + threequater, 5, 2, 50 - 10);
 	}
 
 	handleBallPot(packet: PotBall, entity: Entity) {
 		entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
 	}
+
+	// drawPowerBar() {
+	// 	this.graphics.clear();
+	// 	this.graphics.beginFill(Color.White);
+	// 	this.graphics.drawRect(0, 0, 400, 50);
+
+	// 	this.graphics.beginFill(Color.Gray);
+	// 	this.graphics.drawRect(5, 5, 400 - 10, 50 - 10);
+
+	// 	this.graphics.beginFill(0xff0050);
+	// 	const width = ((400 - 10) / 100) * this.power;
+	// 	this.graphics.drawRect(5, 5, width, 50 - 10);
+
+	// 	const quater = ((400 - 10) / 100) * 25;
+	// 	this.graphics.beginFill(Color.White);
+	// 	this.graphics.drawRect(5 + quater, 5, 2, 50 - 10);
+
+	// 	const half = ((400 - 10) / 100) * 50;
+	// 	this.graphics.beginFill(Color.White);
+	// 	this.graphics.drawRect(5 + half, 5, 2, 50 - 10);
+
+	// 	const threequater = ((400 - 10) / 100) * 75;
+	// 	this.graphics.beginFill(Color.White);
+	// 	this.graphics.drawRect(5 + threequater, 5, 2, 50 - 10);
+	// }
+
+
 }

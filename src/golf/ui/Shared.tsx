@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { Box, Col, JsxstyleProps } from "jsxstyle/preact";
 
 export const Colors = {
+    WHITE: '#ffffff',
     PURPLE: '#7e32ec',
     RED: '#ec324c',
     PINK: '#ff2656',
@@ -57,7 +58,7 @@ export const HexAdjust = (color: string, amount: number) => {
     return '#' + color.replace(/^#/, '').replace(/../g, color => ('0'+Math.min(255, Math.max(0, parseInt(color, 16) + amount)).toString(16)).substr(-2));
 }
 
-export const HexAlpha = (hex: string, alpha: number = 1) => {
+export const HexAlpha = (hex: string, alpha = 1) => {
     const alphaHex = Math.round(alpha * 255).toString(16);
 
     return `${hex}${alphaHex}`;

@@ -1,7 +1,7 @@
 import { useQuery, EngineContext, useBeforeMount } from '.';
 import { useContext } from 'preact/hooks';
 import { Entity } from '@ecs/ecs/Entity';
-import { ComponentChildren, h } from 'preact';
+import { ComponentChildren, h, Fragment } from 'preact';
 import { all } from '@ecs/utils/QueryHelper';
 
 export class Views {
@@ -67,5 +67,5 @@ export const View = (props: { name: string; open?: boolean; children: ComponentC
 	});
 
 	if (!views?.views.get(props.name)) return null;
-	return <div>{props.children}</div>;
+	return <Fragment>{ props.children }</Fragment>;
 };

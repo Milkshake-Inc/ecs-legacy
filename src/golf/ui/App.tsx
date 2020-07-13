@@ -11,6 +11,7 @@ import { Lobby } from './Lobby';
 import { Splash } from './Splash';
 import { Scoreboard } from './Scoreboard';
 import { ViewController, View } from '@ecs/plugins/reactui/View';
+import { PowerBar } from './PowerBar';
 
 export default class App extends Component<{ engine: Engine }, { visible: true }> {
 	render() {
@@ -30,6 +31,9 @@ export default class App extends Component<{ engine: Engine }, { visible: true }
 						</View>
 						<View name='lobby'>
 							<Lobby />
+						</View>
+						<View name='power'>
+							<PowerBar />
 						</View>
 					</Hud>
 				</ViewController>
