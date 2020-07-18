@@ -24,6 +24,8 @@ export default class Mouse {
 		this.domObject.addEventListener('mousewheel', this.mouseWheelHandler.bind(this));
 		this.domObject.addEventListener('DOMMouseScroll', this.mouseWheelHandler.bind(this));
 		this.domObject.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
+
+		if (this.pointerLock) document.body.requestPointerLock();
 	}
 
 	get pointerLocked() {
