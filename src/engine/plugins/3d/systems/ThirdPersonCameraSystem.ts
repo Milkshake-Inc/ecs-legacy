@@ -6,117 +6,89 @@ import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
-import MathHelper from '@ecs/math/MathHelper';
 import { Engine } from '@ecs/ecs/Engine';
+import Mouse from '@ecs/input/Mouse';
+import MathHelper from '@ecs/math/MathHelper';
 
 export default class ThirdPersonCameraSystem extends System {
-	private requestedElement = document.body;
-	private lastPosition = { x: 0, y: 0 };
+	private mouse: Mouse;
 	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
-	private zoom = 4;
-	private locked = false;
+	private zoom = {
+		value: 1,
+		min: 0.1,
+		max: 5,
+		speed: 0.1
+	};
+
 	private queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera),
 		target: all(Transform, ThirdPersonTarget)
 	});
 
 	onAddedToEngine(engine: Engine) {
-		this.requestedElement.addEventListener('click', this.handleClick);
-
-		document.body.addEventListener('mousemove', this.handleMouseMove.bind(this));
-		window.addEventListener('wheel', this.handleMouseWheel.bind(this));
-
-		document.addEventListener(
-			'pointerlockchange',
-			event => {
-				this.locked = document.pointerLockElement === this.requestedElement;
+		this.mouse = new Mouse(
+			{
+				move: this.move.bind(this),
+				zoomIn: this.zoomIn.bind(this),
+				zoomOut: this.zoomOut.bind(this)
 			},
-			false
+			true
 		);
 	}
 
 	onRemovedFromEngine(engine: Engine) {
-		this.requestedElement.removeEventListener('click', this.handleClick);
-		document.exitPointerLock();
-	}
-
-	handleClick() {
-		document.body.requestPointerLock();
+		this.mouse.destroy();
 	}
 
 	get target() {
-		return this.queries.target.first.get(Transform);
+		return this.queries.target.first?.get(Transform);
 	}
 
 	get camera() {
-		return this.queries.camera.first.get(Transform);
+		return this.queries.camera.first?.get(Transform);
 	}
 
 	get acamera() {
-		return this.queries.camera.first.get(PerspectiveCamera);
+		return this.queries.camera.first?.get(PerspectiveCamera);
 	}
 
-	handleMouseWheel(event: WheelEvent) {
-		this.zoom += event.deltaY * -0.01;
+	zoomIn() {
+		this.zoom.value = MathHelper.clamp((this.zoom.value -= this.zoom.speed), this.zoom.min, this.zoom.max);
 	}
 
-	handleMouseMove(event: MouseEvent) {
-		const mouse = this.locked
-			? {
-					x: event.movementX / 500,
-					y: -event.movementY / 500
-			  }
-			: {
-					x: (event.clientX / window.innerWidth) * 2 - 1,
-					y: -(event.clientY / window.innerHeight) * 2 + 1
-			  };
+	zoomOut() {
+		this.zoom.value = MathHelper.clamp((this.zoom.value += this.zoom.speed), this.zoom.min, this.zoom.max);
+	}
 
-		const delta = this.locked
-			? {
-					x: mouse.x,
-					y: mouse.y
-			  }
-			: {
-					x: mouse.x - this.lastPosition.x,
-					y: mouse.y - this.lastPosition.y
-			  };
-
-		this.cameraAngle.x += delta.x * 2;
-		this.cameraAngle.y -= delta.y * 2;
-
-		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, 0.98);
-
-		this.lastPosition = mouse;
+	move(deltaX: number, deltaY: number) {
+		this.cameraAngle.x += deltaX;
+		this.cameraAngle.y -= deltaY;
+		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, Math.PI);
 	}
 
 	public updateLate(dt: number) {
 		super.updateLate(dt);
 
-		if (!this.queries.target.first) {
-			// Maybe should be an iterative system.
-			// console.warn('No target!');
+		if (!this.target || this.target.position.x == undefined || !this.acamera) {
 			return;
 		}
 
-		const xAngle = -(this.cameraAngle.x * 2);
-		const yAngle = this.cameraAngle.y * 6;
-
-		const angleX = Math.cos(-xAngle) * this.zoom;
-		const angleY = Math.sin(-xAngle) * this.zoom;
+		// NEED TO FIGURE OUT THIS MATH....
+		const xAngle = -this.cameraAngle.x;
+		const angleY = this.cameraAngle.y;
+		const angleX = Math.cos(-xAngle);
+		const angleZ = Math.sin(-xAngle);
 
 		this.camera.x = this.target.position.x + angleX;
-		this.camera.z = this.target.position.z + angleY;
-		this.camera.y = this.target.position.y + yAngle;
+		this.camera.y = this.target.position.y + angleY;
+		this.camera.z = this.target.position.z + angleZ;
 
+		// Set Zoom
+		this.camera.position = this.camera.position.sub(this.target.position).multiF(this.zoom.value).add(this.target.position);
+
+		// Update Camera
 		this.acamera.position.set(this.camera.x, this.camera.y, this.camera.z);
-
 		this.acamera.lookAt(this.target.position.x, this.target.position.y, this.target.position.z);
-		this.acamera.quaternion.set(
-			this.acamera.quaternion.x,
-			this.acamera.quaternion.y,
-			this.acamera.quaternion.z,
-			this.acamera.quaternion.w
-		);
 	}
 }

@@ -1,4 +1,4 @@
-import Vector3 from './Vector';
+import Vector3, { Vector } from './Vector';
 
 export default class Quaternion {
 	public static Identity() {
@@ -38,7 +38,7 @@ export default class Quaternion {
 		return new Quaternion(this.x, this.y, this.z, this.w);
 	}
 
-	setFromEuler({ x, y, z }: Vector3) {
+	setFromEuler({ x, y, z }: Vector) {
 		const c1 = Math.cos(x / 2);
 		const c2 = Math.cos(y / 2);
 		const c3 = Math.cos(z / 2);
