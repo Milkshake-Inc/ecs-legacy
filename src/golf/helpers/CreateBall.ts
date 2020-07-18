@@ -10,7 +10,7 @@ import { SDFText } from "../systems/client/render/useSDFTextCouple";
 import GolfPlayer from "../components/GolfPlayer";
 import { Colors } from "../ui/Shared";
 
-const BALL_SIZE = 0.03;
+export const BALL_SIZE = 0.03;
 
 export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
     const entity = new Entity();

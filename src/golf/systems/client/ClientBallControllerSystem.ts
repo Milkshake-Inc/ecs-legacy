@@ -22,6 +22,9 @@ export class BallControllerState {
 }
 
 export default class ClientBallControllerSystem extends IterativeSystem {
+
+	private shootKey = Key.SPACEBAR;
+
 	protected keyboard: Keyboard;
 
 	protected queries = useQueries(this, {
@@ -72,7 +75,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
 
 		if (camera) {
-			if (this.keyboard.isPressed(Key.X)) {
+			if (this.keyboard.isPressed(this.shootKey)) {
 				this.state.power = 1;
 
 				this.networking.send({
@@ -80,20 +83,20 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				});
 			}
 
-			if (this.keyboard.isDown(Key.X)) {
+			if (this.keyboard.isDown(this.shootKey)) {
 				this.state.power += 1.2;
 				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
 
 				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
-			if (this.keyboard.isReleased(Key.X)) {
+			if (this.keyboard.isReleased(this.shootKey)) {
 				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
 
 				const powerVector = directionVector.multiF(mappedPower);
-				console.log(entity.get(Session).id);
+
 				this.networking.send({
 					opcode: GolfPacketOpcode.SHOOT_BALL,
 					velocity: {
@@ -114,31 +117,4 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	handleBallPot(packet: PotBall, entity: Entity) {
 		entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
 	}
-
-	// drawPowerBar() {
-	// 	this.graphics.clear();
-	// 	this.graphics.beginFill(Color.White);
-	// 	this.graphics.drawRect(0, 0, 400, 50);
-
-	// 	this.graphics.beginFill(Color.Gray);
-	// 	this.graphics.drawRect(5, 5, 400 - 10, 50 - 10);
-
-	// 	this.graphics.beginFill(0xff0050);
-	// 	const width = ((400 - 10) / 100) * this.power;
-	// 	this.graphics.drawRect(5, 5, width, 50 - 10);
-
-	// 	const quater = ((400 - 10) / 100) * 25;
-	// 	this.graphics.beginFill(Color.White);
-	// 	this.graphics.drawRect(5 + quater, 5, 2, 50 - 10);
-
-	// 	const half = ((400 - 10) / 100) * 50;
-	// 	this.graphics.beginFill(Color.White);
-	// 	this.graphics.drawRect(5 + half, 5, 2, 50 - 10);
-
-	// 	const threequater = ((400 - 10) / 100) * 75;
-	// 	this.graphics.beginFill(Color.White);
-	// 	this.graphics.drawRect(5 + threequater, 5, 2, 50 - 10);
-	// }
-
-
 }
