@@ -2,7 +2,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { BALL_MATERIAL, BALL_BODY } from '../constants/Physics';
+import { BALL_BODY } from '../constants/Physics';
 import { Sphere } from 'cannon-es';
 import { Mesh, SphereGeometry, MeshPhongMaterial } from 'three';
 import { SDFText } from '../systems/client/render/useSDFTextCouple';
@@ -28,7 +28,7 @@ export const createBallClient = (golfplayer: GolfPlayer, position: Vector3 = Vec
 			new MeshPhongMaterial({
 				color: golfplayer.color,
 				reflectivity: 0,
-				specular: 0
+				specular: 1
 			})
 		),
 		{ castShadow: true, receiveShadow: true }

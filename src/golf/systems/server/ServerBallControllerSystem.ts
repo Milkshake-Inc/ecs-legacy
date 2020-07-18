@@ -11,6 +11,7 @@ import Session from '@ecs/plugins/net/components/Session';
 import Transform from '@ecs/plugins/Transform';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/components/Collisions';
+import { Vec3 } from 'cannon-es';
 
 export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
@@ -61,7 +62,10 @@ export class ServerBallControllerSystem extends System {
 		console.log(`Recived shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
 
-		cannonBody.applyImpulse(ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z)), ToCannonVector3(Vector3.ZERO));
+		cannonBody.applyImpulse(
+			ToCannonVector3(new Vector3(packet.velocity.x * 1.5, 0, packet.velocity.z * 1.5)),
+			ToCannonVector3(Vector3.ZERO)
+		);
 	}
 
 	handleBallPot(entity: Entity) {
