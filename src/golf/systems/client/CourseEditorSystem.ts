@@ -26,10 +26,10 @@ import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeome
 import CoursePiece from '../../components/CoursePiece';
 import PlayerBall from '../../components/PlayerBall';
 import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
-import { FLOOR_MATERIAL } from '../../constants/Materials';
 import { buildCourcePieceEntity } from '../../utils/CourcePiece';
 import { deserializeMap, serializeMap } from '../../utils/Serialization';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
+import { COURSE_MATERIAL, COURSE_BODY } from 'src/golf/constants/Physics';
 
 enum EditorMode {
 	EDIT,
@@ -155,12 +155,7 @@ export class CourseEditorSystem extends System {
 			),
 			{ castShadow: true, receiveShadow: true }
 		);
-		entity.add(
-			new CannonBody({
-				mass: 1,
-				material: FLOOR_MATERIAL
-			})
-		);
+		entity.add(new CannonBody(COURSE_BODY));
 		entity.add(new Sphere(radius));
 
 		return entity;

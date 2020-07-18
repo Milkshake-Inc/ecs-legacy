@@ -9,6 +9,7 @@ import GolfAssets, { KenneyAssets } from '../constants/GolfAssets';
 import { deserializeMap } from '../utils/Serialization';
 import { Maps } from '../constants/Maps';
 import CoursePiece from '../components/CoursePiece';
+import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -61,6 +62,7 @@ export default class BaseGolfSpace extends Space {
 		ground.add(Transform, { rx: -Math.PI / 2, y: -0 });
 		ground.add(new Body());
 		ground.add(new Plane());
+		ground.add(FLOOR_BALL_MATERIAL);
 		return ground;
 	}
 }

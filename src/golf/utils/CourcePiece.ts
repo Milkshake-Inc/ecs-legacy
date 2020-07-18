@@ -5,10 +5,8 @@ import { Body, Sphere } from 'cannon-es';
 import { Material, Mesh } from 'three';
 import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../constants/GolfAssets';
-import { FLOOR_MATERIAL } from '../constants/Materials';
+import { COURSE_MATERIAL, COURSE_BODY } from '../constants/Physics';
 import Hole from '../components/Hole';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import Vector3 from '@ecs/math/Vector';
 
 export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: string, transform: Transform) => {
 	const entities: Entity[] = [];
@@ -39,11 +37,7 @@ export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: 
 	entity.add(model);
 	entity.add(new CoursePiece(modelName));
 	entity.add(new TrimeshShape());
-	entity.add(
-		new Body({
-			material: FLOOR_MATERIAL
-		})
-	);
+	entity.add(new Body(COURSE_BODY));
 	entities.push(entity);
 
 	if (hasHole) {

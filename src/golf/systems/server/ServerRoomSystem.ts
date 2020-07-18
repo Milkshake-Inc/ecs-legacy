@@ -7,7 +7,7 @@ import Session from '@ecs/plugins/net/components/Session';
 import { all } from '@ecs/utils/QueryHelper';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
-import { createBall } from '../../../golf/helpers/CreateBall';
+import { createBall } from '../../utils/CreateBall';
 import {
 	AllGamesRequest,
 	GameState,
