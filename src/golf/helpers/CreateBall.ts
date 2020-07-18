@@ -6,8 +6,11 @@ import { FLOOR_MATERIAL } from "../constants/Materials";
 import { Sphere } from "cannon-es";
 import { Mesh, SphereGeometry, MeshPhongMaterial } from "three";
 import Color from "@ecs/math/Color";
+import { SDFText } from "../systems/client/render/useSDFTextCouple";
+import GolfPlayer from "../components/GolfPlayer";
+import { Colors } from "../ui/Shared";
 
-const BALL_SIZE = 0.02;
+const BALL_SIZE = 0.03;
 
 export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
     const entity = new Entity();
@@ -15,7 +18,8 @@ export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
     entity.add(
         new CannonBody({
             mass: 1,
-            material: FLOOR_MATERIAL
+            material: FLOOR_MATERIAL,
+            angularDamping: 0.5,
         })
     );
     entity.add(new Sphere(BALL_SIZE));
@@ -23,20 +27,25 @@ export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
     return entity;
 }
 
-export const createBallClient = (position: Vector3 = Vector3.ZERO): Entity => {
+export const createBallClient = (golfplayer: GolfPlayer, position: Vector3 = Vector3.ZERO): Entity => {
     const entity = createBall(position)
 
     entity.add(
         new Mesh(
             new SphereGeometry(BALL_SIZE, 10, 10),
             new MeshPhongMaterial({
-                color: Color.White,
+                color: golfplayer.color,
                 reflectivity: 0,
-                specular: 0
+                specular: 0,
             })
         ),
         { castShadow: true, receiveShadow: true }
     );
+
+    entity.add(SDFText, {
+        value: golfplayer.name,
+        color: golfplayer.color
+    });
 
     return entity;
 }

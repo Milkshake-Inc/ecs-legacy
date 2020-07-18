@@ -49,6 +49,11 @@ export const useThreeCouple = <T extends Object3D>(
 				callbacks.onUpdate(entity, object3D, dt);
 			}
 		},
+		onLateUpdate: (entity, object3D, dt) => {
+			if (callbacks.onLateUpdate) {
+				callbacks.onLateUpdate(entity, object3D, dt);
+			}
+		},
 		onDestroy: (entity, object3D) => {
 			getRenderState().scene.remove(object3D);
 		}

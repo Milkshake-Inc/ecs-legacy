@@ -1,6 +1,7 @@
 import { useState } from '@ecs/ecs/helpers';
 import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
 import { Camera, Fog, OrthographicCamera, PCFSoftShadowMap, PerspectiveCamera, Scene } from 'three';
+import { useSDFTextCouple } from './render/useSDFTextCouple';
 
 export class GolfRenderState {
 	public uiScene: Scene;
@@ -21,7 +22,9 @@ export default class GolfRenderSystem extends RenderSystem {
 
 				scene.fog = new Fog(0x262626, 10, 200);
 			}
-		});
+		}, (system) => [
+			useSDFTextCouple(system)
+		]);
 
 		this.golfRenderState.canvas = this.state.renderer.domElement;
 		this.golfRenderState.canvas.autofocus = true;

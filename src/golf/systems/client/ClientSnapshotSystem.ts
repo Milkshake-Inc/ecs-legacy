@@ -84,7 +84,7 @@ export default class ClientSnapshotSystem extends System {
 			console.log("⏫  Upgrading player to ball")
 
 			// Need a nicer way - maybe pass entity in?
-			const ballPrefab = createBallClient();
+			const ballPrefab = createBallClient(entity.get(GolfPlayer));
 			ballPrefab.components.forEach(component => {
 				entity.add(component);
 			});

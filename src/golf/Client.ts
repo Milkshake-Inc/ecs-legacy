@@ -1,7 +1,7 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { ThreeEngine } from '@ecs/plugins/3d/ThreeEngine';
 import ClientGolfSpace from './spaces/ClientGolfSpace';
-import GolfRenderSystem from './systems/GolfRenderSystem';
+import GolfRenderSystem from './systems/client/GolfRenderSystem';
 import { render, h } from 'preact';
 import App from './ui/App';
 

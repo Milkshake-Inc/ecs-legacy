@@ -9,6 +9,7 @@ import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
+import { useThreeCouple } from '../couples/ThreeCouple';
 
 export type RenderSystemSettings = {
 	width: number;
@@ -37,10 +38,10 @@ export default class RenderSystem extends System {
 		useGroupCouple(this),
 		useLightCouple(this),
 		useRaycastCouple(this),
-		useRaycastDebugCouple(this)
+		useRaycastDebugCouple(this),
 	];
 
-	constructor(customSettings?: Partial<RenderSystemSettings>) {
+	constructor(customSettings?: Partial<RenderSystemSettings>, customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]) {
 		super();
 
 		const settings = {
@@ -48,14 +49,21 @@ export default class RenderSystem extends System {
 			...customSettings
 		};
 
+		if(customCouples) {
+			this.couples.push(...customCouples(this));
+		}
+
+
 		this.state.scene = new Scene();
 		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
-			antialias: true
+			antialias: true,
+			alpha: true,
 		});
 
 		this.state.renderer.setSize(settings.width, settings.height);
+		this.state.renderer.setClearAlpha(1.0);
 
 		if (settings.configure) {
 			settings.configure(this.state.renderer, this.state.scene);
@@ -71,6 +79,12 @@ export default class RenderSystem extends System {
 		super.updateFixed(dt);
 
 		this.couples.forEach(couple => couple.update(dt));
+	}
+
+	updateLate(dt: number) {
+		super.updateLate(dt);
+
+		this.couples.forEach(couple => couple.lateUpdate(dt));
 	}
 
 	updateRender(dt: number) {
