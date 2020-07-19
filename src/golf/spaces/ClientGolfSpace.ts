@@ -30,6 +30,7 @@ import GolfViewSystem from '../systems/client/GolfViewSystem';
 import GolfCameraSystem from '../systems/client/GolfCameraSystem';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
+import Config from '../utils/Config';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -56,7 +57,9 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 	}
 
 	setup() {
-		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, false, 0));
+		if (Config.debug) {
+			this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, true, 0));
+		}
 		super.setup();
 
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared

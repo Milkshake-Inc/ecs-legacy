@@ -11,6 +11,7 @@ import CoursePiece from '../components/CoursePiece';
 import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 import { loadMap } from '../utils/MapLoader';
 import { Maps } from '../constants/Maps';
+import { TerrainAnimationSystem } from '../systems/shared/TerrainAnimationSystem';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -50,19 +51,13 @@ export default class BaseGolfSpace extends Space {
 	}
 
 	setup() {
-		// this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 10, false, 3));
-
-		const ground = this.createGround();
-
-		this.addEntities(ground);
+		this.addSystem(new TerrainAnimationSystem());
 
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
-
 		const mapPieces = loadMap(this.golfAssets.maps.TRAIN);
 
 		mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
-
-		this.addEntities(...mapPieces);
+		this.addEntities(...mapPieces, this.createGround());
 	}
 
 	protected createGround(): Entity {

@@ -14,6 +14,7 @@ import GolfPlayer from '../../components/GolfPlayer';
 import PlayerBall from '../../components/PlayerBall';
 import { createBallClient } from '../../utils/CreateBall';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
+import Transform from '@ecs/plugins/Transform';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
@@ -98,7 +99,7 @@ export default class ClientSnapshotSystem extends System {
 		}
 
 		if (playerSnapshot.state == 'playing') {
-			const body = entity.get(CannonBody);
+			const body = entity.get(Transform);
 			body.position.set(playerSnapshot.x, playerSnapshot.y, playerSnapshot.z);
 		}
 	}

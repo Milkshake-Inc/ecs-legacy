@@ -4,12 +4,15 @@ import { Mesh, Material, Group, MeshPhongMaterial, MeshStandardMaterial, Color, 
 import Transform from '@ecs/plugins/Transform';
 import Hole from '../components/Hole';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { Box, Vec3 } from 'cannon-es';
+import { Box, Vec3, BODY_TYPES } from 'cannon-es';
 import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import { COURSE_BODY } from '../constants/Physics';
 import CoursePiece from '../components/CoursePiece';
 import Spawn from '../components/Spawn';
 import Vector3 from '@ecs/math/Vector';
+import Track from '../components/terrain/Track';
+import Cart from '../components/terrain/Cart';
+import Rotor from '../components/terrain/Rotor';
 
 const pieceModifiers = {
 	flag: (entity: Entity, node: Mesh, entities: Entity[]) => {
@@ -34,6 +37,15 @@ const pieceModifiers = {
 		entity.add(Spawn, {
 			position: new Vector3(pos.x, pos.y + 2, pos.z)
 		});
+	},
+	track: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		entity.add(Track);
+	},
+	cart: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		entity.add(Cart);
+	},
+	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		entity.add(Rotor);
 	}
 };
 
@@ -54,7 +66,7 @@ export const loadMap = (map: GLTF): Entity[] => {
 		}
 
 		// Create entities from course pieces
-		if (node instanceof Group && node != map.scene) {
+		if (node.parent == map.scene) {
 			console.log(node.name);
 			const entity = new Entity();
 			entity.add(Transform, {

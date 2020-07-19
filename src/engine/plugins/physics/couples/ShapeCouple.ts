@@ -484,7 +484,7 @@ export const applyToMeshesIndividually = (
 	object3d.traverse(mesh => {
 		mesh.updateWorldMatrix(true, false);
 		if (mesh instanceof Mesh) {
-			if (mesh.userData.nocollider || mesh.parent.userData.nocollider) return;
+			if (mesh.userData.nocollider || mesh.parent?.userData.nocollider) return;
 
 			if (mesh.geometry instanceof BufferGeometry) {
 				mesh.geometry = new Geometry().fromBufferGeometry(mesh.geometry);
