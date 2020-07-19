@@ -88,7 +88,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
-		camera.add(new PerspectiveCamera(75, 1280 / 720, 0.01, 1000));
+		camera.add(new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000));
 		camera.add(SoundListener);
 
 		const light = new Entity();
@@ -106,10 +106,13 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		const ground = super.createGround();
 		this.darkTexture.repeat.set(1000, 1000);
 		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
-		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0, color: 0x333333 })), {
-			castShadow: true,
-			receiveShadow: true
-		});
+		ground.add(
+			new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0, color: 0x333333 })),
+			{
+				castShadow: true,
+				receiveShadow: true
+			}
+		);
 		return ground;
 	}
 
