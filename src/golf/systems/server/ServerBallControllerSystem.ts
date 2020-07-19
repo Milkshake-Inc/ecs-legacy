@@ -42,7 +42,7 @@ export class ServerBallControllerSystem extends System {
 			}
 
 			// Below the level
-			if (transform.y < 0.3) {
+			if (transform.y < 0.05) {
 				this.resetBall(ball);
 			}
 

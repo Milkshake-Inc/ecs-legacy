@@ -52,7 +52,7 @@ export default class BaseGolfSpace extends Space {
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
 		const mapPieces = loadMap(this.golfAssets.maps.TRAIN);
 
-		mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
+		// mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
 		this.addEntities(...mapPieces, this.createGround());
 	}
 
