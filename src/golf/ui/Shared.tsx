@@ -15,11 +15,11 @@ export const Colors = {
 export const Flex = (props) => <Col display="flex" {...props} />;
 export const FlexCenter = (props) => <Flex justifyContent="center" alignItems="center" {...props} />;
 
-export const H1 = (props) => <Box {...props} fontSize="35px" />;
-export const H2 = (props) => <Box {...props} fontSize="30px" />;
+export const H1 = (props) => <Box {...props} fontSize="3vw" />;
+export const H2 = (props) => <Box {...props} fontSize="2.5vw" />;
 
 export const Button = (props) => <FlexCenter
-    fontSize="30px"
+    fontSize="3vw"
     background={Colors.PINK}
     borderRadius={5}
     padding="5px 20px"

@@ -1,15 +1,12 @@
-import { QueryPattern, all } from '@ecs/utils/QueryHelper';
+import { EngineContext, useQuery } from '@ecs/plugins/reactui';
+import { all } from '@ecs/utils/QueryHelper';
+import { Box, Row } from 'jsxstyle/preact';
 import { h } from 'preact';
-import { FullscreenModal } from './FullscreenModal';
-import { Block, Row, Box } from 'jsxstyle/preact';
-import { Flex, H1, H2, FlexCenter, Colors, Button } from './Shared';
-import { useQuery, EngineContext } from '@ecs/plugins/reactui';
-import Session from '@ecs/plugins/net/components/Session';
-import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
-import GolfPlayer from '../components/GolfPlayer';
-import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
-import { useGolfNetworking, GolfPacketOpcode } from '../constants/GolfNetworking';
 import { useContext } from 'preact/hooks';
+import GolfPlayer from '../components/GolfPlayer';
+import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
+import { FullscreenModal } from './FullscreenModal';
+import { Button, Colors, Flex, H1, H2 } from './Shared';
 
 export const Lobby = () => {
 
@@ -27,8 +24,7 @@ export const Lobby = () => {
 			color={`#${player.color.toString(16)}`}
 			background={ !(index % 2) && '#00000036' }
 			margin={0}
-			padding={8}
-
+			padding="0.6vw"
 		>
 			{player.name}
 		</H2>;
@@ -49,7 +45,7 @@ export const Lobby = () => {
 					{ players.map(createPlayer) }
 				</Flex>
 				<Flex width='56%' >
-					<Box height='77%' background={"url(assets/golf/map_preview.png)"} />
+					<Box height='77%' background={"url(assets/golf/map_preview.png)"} backgroundSize="cover" />
 					<Button props={ { onClick: handleStartGame } } borderRadius={0} height='23%' background={Colors.PINK} >
 						<H2 margin={0} >Start Game</H2>
 					</Button>
