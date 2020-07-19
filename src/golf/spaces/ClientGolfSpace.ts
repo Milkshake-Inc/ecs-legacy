@@ -21,7 +21,8 @@ import {
 	PerspectiveCamera,
 	PlaneGeometry,
 	RepeatWrapping,
-	Texture
+	Texture,
+	CameraHelper
 } from 'three';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
@@ -30,6 +31,10 @@ import GolfViewSystem from '../systems/client/GolfViewSystem';
 import CartTrackSystem from '../systems/shared/CartTrackSystem';
 import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
+import ParentTransformSystem from '@ecs/plugins/misc/ParentTransformSystem';
+import { all } from '@ecs/utils/QueryHelper';
+import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
+import { useQueries } from '@ecs/ecs/helpers';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -97,7 +102,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		});
 		light.get(DirectionalLight).shadow.mapSize.set(1024 * 4, 1024 * 4);
 		light.add(new AmbientLight(new ThreeColor(Color.White), 0.5));
-		light.add(Transform, { x: 5, y: 5, z: 5 });
+		light.add(Transform);
 
 		this.addEntities(light, camera, crosshair);
 	}

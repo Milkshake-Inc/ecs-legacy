@@ -1,23 +1,29 @@
 import Transform from '@ecs/plugins/Transform';
 import { all, any } from '@ecs/utils/QueryHelper';
-import { DirectionalLight, DirectionalLightHelper, Object3D, GridHelper, ArrowHelper } from 'three';
+import { ArrowHelper, CameraHelper, DirectionalLight, GridHelper, Group, Object3D } from 'three';
 import RenderSystem from '../systems/RenderSystem';
 import { useThreeCouple } from './ThreeCouple';
 
 export const useDebugCouple = (system: RenderSystem) =>
-	useThreeCouple<Object3D>(system, [all(Transform), any(DirectionalLight, GridHelper, ArrowHelper)], {
+	useThreeCouple<Object3D>(system, [all(Transform), any(DirectionalLight, GridHelper, ArrowHelper, CameraHelper)], {
 		onCreate: entity => {
-			if (entity.has(DirectionalLight)) {
-				const directionalLight = entity.get(DirectionalLight);
-				return new DirectionalLightHelper(directionalLight);
-			}
+			const group = new Group();
+			// if (entity.has(DirectionalLight)) {
+			// 	const directionalLight = entity.get(DirectionalLight);
+			// 	group.add(new DirectionalLightHelper(directionalLight));
+			// }
 
 			if (entity.has(GridHelper)) {
-				return entity.get(GridHelper);
+				group.add(entity.get(GridHelper));
 			}
 
 			if (entity.has(ArrowHelper)) {
-				return entity.get(ArrowHelper);
+				group.add(entity.get(ArrowHelper));
 			}
+			if (entity.has(CameraHelper)) {
+				console.log("Added")
+				group.add(entity.get(CameraHelper));
+			}
+			return group;
 		}
 	});

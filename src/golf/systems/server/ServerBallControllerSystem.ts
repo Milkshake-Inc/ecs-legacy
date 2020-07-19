@@ -89,6 +89,6 @@ export class ServerBallControllerSystem extends System {
 	handleBallPot(entity: Entity) {
 		this.networking.sendTo(entity, { opcode: GolfPacketOpcode.POT_BALL });
 		this.nextHole(entity);
-		setTimeout(() => this.resetBall(entity), 1000);
+		setTimeout(() => this.resetBall(entity), 1500);
 	}
 }

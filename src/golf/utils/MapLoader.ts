@@ -40,7 +40,7 @@ const pieceModifiers = {
 
 		entity.add(Spawn, {
 			index,
-			position: new Vector3(pos.x, pos.y + 2, pos.z)
+			position: new Vector3(pos.x, pos.y + 0.5, pos.z)
 		});
 	},
 	track: (entity: Entity, node: Mesh, entities: Entity[]) => {

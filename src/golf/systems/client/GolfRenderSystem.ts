@@ -1,6 +1,6 @@
 import { useState } from '@ecs/ecs/helpers';
 import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
-import { Camera, Fog, OrthographicCamera, PCFSoftShadowMap, PerspectiveCamera, Scene } from 'three';
+import { Camera, Fog, OrthographicCamera, PerspectiveCamera, Scene } from 'three';
 import { useSDFTextCouple } from './render/useSDFTextCouple';
 
 export class GolfRenderState {
@@ -20,8 +20,6 @@ export default class GolfRenderSystem extends RenderSystem {
 			{
 				color: 0x262626,
 				configure: (renderer, scene) => {
-					// renderer.setPixelRatio(2);
-					renderer.shadowMap.type = PCFSoftShadowMap;
 					renderer.shadowMap.enabled = true;
 
 					scene.fog = new Fog(0x262626, 10, 200);

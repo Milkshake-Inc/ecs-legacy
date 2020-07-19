@@ -198,18 +198,13 @@ export class ShipClient extends Space {
 
 		this.addSystem(
 			new ParentTransformSystem(all(PerspectiveCamera), [any(SkyBox)], {
-				followZ: true,
-				followX: true,
-				followY: true,
-				offset: new Vector3(0, 1000, 0)
+				y: 1000
 			})
 		);
 
 		this.addSystem(
 			new ParentTransformSystem(all(PerspectiveCamera), [any(Water)], {
-				followZ: true,
-				followX: true,
-				followY: false
+				y: false
 			})
 		);
 
