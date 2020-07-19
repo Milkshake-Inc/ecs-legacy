@@ -2,7 +2,6 @@ import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Vector3 from '@ecs/math/Vector';
 import Session from '@ecs/plugins/net/components/Session';
 import { all } from '@ecs/utils/QueryHelper';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
@@ -19,13 +18,16 @@ import {
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import Spawn from '../../../golf/components/Spawn';
+import Vector3 from '@ecs/math/Vector';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
 
 	private playerQueries = useQueries(this, {
 		players: all(GolfPlayer, Session),
-		balls: all(CannonBody, Session)
+		balls: all(CannonBody, Session),
+		spawn: all(Spawn)
 	});
 
 	private networking = useGolfNetworking(this);
@@ -44,7 +46,7 @@ class GolfGameServerEngine extends Engine {
 
 	handleStartGame(packet: StartGame, entity: Entity) {
 		this.playerQueries.players.entities.forEach(entity => {
-			const player = createBall(new Vector3(0, 2, 0));
+			const player = createBall(Vector3.From(this.playerQueries.spawn.first?.get(Spawn).position || new Vector3(0, 2, 0)));
 			player.add(PlayerBall);
 			console.log('Creating balls');
 			player.components.forEach(c => {

@@ -11,12 +11,14 @@ import Session from '@ecs/plugins/net/components/Session';
 import Transform from '@ecs/plugins/Transform';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/components/Collisions';
-import { Vec3 } from 'cannon-es';
+import Spawn from '../../components/Spawn';
+import { Vector2 } from 'three';
 
 export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
 		balls: all(PlayerBall),
-		hole: all(Hole)
+		hole: all(Hole),
+		spawn: all(Spawn)
 	});
 
 	protected networking = useGolfNetworking(this);
@@ -46,7 +48,7 @@ export class ServerBallControllerSystem extends System {
 	resetBall(entity: Entity) {
 		const cannonBody = entity.get(CannonBody);
 
-		cannonBody.position.set(0, 2, 0); // Course Spawn Position
+		cannonBody.position = ToCannonVector3(this.queries.spawn.first?.get(Spawn).position || new Vector3(0, 2, 0));
 		cannonBody.velocity.set(0, 0, 0);
 		cannonBody.angularVelocity.set(0, 0, 0);
 	}

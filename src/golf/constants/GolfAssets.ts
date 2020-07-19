@@ -5,10 +5,16 @@ type AssetsMap<T, K> = {
 };
 
 export type KenneyAssetsGLTF = Partial<AssetsMap<typeof KenneyAssets, GLTF>>;
+export type MapAssetsGLTF = Partial<AssetsMap<typeof MapAssets, GLTF>>;
 
 export default class GolfAssets {
 	gltfs: KenneyAssetsGLTF = {};
+	maps: MapAssetsGLTF = {};
 }
+
+export const MapAssets = {
+	TRAIN: 'course-train.glb'
+};
 
 export const KenneyAssets = {
 	BALL_BLUE: 'ball_blue.glb',

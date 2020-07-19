@@ -5,11 +5,12 @@ import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
-import GolfAssets, { KenneyAssets } from '../constants/GolfAssets';
+import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
 import { deserializeMap } from '../utils/Serialization';
-import { Maps } from '../constants/Maps';
 import CoursePiece from '../components/CoursePiece';
 import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
+import { loadMap } from '../utils/MapLoader';
+import { Maps } from '../constants/Maps';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -40,7 +41,12 @@ export default class BaseGolfSpace extends Space {
 			this.golfAssets.gltfs[key] = gltf;
 		});
 
-		await Promise.all(loadModels);
+		const loadMaps = Object.keys(MapAssets).map(async key => {
+			const gltf = await LoadGLTF(`assets/golf/maps/${MapAssets[key]}`);
+			this.golfAssets.maps[key] = gltf;
+		});
+
+		await Promise.all([...loadModels, ...loadMaps]);
 	}
 
 	setup() {
@@ -50,7 +56,9 @@ export default class BaseGolfSpace extends Space {
 
 		this.addEntities(ground);
 
-		const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
+		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
+
+		const mapPieces = loadMap(this.golfAssets.maps.TRAIN);
 
 		mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
 
