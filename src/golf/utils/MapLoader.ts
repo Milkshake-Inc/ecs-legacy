@@ -43,6 +43,7 @@ const pieceModifiers = {
 	},
 	cart: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.add(Cart);
+		entity.remove(CannonBody);
 	},
 	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.add(Rotor);

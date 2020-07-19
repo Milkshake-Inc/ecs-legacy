@@ -31,6 +31,7 @@ import GolfCameraSystem from '../systems/client/GolfCameraSystem';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 import Config from '../utils/Config';
+import CartTrackSystem from '../systems/shared/CartTrackSystem';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -73,6 +74,8 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new GolfViewSystem());
 		this.addSystem(new GolfCameraSystem(this.worldEngine));
 		this.addSystem(new SoundSystem());
+
+		this.addSystem(new CartTrackSystem());
 
 		this.setupEntities();
 	}
