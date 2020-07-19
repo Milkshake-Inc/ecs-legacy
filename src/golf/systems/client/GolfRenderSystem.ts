@@ -36,6 +36,12 @@ export default class GolfRenderSystem extends RenderSystem {
 		this.golfRenderState.uiScene = new Scene();
 
 		this.state.renderer.autoClear = false;
+
+		this.state.renderer.domElement.style.width = "100vw";
+		this.state.renderer.domElement.style.height = "56vw";
+
+		document.body.style.margin = "0px";
+		document.body.style.background = "#111111"
 	}
 
 	render() {
