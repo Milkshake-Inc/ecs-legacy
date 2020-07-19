@@ -51,7 +51,6 @@ export default class BaseGolfSpace extends Space {
 	}
 
 	setup() {
-		this.addSystem(new TerrainAnimationSystem());
 
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
 		const mapPieces = loadMap(this.golfAssets.maps.TRAIN);

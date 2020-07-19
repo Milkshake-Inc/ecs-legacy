@@ -1,6 +1,7 @@
 import { Class } from '../utils/Class';
 
 const componentIds = new Map<string, number>();
+let componentClassId = 1;
 
 /**
  * Gets an id for a component class.
@@ -22,4 +23,10 @@ export function getComponentId<T>(component: Class<T>, createIfNotExists = false
 	return undefined;
 }
 
-let componentClassId = 1;
+export function getComponentIdByName<T>(className: string): number | undefined {
+	if (componentIds.has(className)) {
+		return componentIds.get(className);
+	}
+
+	return undefined;
+}

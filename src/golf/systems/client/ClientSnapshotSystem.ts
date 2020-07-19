@@ -15,6 +15,10 @@ import PlayerBall from '../../components/PlayerBall';
 import { createBallClient } from '../../utils/CreateBall';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
 import Transform from '@ecs/plugins/Transform';
+import Synchronize from '../../components/Synchronize';
+import { getComponentIdByName } from '@ecs/ecs/ComponentId';
+import { flatten, unflatten } from 'flat';
+import GolfSnapshotInterpolation from '../../utils/GolfSnapshotInterpolation';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
@@ -22,14 +26,16 @@ const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Ses
 export default class ClientSnapshotSystem extends System {
 	protected queries = useQueries(this, {
 		players: all(GolfPlayer),
-		sessions: all(Session)
+		sessions: all(Session),
+		entities: all(Synchronize)
 	});
 
 	protected network = useNetworking(this);
 
 	protected views = useSingletonQuery(this, Views);
 
-	protected snapshotInterpolation = new SnapshotInterpolation(TICK_RATE);
+	protected snapshotPlayerInterpolation = new SnapshotInterpolation(TICK_RATE);
+	protected snapshotEntitiesInterpolation = new GolfSnapshotInterpolation(TICK_RATE);
 
 	private state = useState(this, new GolfGameState(), {
 		state: GameState.LOBBY
@@ -42,7 +48,8 @@ export default class ClientSnapshotSystem extends System {
 	}
 
 	handleWorldUpdate({ snapshot }: WorldSnapshot<GolfWorldSnapshot>) {
-		this.snapshotInterpolation.snapshot.add(snapshot.players);
+		this.snapshotPlayerInterpolation.snapshot.add(snapshot.players);
+		this.snapshotEntitiesInterpolation.snapshot.add(snapshot.entities);
 
 		// Apply updates to state
 		Object.assign(this.state, snapshot.state);
@@ -107,7 +114,7 @@ export default class ClientSnapshotSystem extends System {
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		const interpolatedPlayersSnapshot = this.snapshotInterpolation.calcInterpolation('x y z');
+		const interpolatedPlayersSnapshot = this.snapshotPlayerInterpolation.calcInterpolation('x y z');
 
 		if (interpolatedPlayersSnapshot) {
 			const interpolatedPlayerState = (interpolatedPlayersSnapshot.state as any) as GolfSnapshotPlayer[];
@@ -126,5 +133,29 @@ export default class ClientSnapshotSystem extends System {
 				}
 			}
 		}
+
+		if(this.snapshotEntitiesInterpolation.vault.get()) {
+
+		const interpolatedEntitiesSnapshot = this.snapshotEntitiesInterpolation.calcInterpolation('any');
+
+		if(interpolatedEntitiesSnapshot) {
+			Object.keys(interpolatedEntitiesSnapshot.state).forEach((entitySnapKey) => {
+				const entitySnap = interpolatedEntitiesSnapshot.state[entitySnapKey];
+
+				const entity = this.queries.entities.find((e) => {
+					return e.get(Synchronize).id == entitySnap.id;
+				})
+
+				Object.keys(entitySnap.components).forEach(key => {
+					const componentId = getComponentIdByName(key);
+					const component = entity.components.get(componentId);
+					const data = entitySnap.components[key];
+					Object.assign(component, data)
+				});
+
+			})
+		}
+	}
+
 	}
 }

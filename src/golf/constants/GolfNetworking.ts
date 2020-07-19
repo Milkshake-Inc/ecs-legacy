@@ -26,6 +26,7 @@ export class GolfGameState {
 
 export type GolfWorldSnapshot = {
 	players: Snapshot;
+	entities: Snapshot;
 	state: GolfGameState;
 };
 

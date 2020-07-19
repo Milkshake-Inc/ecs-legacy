@@ -13,6 +13,7 @@ import Vector3 from '@ecs/math/Vector';
 import Track from '../components/terrain/Track';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
+import Synchronize from '../components/Synchronize';
 
 const pieceModifiers = {
 	flag: (entity: Entity, node: Mesh, entities: Entity[]) => {
@@ -53,21 +54,28 @@ const pieceModifiers = {
 		entity.remove(CannonBody);
 	},
 	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		const uniqueId = `${node.name}`
 		entity.add(Rotor);
+		entity.add(Synchronize, {
+			id: uniqueId,
+			components: {
+				Transform
+			}
+		})
 	}
 };
 
 export const loadMap = (map: GLTF): Entity[] => {
 	const entities: Entity[] = [];
-
 	map.scene.traverse(node => {
 		// Enable shadows etc on all models
 		if (node instanceof Mesh && node.material instanceof Material) {
 			node.material = new MeshPhongMaterial({
-				color: (node.material as MeshStandardMaterial).color
+				color: (node.material as MeshStandardMaterial).color,
+				specular: 0,
 			});
 
-			// node.material.flatShading = true;
+			node.material.flatShading = true;
 			node.material.transparent = false;
 			node.castShadow = true;
 			node.receiveShadow = true;
@@ -75,7 +83,6 @@ export const loadMap = (map: GLTF): Entity[] => {
 
 		// Create entities from course pieces
 		if (node.parent == map.scene) {
-			console.log(node.name);
 			const entity = new Entity();
 			entity.add(Transform, {
 				x: node.position.x,
