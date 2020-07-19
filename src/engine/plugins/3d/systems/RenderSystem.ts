@@ -3,7 +3,7 @@ import { System } from '@ecs/ecs/System';
 import { usePerspectiveCameraCouple } from '../couples/PerspectiveCameraCouple';
 import { useMeshCouple } from '../couples/MeshCouple';
 import RenderState from '../components/RenderState';
-import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor, sRGBEncoding } from 'three';
 import { any } from '@ecs/utils/QueryHelper';
 import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/math/Color';
@@ -38,10 +38,13 @@ export default class RenderSystem extends System {
 		useGroupCouple(this),
 		useLightCouple(this),
 		useRaycastCouple(this),
-		useRaycastDebugCouple(this),
+		useRaycastDebugCouple(this)
 	];
 
-	constructor(customSettings?: Partial<RenderSystemSettings>, customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]) {
+	constructor(
+		customSettings?: Partial<RenderSystemSettings>,
+		customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
+	) {
 		super();
 
 		const settings = {
@@ -49,19 +52,19 @@ export default class RenderSystem extends System {
 			...customSettings
 		};
 
-		if(customCouples) {
+		if (customCouples) {
 			this.couples.push(...customCouples(this));
 		}
-
 
 		this.state.scene = new Scene();
 		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
 			antialias: true,
-			alpha: true,
+			alpha: true
 		});
 
+		this.state.renderer.outputEncoding = sRGBEncoding;
 		this.state.renderer.setSize(settings.width, settings.height);
 		this.state.renderer.setClearAlpha(1.0);
 

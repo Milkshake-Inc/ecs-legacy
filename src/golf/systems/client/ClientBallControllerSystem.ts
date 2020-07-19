@@ -22,7 +22,6 @@ export class BallControllerState {
 }
 
 export default class ClientBallControllerSystem extends IterativeSystem {
-
 	private shootKey = Key.SPACEBAR;
 
 	protected keyboard: Keyboard;
@@ -33,7 +32,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 	protected state = useState(this, new BallControllerState(), {
 		power: 0
-	})
+	});
 
 	protected networking = useGolfNetworking(this);
 
@@ -115,6 +114,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	}
 
 	handleBallPot(packet: PotBall, entity: Entity) {
-		entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
+		console.log('☀SUNSHINE DAY!☀');
+		// entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
 	}
 }

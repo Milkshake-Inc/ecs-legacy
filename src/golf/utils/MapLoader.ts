@@ -1,6 +1,6 @@
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Entity } from '@ecs/ecs/Entity';
-import { Mesh, Material, Group, MeshPhongMaterial, MeshStandardMaterial, Color } from 'three';
+import { Mesh, Material, Group, MeshPhongMaterial, MeshStandardMaterial, Color, MeshPhysicalMaterial } from 'three';
 import Transform from '@ecs/plugins/Transform';
 import Hole from '../components/Hole';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
@@ -46,7 +46,8 @@ export const loadMap = (map: GLTF): Entity[] => {
 			node.material = new MeshPhongMaterial({
 				color: (node.material as MeshStandardMaterial).color
 			});
-			node.material.flatShading = true;
+
+			// node.material.flatShading = true;
 			node.material.transparent = false;
 			node.castShadow = true;
 			node.receiveShadow = true;
