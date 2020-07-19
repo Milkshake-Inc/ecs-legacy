@@ -1,1 +1,3 @@
-export default class Track {}
+export default class Track {
+	constructor(public rotate = 0) {}
+}

@@ -7,6 +7,7 @@ import { Query } from '@ecs/ecs/Query';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Cart from '../../components/terrain/Cart';
 import MathHelper from '@ecs/math/MathHelper';
+import Vector3 from '@ecs/math/Vector';
 
 export class TrackPath {
 	public path: Entity[] = [];
@@ -38,7 +39,7 @@ export default class CartTrackSystem extends IterativeSystem {
 
 				cart.previousTrackIndex = trackIndex != -1 ? trackIndex - 1 : this.state.path.length - 1;
 				cart.trackIndex = trackIndex != -1 ? trackIndex : 0;
-				cart.nextTrackIndex = trackIndex != -1 ? trackIndex + 1 : 1;
+				cart.startRotation = cart.targetRotation = transform.ry;
 			}
 
 			// increment to next index if reached target
@@ -46,8 +47,10 @@ export default class CartTrackSystem extends IterativeSystem {
 				cart.elapsed -= 1000;
 
 				cart.previousTrackIndex = cart.trackIndex;
-				cart.trackIndex = cart.nextTrackIndex;
-				cart.nextTrackIndex = cart.nextTrackIndex == this.state.path.length - 1 ? 0 : cart.nextTrackIndex + 1;
+				cart.trackIndex = cart.trackIndex == this.state.path.length - 1 ? 0 : cart.trackIndex + 1;
+
+				cart.startRotation = transform.ry;
+				cart.targetRotation = transform.ry + MathHelper.toRadians(this.state.path[cart.trackIndex].get(Track).rotate);
 			}
 
 			transform.position = MathHelper.lerpVector3(
@@ -56,19 +59,7 @@ export default class CartTrackSystem extends IterativeSystem {
 				MathHelper.map(0, 1000, 0, 1, cart.elapsed)
 			);
 
-			// const dir = transform.position.sub(this.state.path[cart.nextTrackIndex].get(Transform).position).normalize();
-			// transform.ry = -Math.atan2(dir.z, dir.x);
-
-			// transform.quaternion = this.state.path[cart.previousTrackIndex]
-			// 	.get(Transform)
-			// 	.clone()
-			// 	.quaternion.slerp(this.state.path[cart.trackIndex].get(Transform).quaternion, MathHelper.map(0, 1000, 0, 1, cart.elapsed));
-
-			transform.ry = MathHelper.lerpAngle(
-				this.state.path[cart.previousTrackIndex].get(Transform).ry,
-				this.state.path[cart.trackIndex].get(Transform).ry,
-				MathHelper.map(0, 1000, 0, 1, cart.elapsed)
-			);
+			transform.ry = MathHelper.lerpAngle(cart.startRotation, cart.targetRotation, MathHelper.map(0, 1000, 0, 1, cart.elapsed));
 
 			cart.elapsed += dt;
 		}
@@ -79,9 +70,7 @@ export default class CartTrackSystem extends IterativeSystem {
 			const tracks = this.queries.track;
 
 			this.state.path = this.findNeighbors(tracks.first, tracks, [tracks.first]);
-
-			window['path'] = this.state.path;
-			console.log(this.state.path);
+			this.state.path.reverse();
 		}
 
 		super.update(dt);

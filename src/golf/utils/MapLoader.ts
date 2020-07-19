@@ -39,7 +39,14 @@ const pieceModifiers = {
 		});
 	},
 	track: (entity: Entity, node: Mesh, entities: Entity[]) => {
-		entity.add(Track);
+		let rotate = 0;
+
+		if (node.name.includes('left')) {
+			rotate = -90;
+		} else if (node.name.includes('right')) {
+			rotate = 90;
+		}
+		entity.add(Track, { rotate });
 	},
 	cart: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.add(Cart);
