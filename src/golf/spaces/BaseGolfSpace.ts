@@ -5,13 +5,10 @@ import Transform from '@ecs/plugins/Transform';
 import { LoadGLTF } from '@ecs/utils/ThreeHelper';
 import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
-import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
-import { deserializeMap } from '../utils/Serialization';
 import CoursePiece from '../components/CoursePiece';
+import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
 import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 import { loadMap } from '../utils/MapLoader';
-import { Maps } from '../constants/Maps';
-import { TerrainAnimationSystem } from '../systems/shared/TerrainAnimationSystem';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;

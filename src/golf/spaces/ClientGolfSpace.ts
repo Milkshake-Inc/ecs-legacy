@@ -2,13 +2,13 @@ import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
-import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
 import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Sprite from '@ecs/plugins/render/components/Sprite';
-import RenderSystem from '@ecs/plugins/render/systems/RenderSystem';
+import SoundListener from '@ecs/plugins/sound/components/SoundListener';
+import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
 import Transform from '@ecs/plugins/Transform';
 import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
 import { LoadTexture } from '@ecs/utils/ThreeHelper';
@@ -25,13 +25,11 @@ import {
 } from 'three';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
-import BaseGolfSpace from './BaseGolfSpace';
-import GolfViewSystem from '../systems/client/GolfViewSystem';
 import GolfCameraSystem from '../systems/client/GolfCameraSystem';
-import SoundListener from '@ecs/plugins/sound/components/SoundListener';
-import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
-import Config from '../utils/Config';
+import GolfViewSystem from '../systems/client/GolfViewSystem';
 import CartTrackSystem from '../systems/shared/CartTrackSystem';
+import Config from '../utils/Config';
+import BaseGolfSpace from './BaseGolfSpace';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -68,7 +66,6 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
 
 		this.addSystem(new InputSystem());
-		this.addSystem(new RenderSystem(1280, 720, undefined, 1, false));
 
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 		this.addSystem(new GolfViewSystem());
@@ -100,7 +97,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		});
 		light.get(DirectionalLight).shadow.mapSize.set(1024 * 4, 1024 * 4);
 		light.add(new AmbientLight(new ThreeColor(Color.White), 0.5));
-		light.add(Transform, { x: 5 / 10, y: 10 / 10, z: 5 / 10 });
+		light.add(Transform, { x: 5, y: 5, z: 5 });
 
 		this.addEntities(light, camera, crosshair);
 	}
@@ -109,7 +106,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		const ground = super.createGround();
 		this.darkTexture.repeat.set(1000, 1000);
 		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
-		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0 })), {
+		ground.add(new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0, color: 0x333333 })), {
 			castShadow: true,
 			receiveShadow: true
 		});
