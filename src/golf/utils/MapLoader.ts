@@ -35,7 +35,11 @@ const pieceModifiers = {
 	},
 	spawn: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		const pos = entity.get(Transform);
+
+		const index = parseInt(node.name.match(/\d+/)[0]) || 0;
+
 		entity.add(Spawn, {
+			index,
 			position: new Vector3(pos.x, pos.y + 2, pos.z)
 		});
 	},

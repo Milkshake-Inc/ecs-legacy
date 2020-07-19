@@ -1,1 +1,3 @@
-export default class PlayerBall {}
+export default class PlayerBall {
+	constructor(public spawn = 0) {}
+}

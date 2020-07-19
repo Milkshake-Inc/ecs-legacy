@@ -10,17 +10,17 @@ import GolfPlayer from '../components/GolfPlayer';
 
 export const BALL_SIZE = 0.03;
 
-export const createBall = (position: Vector3 = Vector3.ZERO): Entity => {
+export const createBall = (): Entity => {
 	const entity = new Entity();
-	entity.add(Transform, { position });
+	entity.add(Transform, {});
 	entity.add(new CannonBody(BALL_BODY));
 	entity.add(new Sphere(BALL_SIZE));
 
 	return entity;
 };
 
-export const createBallClient = (golfplayer: GolfPlayer, position: Vector3 = Vector3.ZERO): Entity => {
-	const entity = createBall(position);
+export const createBallClient = (golfplayer: GolfPlayer): Entity => {
+	const entity = createBall();
 
 	entity.add(
 		new Mesh(

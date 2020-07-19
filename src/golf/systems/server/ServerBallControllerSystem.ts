@@ -12,7 +12,7 @@ import Transform from '@ecs/plugins/Transform';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/components/Collisions';
 import Spawn from '../../components/Spawn';
-import { Vector2 } from 'three';
+import { Player } from 'src/golf/components/Player';
 
 export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
@@ -30,15 +30,23 @@ export class ServerBallControllerSystem extends System {
 		this.networking.on(GolfPacketOpcode.PREP_SHOOT, (packet, entity) => this.handlePrepShot(packet, entity));
 	}
 
+	get spawns() {
+		return this.queries.spawn.map(s => s.get(Spawn)).sort(s => s.index);
+	}
+
 	updateFixed(deltaTime: number) {
 		this.queries.balls.forEach(ball => {
 			const transform = ball.get(Transform);
+			if (transform.position == Vector3.ZERO) {
+				this.resetBall(ball);
+			}
+
 			// Below the level
 			if (transform.y < 0.3) {
 				this.resetBall(ball);
 			}
 
-			if (ball.get(Collisions).hasCollidedWith(this.queries.hole.first)) {
+			if (ball.get(Collisions).hasCollidedWith(...this.queries.hole.map(h => h))) {
 				// Debounce incase called twice?
 				this.handleBallPot(ball);
 			}
@@ -48,7 +56,7 @@ export class ServerBallControllerSystem extends System {
 	resetBall(entity: Entity) {
 		const cannonBody = entity.get(CannonBody);
 
-		cannonBody.position = ToCannonVector3(this.queries.spawn.first?.get(Spawn).position || new Vector3(0, 2, 0));
+		cannonBody.position = ToCannonVector3(this.spawns[entity.get(PlayerBall).spawn].position);
 		cannonBody.velocity.set(0, 0, 0);
 		cannonBody.angularVelocity.set(0, 0, 0);
 	}
@@ -61,7 +69,7 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	handleShootBall(packet: ShootBall, entity: Entity) {
-		console.log(`Recived shot from ${entity.get(Session).id}`);
+		console.log(`Received shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
 
 		cannonBody.applyImpulse(
@@ -70,8 +78,17 @@ export class ServerBallControllerSystem extends System {
 		);
 	}
 
+	nextHole(entity: Entity) {
+		// TODO this should be shared across room
+		const spawns = this.spawns;
+		const playerBall = entity.get(PlayerBall);
+
+		playerBall.spawn = playerBall.spawn == spawns.length - 1 ? 0 : playerBall.spawn + 1;
+	}
+
 	handleBallPot(entity: Entity) {
 		this.networking.sendTo(entity, { opcode: GolfPacketOpcode.POT_BALL });
+		this.nextHole(entity);
 		setTimeout(() => this.resetBall(entity), 1000);
 	}
 }

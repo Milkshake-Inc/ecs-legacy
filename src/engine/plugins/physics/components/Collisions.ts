@@ -5,7 +5,10 @@ export default class Collisions {
 	public contacts: Map<Entity, ContactEquation> = new Map();
 	public collisionHandler: (event: any) => any;
 
-	public hasCollidedWith(entity: Entity) {
-		return this.contacts.has(entity);
+	public hasCollidedWith(...entities: Entity[]) {
+		for (const entity of entities) {
+			if (this.contacts.has(entity)) return true;
+		}
+		return false;
 	}
 }

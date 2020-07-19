@@ -46,7 +46,7 @@ class GolfGameServerEngine extends Engine {
 
 	handleStartGame(packet: StartGame, entity: Entity) {
 		this.playerQueries.players.entities.forEach(entity => {
-			const player = createBall(Vector3.From(this.playerQueries.spawn.first?.get(Spawn).position || new Vector3(0, 2, 0)));
+			const player = createBall();
 			player.add(PlayerBall);
 			console.log('Creating balls');
 			player.components.forEach(c => {
