@@ -58,14 +58,14 @@ const pieceModifiers = {
 		entity.remove(CannonBody);
 	},
 	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
-		const uniqueId = `${node.name}`
+		const uniqueId = `${node.name}`;
 		entity.add(Rotor);
 		entity.add(Synchronize, {
 			id: uniqueId,
 			components: {
 				Transform
 			}
-		})
+		});
 	}
 };
 
@@ -76,7 +76,7 @@ export const loadMap = (map: GLTF): Entity[] => {
 		if (node instanceof Mesh && node.material instanceof Material) {
 			node.material = new MeshPhongMaterial({
 				color: (node.material as MeshStandardMaterial).color,
-				specular: 0,
+				specular: 0
 			});
 
 			node.material.flatShading = true;

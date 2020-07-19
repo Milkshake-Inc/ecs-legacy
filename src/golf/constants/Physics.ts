@@ -1,13 +1,17 @@
 import { Material, ContactMaterial, Vec3 } from 'cannon-es';
 import { CannonBodyOptions } from '@ecs/plugins/physics/components/CannonBody';
 
+export const BALL_HIT_POWER = 1.25;
+
 export const COURSE_MATERIAL = new Material('COURSE_MATERIAL');
 
 export const BALL_MATERIAL = new Material('BALL_MATERIAL');
 
 export const FLOOR_BALL_MATERIAL = new ContactMaterial(COURSE_MATERIAL, BALL_MATERIAL, {
 	friction: 0.3,
-	restitution: 0.8
+	restitution: 0.8,
+	// contactEquationStiffness: 1e10,
+	frictionEquationStiffness: 1e2
 });
 
 export const BALL_BODY: CannonBodyOptions = {

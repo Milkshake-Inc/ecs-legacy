@@ -12,7 +12,7 @@ import Transform from '@ecs/plugins/Transform';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/components/Collisions';
 import Spawn from '../../components/Spawn';
-import { Player } from 'src/golf/components/Player';
+import { BALL_HIT_POWER } from '../../constants/Physics';
 
 export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
@@ -73,7 +73,7 @@ export class ServerBallControllerSystem extends System {
 		const cannonBody = entity.get(CannonBody);
 
 		cannonBody.applyImpulse(
-			ToCannonVector3(new Vector3(packet.velocity.x * 1.5, 0, packet.velocity.z * 1.5)),
+			ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z).multiF(BALL_HIT_POWER)),
 			ToCannonVector3(Vector3.ZERO)
 		);
 	}
