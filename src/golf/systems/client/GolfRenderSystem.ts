@@ -1,6 +1,7 @@
 import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
 import { Camera, Fog, PerspectiveCamera } from 'three';
 import { useSDFTextCouple } from './render/useSDFTextCouple';
+import Config from '../../utils/Config';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -35,6 +36,18 @@ export default class GolfRenderSystem extends RenderSystem {
 		// Resize events to make fullscreen
 		window.addEventListener('orientationchange', () => this.resize());
 		window.addEventListener('resize', () => this.resize());
+
+		if (Config.debug) {
+			(function () {
+				const old = console.log;
+				const logger = document.createElement('div');
+				document.body.prepend(logger);
+				logger.style.color = 'white';
+				console.log = function (...message) {
+					logger.innerHTML = JSON.stringify(message);
+				};
+			})();
+		}
 	}
 
 	get width() {
