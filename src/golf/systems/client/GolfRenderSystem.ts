@@ -33,6 +33,7 @@ export default class GolfRenderSystem extends RenderSystem {
 		this.golfRenderState.canvas = this.state.renderer.domElement;
 		this.golfRenderState.canvas.autofocus = true;
 
+		this.state.renderer.setPixelRatio(window.devicePixelRatio);
 		this.golfRenderState.uiCamera = new OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 2);
 		this.golfRenderState.uiCamera.position.z = 1;
 		this.golfRenderState.uiScene = new Scene();
