@@ -22,3 +22,14 @@ export const serializeMap = (coursePiecesEntites: Query) => {
 export const deserializeMap = (golfAssets: KenneyAssetsGLTF, value: { modelName: string; transform: any }[]): Entity[] => {
 	return value.flatMap(piece => buildCourcePieceEntity(golfAssets, piece.modelName, Transform.From(piece.transform)));
 };
+
+export const deepMerge = (target: any, source: any) => {
+	Object.entries(source).forEach(([key, value]) => {
+		if (value && typeof value === 'object') {
+			deepMerge(target[key] = target[key] || {}, value);
+			return;
+		}
+		target[key] = value;
+	});
+	return target;
+}

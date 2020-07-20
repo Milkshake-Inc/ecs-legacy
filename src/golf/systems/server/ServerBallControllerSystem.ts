@@ -31,7 +31,7 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	get spawns() {
-		return this.queries.spawn.map(s => s.get(Spawn)).sort(s => s.index);
+		return this.queries.spawn.map(s => s.get(Spawn)).sort((a,b) => a.index - b.index);
 	}
 
 	updateFixed(deltaTime: number) {
@@ -63,6 +63,9 @@ export class ServerBallControllerSystem extends System {
 
 	handlePrepShot(packet: any, entity: Entity) {
 		const cannonBody = entity.get(CannonBody);
+
+
+		console.log(this.spawns);
 
 		cannonBody.velocity.set(0, 0, 0);
 		cannonBody.angularVelocity.set(0, 0, 0);

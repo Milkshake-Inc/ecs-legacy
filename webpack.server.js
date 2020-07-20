@@ -15,8 +15,13 @@ const config = {
 	},
 	plugins: [
 		new NodemonPlugin({
+			nodeArgs: ['--inspect'],
+			watch: path.resolve('./bin'),
+			ignore: ['client.js', 'client.js.map'],
+			ext: 'js,glb',
+			delay: '500',
 			quiet: true,
-			nodeArgs: ['--inspect']
+			verbose: false,
 		}),
 		new WebpackBar({
 			name: 'Server',

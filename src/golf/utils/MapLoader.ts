@@ -1,10 +1,10 @@
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Entity } from '@ecs/ecs/Entity';
-import { Mesh, Material, Group, MeshPhongMaterial, MeshStandardMaterial, Color, MeshPhysicalMaterial } from 'three';
+import { Mesh, Material, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import Transform from '@ecs/plugins/Transform';
 import Hole from '../components/Hole';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { Box, Vec3, BODY_TYPES } from 'cannon-es';
+import { Box, Vec3 } from 'cannon-es';
 import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
 import { COURSE_BODY } from '../constants/Physics';
 import CoursePiece from '../components/CoursePiece';
@@ -58,7 +58,7 @@ const pieceModifiers = {
 		entity.remove(CannonBody);
 	},
 	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
-		const uniqueId = `${node.name}`;
+		const uniqueId = `${node.name}${node.position.toArray()}`;
 		entity.add(Rotor);
 		entity.add(Synchronize, {
 			id: uniqueId,
@@ -94,7 +94,10 @@ export const loadMap = (map: GLTF): Entity[] => {
 				z: node.position.z,
 				rx: node.rotation.x,
 				ry: node.rotation.y,
-				rz: node.rotation.z
+				rz: node.rotation.z,
+				sx: node.scale.x,
+				sy: node.scale.y,
+				sz: node.scale.z
 			});
 			entity.add(node);
 			entity.add(CoursePiece);

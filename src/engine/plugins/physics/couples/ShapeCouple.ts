@@ -30,7 +30,6 @@ import CapsuleShape from '../components/CapsuleShape';
 import CannonInstancedBody from '../components/CannonInstancedBody';
 import GLTFShape from '../components/GLTFShape';
 import { getGeometry } from '@ecs/plugins/3d/utils/MeshUtils';
-import Vector3, { Vector } from '@ecs/math/Vector';
 import { ToCannonVector3 } from '../utils/Conversions';
 import TrimeshShape from '../components/TrimeshShape';
 
@@ -149,7 +148,11 @@ export const useShapeCouple = (system: System) =>
 									if (child.userData.shape === 'mesh') {
 										child.visible = visible;
 
-										const shape = generateConvexPolyhedron(child as Mesh, child.scale);
+										const mesh = child.clone() as Mesh;
+										const geometry = getGeometry(mesh);
+										geometry.scale(child.scale.x, child.scale.y, child.scale.z);
+
+										const shape = generateConvexPolyhedron(geometry);
 										body.addShape(shape, pos);
 										shapes.push(shape);
 									}
@@ -225,11 +228,8 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(BoundingBoxShape)) {
 					const shapes: Box[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating BoundingBox for ${mesh.name}`);
-
-						// Scale geometry to correct world size
-						geometry.scale(scale.x, scale.y, scale.z);
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, rotation }) => {
+						// console.log(`generating BoundingBox for ${mesh.name}`);
 
 						// Calculate bounding box and offset world position
 						geometry.computeBoundingBox();
@@ -254,10 +254,8 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(BoundingSphereShape)) {
 					const shapes: Sphere[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating BoundingSphere for ${mesh.name}`);
-						// Scale geometry to correct world size
-						geometry.scale(scale.x, scale.y, scale.z);
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, rotation }) => {
+						// console.log(`generating BoundingSphere for ${mesh.name}`);
 
 						// Calculate bounding sphere and offset world position
 						geometry.computeBoundingSphere();
@@ -282,11 +280,8 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(BoundingCylinderShape)) {
 					const shapes: Cylinder[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating BoundingCylinder for ${mesh.name}`);
-
-						// Scale geometry to correct world size
-						geometry.scale(scale.x, scale.y, scale.z);
+					applyToMeshesIndividually(entity, ({ mesh, geometry, position, rotation }) => {
+						// console.log(`generating BoundingCylinder for ${mesh.name}`);
 
 						// Calculate bounding box and offset world position
 						geometry.computeBoundingBox();
@@ -327,11 +322,8 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(BoundingCapsuleShape)) {
 					const shapes: Shape[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating BoundingCylinder for ${mesh.name}`);
-
-						// Scale geometry to correct world size
-						geometry.scale(scale.x, scale.y, scale.z);
+					applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
+						// console.log(`generating BoundingCylinder for ${mesh.name}`);
 
 						// Calculate bounding box and offset world position
 						geometry.computeBoundingBox();
@@ -395,8 +387,8 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(TrimeshShape)) {
 					const shapes: Trimesh[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating MeshShape for ${mesh.name}`);
+					applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
+						// console.log(`generating MeshShape for ${mesh.name}`);
 
 						const shape = new Trimesh(
 							geometry.vertices.flatMap(v => [v.x, v.y, v.z]),
@@ -418,10 +410,10 @@ export const useShapeCouple = (system: System) =>
 				if (entity.has(MeshShape)) {
 					const shapes: ConvexPolyhedron[] = [];
 
-					applyToMeshesIndividually(entity, ({ mesh, geometry, position, scale, rotation }) => {
-						console.log(`generating MeshShape for ${mesh.name}`);
+					applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
+						// console.log(`generating MeshShape for ${mesh.name}`);
 
-						const shape = generateConvexPolyhedron(mesh, scale);
+						const shape = generateConvexPolyhedron(geometry);
 
 						body.addShape(
 							shape,
@@ -456,12 +448,8 @@ export const generateBoundingBox = (mesh: Mesh) => {
 	return { shape: new Box(new Vec3(size.x, size.y, size.z)), position };
 };
 
-export const generateConvexPolyhedron = (mesh: Mesh, scale: Vector | Vector3 = Vector3.ONE) => {
-	const geometry = getGeometry(mesh);
-
+export const generateConvexPolyhedron = (geometry: Geometry) => {
 	const convexGeometry = new ConvexGeometry(geometry.vertices);
-	// convexGeometry.
-	convexGeometry.scale(scale.x, scale.y, scale.z);
 
 	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
 	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
@@ -471,7 +459,7 @@ export const generateConvexPolyhedron = (mesh: Mesh, scale: Vector | Vector3 = V
 
 export const applyToMeshesIndividually = (
 	entity: Entity,
-	callback: (data: { mesh: Mesh; geometry: Geometry; position: ThreeVector3; scale: ThreeVector3; rotation: ThreeQuaternion }) => void
+	callback: (data: { mesh: Mesh; geometry: Geometry; position: ThreeVector3; rotation: ThreeQuaternion }) => void
 ) => {
 	let object3d = getObject3d(entity);
 	if (!object3d) throw NoMeshError;
@@ -498,7 +486,11 @@ export const applyToMeshesIndividually = (
 			const rotation = new ThreeQuaternion();
 
 			mesh.matrixWorld.decompose(position, rotation, scale);
-			callback({ mesh, geometry: mesh.geometry, position, scale, rotation });
+
+			// Scale the geometry
+			mesh.geometry.scale(scale.x, scale.y, scale.z);
+
+			callback({ mesh, geometry: mesh.geometry, position, rotation });
 		}
 	});
 };

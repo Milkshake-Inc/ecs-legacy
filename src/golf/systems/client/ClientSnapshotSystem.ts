@@ -17,6 +17,7 @@ import Synchronize from '../../components/Synchronize';
 import { createBallClient } from '../../utils/CreateBall';
 import GolfSnapshotInterpolation from '../../utils/GolfSnapshotInterpolation';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
+import { deepMerge } from '../../utils/Serialization';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
@@ -133,27 +134,27 @@ export default class ClientSnapshotSystem extends System {
 		}
 
 		if(this.snapshotEntitiesInterpolation.vault.get()) {
+			const interpolatedEntitiesSnapshot = this.snapshotEntitiesInterpolation.calcInterpolation('any');
 
-		const interpolatedEntitiesSnapshot = this.snapshotEntitiesInterpolation.calcInterpolation('any');
+			if(interpolatedEntitiesSnapshot) {
+				Object.keys(interpolatedEntitiesSnapshot.state).forEach((entitySnapKey) => {
+					const entitySnap = interpolatedEntitiesSnapshot.state[entitySnapKey];
 
-		if(interpolatedEntitiesSnapshot) {
-			Object.keys(interpolatedEntitiesSnapshot.state).forEach((entitySnapKey) => {
-				const entitySnap = interpolatedEntitiesSnapshot.state[entitySnapKey];
+					const entity = this.queries.entities.find((e) => {
+						return e.get(Synchronize).id == entitySnap.id;
+					})
 
-				const entity = this.queries.entities.find((e) => {
-					return e.get(Synchronize).id == entitySnap.id;
+					Object.keys(entitySnap.components).forEach(key => {
+						const componentId = getComponentIdByName(key);
+						const component = entity.components.get(componentId);
+						const data = entitySnap.components[key];
+						deepMerge(component, data);
+					});
+
 				})
-
-				Object.keys(entitySnap.components).forEach(key => {
-					const componentId = getComponentIdByName(key);
-					const component = entity.components.get(componentId);
-					const data = entitySnap.components[key];
-					Object.assign(component, data)
-				});
-
-			})
+			}
 		}
 	}
 
-	}
+
 }
