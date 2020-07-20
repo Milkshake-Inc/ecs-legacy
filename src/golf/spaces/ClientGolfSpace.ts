@@ -93,7 +93,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		const camera = new Entity();
 		camera.add(Transform, { z: 4, y: 2, x: 0, qx: -0.1 });
-		camera.add(new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000));
+		camera.add(new PerspectiveCamera(undefined, undefined, 0.01, 1000));
 		camera.add(SoundListener);
 
 		const light = new Entity();

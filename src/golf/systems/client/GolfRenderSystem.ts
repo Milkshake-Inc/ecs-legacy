@@ -1,20 +1,12 @@
-import { useState } from '@ecs/ecs/helpers';
 import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
-import { Camera, Fog, OrthographicCamera, PerspectiveCamera, Scene } from 'three';
+import { Camera, Fog, PerspectiveCamera } from 'three';
 import { useSDFTextCouple } from './render/useSDFTextCouple';
-
-export class GolfRenderState {
-	public uiScene: Scene;
-	public uiCamera: OrthographicCamera;
-	public canvas: HTMLCanvasElement;
-}
 
 const width = window.innerWidth;
 const height = window.innerHeight;
+const fov = 75;
 
 export default class GolfRenderSystem extends RenderSystem {
-	protected golfRenderState = useState(this, new GolfRenderState());
-
 	constructor() {
 		super(
 			{
@@ -30,56 +22,51 @@ export default class GolfRenderSystem extends RenderSystem {
 			system => [useSDFTextCouple(system)]
 		);
 
-		this.golfRenderState.canvas = this.state.renderer.domElement;
-		this.golfRenderState.canvas.autofocus = true;
-
+		// Maybe tweak this based on performance...
 		this.state.renderer.setPixelRatio(window.devicePixelRatio);
-		this.golfRenderState.uiCamera = new OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 2);
-		this.golfRenderState.uiCamera.position.z = 1;
-		this.golfRenderState.uiScene = new Scene();
-
 		this.state.renderer.autoClear = false;
 
-		this.state.renderer.domElement.style.width = '100%';
-		this.state.renderer.domElement.style.height = '100%';
+		// Styling
+		this.state.renderer.domElement.autofocus = true;
 		document.documentElement.style.margin = document.body.style.margin = '0px';
 		document.documentElement.style.overflow = document.body.style.overflow = 'hidden';
 		document.body.style.background = '#111111';
 
-		window.addEventListener('resize', () => {
-			const width = window.innerWidth;
-			const height = window.innerHeight;
+		// Resize events to make fullscreen
+		window.addEventListener('orientationchange', () => this.resize());
+		window.addEventListener('resize', () => this.resize());
+	}
 
-			this.golfRenderState.canvas.width = width;
-			this.golfRenderState.canvas.height = height;
+	get width() {
+		return window.innerWidth;
+	}
 
-			this.state.renderer.setViewport(0, 0, width, height);
+	get height() {
+		return window.innerHeight;
+	}
 
-			this.golfRenderState.uiCamera.setViewOffset(width / -2, width / 2, height / 2, height / -2, 1, 2);
-			this.golfRenderState.uiCamera.updateProjectionMatrix();
-
-			this.queries.camera.forEach(entity => {
-				if (entity.has(PerspectiveCamera)) {
-					const cam = entity.get(PerspectiveCamera);
-					cam.fov = 75;
-					cam.aspect = width / height;
-					cam.updateProjectionMatrix();
-				}
-			});
-		});
+	resize() {
+		this.state.renderer.setSize(this.width, this.height, true);
 	}
 
 	render() {
 		this.queries.camera.forEach(entity => {
-			let camera = entity.get(Camera);
-			if (entity.has(PerspectiveCamera)) {
-				camera = entity.get(PerspectiveCamera);
-			}
+			const camera = entity.get(Camera) || entity.get(PerspectiveCamera);
 
 			if (!camera) return;
 
+			// Update cam aspect and fov if changed
+			if (camera instanceof PerspectiveCamera) {
+				const aspect = this.width / this.height;
+
+				if (camera.aspect != aspect || camera.fov != fov) {
+					camera.fov = fov;
+					camera.aspect = aspect;
+					camera.updateProjectionMatrix();
+				}
+			}
+
 			this.state.renderer.render(this.state.scene, camera);
-			this.state.renderer.render(this.golfRenderState.uiScene, this.golfRenderState.uiCamera);
 		});
 	}
 }
