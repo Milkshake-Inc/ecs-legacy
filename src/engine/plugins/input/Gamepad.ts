@@ -1,4 +1,4 @@
-import { Button, Control, GamepadStick } from './Control';
+import { Button, Control, GamepadStick, InputStateEmpty } from './Control';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import InputManager from './InputManager';
 import InputDevice, { PressedState } from './InputDevice';
@@ -23,7 +23,8 @@ export default class Gamepad extends InputDevice {
 		return (input: InputManager) => {
 			return {
 				down: input.gamepads[playerIndex]?.isDown(btn),
-				once: input.gamepads[playerIndex]?.isDownOnce(btn)
+				once: input.gamepads[playerIndex]?.isDownOnce(btn),
+				up: input.gamepads[playerIndex]?.isUpOnce(btn)
 			};
 		};
 	}
@@ -32,7 +33,7 @@ export default class Gamepad extends InputDevice {
 		return (input: InputManager) => {
 			const pad = input.gamepads[playerIndex]?.pad;
 			if (!pad) {
-				return { down: false, once: false, x: 0, y: 0 };
+				return InputStateEmpty;
 			}
 
 			const axis = { x: MathHelper.deadzone(pad.axes[stick.xAxis]), y: MathHelper.deadzone(pad.axes[stick.yAxis]) };
@@ -40,6 +41,7 @@ export default class Gamepad extends InputDevice {
 			return {
 				down: Boolean(axis.x != 0 || axis.y != 0),
 				once: Boolean(axis.x != 0 || axis.y != 0),
+				up: Boolean(axis.x != 0 || axis.y != 0),
 				x: axis.x,
 				y: axis.y
 			};

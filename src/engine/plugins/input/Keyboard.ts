@@ -18,7 +18,8 @@ export default class Keyboard extends InputDevice {
 		return (input: InputManager) => {
 			return {
 				down: input.keyboard.isDown(key),
-				once: input.keyboard.isDownOnce(key)
+				once: input.keyboard.isDownOnce(key),
+				up: input.keyboard.isUpOnce(key)
 			};
 		};
 	}
@@ -37,9 +38,16 @@ export default class Keyboard extends InputDevice {
 			if (input.keyboard.isDownOnce(keySet.Down)) once.y += 1;
 			if (input.keyboard.isDownOnce(keySet.Right)) once.x += 1;
 
+			const up = { x: 0, y: 0 };
+			if (input.keyboard.isUpOnce(keySet.Up)) up.y -= 1;
+			if (input.keyboard.isUpOnce(keySet.Left)) up.x -= 1;
+			if (input.keyboard.isUpOnce(keySet.Down)) up.y += 1;
+			if (input.keyboard.isUpOnce(keySet.Right)) up.x += 1;
+
 			return {
 				down: Boolean(down.x != 0 || down.y != 0),
 				once: Boolean(once.x != 0 || once.y != 0),
+				up: Boolean(up.x != 0 || up.y != 0),
 				x: down.x,
 				y: down.y
 			};

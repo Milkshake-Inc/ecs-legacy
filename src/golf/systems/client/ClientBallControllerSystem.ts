@@ -90,7 +90,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
-			if (!this.inputs.state?.Shoot.down && this.state.power > 0) {
+			if (this.inputs.state?.Shoot.up) {
 				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);

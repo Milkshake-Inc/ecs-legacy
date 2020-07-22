@@ -10,9 +10,6 @@ export default class Mouse extends InputDevice {
 			mousewheel: function (e) {
 				this.handleMouseWheel(e);
 			}.bind(this),
-			DOMMouseScroll: function (e) {
-				this.handleMouseWheel(e);
-			}.bind(this),
 			mousemove: function (e) {
 				this.handleMouseMove(e);
 			}.bind(this),
@@ -45,7 +42,8 @@ export default class Mouse extends InputDevice {
 		return (input: InputManager) => {
 			return {
 				down: input.mouse.isDown(btn),
-				once: input.mouse.isDownOnce(btn)
+				once: input.mouse.isDownOnce(btn),
+				up: input.mouse.isUpOnce(btn)
 			};
 		};
 	}
@@ -55,6 +53,7 @@ export default class Mouse extends InputDevice {
 			return {
 				down: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				once: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
+				up: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				x: input.mouse.position.x,
 				y: input.mouse.position.y
 			};
@@ -66,6 +65,18 @@ export default class Mouse extends InputDevice {
 		if (Mouse.pointerLocked) document.exitPointerLock();
 	}
 
+	public update(deltaTime: number) {
+		super.update(deltaTime);
+
+		for (const btn of Array.from(this.pressed.keys())) {
+			// Reset scroll wheel
+			if (btn == MouseScroll.Up || btn == MouseScroll.Down) {
+				if (this.isDownOnce(btn)) this.pressed.set(btn, null); // Set as down
+				if (this.isDown(btn)) this.pressed.set(btn, PressedState.Up); // Show as down for one tick, then trigger keyup
+			}
+		}
+	}
+
 	private handleMouseWheel(event: any) {
 		event = window.event || event;
 		const delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
@@ -73,7 +84,7 @@ export default class Mouse extends InputDevice {
 		if (delta < 0) {
 			this.pressed.set(MouseScroll.Down, this.pressed.has(MouseScroll.Down) ? null : PressedState.Down);
 		} else {
-			this.pressed.set(MouseScroll.Up, this.pressed.has(MouseScroll.Up) ? null : PressedState.Up);
+			this.pressed.set(MouseScroll.Up, this.pressed.has(MouseScroll.Up) ? null : PressedState.Down);
 		}
 	}
 

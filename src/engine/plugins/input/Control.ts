@@ -138,8 +138,8 @@ export enum MouseButton {
 }
 
 export enum MouseScroll {
-	Up,
-	Down
+	Up = 'MouseScrollUp',
+	Down = 'MouseScrollDown'
 }
 
 export interface KeySetTemplate {
@@ -206,8 +206,17 @@ export type InputActions<T extends InputBindings> = {
 export type InputState = {
 	down: boolean;
 	once: boolean;
+	up: boolean;
 	x?: number;
 	y?: number;
+};
+
+export const InputStateEmpty = {
+	down: false,
+	once: false,
+	up: false,
+	x: 0,
+	y: 0
 };
 
 export type Control = (input: InputManager) => InputState;
@@ -219,7 +228,8 @@ export class Controls {
 		return (inputManager: InputManager) => {
 			return {
 				down: controls.every(c => c(inputManager).down),
-				once: controls.every(c => c(inputManager).once)
+				once: controls.every(c => c(inputManager).once),
+				up: controls.every(c => c(inputManager).up)
 			};
 		};
 	}
@@ -230,13 +240,14 @@ export class Controls {
 		return (inputManager: InputManager) => {
 			const first = controls.find(c => c(inputManager).down);
 			if (!first) {
-				return { down: false, once: false, x: 0, y: 0 };
+				return InputStateEmpty;
 			}
 			const firstData = first(inputManager);
 
 			return {
 				down: controls.some(c => c(inputManager).down),
 				once: controls.some(c => c(inputManager).once),
+				up: controls.some(c => c(inputManager).up),
 				x: firstData?.x,
 				y: firstData?.y
 			};
