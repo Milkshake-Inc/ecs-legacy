@@ -1,7 +1,8 @@
 import { getComponentId } from './ComponentId';
 import { Entity, EntitySnapshot } from './Entity';
 import { Signal } from 'typed-signals';
-import { Class } from '../utils/Class';
+import { Class } from './Class';
+import { Events } from './helpers';
 
 /**
  * Query represents list of entities that matches query request.
@@ -209,3 +210,64 @@ export class QueryBuilder {
 		return new Query((entity: Entity) => hasAll(entity, this._components));
 	}
 }
+
+export type QueryPattern = (entity: Entity) => boolean;
+
+export const event = (eventType: string): QueryPattern => {
+	return (entity: Entity) => {
+		if (entity.has(Events)) {
+			const { events } = entity.get(Events);
+			for (const event of events) {
+				if (event.type == eventType) return true;
+			}
+		}
+
+		return false;
+	};
+};
+
+export const all = (...components: Class<any>[]): QueryPattern => {
+	return (entity: Entity) => {
+		for (const component of components) {
+			if (!entity.has(component)) {
+				return false;
+			}
+		}
+
+		return true;
+	};
+};
+
+export const any = (...components: Class<any>[]): QueryPattern => {
+	return (entity: Entity) => {
+		for (const component of components) {
+			if (entity.has(component)) {
+				return true;
+			}
+		}
+
+		return false;
+	};
+};
+
+export const not = (...components: Class<any>[]): QueryPattern => {
+	return (entity: Entity) => {
+		for (const component of components) {
+			if (entity.has(component)) {
+				return false;
+			}
+		}
+
+		return true;
+	};
+};
+
+export const makeQuery = (...patterns: QueryPattern[]) => {
+	return new Query(entity => {
+		for (const pattern of patterns) {
+			if (!pattern(entity)) return false;
+		}
+
+		return true;
+	});
+};

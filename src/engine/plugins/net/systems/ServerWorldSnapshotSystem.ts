@@ -1,14 +1,10 @@
 import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
-import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
-import { ServerConnectionState } from '@ecs/plugins/net/systems/ServerConnectionSystem';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { all } from '@ecs/ecs/Query';
 import Session from '../components/Session';
 
 export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
-
 	protected queries = useQueries(this, {
 		sessions: all(Session)
 	});
@@ -33,11 +29,11 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 				opcode: PacketOpcode.WORLD,
 				tick: 0,
 				snapshot: this.generateSnapshot()
-			}
+			};
 
 			this.queries.sessions.forEach(entity => {
 				const session = entity.get(Session);
-				session.socket.send(packet)
+				session.socket.send(packet);
 			});
 		}
 	}

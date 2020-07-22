@@ -1,10 +1,10 @@
 import { Sound } from '../components/Sound';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/ecs/Query';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { Entity } from '@ecs/ecs/Entity';
 import { Howl, Howler } from 'howler';
 import { Engine } from '@ecs/ecs/Engine';
-import Transform from '@ecs/plugins/Transform';
+import Transform from '@ecs/plugins/math/Transform';
 import { useState, useQueries } from '@ecs/ecs/helpers';
 import SoundListener from '../components/SoundListener';
 import SoundFollowTarget from '../components/SoundFollowTarget';
@@ -58,6 +58,7 @@ export default class SoundSystem extends IterativeSystem {
 
 		if (this.listener) {
 			const listenerPos = this.listener.get(Transform);
+			if (isNaN(listenerPos.x)) return;
 			Howler.pos(listenerPos.x, listenerPos.y, listenerPos.z);
 		}
 	}

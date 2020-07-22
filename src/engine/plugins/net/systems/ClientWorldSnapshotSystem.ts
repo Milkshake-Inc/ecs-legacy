@@ -1,7 +1,7 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, any, makeQuery } from '@ecs/ecs/Query';
 import diff from 'json-diff';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';

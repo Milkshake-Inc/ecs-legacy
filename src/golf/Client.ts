@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { ThreeEngine } from '@ecs/plugins/3d/ThreeEngine';
+import { ThreeEngine } from '@ecs/plugins/render/3d/ThreeEngine';
 import ClientGolfSpace from './spaces/ClientGolfSpace';
 import GolfRenderSystem from './systems/client/GolfRenderSystem';
 import { render, h } from 'preact';
@@ -12,10 +12,10 @@ document.body.prepend(ui);
 render(h(App, { engine }), ui);
 
 WebFont.load({
-    google: {
-        families: ["Quicksand:700"]
-    }
-})
+	google: {
+		families: ['Quicksand:700']
+	}
+});
 
 const spaces = new Entity();
 spaces.add(new ClientGolfSpace(engine, true));

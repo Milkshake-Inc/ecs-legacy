@@ -1,6 +1,6 @@
 import { getComponentId } from './ComponentId';
 import { Signal } from 'typed-signals';
-import { Class, isClass } from '../utils/Class';
+import { Class, isClass } from './Class';
 
 /**
  * Represents an entity - "faceless" object, which only have a `id`.

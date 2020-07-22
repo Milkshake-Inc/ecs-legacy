@@ -1,6 +1,6 @@
 import { Query } from '@ecs/ecs/Query';
 import { Entity } from '@ecs/ecs/Entity';
-import Transform from '@ecs/plugins/Transform';
+import Transform from '@ecs/plugins/math/Transform';
 import CoursePiece from '../components/CoursePiece';
 import { buildCourcePieceEntity } from './CourcePiece';
 import { KenneyAssetsGLTF } from '../constants/GolfAssets';
@@ -26,10 +26,10 @@ export const deserializeMap = (golfAssets: KenneyAssetsGLTF, value: { modelName:
 export const deepMerge = (target: any, source: any) => {
 	Object.entries(source).forEach(([key, value]) => {
 		if (value && typeof value === 'object') {
-			deepMerge(target[key] = target[key] || {}, value);
+			deepMerge((target[key] = target[key] || {}), value);
 			return;
 		}
 		target[key] = value;
 	});
 	return target;
-}
+};

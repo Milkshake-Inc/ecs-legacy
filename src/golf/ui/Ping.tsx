@@ -1,7 +1,7 @@
 import { h } from 'preact';
-import { useQuery } from '@ecs/plugins/reactui';
+import { useQuery } from '@ecs/plugins/ui/react';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
-import { all } from '@ecs/utils/QueryHelper';
+import { all } from '@ecs/ecs/Query';
 
 export const Ping = () => {
 	const query = useQuery(all(ClientPingState));

@@ -1,7 +1,7 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { System } from '@ecs/ecs/System';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/ecs/Query';
 import Session from '../components/Session';
 import { Packet, PacketOpcode } from '../components/Packet';
 

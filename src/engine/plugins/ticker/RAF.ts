@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { PlatformHelper } from '@ecs/utils/Platform';
+import { PlatformHelper } from '@ecs/plugins/tools/Platform';
 
 export const requestAnimationFrame = PlatformHelper.IsClient()
 	? window.requestAnimationFrame.bind(window)

@@ -2,30 +2,31 @@ import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import Key from '@ecs/input/Key';
-import Keyboard from '@ecs/input/Keyboard';
-import MathHelper from '@ecs/math/MathHelper';
-import Random from '@ecs/math/Random';
-import Vector3 from '@ecs/math/Vector';
+import Keyboard from '@ecs/plugins/input/Keyboard';
+import MathHelper from '@ecs/plugins/math/MathHelper';
+import Random from '@ecs/plugins/math/Random';
+import Vector3 from '@ecs/plugins/math/Vector';
 import Session from '@ecs/plugins/net/components/Session';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { ToThreeVector3 } from '@ecs/plugins/physics/utils/Conversions';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
+import { ToThreeVector3 } from '@ecs/plugins/tools/Conversions';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
-import Transform from '@ecs/plugins/Transform';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import Transform from '@ecs/plugins/math/Transform';
+import { all, makeQuery } from '@ecs/ecs/Query';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import { Key } from '@ecs/plugins/input/Control';
+import Input from '@ecs/plugins/input/components/Input';
 
 export class BallControllerState {
 	public power: number;
 }
 
+const PlayerInputs = {
+	shoot: Keyboard.key(Key.Space)
+};
+
 export default class ClientBallControllerSystem extends IterativeSystem {
-	private shootKey = Key.SPACEBAR;
-
-	protected keyboard: Keyboard;
-
 	protected queries = useQueries(this, {
 		camera: all(PerspectiveCamera)
 	});
@@ -34,14 +35,14 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		power: 0
 	});
 
+	protected inputs = useState(this, new Input(PlayerInputs));
+
 	protected networking = useGolfNetworking(this);
 
 	directionLine: Entity;
 
 	constructor() {
 		super(makeQuery(all(Transform, PlayerBall, CannonBody, Session)));
-
-		this.keyboard = new Keyboard();
 
 		this.networking.on(GolfPacketOpcode.POT_BALL, (packet, entity) => this.handleBallPot(packet, entity));
 	}
@@ -74,7 +75,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
 
 		if (camera) {
-			if (this.keyboard.isPressed(this.shootKey)) {
+			if (this.inputs.state.shoot.once) {
 				this.state.power = 1;
 
 				this.networking.send({
@@ -82,14 +83,14 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				});
 			}
 
-			if (this.keyboard.isDown(this.shootKey)) {
+			if (this.inputs.state.shoot.down) {
 				this.state.power += 1.2;
 				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
 
 				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
-			if (this.keyboard.isReleased(this.shootKey)) {
+			if (this.inputs.state.shoot.up) {
 				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
@@ -107,10 +108,10 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				entity.add(Sound, {
 					src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
 				});
+
+				this.state.power = 0;
 			}
 		}
-
-		this.keyboard.update();
 	}
 
 	handleBallPot(packet: PotBall, entity: Entity) {

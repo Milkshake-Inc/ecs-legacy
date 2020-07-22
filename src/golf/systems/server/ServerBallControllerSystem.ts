@@ -1,16 +1,16 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Vector3 from '@ecs/math/Vector';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { ToCannonVector3 } from '@ecs/plugins/physics/utils/Conversions';
-import { all } from '@ecs/utils/QueryHelper';
+import Vector3 from '@ecs/plugins/math/Vector';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
+import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
+import { all } from '@ecs/ecs/Query';
 import { GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
 import PlayerBall from '../../components/PlayerBall';
 import Session from '@ecs/plugins/net/components/Session';
-import Transform from '@ecs/plugins/Transform';
+import Transform from '@ecs/plugins/math/Transform';
 import Hole from '../../components/Hole';
-import Collisions from '@ecs/plugins/physics/components/Collisions';
+import Collisions from '@ecs/plugins/physics/3d/components/Collisions';
 import Spawn from '../../components/Spawn';
 import { BALL_HIT_POWER } from '../../constants/Physics';
 

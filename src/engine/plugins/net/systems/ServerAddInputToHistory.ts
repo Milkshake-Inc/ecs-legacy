@@ -5,7 +5,7 @@ import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import { PacketOpcode, PlayerInput, PlayerCustomInput } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/ecs/Query';
 
 export class ServerAddInputToHistory extends IterativeSystem {
 	protected queries = useQueries(this, {

@@ -1,7 +1,6 @@
 import { Entity } from '@ecs/ecs/Entity';
-import Vector3 from '@ecs/math/Vector';
-import Transform from '@ecs/plugins/Transform';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import Transform from '@ecs/plugins/math/Transform';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import { BALL_BODY } from '../constants/Physics';
 import { Sphere } from 'cannon-es';
 import { Mesh, SphereGeometry, MeshPhongMaterial } from 'three';

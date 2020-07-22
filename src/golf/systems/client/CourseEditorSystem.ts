@@ -1,25 +1,22 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useEvents, useQueries } from '@ecs/ecs/helpers';
+import { useEvents, useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Key from '@ecs/input/Key';
-import Keyboard from '@ecs/input/Keyboard';
-import MouseButton from '@ecs/input/MouseButton';
-import Color from '@ecs/math/Color';
-import MathHelper from '@ecs/math/MathHelper';
-import Vector3 from '@ecs/math/Vector';
-import GLTFHolder from '@ecs/plugins/3d/components/GLTFHolder';
-import { RaycastCamera, RaycastDebug } from '@ecs/plugins/3d/components/Raycaster';
-import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import { TransfromLerp } from '@ecs/plugins/lerp/components/TransfromLerp';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
-import { ToVector3 } from '@ecs/plugins/physics/utils/Conversions';
-import { Interactable } from '@ecs/plugins/render/components/Interactable';
-import Text from '@ecs/plugins/render/components/Text';
-import Tag from '@ecs/plugins/Tag';
-import Transform from '@ecs/plugins/Transform';
-import { all } from '@ecs/utils/QueryHelper';
+import Color from '@ecs/plugins/math/Color';
+import MathHelper from '@ecs/plugins/math/MathHelper';
+import Vector3 from '@ecs/plugins/math/Vector';
+import GLTFHolder from '@ecs/plugins/render/3d/components/GLTFHolder';
+import { RaycastCamera, RaycastDebug } from '@ecs/plugins/render/3d/components/Raycaster';
+import ThirdPersonCameraSystem from '@ecs/plugins/render/3d/systems/ThirdPersonCameraSystem';
+import ThirdPersonTarget from '@ecs/plugins/render/3d/systems/ThirdPersonTarget';
+import { TransfromLerp } from '@ecs/plugins/math/lerp/components/TransfromLerp';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
+import { ToVector3 } from '@ecs/plugins/tools/Conversions';
+import { Interactable } from '@ecs/plugins/render/2d/components/Interactable';
+import Text from '@ecs/plugins/render/2d/components/Text';
+import Tag from '@ecs/plugins/tools/Tag';
+import Transform from '@ecs/plugins/math/Transform';
+import { all } from '@ecs/ecs/Query';
 import { Sphere } from 'cannon-es';
 import { Graphics } from 'pixi.js';
 import { Group, Material, Mesh, MeshPhongMaterial, PerspectiveCamera, PlaneGeometry, SphereGeometry } from 'three';
@@ -29,12 +26,29 @@ import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
 import { buildCourcePieceEntity } from '../../utils/CourcePiece';
 import { deserializeMap, serializeMap } from '../../utils/Serialization';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
-import { COURSE_MATERIAL, COURSE_BODY } from 'src/golf/constants/Physics';
+import { COURSE_BODY } from 'src/golf/constants/Physics';
+import { Controls, MouseButton, Key, MouseScroll } from '@ecs/plugins/input/Control';
+import Input from '@ecs/plugins/input/components/Input';
+import Mouse from '@ecs/plugins/input/Mouse';
+import Keyboard from '@ecs/plugins/input/Keyboard';
 
 enum EditorMode {
 	EDIT,
 	TEST
 }
+
+const EditorControls = {
+	place: Controls.or(Keyboard.key(Key.Space), Mouse.button(MouseButton.Left)),
+	destroy: Mouse.button(MouseButton.Right),
+	toggleMode: Keyboard.key(Key.V),
+	nextPiece: Controls.or(Mouse.button(MouseScroll.Up), Keyboard.key(Key.M)),
+	previousPiece: Controls.or(Mouse.button(MouseScroll.Down), Keyboard.key(Key.N)),
+	moveup: Keyboard.key(Key.UpArrow),
+	movedown: Keyboard.key(Key.DownArrow),
+	rotate: Keyboard.key(Key.R),
+	save: Keyboard.key(Key.One),
+	load: Keyboard.key(Key.Two)
+};
 
 export class CourseEditorSystem extends System {
 	protected engine: Engine;
@@ -46,7 +60,6 @@ export class CourseEditorSystem extends System {
 
 	protected index = 49;
 
-	protected keyboard: Keyboard;
 	private ball: Entity;
 
 	private mode: EditorMode = EditorMode.EDIT;
@@ -55,6 +68,8 @@ export class CourseEditorSystem extends System {
 		camera: all(PerspectiveCamera),
 		pieces: all(CoursePiece)
 	});
+
+	protected inputs = useState(this, new Input(EditorControls));
 
 	protected events = useEvents(this, {
 		CLICK: (entity: Entity) => {
@@ -88,33 +103,6 @@ export class CourseEditorSystem extends System {
 		this.engine.addEntity(this.currentPart);
 
 		this.updateCurrentEditorPiece();
-
-		this.keyboard = new Keyboard();
-
-		document.body.addEventListener('click', event => {
-			if (document.pointerLockElement && this.mode == EditorMode.EDIT) {
-				if (event.button == MouseButton.LEFT) {
-					this.placeCourcePiece();
-				}
-				if (event.button == MouseButton.RIGHT) {
-					this.unplaceCoursePiece();
-				}
-			}
-		});
-
-		document.body.addEventListener('mousewheel', (event: MouseWheelEvent) => {
-			this.delta += event.deltaY;
-
-			if (this.delta > 10) {
-				this.index++;
-				this.delta = 0;
-			}
-			if (this.delta < -10) {
-				this.index--;
-				this.delta = 0;
-			}
-			this.updateCurrentEditorPiece();
-		});
 	}
 
 	protected delta = 0;
@@ -227,7 +215,7 @@ export class CourseEditorSystem extends System {
 			this.currentPart.get(TransfromLerp).z = Math.round(floor.point.z);
 		}
 
-		if (this.keyboard.isPressed(Key.V)) {
+		if (this.inputs.state.toggleMode.once) {
 			if (this.mode == EditorMode.EDIT) {
 				this.mode = EditorMode.TEST;
 
@@ -257,12 +245,12 @@ export class CourseEditorSystem extends System {
 			}
 		}
 
-		if (this.keyboard.isPressed(Key.ONE)) {
+		if (this.inputs.state.save.once) {
 			const saveFile = serializeMap(this.queries.pieces);
 			localStorage.setItem('map', JSON.stringify(saveFile));
 		}
 
-		if (this.keyboard.isPressed(Key.TWO)) {
+		if (this.inputs.state.load.once) {
 			const saveFile = JSON.parse(localStorage.getItem('map'));
 			console.log(saveFile);
 			const entities = deserializeMap(this.models, saveFile);
@@ -273,35 +261,33 @@ export class CourseEditorSystem extends System {
 
 		const lerpTransform = this.currentPart.get(TransfromLerp);
 
-		if (this.keyboard.isPressed(Key.UP)) {
+		if (this.inputs.state.moveup.once) {
 			lerpTransform.y += heightDelta;
 		}
 
-		if (this.keyboard.isPressed(Key.DOWN)) {
+		if (this.inputs.state.movedown.once) {
 			lerpTransform.y -= heightDelta;
 		}
 
 		lerpTransform.y = Math.max(lerpTransform.y, 0);
 
-		if (this.keyboard.isPressed(Key.R)) {
+		if (this.inputs.state.rotate.once) {
 			lerpTransform.ry -= Math.PI / 2;
 		}
 
-		if (this.keyboard.isPressed(Key.M)) {
+		if (this.inputs.state.nextPiece.once) {
 			this.index++;
 			this.updateCurrentEditorPiece();
 		}
 
-		if (this.keyboard.isPressed(Key.N)) {
+		if (this.inputs.state.previousPiece.once) {
 			this.index--;
 			this.updateCurrentEditorPiece();
 		}
 
-		if (this.keyboard.isPressed(Key.SPACEBAR)) {
+		if (this.inputs.state.place.once) {
 			this.placeCourcePiece();
 		}
-
-		this.keyboard.update();
 
 		//
 		if (this.currentPart) {

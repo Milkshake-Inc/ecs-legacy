@@ -1,16 +1,15 @@
 import { useSingletonQuery, useQueries } from '@ecs/ecs/helpers';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import GolfPlayer from '../../components/GolfPlayer';
 import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState } from '../../constants/GolfNetworking';
-import { all } from '@ecs/utils/QueryHelper';
+import { all } from '@ecs/ecs/Query';
 import Session from '@ecs/plugins/net/components/Session';
 import Synchronize from '../../components/Synchronize';
 import { getComponentIdByName } from '@ecs/ecs/ComponentId';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
-
 	protected snapshotQueries = useQueries(this, {
 		players: all(GolfPlayer),
 		sessions: all(Session),
@@ -24,12 +23,11 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 	constructor() {
 		super(TICK_RATE);
 
-		this.snapshotInterpolation = new SnapshotInterpolation(TICK_RATE)
+		this.snapshotInterpolation = new SnapshotInterpolation(TICK_RATE);
 	}
 
 	generateSnapshot(): GolfWorldSnapshot {
 		const players: GolfSnapshotPlayer[] = this.snapshotQueries.players.map(entity => {
-
 			const player = entity.get(GolfPlayer);
 
 			const result: GolfSnapshotPlayer = {
@@ -39,7 +37,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				state: 'spectating'
 			};
 
-			if(entity.has(CannonBody)) {
+			if (entity.has(CannonBody)) {
 				const position = entity.get(CannonBody).position;
 
 				result.state = 'playing';
@@ -51,21 +49,21 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 			return result;
 		});
 
-		const entities = this.snapshotQueries.entities.map((entity) => {
+		const entities = this.snapshotQueries.entities.map(entity => {
 			const synchronize = entity.get(Synchronize);
 
 			const builtSync = {};
 
-			Object.keys(synchronize.components).forEach((componentName) => {
+			Object.keys(synchronize.components).forEach(componentName => {
 				const component = entity.components.get(getComponentIdByName(componentName));
-				builtSync[componentName] = JSON.parse(JSON.stringify(component))
-			})
+				builtSync[componentName] = JSON.parse(JSON.stringify(component));
+			});
 
 			return {
 				id: synchronize.id,
 				components: builtSync
-			}
-		})
+			};
+		});
 
 		return {
 			players: this.snapshotInterpolation.snapshot.create(players),

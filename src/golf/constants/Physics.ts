@@ -1,5 +1,5 @@
 import { Material, ContactMaterial, Vec3 } from 'cannon-es';
-import { CannonBodyOptions } from '@ecs/plugins/physics/components/CannonBody';
+import { CannonBodyOptions } from '@ecs/plugins/physics/3d/components/CannonBody';
 
 export const BALL_HIT_POWER = 1.25;
 
