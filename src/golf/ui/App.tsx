@@ -1,8 +1,8 @@
 import { Component, h } from 'preact';
 import { Engine } from '@ecs/ecs/Engine';
-import { EngineContext } from '@ecs/plugins/reactui';
-import { all } from '@ecs/utils/QueryHelper';
-import Transform from '@ecs/plugins/Transform';
+import { EngineContext } from '@ecs/plugins/ui/react';
+import { all } from '@ecs/ecs/Query';
+import Transform from '@ecs/plugins/math/Transform';
 import PlayerBall from '../components/PlayerBall';
 import { Hud } from './Hud';
 import { Pos } from './Pos';
@@ -10,7 +10,7 @@ import { Ping } from './Ping';
 import { Lobby } from './Lobby';
 import { Splash } from './Splash';
 import { Scoreboard } from './Scoreboard';
-import { ViewController, View } from '@ecs/plugins/reactui/View';
+import { ViewController, View } from '@ecs/plugins/ui/react/View';
 import { PowerBar } from './PowerBar';
 
 export default class App extends Component<{ engine: Engine }, { visible: true }> {

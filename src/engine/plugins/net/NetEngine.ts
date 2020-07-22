@@ -1,6 +1,6 @@
-import '@ecs/utils/ServerHooks'; // Needed to inject global variables used by some modules on server
+import '@ecs/plugins/tools/ServerHooks'; // Needed to inject global variables used by some modules on server
 
-import TickerEngine from '@ecs/TickerEngine';
+import TickerEngine from '@ecs/ecs/TickerEngine';
 import geckosServer, { GeckosServer } from '@geckos.io/server';
 import ServerConnectionSystem from './systems/ServerConnectionSystem';
 import ServerPingSystem from './systems/ServerPingSystem';

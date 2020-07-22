@@ -1,7 +1,7 @@
 import { Engine } from '@ecs/ecs/Engine';
-import Vector3 from '@ecs/math/Vector';
+import Vector3 from '@ecs/plugins/math/Vector';
 import Session from '@ecs/plugins/net/components/Session';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
+import CannonPhysicsSystem from '@ecs/plugins/physics/3d/systems/CannonPhysicsSystem';
 import GolfPlayer from '../components/GolfPlayer';
 import { ServerBallControllerSystem } from '../systems/server/ServerBallControllerSystem';
 import ServerSnapshotSystem from '../systems/server/ServerSnapshotSystem';
@@ -26,5 +26,3 @@ export class ServerGolfSpace extends BaseGolfSpace {
 		this.addSystem(new TerrainAnimationSystem());
 	}
 }
-
-

@@ -1,4 +1,4 @@
-import { Class } from '../utils/Class';
+import { Class } from './Class';
 
 const componentIds = new Map<string, number>();
 let componentClassId = 1;

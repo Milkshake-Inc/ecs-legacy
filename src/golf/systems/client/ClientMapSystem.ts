@@ -1,8 +1,8 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { useSimpleEvents, useSingletonQuery } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Random from '@ecs/math/Random';
-import { Views } from '@ecs/plugins/reactui/View';
+import Random from '@ecs/plugins/math/Random';
+import { Views } from '@ecs/plugins/ui/react/View';
 import * as QueryString from 'query-string';
 import { KenneyAssetsGLTF } from '../../constants/GolfAssets';
 import { GolfPacketOpcode, useGolfNetworking } from '../../constants/GolfNetworking';
@@ -25,7 +25,7 @@ export default class ClientMapSystem extends System {
 					});
 				}
 			}, 0);
-		},
+		}
 	});
 
 	assets: KenneyAssetsGLTF;

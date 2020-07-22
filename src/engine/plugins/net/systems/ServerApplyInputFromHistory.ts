@@ -5,8 +5,8 @@ import Input from '@ecs/plugins/input/components/Input';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
-import { Class } from '@ecs/utils/Class';
+import { all, makeQuery } from '@ecs/ecs/Query';
+import { Class } from '@ecs/ecs/Class';
 
 export class ServerApplyInputFromHistory extends IterativeSystem {
 	protected queries = useQueries(this, {

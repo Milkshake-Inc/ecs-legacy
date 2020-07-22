@@ -1,4 +1,4 @@
-import { all } from '@ecs/utils/QueryHelper';
+import { all } from '@ecs/ecs/Query';
 import { Entity } from '../Entity';
 import { System } from '../System';
 import { useQueries } from './useQueries';

@@ -1,7 +1,7 @@
 import { h } from 'preact';
-import Transform from '@ecs/plugins/Transform';
-import { useQuery } from '@ecs/plugins/reactui';
-import { QueryPattern } from '@ecs/utils/QueryHelper';
+import Transform from '@ecs/plugins/math/Transform';
+import { useQuery } from '@ecs/plugins/ui/react';
+import { QueryPattern } from '@ecs/ecs/Query';
 
 export const Pos = (props: { query: QueryPattern }) => {
 	const query = useQuery(props.query);

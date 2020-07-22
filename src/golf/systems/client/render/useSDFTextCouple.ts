@@ -1,7 +1,7 @@
 import { useQueries } from '@ecs/ecs/helpers';
-import Color from '@ecs/math/Color';
-import Transform from '@ecs/plugins/Transform';
-import { all, any } from '@ecs/utils/QueryHelper';
+import Color from '@ecs/plugins/math/Color';
+import Transform from '@ecs/plugins/math/Transform';
+import { all, any } from '@ecs/ecs/Query';
 import {
 	Color as ThreeColor,
 	DoubleSide,
@@ -14,8 +14,8 @@ import {
 	TextureLoader,
 	Vector3
 } from 'three';
-import { useThreeCouple } from '../../../../engine/plugins/3d/couples/ThreeCouple';
-import RenderSystem from '../../../../engine/plugins/3d/systems/RenderSystem';
+import { useThreeCouple } from '@ecs/plugins/render/3d/couples/ThreeCouple';
+import RenderSystem from '@ecs/plugins/render/3d/systems/RenderSystem';
 
 const createSDFShader = (opt: any) => {
 	opt = opt || {};

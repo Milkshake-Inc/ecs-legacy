@@ -1,8 +1,8 @@
-import { makeQuery, QueryPattern, all } from '@ecs/utils/QueryHelper';
+import { makeQuery, QueryPattern, all } from '@ecs/ecs/Query';
 import { Engine } from '../Engine';
 import { Query } from '../Query';
 import { System } from '../System';
-import { Class } from '@ecs/utils/Class';
+import { Class } from '@ecs/ecs/Class';
 
 export type Queries = { [index: string]: Query };
 

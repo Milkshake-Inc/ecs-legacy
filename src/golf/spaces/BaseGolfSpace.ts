@@ -1,11 +1,10 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Space from '@ecs/plugins/space/Space';
-import Transform from '@ecs/plugins/Transform';
-import { LoadGLTF } from '@ecs/utils/ThreeHelper';
+import Transform from '@ecs/plugins/math/Transform';
+import { LoadGLTF } from '@ecs/plugins/tools/ThreeHelper';
 import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
-import CoursePiece from '../components/CoursePiece';
 import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
 import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 import { loadMap } from '../utils/MapLoader';
@@ -48,7 +47,6 @@ export default class BaseGolfSpace extends Space {
 	}
 
 	setup() {
-
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
 		const mapPieces = loadMap(this.golfAssets.maps.TRAIN);
 

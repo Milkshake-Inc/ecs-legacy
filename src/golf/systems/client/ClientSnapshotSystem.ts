@@ -6,9 +6,9 @@ import { System } from '@ecs/ecs/System';
 import { PacketOpcode, WorldSnapshot } from '@ecs/plugins/net/components/Packet';
 import Session from '@ecs/plugins/net/components/Session';
 import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
-import { Views } from '@ecs/plugins/reactui/View';
-import Transform from '@ecs/plugins/Transform';
-import { all } from '@ecs/utils/QueryHelper';
+import { Views } from '@ecs/plugins/ui/react/View';
+import Transform from '@ecs/plugins/math/Transform';
+import { all } from '@ecs/ecs/Query';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import { GameState, GolfGameState, GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../../golf/constants/GolfNetworking';
 import GolfPlayer from '../../components/GolfPlayer';
@@ -133,16 +133,16 @@ export default class ClientSnapshotSystem extends System {
 			}
 		}
 
-		if(this.snapshotEntitiesInterpolation.vault.get()) {
+		if (this.snapshotEntitiesInterpolation.vault.get()) {
 			const interpolatedEntitiesSnapshot = this.snapshotEntitiesInterpolation.calcInterpolation('any');
 
-			if(interpolatedEntitiesSnapshot) {
-				Object.keys(interpolatedEntitiesSnapshot.state).forEach((entitySnapKey) => {
+			if (interpolatedEntitiesSnapshot) {
+				Object.keys(interpolatedEntitiesSnapshot.state).forEach(entitySnapKey => {
 					const entitySnap = interpolatedEntitiesSnapshot.state[entitySnapKey];
 
-					const entity = this.queries.entities.find((e) => {
+					const entity = this.queries.entities.find(e => {
 						return e.get(Synchronize).id == entitySnap.id;
-					})
+					});
 
 					Object.keys(entitySnap.components).forEach(key => {
 						const componentId = getComponentIdByName(key);
@@ -150,11 +150,8 @@ export default class ClientSnapshotSystem extends System {
 						const data = entitySnap.components[key];
 						deepMerge(component, data);
 					});
-
-				})
+				});
 			}
 		}
 	}
-
-
 }

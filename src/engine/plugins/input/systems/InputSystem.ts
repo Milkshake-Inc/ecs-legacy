@@ -2,7 +2,7 @@ import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import { QueryBuilder } from '@ecs/ecs/Query';
 import Input from '../components/Input';
 import { Entity } from '@ecs/ecs/Entity';
-import InputManager from '@ecs/input/InputManager';
+import InputManager from '@ecs/plugins/input/InputManager';
 
 export class InputSystem extends IterativeSystem {
 	private inputManager: InputManager;

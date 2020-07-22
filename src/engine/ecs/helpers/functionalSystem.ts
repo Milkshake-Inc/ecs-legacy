@@ -1,4 +1,4 @@
-import { makeQuery, QueryPattern } from '@ecs/utils/QueryHelper';
+import { makeQuery, QueryPattern } from '@ecs/ecs/Query';
 import { Entity, EntitySnapshot } from '../Entity';
 import { IterativeSystem } from '../IterativeSystem';
 import { System } from '../System';

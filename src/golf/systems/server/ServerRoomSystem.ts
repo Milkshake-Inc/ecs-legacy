@@ -3,7 +3,7 @@ import { Entity } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Session from '@ecs/plugins/net/components/Session';
-import { all } from '@ecs/utils/QueryHelper';
+import { all } from '@ecs/ecs/Query';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../utils/CreateBall';
@@ -17,9 +17,8 @@ import {
 	GolfGameState
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
-import CannonBody from '@ecs/plugins/physics/components/CannonBody';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import Spawn from '../../../golf/components/Spawn';
-import Vector3 from '@ecs/math/Vector';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;

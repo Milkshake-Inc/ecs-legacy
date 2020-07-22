@@ -1,4 +1,4 @@
-import Vector3 from '@ecs/math/Vector';
+import Vector3 from '@ecs/plugins/math/Vector';
 import { Mesh } from 'three';
 
 export interface SoundFollowOptions {

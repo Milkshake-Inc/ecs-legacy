@@ -1,12 +1,12 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries } from '@ecs/ecs/helpers';
 import Input from '@ecs/plugins/input/components/Input';
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/ecs/Query';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode } from '../components/Packet';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { Class } from '@ecs/utils/Class';
+import { Class } from '@ecs/ecs/Class';
 
 export default class ClientInputSenderSystem extends IterativeSystem {
 	protected queries = useQueries(this, {

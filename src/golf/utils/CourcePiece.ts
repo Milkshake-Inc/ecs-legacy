@@ -1,11 +1,11 @@
 import { Entity } from '@ecs/ecs/Entity';
-import TrimeshShape from '@ecs/plugins/physics/components/TrimeshShape';
-import Transform from '@ecs/plugins/Transform';
-import { Body, Sphere, Box, Vec3 } from 'cannon-es';
+import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
+import Transform from '@ecs/plugins/math/Transform';
+import { Body, Box, Vec3 } from 'cannon-es';
 import { Material, Mesh } from 'three';
 import CoursePiece from '../components/CoursePiece';
 import { KenneyAssetsGLTF } from '../constants/GolfAssets';
-import { COURSE_MATERIAL, COURSE_BODY } from '../constants/Physics';
+import { COURSE_BODY } from '../constants/Physics';
 import Hole from '../components/Hole';
 
 export const buildCourcePieceEntity = (golfAssets: KenneyAssetsGLTF, modelName: string, transform: Transform) => {

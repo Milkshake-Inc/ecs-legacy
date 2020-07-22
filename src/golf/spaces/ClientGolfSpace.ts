@@ -1,17 +1,17 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Color from '@ecs/math/Color';
-import Vector3 from '@ecs/math/Vector';
+import Color from '@ecs/plugins/math/Color';
+import Vector3 from '@ecs/plugins/math/Vector';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
-import CannonPhysicsSystem from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import Sprite from '@ecs/plugins/render/components/Sprite';
+import CannonPhysicsSystem from '@ecs/plugins/physics/3d/systems/CannonPhysicsSystem';
+import Sprite from '@ecs/plugins/render/2d/components/Sprite';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
-import Transform from '@ecs/plugins/Transform';
-import { LoadPixiAssets } from '@ecs/utils/PixiHelper';
-import { LoadTexture } from '@ecs/utils/ThreeHelper';
+import Transform from '@ecs/plugins/math/Transform';
+import { LoadPixiAssets } from '@ecs/plugins/tools/PixiHelper';
+import { LoadTexture } from '@ecs/plugins/tools/ThreeHelper';
 import {
 	AmbientLight,
 	Color as ThreeColor,
@@ -21,8 +21,7 @@ import {
 	PerspectiveCamera,
 	PlaneGeometry,
 	RepeatWrapping,
-	Texture,
-	CameraHelper
+	Texture
 } from 'three';
 import ClientMapSystem from '../systems/client/ClientMapSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
@@ -31,11 +30,6 @@ import GolfViewSystem from '../systems/client/GolfViewSystem';
 import CartTrackSystem from '../systems/shared/CartTrackSystem';
 import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
-import ParentTransformSystem from '@ecs/plugins/misc/ParentTransformSystem';
-import { all } from '@ecs/utils/QueryHelper';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import { useQueries, useState } from '@ecs/ecs/helpers';
-import Mouse from '@ecs/input/Mouse';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'

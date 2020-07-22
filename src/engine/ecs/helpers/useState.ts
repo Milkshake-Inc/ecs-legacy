@@ -3,11 +3,15 @@ import { Entity } from '../Entity';
 import { Engine } from '../Engine';
 
 // export type StateComponent = { [index: string]: {} } | {};
-export const useState = <TStateComponent>(systemOrEngine: System | Engine, state: TStateComponent, defaultState?: Partial<TStateComponent>) => {
+export const useState = <TStateComponent>(
+	systemOrEngine: System | Engine,
+	state: TStateComponent,
+	defaultState?: Partial<TStateComponent>
+) => {
 	const entity = new Entity();
 	entity.add(state);
 
-	if(defaultState) {
+	if (defaultState) {
 		Object.assign(state, defaultState);
 	}
 

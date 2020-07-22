@@ -1,6 +1,6 @@
 import { Entity } from '@ecs/ecs/Entity';
 import { Engine } from '@ecs/ecs/Engine';
-import { makeQuery } from '@ecs/utils/QueryHelper';
+import { makeQuery } from '@ecs/ecs/Query';
 import Session from '../components/Session';
 import geckosClient, { ClientChannel } from '@geckos.io/client';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';

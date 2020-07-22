@@ -1,5 +1,5 @@
-import { InputActions, InputBindings } from '@ecs/input/Control';
-import InputManager from '@ecs/input/InputManager';
+import { InputActions, InputBindings } from '@ecs/plugins/input/Control';
+import InputManager from '@ecs/plugins/input/InputManager';
 
 export default class Input<B extends InputBindings> {
 	private bindings: B;

@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 import { Signal } from 'typed-signals';
 import { System } from './System';
-import { Class } from '../utils/Class';
+import { Class } from './Class';
 import { Query } from './Query';
 
 /**

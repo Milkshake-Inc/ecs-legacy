@@ -6,7 +6,6 @@ export const lerp = (start: number, end: number, t: number) => {
 };
 
 export default class GolfSnapshotInterpolation extends SnapshotInterpolation {
-
 	constructor(serverFPS: number) {
 		super(serverFPS);
 
@@ -21,7 +20,7 @@ export default class GolfSnapshotInterpolation extends SnapshotInterpolation {
 		deep: string
 	): InterpolatedSnapshot {
 		const sorted = [snapshotA, snapshotB].sort((a, b) => b.time - a.time);
-		const params = parameters.trim().replace(/\W+/, ' ').split(' ');
+		parameters.trim().replace(/\W+/, ' ').split(' ');
 
 		const newer: Snapshot = sorted[0];
 		const older: Snapshot = sorted[1];
@@ -71,27 +70,28 @@ export default class GolfSnapshotInterpolation extends SnapshotInterpolation {
 			const id = newEntity.id;
 			const oldEntity: Entity | undefined = olderState.find((e: any) => e.id === id);
 
-            if (!oldEntity) return;
+			if (!oldEntity) return;
 
-            const result = tmpSnapshot.state[i];
+			const result = tmpSnapshot.state[i];
 
-            const recursive = (resultEntity: {}, fromEntity: {}, toEntity: {}, percent) => {
-                for (const key in toEntity) {
-                    if (typeof fromEntity[key] === 'number' && typeof toEntity[key] === 'number') {
-                        if(fromEntity[key]) { // Lerp
-                            resultEntity[key] = lerpFnc('linear', fromEntity[key], toEntity[key], pPercent)
-                        } else {
-                            resultEntity[key] = toEntity[key];
-                        }
-                    }
+			const recursive = (resultEntity: {}, fromEntity: {}, toEntity: {}, percent) => {
+				for (const key in toEntity) {
+					if (typeof fromEntity[key] === 'number' && typeof toEntity[key] === 'number') {
+						if (fromEntity[key]) {
+							// Lerp
+							resultEntity[key] = lerpFnc('linear', fromEntity[key], toEntity[key], pPercent);
+						} else {
+							resultEntity[key] = toEntity[key];
+						}
+					}
 
-                    if (typeof fromEntity[key] === 'object') {
-                        recursive(resultEntity[key], fromEntity[key], toEntity[key], pPercent);
-                    }
-                }
-            }
+					if (typeof fromEntity[key] === 'object') {
+						recursive(resultEntity[key], fromEntity[key], toEntity[key], pPercent);
+					}
+				}
+			};
 
-            recursive(result, oldEntity, newEntity, pPercent);
+			recursive(result, oldEntity, newEntity, pPercent);
 		});
 
 		const interpolatedSnapshot: InterpolatedSnapshot = {

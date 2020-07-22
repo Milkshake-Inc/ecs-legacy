@@ -1,16 +1,12 @@
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { all, any, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, any, makeQuery } from '@ecs/ecs/Query';
 import { performance } from 'perf_hooks';
 import { PacketOpcode } from '../components/Packet';
 import { ServerPingState } from '../components/ServerPingState';
 import Session from '../components/Session';
 import { ServerConnectionState } from './ServerConnectionSystem';
-
-// export const ServerPingStateQuery = {
-// 	serverPing: makeQuery(all(ServerPingState))
-// };
 
 export default class ServerPingSystem extends IterativeSystem {
 	protected state = useState(this, new ServerPingState());
@@ -68,8 +64,7 @@ export default class ServerPingSystem extends IterativeSystem {
 			switch (packet.opcode) {
 				case PacketOpcode.CLIENT_SYNC_PONG: {
 					session.lastPongResponse = performance.now();
-					const rtt = performance.now() - packet.serverTime;
-					// console.log(`⏱ Server estimated RTT: ${rtt}`);
+					session.rtt = performance.now() - packet.serverTime;
 					session.socket.send({
 						opcode: PacketOpcode.SERVER_SYNC_RESULT,
 						clientTime: packet.clientTime,

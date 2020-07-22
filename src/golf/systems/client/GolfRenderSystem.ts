@@ -1,4 +1,4 @@
-import RenderSystem from '@ecs/plugins/3d/systems/RenderSystem';
+import RenderSystem from '@ecs/plugins/render/3d/systems/RenderSystem';
 import { Camera, Fog, PerspectiveCamera } from 'three';
 import { useSDFTextCouple } from './render/useSDFTextCouple';
 

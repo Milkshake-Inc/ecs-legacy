@@ -1,13 +1,12 @@
-import { all, makeQuery } from '@ecs/utils/QueryHelper';
+import { all, makeQuery } from '@ecs/ecs/Query';
 import Track from '../../components/terrain/Track';
 import { useQueries, useState } from '@ecs/ecs/helpers';
 import { Entity } from '@ecs/ecs/Entity';
-import Transform from '@ecs/plugins/Transform';
+import Transform from '@ecs/plugins/math/Transform';
 import { Query } from '@ecs/ecs/Query';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Cart from '../../components/terrain/Cart';
-import MathHelper from '@ecs/math/MathHelper';
-import Vector3 from '@ecs/math/Vector';
+import MathHelper from '@ecs/plugins/math/MathHelper';
 
 export class TrackPath {
 	public path: Entity[] = [];

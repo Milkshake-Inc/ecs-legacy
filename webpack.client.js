@@ -49,7 +49,7 @@ const config = {
 		}),
 		new Serve({
 			port: 9090,
-			host: '127.0.0.1',
+			host: 'zen',
 			open: true,
 			static: path.join(__dirname, 'bin/www'),
 			hmr: false,

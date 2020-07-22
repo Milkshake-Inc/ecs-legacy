@@ -1,6 +1,6 @@
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Session from '../components/Session';
-import { any, makeQuery } from '@ecs/utils/QueryHelper';
+import { any, makeQuery } from '@ecs/ecs/Query';
 import { Entity, EntitySnapshot } from '@ecs/ecs/Entity';
 import { PacketOpcode, Packet, WorldSnapshot, PlayerInput } from '../components/Packet';
 

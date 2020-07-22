@@ -1,18 +1,18 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { useQueries, useSingletonQuery, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import ThirdPersonCameraSystem from '@ecs/plugins/3d/systems/ThirdPersonCameraSystem';
+import ThirdPersonCameraSystem from '@ecs/plugins/render/3d/systems/ThirdPersonCameraSystem';
 import Session from '@ecs/plugins/net/components/Session';
-import { all } from '@ecs/utils/QueryHelper';
+import { all } from '@ecs/ecs/Query';
 import { Transform } from 'cannon-es';
 import PlayerBall from '../../components/PlayerBall';
 import { GameState, GolfGameState } from '../../constants/GolfNetworking';
-import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import Random from '@ecs/math/Random';
+import ThirdPersonTarget from '@ecs/plugins/render/3d/systems/ThirdPersonTarget';
+import Random from '@ecs/plugins/math/Random';
 import { DirectionalLight } from 'three';
-import Mouse from '@ecs/input/Mouse';
+import Mouse from '@ecs/plugins/input/Mouse';
 import Input from '@ecs/plugins/input/components/Input';
-import { MouseButton } from '@ecs/input/Control';
+import { MouseButton } from '@ecs/plugins/input/Control';
 
 export default class GolfCameraSystem extends System {
 	protected engine: Engine;
