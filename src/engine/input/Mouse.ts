@@ -1,63 +1,80 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 
-export type MouseHandlers = {
-	click?: () => void;
-	move?: (deltaX: number, deltaY: number) => void;
-	zoomOut?: (delta: number) => void;
-	zoomIn?: (delta: number) => void;
-};
+import InputDevice, { PressedState } from './InputDevice';
+import InputManager from './InputManager';
+import { Control, MouseButton, MouseScroll } from './Control';
 
-export default class Mouse {
-	public handlers: MouseHandlers;
-
-	private pointerLock: boolean;
-	private domObject: HTMLElement;
-
-	private lastPosition = { x: 0, y: 0 };
-
-	constructor(handlers: MouseHandlers = {}, pointerLock = false, target = document.body) {
-		this.handlers = handlers;
-		this.pointerLock = pointerLock;
-		this.domObject = target;
-
-		this.domObject.addEventListener('click', this.clickHandler.bind(this));
-		this.domObject.addEventListener('mousewheel', this.mouseWheelHandler.bind(this));
-		this.domObject.addEventListener('DOMMouseScroll', this.mouseWheelHandler.bind(this));
-		this.domObject.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
-
-		if (this.pointerLock) document.body.requestPointerLock();
+export default class Mouse extends InputDevice {
+	protected get listeners() {
+		return {
+			mousewheel: function (e) {
+				this.mouseWheelHandler(e);
+			}.bind(this),
+			DOMMouseScroll: function (e) {
+				this.mouseWheelHandler(e);
+			}.bind(this),
+			mousemove: function (e) {
+				this.mouseMoveHandler(e);
+			}.bind(this)
+		};
 	}
 
-	get pointerLocked() {
-		return document.pointerLockElement === this.domObject;
+	private lastPosition = { x: 0, y: 0 };
+	private position = { x: 0, y: 0 };
+
+	static startPointerLock() {
+		if (Mouse.pointerLocked) return;
+		document.body.requestPointerLock();
+	}
+
+	static stopPointerLock() {
+		document.exitPointerLock();
+	}
+
+	static get pointerLocked() {
+		return document.pointerLockElement === document.body;
+	}
+
+	static button(btn: MouseButton | MouseScroll): Control {
+		return (input: InputManager, playerIndex: number) => {
+			return {
+				down: input.mouses[0].isDown(btn),
+				once: input.mouses[0].isDownOnce(btn)
+			};
+		};
+	}
+
+	static move(): Control {
+		return (input: InputManager, playerIndex: number) => {
+			const mouse = input.mouses[0];
+
+			return {
+				down: Boolean(mouse.position.x != 0 || mouse.position.y != 0),
+				once: Boolean(mouse.position.x != 0 || mouse.position.y != 0),
+				x: mouse.position.x,
+				y: mouse.position.y
+			};
+		};
 	}
 
 	destroy() {
-		this.domObject.removeEventListener('mousewheel', this.mouseWheelHandler.bind(this));
-		this.domObject.addEventListener('DOMMouseScroll', this.mouseWheelHandler.bind(this));
-		this.domObject.addEventListener('mousemove', this.mouseMoveHandler.bind(this));
-
-		if (this.pointerLock) document.exitPointerLock();
+		super.destroy();
+		if (Mouse.pointerLocked) document.exitPointerLock();
 	}
 
 	mouseWheelHandler(event: any) {
 		event = window.event || event;
 		const delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
 
-		if (delta < 0 && this.handlers.zoomOut) {
-			this.handlers.zoomOut(delta);
-		} else if (this.handlers.zoomIn) {
-			this.handlers.zoomIn(delta);
+		if (delta < 0) {
+			this.pressed.set(MouseScroll.Down, this.pressed.has(MouseScroll.Down) ? null : PressedState.Down);
+		} else {
+			this.pressed.set(MouseScroll.Up, this.pressed.has(MouseScroll.Up) ? null : PressedState.Up);
 		}
 	}
 
-	clickHandler(event: MouseEvent) {
-		if (this.pointerLock) document.body.requestPointerLock();
-		if (this.handlers.click) this.handlers.click();
-	}
-
 	mouseMoveHandler(event: MouseEvent) {
-		const mouse = this.pointerLocked
+		const mouse = Mouse.pointerLocked
 			? {
 					x: event.movementX / 500,
 					y: -event.movementY / 500
@@ -67,7 +84,7 @@ export default class Mouse {
 					y: -(event.clientY / window.innerHeight) * 2 + 1
 			  };
 
-		const delta = this.pointerLocked
+		const delta = Mouse.pointerLocked
 			? {
 					x: mouse.x,
 					y: mouse.y
@@ -77,7 +94,11 @@ export default class Mouse {
 					y: mouse.y - this.lastPosition.y
 			  };
 
-		if (this.handlers.move) this.handlers.move(delta.x, delta.y);
+		this.position = delta;
 		this.lastPosition = mouse;
+	}
+
+	public update(deltaTime: number) {
+		super.update(deltaTime);
 	}
 }

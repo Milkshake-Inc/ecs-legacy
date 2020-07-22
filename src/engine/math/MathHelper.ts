@@ -35,12 +35,8 @@ export default class MathHelper {
 		return toMin + ((value - fromMin) * (toMax - toMin)) / (fromMax - fromMin);
 	}
 
-	public static deadzone(value: number, deadzone = 0.3): number {
-		if (value > deadzone) {
-			return MathHelper.map(deadzone, 1, 0, 1, value);
-		} else if (value < -deadzone) {
-			return MathHelper.map(-deadzone, -1, -0, -1, value);
-		}
+	public static deadzone(value: number, deadzone = 0.1): number {
+		return Math.abs(value) > deadzone ? value - Math.sign(value) * deadzone : 0;
 	}
 
 	public static smoothStep(valueA: number, valueB: number, amount: number): number {

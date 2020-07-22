@@ -34,7 +34,8 @@ import BaseGolfSpace from './BaseGolfSpace';
 import ParentTransformSystem from '@ecs/plugins/misc/ParentTransformSystem';
 import { all } from '@ecs/utils/QueryHelper';
 import ThirdPersonTarget from '@ecs/plugins/3d/systems/ThirdPersonTarget';
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
+import Mouse from '@ecs/input/Mouse';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'

@@ -25,27 +25,27 @@ export default class BoatControllerSystem extends IterativeSystem {
 		const input = entity.get(Input);
 		const body = entity.get(CannonBody);
 
-		if (input.downDown) {
-			body.velocity.x -= body.forward.x * Acceleration * dt;
-			body.velocity.y -= body.forward.y * Acceleration * dt;
-			body.velocity.z -= body.forward.z * Acceleration * dt;
-		}
-		if (input.upDown) {
-			body.velocity.x += body.forward.x * Acceleration * dt;
-			body.velocity.y += body.forward.y * Acceleration * dt;
-			body.velocity.z += body.forward.z * Acceleration * dt;
-		}
+		// if (input.downDown) {
+		// 	body.velocity.x -= body.forward.x * Acceleration * dt;
+		// 	body.velocity.y -= body.forward.y * Acceleration * dt;
+		// 	body.velocity.z -= body.forward.z * Acceleration * dt;
+		// }
+		// if (input.upDown) {
+		// 	body.velocity.x += body.forward.x * Acceleration * dt;
+		// 	body.velocity.y += body.forward.y * Acceleration * dt;
+		// 	body.velocity.z += body.forward.z * Acceleration * dt;
+		// }
 
-		if (input.rightDown) {
-			body.angularVelocity.x -= body.up.x * RotateAcceleration * dt;
-			body.angularVelocity.y -= body.up.y * RotateAcceleration * dt;
-			body.angularVelocity.z -= body.up.z * RotateAcceleration * dt;
-		}
-		if (input.leftDown) {
-			body.angularVelocity.x += body.up.x * RotateAcceleration * dt;
-			body.angularVelocity.y += body.up.y * RotateAcceleration * dt;
-			body.angularVelocity.z += body.up.z * RotateAcceleration * dt;
-		}
+		// if (input.rightDown) {
+		// 	body.angularVelocity.x -= body.up.x * RotateAcceleration * dt;
+		// 	body.angularVelocity.y -= body.up.y * RotateAcceleration * dt;
+		// 	body.angularVelocity.z -= body.up.z * RotateAcceleration * dt;
+		// }
+		// if (input.leftDown) {
+		// 	body.angularVelocity.x += body.up.x * RotateAcceleration * dt;
+		// 	body.angularVelocity.y += body.up.y * RotateAcceleration * dt;
+		// 	body.angularVelocity.z += body.up.z * RotateAcceleration * dt;
+		// }
 
 		// Damping on every axis except y (because gravity yo)
 		body.velocity.x *= 0.99;

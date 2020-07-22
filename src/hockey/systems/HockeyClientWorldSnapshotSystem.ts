@@ -2,7 +2,7 @@ import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { useEvents, useQueriesManual } from '@ecs/ecs/helpers';
 import Input from '@ecs/plugins/input/components/Input';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+// import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import RemoteSession from '@ecs/plugins/net/components/RemoteSession';
 import Session from '@ecs/plugins/net/components/Session';
 import { ClientBasicWorldSnapshotSystem } from '@ecs/plugins/net/systems/ClientBasicWorldSnapshotSystem';
@@ -91,7 +91,7 @@ export class HockeyClientWorldSnapshotSystem extends ClientBasicWorldSnapshotSys
 					console.log('Creating local player');
 					this.createPaddle(localSessionEntity, remoteSnapshot.name, remoteSnapshot.color, remoteSnapshot.position);
 					localSessionEntity.add(Input);
-					localSessionEntity.add(InputKeybindings.BOTH());
+					// localSessionEntity.add(InputKeybindings.BOTH());
 				} else {
 					const newEntity = new Entity();
 					console.log('Creating remote player!');

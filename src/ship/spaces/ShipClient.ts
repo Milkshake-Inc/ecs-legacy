@@ -3,7 +3,7 @@ import { functionalSystem } from '@ecs/ecs/helpers';
 import Color from '@ecs/math/Color';
 import Vector3 from '@ecs/math/Vector';
 import Input from '@ecs/plugins/input/components/Input';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+// import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
 import CannonPhysicsSystem, { DefaultGravity } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
 import Space from '@ecs/plugins/space/Space';
@@ -25,7 +25,6 @@ import {
 	AmbientLight
 } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
-import ThirdPersonTarget from '../../engine/plugins/3d/systems/ThirdPersonTarget';
 import { ShipRenderState } from '../systems/ShipRenderSystem';
 import WaterFrag from './../shaders/water.frag';
 import WaterVert from './../shaders/water.vert';
@@ -35,8 +34,8 @@ import CharacterEntity from '@ecs/plugins/character/entity/CharacterEntity';
 import CharacterControllerSystem from '@ecs/plugins/character/systems/CharacterControllerSystem';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import FreeRoamCameraSystem from '@ecs/plugins/3d/systems/FreeRoamCameraSystem';
-import CameraSwitchState, { CameraSwitchType } from '../components/CameraSwitchState';
-import Key from '@ecs/input/Key';
+import CameraSwitchState from '../components/CameraSwitchState';
+// import Key from '@ecs/input/Key';
 import ParentTransformSystem from '../../engine/plugins/misc/ParentTransformSystem';
 import SkyBox from '../components/SkyBox';
 import Water from '../components/Water';
@@ -94,66 +93,66 @@ export class ShipClient extends Space {
 		this.addSystem(new HelicopterControllerSystem());
 		this.addSystem(new BoatControllerSystem());
 
-		this.addSystem(
-			functionalSystem([all(CameraSwitchState, Input)], {
-				setup: () => {
-					// boat is first CameraSwitchState, so add some things for setup.
-					boat.add(Input);
-					boat.add(ThirdPersonTarget);
-					boat.get(Vehicle).controller = player;
+		// this.addSystem(
+		// 	functionalSystem([all(CameraSwitchState, Input)], {
+		// 		setup: () => {
+		// 			// boat is first CameraSwitchState, so add some things for setup.
+		// 			boat.add(Input);
+		// 			boat.add(ThirdPersonTarget);
+		// 			boat.get(Vehicle).controller = player;
 
-					this.addSystem(this.thirdPersonCameraSystem);
-				},
-				entityUpdateFixed: (entity, dt) => {
-					const input = entity.get(Input);
-					const cameraState = entity.get(CameraSwitchState);
+		// 			this.addSystem(this.thirdPersonCameraSystem);
+		// 		},
+		// 		entityUpdateFixed: (entity, dt) => {
+		// 			const input = entity.get(Input);
+		// 			const cameraState = entity.get(CameraSwitchState);
 
-					if (input.jumpDown) {
-						switch (cameraState.state) {
-							case CameraSwitchType.Boat:
-								cameraState.state = CameraSwitchType.Helicopter;
+		// 			if (input.jumpDown) {
+		// 				switch (cameraState.state) {
+		// 					case CameraSwitchType.Boat:
+		// 						cameraState.state = CameraSwitchType.Helicopter;
 
-								boat.remove(ThirdPersonTarget);
-								boat.remove(Input);
-								boat.get(Vehicle).controller = null;
+		// 						boat.remove(ThirdPersonTarget);
+		// 						boat.remove(Input);
+		// 						boat.get(Vehicle).controller = null;
 
-								heli.add(ThirdPersonTarget);
-								heli.add(Input);
-								heli.get(Vehicle).controller = player;
-								break;
-							case CameraSwitchType.Helicopter:
-								cameraState.state = CameraSwitchType.Player;
+		// 						heli.add(ThirdPersonTarget);
+		// 						heli.add(Input);
+		// 						heli.get(Vehicle).controller = player;
+		// 						break;
+		// 					case CameraSwitchType.Helicopter:
+		// 						cameraState.state = CameraSwitchType.Player;
 
-								heli.remove(ThirdPersonTarget);
-								heli.remove(Input);
-								heli.get(Vehicle).controller = null;
+		// 						heli.remove(ThirdPersonTarget);
+		// 						heli.remove(Input);
+		// 						heli.get(Vehicle).controller = null;
 
-								player.add(ThirdPersonTarget);
-								player.add(Input);
-								break;
-							case CameraSwitchType.Player:
-								cameraState.state = CameraSwitchType.Freeroam;
+		// 						player.add(ThirdPersonTarget);
+		// 						player.add(Input);
+		// 						break;
+		// 					case CameraSwitchType.Player:
+		// 						cameraState.state = CameraSwitchType.Freeroam;
 
-								player.remove(ThirdPersonTarget);
-								player.remove(Input);
+		// 						player.remove(ThirdPersonTarget);
+		// 						player.remove(Input);
 
-								this.removeSystem(this.thirdPersonCameraSystem);
-								this.addSystem(this.freeRoamCameraSystem);
-								break;
-							case CameraSwitchType.Freeroam:
-								cameraState.state = CameraSwitchType.Boat;
+		// 						this.removeSystem(this.thirdPersonCameraSystem);
+		// 						this.addSystem(this.freeRoamCameraSystem);
+		// 						break;
+		// 					case CameraSwitchType.Freeroam:
+		// 						cameraState.state = CameraSwitchType.Boat;
 
-								this.removeSystem(this.freeRoamCameraSystem);
-								this.addSystem(this.thirdPersonCameraSystem);
+		// 						this.removeSystem(this.freeRoamCameraSystem);
+		// 						this.addSystem(this.thirdPersonCameraSystem);
 
-								boat.add(ThirdPersonTarget);
-								boat.add(Input);
-								boat.get(Vehicle).controller = player;
-						}
-					}
-				}
-			})
-		);
+		// 						boat.add(ThirdPersonTarget);
+		// 						boat.add(Input);
+		// 						boat.get(Vehicle).controller = player;
+		// 				}
+		// 			}
+		// 		}
+		// 	})
+		// );
 
 		this.addSystem(
 			functionalSystem([all(Transform, CannonBody), any(Vehicle, CharacterTag)], {
@@ -193,7 +192,7 @@ export class ShipClient extends Space {
 		camera.add(new PerspectiveCamera(75, 1280 / 720, 1, 5000));
 		camera.add(CameraSwitchState);
 		camera.add(Input);
-		camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
+		// camera.add(InputKeybindings, { jumpKeybinding: [Key.C] });
 		camera.add(SoundListener);
 
 		this.addSystem(

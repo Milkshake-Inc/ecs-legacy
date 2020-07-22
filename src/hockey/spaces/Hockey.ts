@@ -41,7 +41,7 @@ export type PaddleSnapshotEntity = SnapshotPhysicsEntity & {
 	sessionId: string;
 	name: string;
 	color: PlayerColor;
-	input: Input;
+	input: {};
 };
 
 export type Snapshot = {
@@ -149,7 +149,7 @@ export const takeSnapshot = (queries: typeof generateSnapshotQueries): Snapshot 
 			name,
 			color: paddle.color,
 			...paddleSnap,
-			input: { ...input }
+			input: { ...input.state }
 		};
 	};
 

@@ -15,7 +15,7 @@ import BaseSpace from '../../BaseSpace';
 import { PlayerSpawnSystem } from './Shared';
 import ClientSnapshotSystem from './systems/ClientSnapshotSystem';
 import { CharacterInputSystem } from '@ecs/plugins/character/systems/CharacterInputSystem';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+// import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 
 export class NetworkClientSpace extends BaseSpace {
 	protected boxModel: GLTF;
@@ -53,7 +53,7 @@ export class NetworkClientSpace extends BaseSpace {
 				});
 				if (local) {
 					entity.add(Input);
-					entity.add(InputKeybindings.WASD());
+					// entity.add(InputKeybindings.WASD());
 				}
 
 				entity.add(ThirdPersonTarget);

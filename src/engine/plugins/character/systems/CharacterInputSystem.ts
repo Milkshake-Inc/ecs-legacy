@@ -18,16 +18,16 @@ export class CharacterInputSystem extends InputSystem {
 	protected updateEntityFixed(entity: Entity, dt: number) {
 		super.updateEntityFixed(entity, dt);
 
-		const input = entity.get(Input);
+		// const input = entity.get(Input);
 
-		if (this.camera) {
-			const cameraTransform = this.camera.get(Transform);
-			const characterTransform = entity.get(Transform);
+		// if (this.camera) {
+		// 	const cameraTransform = this.camera.get(Transform);
+		// 	const characterTransform = entity.get(Transform);
 
-			const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
+		// 	const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
 
-			input.rotation = Math.atan2(directionVector.z, directionVector.x) + Math.PI / 2;
-		}
+		// 	input.rotation = Math.atan2(directionVector.z, directionVector.x) + Math.PI / 2;
+		// }
 	}
 
 	get camera() {

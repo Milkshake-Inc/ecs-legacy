@@ -38,7 +38,7 @@ export type WorldSnapshot<T = {}> = {
 export type PlayerInput = {
 	opcode: PacketOpcode.PLAYER_INPUT;
 	tick: number;
-	input: Input;
+	input: Input<any>;
 };
 
 export type PlayerCustomInput<T = {}> = {

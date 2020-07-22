@@ -1,5 +1,5 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
@@ -8,10 +8,18 @@ import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
 import { Engine } from '@ecs/ecs/Engine';
 import Mouse from '@ecs/input/Mouse';
+import Gamepad from '@ecs/input/Gamepad';
 import MathHelper from '@ecs/math/MathHelper';
+import Input from '@ecs/plugins/input/components/Input';
+import { MouseScroll, Controls, Stick } from '@ecs/input/Control';
+
+const CameraInput = {
+	zoomIn: Mouse.button(MouseScroll.Up),
+	zoomOut: Mouse.button(MouseScroll.Down),
+	move: Controls.or(Gamepad.stick(Stick.Left), Gamepad.stick(Stick.Right), Mouse.move())
+};
 
 export default class ThirdPersonCameraSystem extends System {
-	private mouse: Mouse;
 	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
 	private zoom = {
@@ -26,20 +34,7 @@ export default class ThirdPersonCameraSystem extends System {
 		target: all(Transform, ThirdPersonTarget)
 	});
 
-	onAddedToEngine(engine: Engine) {
-		this.mouse = new Mouse(
-			{
-				move: this.move.bind(this),
-				zoomIn: this.zoomIn.bind(this),
-				zoomOut: this.zoomOut.bind(this)
-			},
-			true
-		);
-	}
-
-	onRemovedFromEngine(engine: Engine) {
-		this.mouse.destroy();
-	}
+	private inputs = useState(this, new Input(CameraInput));
 
 	get target() {
 		return this.queries.target.first?.get(Transform);
@@ -53,25 +48,26 @@ export default class ThirdPersonCameraSystem extends System {
 		return this.queries.camera.first?.get(PerspectiveCamera);
 	}
 
-	zoomIn() {
-		this.zoom.value = MathHelper.clamp((this.zoom.value -= this.zoom.speed), this.zoom.min, this.zoom.max);
-	}
-
-	zoomOut() {
-		this.zoom.value = MathHelper.clamp((this.zoom.value += this.zoom.speed), this.zoom.min, this.zoom.max);
-	}
-
-	move(deltaX: number, deltaY: number) {
-		this.cameraAngle.x += deltaX;
-		this.cameraAngle.y -= deltaY;
-		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, Math.PI);
-	}
-
 	public updateLate(dt: number) {
 		super.updateLate(dt);
 
 		if (!this.target || this.target.position.x == undefined || !this.acamera) {
 			return;
+		}
+
+		if (this.inputs.state.zoomIn.down) {
+			this.zoom.value = MathHelper.clamp((this.zoom.value -= this.zoom.speed), this.zoom.min, this.zoom.max);
+		}
+
+		if (this.inputs.state.zoomOut.down) {
+			this.zoom.value = MathHelper.clamp((this.zoom.value += this.zoom.speed), this.zoom.min, this.zoom.max);
+		}
+
+		if (this.inputs.state.move.down) {
+			console.log(this.inputs.state.move);
+			this.cameraAngle.x += this.inputs.state.move.x;
+			this.cameraAngle.y -= this.inputs.state.move.y;
+			this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, Math.PI);
 		}
 
 		// NEED TO FIGURE OUT THIS MATH....

@@ -1,13 +1,14 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Key from '@ecs/input/Key';
 import Keyboard from '@ecs/input/Keyboard';
 import Vector3 from '@ecs/math/Vector';
 import Transform from '@ecs/plugins/Transform';
 import { all } from '@ecs/utils/QueryHelper';
 import { PerspectiveCamera } from 'three';
 import { Engine } from '@ecs/ecs/Engine';
+import Input from '@ecs/plugins/input/components/Input';
+import { KeySet, Key } from '@ecs/input/Control';
 
 export default class FreeRoamCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -19,6 +20,19 @@ export default class FreeRoamCameraSystem extends System {
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera)
 	});
+
+	protected inputs = useState(
+		this,
+		new Input({
+			boost: Keyboard.key(Key.Shift),
+			up: Keyboard.key(Key.Q),
+			down: Keyboard.key(Key.E),
+			left: Keyboard.key(Key.A),
+			right: Keyboard.key(Key.D),
+			back: Keyboard.key(Key.S),
+			forward: Keyboard.key(Key.W)
+		})
+	);
 
 	constructor(protected bindLockToBody = true) {
 		super();
@@ -85,30 +99,30 @@ export default class FreeRoamCameraSystem extends System {
 		super.updateLate(dt);
 		const camera = this.queries.camera.first.get(Transform);
 
-		const speed = this.keyboard.isDown(Key.SHIFT) ? 1 : 0.1;
+		const speed = this.inputs.state.boost.down ? 1 : 0.1;
 		let movement = Vector3.ZERO;
 
-		if (this.keyboard.isDown(Key.W)) {
+		if (this.inputs.state.forward.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.FORWARD));
 		}
 
-		if (this.keyboard.isDown(Key.S)) {
+		if (this.inputs.state.back.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.BACKWARD));
 		}
 
-		if (this.keyboard.isDown(Key.A)) {
+		if (this.inputs.state.left.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.LEFT));
 		}
 
-		if (this.keyboard.isDown(Key.D)) {
+		if (this.inputs.state.right.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.RIGHT));
 		}
 
-		if (this.keyboard.isDown(Key.E)) {
+		if (this.inputs.state.up.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.UP));
 		}
 
-		if (this.keyboard.isDown(Key.Q)) {
+		if (this.inputs.state.down.down) {
 			movement = movement.add(camera.quaternion.multiV(Vector3.DOWN));
 		}
 

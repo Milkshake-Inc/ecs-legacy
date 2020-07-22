@@ -10,7 +10,7 @@ import Helicopter from '../components/Helicopter';
 import { Material } from 'cannon-es';
 import GLTFShape from '@ecs/plugins/physics/components/GLTFShape';
 import { CollisionGroups } from '@ecs/plugins/physics/systems/CannonPhysicsSystem';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+// import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
 import SoundFollowTarget from '@ecs/plugins/sound/components/SoundFollowTarget';
 
@@ -28,7 +28,7 @@ export default class HelicopterEntity extends Entity {
 		this.add(Transform, { position: spawnPosition });
 		this.add(Vehicle);
 		this.add(Helicopter, { rotors: this.getRotorsFromModel(gltf) });
-		this.add(InputKeybindings.AIRCRAFT());
+		// this.add(InputKeybindings.AIRCRAFT());
 		this.add(gltf.scene);
 		this.add(
 			new CannonBody({

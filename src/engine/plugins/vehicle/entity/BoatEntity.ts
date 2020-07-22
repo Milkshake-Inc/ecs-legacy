@@ -2,7 +2,7 @@ import Vector3 from '@ecs/math/Vector';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/Transform';
-import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
+// import InputKeybindings from '@ecs/plugins/input/components/InputKeybindings';
 import CannonBody from '@ecs/plugins/physics/components/CannonBody';
 import { Material } from 'cannon-es';
 import MeshShape from '@ecs/plugins/physics/components/MeshShape';
@@ -18,7 +18,7 @@ export default class BoatEntity extends Entity {
 		mat.friction = 0.03;
 
 		this.add(Transform, { position: spawnPosition });
-		this.add(InputKeybindings.WASD());
+		// this.add(InputKeybindings.WASD());
 		this.add(Vehicle);
 		this.add(Boat);
 		this.add(gltf.scene);

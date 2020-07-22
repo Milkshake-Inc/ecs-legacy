@@ -31,7 +31,7 @@ export default class ClientInputSenderSystem extends IterativeSystem {
 }
 
 // Make this fallback to Input if no CustomInput sent?
-export class ClientCustomInputSenderSystem<T = Input> extends IterativeSystem {
+export class ClientCustomInputSenderSystem<T = Input<any>> extends IterativeSystem {
 	protected queries = useQueries(this, {
 		pingState: all(ClientPingState)
 	});

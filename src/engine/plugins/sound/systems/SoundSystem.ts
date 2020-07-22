@@ -58,6 +58,7 @@ export default class SoundSystem extends IterativeSystem {
 
 		if (this.listener) {
 			const listenerPos = this.listener.get(Transform);
+			if (isNaN(listenerPos.x)) return;
 			Howler.pos(listenerPos.x, listenerPos.y, listenerPos.z);
 		}
 	}
