@@ -3,6 +3,7 @@
 import InputDevice, { PressedState } from './InputDevice';
 import InputManager from './InputManager';
 import { Control, MouseButton, MouseScroll } from './Control';
+import MathHelper from '../math/MathHelper';
 
 export default class Mouse extends InputDevice {
 	protected get listeners() {
@@ -75,6 +76,8 @@ export default class Mouse extends InputDevice {
 				if (this.isDown(btn)) this.pressed.set(btn, PressedState.Up); // Show as down for one tick, then trigger keyup
 			}
 		}
+
+		this.position = { x: 0, y: 0 };
 	}
 
 	private handleMouseWheel(event: any) {
@@ -109,7 +112,8 @@ export default class Mouse extends InputDevice {
 					y: mouse.y - this.lastPosition.y
 			  };
 
-		this.position = delta;
+		this.position.x += delta.x;
+		this.position.y += delta.y;
 		this.lastPosition = mouse;
 	}
 

@@ -63,7 +63,6 @@ export default class ThirdPersonCameraSystem extends System {
 		}
 
 		if (this.inputs.state.move.down) {
-			console.log(this.inputs.state.move);
 			this.cameraAngle.x += this.inputs.state.move.x;
 			this.cameraAngle.y -= this.inputs.state.move.y;
 			this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, Math.PI);
