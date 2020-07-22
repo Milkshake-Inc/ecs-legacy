@@ -3,9 +3,9 @@ import Gamepad from './Gamepad';
 import Mouse from './Mouse';
 
 export default class InputManager {
-	public keyboards: Keyboard[] = [];
+	public keyboard: Keyboard;
+	public mouse: Mouse;
 	public gamepads: Gamepad[] = [];
-	public mouses: Mouse[] = [];
 
 	private listeners: { [event: string]: EventListener } = {
 		gamepadconnected: function () {
@@ -18,8 +18,8 @@ export default class InputManager {
 
 	constructor() {
 		// TODO Figure out some kind of virtual keyboard interface for localplayer split keys...
-		this.keyboards = [new Keyboard()];
-		this.mouses = [new Mouse()];
+		this.keyboard = new Keyboard();
+		this.mouse = new Mouse();
 		this.refreshGamepads();
 		this.addListeners();
 	}
@@ -47,9 +47,8 @@ export default class InputManager {
 	}
 
 	public update(deltaTime: number) {
-		for (const input of this.keyboards) {
-			if (input) input.update(deltaTime);
-		}
+		this.keyboard.update(deltaTime);
+		this.mouse.update(deltaTime);
 
 		for (const input of this.gamepads) {
 			if (input) input.update(deltaTime);

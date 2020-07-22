@@ -210,16 +210,16 @@ export type InputState = {
 	y?: number;
 };
 
-export type Control = (input: InputManager, playerIndex: number) => InputState;
+export type Control = (input: InputManager) => InputState;
 
 export class Controls {
 	static and(...controls: Array<Control>): Control {
 		if (controls.length < 2) throw new Error('Less than two controls specified!');
 
-		return (inputManager: InputManager, playerIndex: number) => {
+		return (inputManager: InputManager) => {
 			return {
-				down: controls.every(c => c(inputManager, playerIndex).down),
-				once: controls.every(c => c(inputManager, playerIndex).once)
+				down: controls.every(c => c(inputManager).down),
+				once: controls.every(c => c(inputManager).once)
 			};
 		};
 	}
@@ -227,16 +227,16 @@ export class Controls {
 	static or(...controls: Array<Control>): Control {
 		if (controls.length < 2) throw new Error('Less than two controls specified!');
 
-		return (inputManager: InputManager, playerIndex: number) => {
-			const first = controls.find(c => c(inputManager, playerIndex).down);
+		return (inputManager: InputManager) => {
+			const first = controls.find(c => c(inputManager).down);
 			if (!first) {
 				return { down: false, once: false, x: 0, y: 0 };
 			}
-			const firstData = first(inputManager, playerIndex);
+			const firstData = first(inputManager);
 
 			return {
-				down: controls.some(c => c(inputManager, playerIndex).down),
-				once: controls.some(c => c(inputManager, playerIndex).once),
+				down: controls.some(c => c(inputManager).down),
+				once: controls.some(c => c(inputManager).once),
 				x: firstData?.x,
 				y: firstData?.y
 			};

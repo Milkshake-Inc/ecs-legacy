@@ -8,13 +8,19 @@ export default class Mouse extends InputDevice {
 	protected get listeners() {
 		return {
 			mousewheel: function (e) {
-				this.mouseWheelHandler(e);
+				this.handleMouseWheel(e);
 			}.bind(this),
 			DOMMouseScroll: function (e) {
-				this.mouseWheelHandler(e);
+				this.handleMouseWheel(e);
 			}.bind(this),
 			mousemove: function (e) {
-				this.mouseMoveHandler(e);
+				this.handleMouseMove(e);
+			}.bind(this),
+			mousedown: function (e) {
+				this.handleMouseDown(e);
+			}.bind(this),
+			mouseup: function (e) {
+				this.handleMouseUp(e);
 			}.bind(this)
 		};
 	}
@@ -36,23 +42,21 @@ export default class Mouse extends InputDevice {
 	}
 
 	static button(btn: MouseButton | MouseScroll): Control {
-		return (input: InputManager, playerIndex: number) => {
+		return (input: InputManager) => {
 			return {
-				down: input.mouses[0].isDown(btn),
-				once: input.mouses[0].isDownOnce(btn)
+				down: input.mouse.isDown(btn),
+				once: input.mouse.isDownOnce(btn)
 			};
 		};
 	}
 
 	static move(): Control {
-		return (input: InputManager, playerIndex: number) => {
-			const mouse = input.mouses[0];
-
+		return (input: InputManager) => {
 			return {
-				down: Boolean(mouse.position.x != 0 || mouse.position.y != 0),
-				once: Boolean(mouse.position.x != 0 || mouse.position.y != 0),
-				x: mouse.position.x,
-				y: mouse.position.y
+				down: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
+				once: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
+				x: input.mouse.position.x,
+				y: input.mouse.position.y
 			};
 		};
 	}
@@ -62,7 +66,7 @@ export default class Mouse extends InputDevice {
 		if (Mouse.pointerLocked) document.exitPointerLock();
 	}
 
-	mouseWheelHandler(event: any) {
+	private handleMouseWheel(event: any) {
 		event = window.event || event;
 		const delta = Math.max(-1, Math.min(1, event.wheelDelta || -event.detail));
 
@@ -73,7 +77,7 @@ export default class Mouse extends InputDevice {
 		}
 	}
 
-	mouseMoveHandler(event: MouseEvent) {
+	private handleMouseMove(event: MouseEvent) {
 		const mouse = Mouse.pointerLocked
 			? {
 					x: event.movementX / 500,
@@ -98,7 +102,13 @@ export default class Mouse extends InputDevice {
 		this.lastPosition = mouse;
 	}
 
-	public update(deltaTime: number) {
-		super.update(deltaTime);
+	private handleMouseDown({ button }: MouseEvent) {
+		this.pressed.set(button, this.pressed.has(button) ? null : PressedState.Down);
+		return false;
+	}
+
+	private handleMouseUp({ button }: MouseEvent) {
+		this.pressed.set(button, PressedState.Up);
+		return false;
 	}
 }

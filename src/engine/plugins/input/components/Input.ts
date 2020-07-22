@@ -19,7 +19,7 @@ export default class Input<B extends InputBindings> {
 		const inputs = {};
 
 		Object.keys(this.bindings).forEach(key => {
-			inputs[key] = this.bindings[key](inputManager, this.playerIndex);
+			inputs[key] = this.bindings[key](inputManager);
 		});
 
 		this.inputs = inputs;

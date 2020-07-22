@@ -79,13 +79,13 @@ export default class GolfCameraSystem extends System {
 		if (gameState.state == GameState.INGAME && !this.engine.hasSystem(ThirdPersonCameraSystem)) {
 			console.log('Create camera!');
 			this.engine.addSystem(new ThirdPersonCameraSystem());
-			Mouse.stopPointerLock();
+			Mouse.startPointerLock();
 		}
 
 		if (gameState.state == GameState.LOBBY && this.engine.hasSystem(ThirdPersonCameraSystem)) {
 			console.log('Remove camera!');
 			this.engine.removeSystem(this.engine.getSystem(ThirdPersonCameraSystem));
-			Mouse.startPointerLock();
+			Mouse.stopPointerLock();
 		}
 
 		const lightEntity = this.query.lights.first;

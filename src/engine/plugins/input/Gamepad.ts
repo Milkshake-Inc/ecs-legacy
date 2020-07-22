@@ -19,8 +19,8 @@ export default class Gamepad extends InputDevice {
 		return {};
 	}
 
-	static button(btn: Button): Control {
-		return (input: InputManager, playerIndex: number) => {
+	static button(btn: Button, playerIndex = 0): Control {
+		return (input: InputManager) => {
 			return {
 				down: input.gamepads[playerIndex]?.isDown(btn),
 				once: input.gamepads[playerIndex]?.isDownOnce(btn)
@@ -28,8 +28,8 @@ export default class Gamepad extends InputDevice {
 		};
 	}
 
-	static stick(stick: GamepadStick): Control {
-		return (input: InputManager, playerIndex: number) => {
+	static stick(stick: GamepadStick, playerIndex = 0): Control {
+		return (input: InputManager) => {
 			const pad = input.gamepads[playerIndex]?.pad;
 			if (!pad) {
 				return { down: false, once: false, x: 0, y: 0 };

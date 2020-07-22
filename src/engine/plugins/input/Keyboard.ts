@@ -15,29 +15,27 @@ export default class Keyboard extends InputDevice {
 	}
 
 	static key(key: Key): Control {
-		return (input: InputManager, playerIndex: number) => {
-			const keyboard = input.keyboards[0];
+		return (input: InputManager) => {
 			return {
-				down: keyboard.isDown(key),
-				once: keyboard.isDownOnce(key)
+				down: input.keyboard.isDown(key),
+				once: input.keyboard.isDownOnce(key)
 			};
 		};
 	}
 
 	static direction(keySet: KeySetTemplate): Control {
-		return (input: InputManager, playerIndex: number) => {
-			const keyboard = input.keyboards[0];
+		return (input: InputManager) => {
 			const down = { x: 0, y: 0 };
-			if (keyboard.isDown(keySet.Up)) down.y -= 1;
-			if (keyboard.isDown(keySet.Left)) down.x -= 1;
-			if (keyboard.isDown(keySet.Down)) down.y += 1;
-			if (keyboard.isDown(keySet.Right)) down.x += 1;
+			if (input.keyboard.isDown(keySet.Up)) down.y -= 1;
+			if (input.keyboard.isDown(keySet.Left)) down.x -= 1;
+			if (input.keyboard.isDown(keySet.Down)) down.y += 1;
+			if (input.keyboard.isDown(keySet.Right)) down.x += 1;
 
 			const once = { x: 0, y: 0 };
-			if (keyboard.isDownOnce(keySet.Up)) once.y -= 1;
-			if (keyboard.isDownOnce(keySet.Left)) once.x -= 1;
-			if (keyboard.isDownOnce(keySet.Down)) once.y += 1;
-			if (keyboard.isDownOnce(keySet.Right)) once.x += 1;
+			if (input.keyboard.isDownOnce(keySet.Up)) once.y -= 1;
+			if (input.keyboard.isDownOnce(keySet.Left)) once.x -= 1;
+			if (input.keyboard.isDownOnce(keySet.Down)) once.y += 1;
+			if (input.keyboard.isDownOnce(keySet.Right)) once.x += 1;
 
 			return {
 				down: Boolean(down.x != 0 || down.y != 0),
