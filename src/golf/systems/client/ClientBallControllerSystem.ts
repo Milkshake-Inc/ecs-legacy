@@ -23,7 +23,7 @@ export class BallControllerState {
 }
 
 const PlayerInputs = {
-	Shoot: Keyboard.key(Key.Space)
+	shoot: Keyboard.key(Key.Space)
 };
 
 export default class ClientBallControllerSystem extends IterativeSystem {
@@ -75,7 +75,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
 
 		if (camera) {
-			if (this.inputs.state?.Shoot.once) {
+			if (this.inputs.state.shoot.once) {
 				this.state.power = 1;
 
 				this.networking.send({
@@ -83,14 +83,14 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				});
 			}
 
-			if (this.inputs.state?.Shoot.down) {
+			if (this.inputs.state.shoot.down) {
 				this.state.power += 1.2;
 				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
 
 				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
-			if (this.inputs.state?.Shoot.up) {
+			if (this.inputs.state.shoot.up) {
 				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);

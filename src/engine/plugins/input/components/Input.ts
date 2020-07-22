@@ -1,14 +1,19 @@
-import { InputActions, InputBindings } from '@ecs/plugins/input/Control';
+import { InputActions, InputBindings, InputStateEmpty } from '@ecs/plugins/input/Control';
 import InputManager from '@ecs/plugins/input/InputManager';
 
 export default class Input<B extends InputBindings> {
 	private bindings: B;
-	private playerIndex: number;
 	private inputs: InputActions<B>;
 
-	constructor(bindings: B, playerIndex = 0) {
+	constructor(bindings: B) {
 		this.bindings = bindings;
-		this.playerIndex = playerIndex;
+
+		// Set initial inputs to empty
+		const inputs = {};
+		Object.keys(this.bindings).forEach(key => {
+			inputs[key] = InputStateEmpty;
+		});
+		this.inputs = inputs;
 	}
 
 	get state() {
