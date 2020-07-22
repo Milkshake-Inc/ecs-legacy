@@ -15,15 +15,24 @@ import { all, makeQuery } from '@ecs/ecs/Query';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
-import { Key } from '@ecs/plugins/input/Control';
+import { Key, Controls, MouseButton, GamepadButton } from '@ecs/plugins/input/Control';
 import Input from '@ecs/plugins/input/components/Input';
+import Mouse from '@ecs/plugins/input/Mouse';
+import Gamepad from '@ecs/plugins/input/Gamepad';
 
 export class BallControllerState {
 	public power: number;
 }
 
 const PlayerInputs = {
-	shoot: Keyboard.key(Key.Space)
+	shoot: Controls.or(
+		Keyboard.key(Key.Space),
+		Mouse.button(MouseButton.Left),
+		Gamepad.button(GamepadButton.LT, 0),
+		Gamepad.button(GamepadButton.LT, 0),
+		Gamepad.button(GamepadButton.RT, 0),
+		Gamepad.button(GamepadButton.RT, 1)
+	)
 };
 
 export default class ClientBallControllerSystem extends IterativeSystem {

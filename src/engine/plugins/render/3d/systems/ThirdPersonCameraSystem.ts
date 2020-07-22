@@ -15,7 +15,13 @@ import { MouseScroll, Controls, Stick } from '@ecs/plugins/input/Control';
 const CameraInput = {
 	zoomIn: Mouse.button(MouseScroll.Up),
 	zoomOut: Mouse.button(MouseScroll.Down),
-	move: Controls.or(Gamepad.stick(Stick.Left), Gamepad.stick(Stick.Right), Mouse.move())
+	move: Controls.or(
+		Gamepad.stick(Stick.Left, 0, -1),
+		Gamepad.stick(Stick.Right, 0, -1),
+		Gamepad.stick(Stick.Left, 1, -1),
+		Gamepad.stick(Stick.Right, 1, -1),
+		Mouse.move()
+	)
 };
 
 export default class ThirdPersonCameraSystem extends System {

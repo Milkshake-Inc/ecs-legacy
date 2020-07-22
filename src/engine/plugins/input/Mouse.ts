@@ -3,7 +3,6 @@
 import InputDevice, { PressedState } from './InputDevice';
 import InputManager from './InputManager';
 import { Control, MouseButton, MouseScroll } from './Control';
-import MathHelper from '../math/MathHelper';
 
 export default class Mouse extends InputDevice {
 	protected get listeners() {
@@ -49,14 +48,14 @@ export default class Mouse extends InputDevice {
 		};
 	}
 
-	static move(): Control {
+	static move(sensitivityX = 1, sensitivityY = 1): Control {
 		return (input: InputManager) => {
 			return {
 				down: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				once: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				up: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
-				x: input.mouse.position.x,
-				y: input.mouse.position.y
+				x: input.mouse.position.x * sensitivityX,
+				y: input.mouse.position.y * sensitivityY
 			};
 		};
 	}

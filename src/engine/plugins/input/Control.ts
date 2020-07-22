@@ -154,7 +154,7 @@ export class KeySet {
 	public static Arrows: KeySetTemplate = { Up: Key.UpArrow, Left: Key.LeftArrow, Down: Key.DownArrow, Right: Key.RightArrow };
 }
 
-export enum Button {
+export enum GamepadButton {
 	A,
 	B,
 	X,

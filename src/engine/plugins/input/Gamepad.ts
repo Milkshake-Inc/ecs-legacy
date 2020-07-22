@@ -1,4 +1,4 @@
-import { Button, Control, GamepadStick, InputStateEmpty } from './Control';
+import { GamepadButton, Control, GamepadStick, InputStateEmpty } from './Control';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import InputManager from './InputManager';
 import InputDevice, { PressedState } from './InputDevice';
@@ -19,7 +19,7 @@ export default class Gamepad extends InputDevice {
 		return {};
 	}
 
-	static button(btn: Button, playerIndex = 0): Control {
+	static button(btn: GamepadButton, playerIndex = 0): Control {
 		return (input: InputManager) => {
 			return {
 				down: input.gamepads[playerIndex]?.isDown(btn),
@@ -29,7 +29,7 @@ export default class Gamepad extends InputDevice {
 		};
 	}
 
-	static stick(stick: GamepadStick, playerIndex = 0): Control {
+	static stick(stick: GamepadStick, playerIndex = 0, sensitivityX = 1, sensitivityY = 1): Control {
 		return (input: InputManager) => {
 			const pad = input.gamepads[playerIndex]?.pad;
 			if (!pad) {
@@ -42,8 +42,8 @@ export default class Gamepad extends InputDevice {
 				down: Boolean(axis.x != 0 || axis.y != 0),
 				once: Boolean(axis.x != 0 || axis.y != 0),
 				up: Boolean(axis.x != 0 || axis.y != 0),
-				x: axis.x,
-				y: axis.y
+				x: axis.x * 0.02 * sensitivityX,
+				y: axis.y * 0.02 * sensitivityY
 			};
 		};
 	}
