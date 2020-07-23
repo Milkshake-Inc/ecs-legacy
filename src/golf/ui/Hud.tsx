@@ -13,5 +13,5 @@ export const Hud = props => {
 		margin: '0px'
 	};
 
-	return <div style={style}>{props.children}</div>;
+	return <div onClick={() => document.body.requestFullscreen()} style={style}>{props.children}</div>;
 };

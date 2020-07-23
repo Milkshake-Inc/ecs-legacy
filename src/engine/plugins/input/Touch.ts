@@ -5,7 +5,7 @@ import { Manager, DIRECTION_ALL } from 'hammerjs';
 import InputManager from './InputManager';
 import { Control, Gesture } from './Control';
 
-const DeviceSensitivity = window.screen.width * 0.0001;
+const DeviceSensitivity = window.screen.width * 0.0002;
 
 export default class Touch extends InputDevice {
 	protected manager: HammerManager;
@@ -51,7 +51,7 @@ export default class Touch extends InputDevice {
 				once: input.touch.isDownOnce(gesture),
 				up: input.touch.isUpOnce(gesture),
 				x: x * DeviceSensitivity * sensitivityX,
-				y: y * DeviceSensitivity * sensitivityY
+				y: -y * DeviceSensitivity * sensitivityY
 			};
 		};
 	}

@@ -95,7 +95,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		light.add(new DirectionalLight(new ThreeColor(Color.White), 0.8), {
 			castShadow: true
 		});
-		light.get(DirectionalLight).shadow.mapSize.set(1024 * 4, 1024 * 4);
+		light.get(DirectionalLight).shadow.mapSize.set(1024, 1024);
 		light.add(new AmbientLight(new ThreeColor(Color.White), 0.5));
 		light.add(Transform);
 

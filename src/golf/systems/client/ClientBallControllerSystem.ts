@@ -23,6 +23,7 @@ import Touch from '@ecs/plugins/input/Touch';
 
 export class BallControllerState {
 	public power: number;
+	public direction: number;
 }
 
 const PlayerInputs = {
@@ -43,7 +44,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	});
 
 	protected state = useState(this, new BallControllerState(), {
-		power: 0
+		power: 0,
+		direction: 1,
 	});
 
 	protected inputs = useState(this, new Input(PlayerInputs));
@@ -95,14 +97,19 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 			}
 
 			if (this.inputs.state.shoot.down) {
-				this.state.power += 1.2;
+				this.state.power += 0.6 * this.state.direction;
 				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
+
+				if(this.state.power == 100 || this.state.power == 0) {
+					this.state.direction *= -1;
+				}
 
 				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
 			if (this.inputs.state.shoot.up) {
-				const mappedPower = MathHelper.map(0, 100, 1, 10, this.state.power);
+				this.state.direction = 1;
+				const mappedPower = MathHelper.map(0, 100, 0, 9, this.state.power);
 
 				console.log(`Shot Power: ${mappedPower} - ID: ${entity.get(Session).id}`);
 
