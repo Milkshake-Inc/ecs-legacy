@@ -15,10 +15,11 @@ import { all, makeQuery } from '@ecs/ecs/Query';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
-import { Key, Controls, MouseButton, GamepadButton } from '@ecs/plugins/input/Control';
+import { Key, Controls, MouseButton, GamepadButton, Gesture } from '@ecs/plugins/input/Control';
 import Input from '@ecs/plugins/input/components/Input';
 import Mouse from '@ecs/plugins/input/Mouse';
 import Gamepad from '@ecs/plugins/input/Gamepad';
+import Touch from '@ecs/plugins/input/Touch';
 
 export class BallControllerState {
 	public power: number;
@@ -28,6 +29,7 @@ const PlayerInputs = {
 	shoot: Controls.or(
 		Keyboard.key(Key.Space),
 		Mouse.button(MouseButton.Left),
+		Touch.gesture(Gesture.Press),
 		Gamepad.button(GamepadButton.LT, 0),
 		Gamepad.button(GamepadButton.LT, 0),
 		Gamepad.button(GamepadButton.RT, 0),

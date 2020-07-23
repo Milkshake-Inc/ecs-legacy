@@ -8,9 +8,10 @@ import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
 import Mouse from '@ecs/plugins/input/Mouse';
 import Gamepad from '@ecs/plugins/input/Gamepad';
+import Touch from '@ecs/plugins/input/Touch';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import Input from '@ecs/plugins/input/components/Input';
-import { MouseScroll, Controls, Stick } from '@ecs/plugins/input/Control';
+import { MouseScroll, Controls, Stick, Gesture } from '@ecs/plugins/input/Control';
 
 const CameraInput = {
 	zoomIn: Mouse.button(MouseScroll.Up),
@@ -20,7 +21,8 @@ const CameraInput = {
 		Gamepad.stick(Stick.Right, 0, -1),
 		Gamepad.stick(Stick.Left, 1, -1),
 		Gamepad.stick(Stick.Right, 1, -1),
-		Mouse.move()
+		Mouse.move(),
+		Touch.gesture(Gesture.Pan)
 	)
 };
 

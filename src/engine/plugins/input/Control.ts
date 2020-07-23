@@ -142,6 +142,18 @@ export enum MouseScroll {
 	Down = 'MouseScrollDown'
 }
 
+export enum Gesture {
+	Tap = 'tap',
+	Press = 'press',
+	SwipeLeft = 'swipeleft',
+	SwipeRight = 'swipeleft',
+	SwipeUp = 'swipeup',
+	SwipeDown = 'swipedown',
+	Pinch = 'pinch',
+	Rotate = 'rotate',
+	Pan = 'pan'
+}
+
 export interface KeySetTemplate {
 	Up: Key;
 	Left: Key;

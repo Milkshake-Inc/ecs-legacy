@@ -26,7 +26,7 @@ export default class Mouse extends InputDevice {
 	private position = { x: 0, y: 0 };
 
 	static startPointerLock() {
-		if (Mouse.pointerLocked) return;
+		if (Mouse.pointerLocked || InputManager.isTouchCapable) return;
 		document.body.requestPointerLock();
 	}
 

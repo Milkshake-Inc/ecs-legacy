@@ -6,11 +6,9 @@ export enum PressedState {
 export default abstract class InputDevice {
 	protected pressed: Map<any, PressedState.Down | PressedState.Up> = new Map();
 
-	constructor() {
-		this.addListeners();
-	}
+	protected abstract get listeners(): { [event: string]: any };
 
-	protected abstract get listeners(): { [event: string]: EventListener };
+	public active: boolean;
 
 	public update(deltaTime: number) {
 		for (const key of Array.from(this.pressed.keys())) {
@@ -31,8 +29,14 @@ export default abstract class InputDevice {
 		return this.pressed.get(btn) == PressedState.Up;
 	}
 
+	public setup() {
+		this.addListeners();
+		this.active = true;
+	}
+
 	public destroy() {
 		this.removeListeners();
+		this.active = false;
 	}
 
 	protected addListeners() {
