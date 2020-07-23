@@ -4,6 +4,8 @@ import InputDevice, { PressedState } from './InputDevice';
 import InputManager from './InputManager';
 import { Control, MouseButton, MouseScroll } from './Control';
 
+const DeviceSensitivity = 1;
+
 export default class Mouse extends InputDevice {
 	protected get listeners() {
 		return {
@@ -54,8 +56,8 @@ export default class Mouse extends InputDevice {
 				down: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				once: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
 				up: Boolean(input.mouse.position.x != 0 || input.mouse.position.y != 0),
-				x: input.mouse.position.x * sensitivityX,
-				y: input.mouse.position.y * sensitivityY
+				x: input.mouse.position.x * DeviceSensitivity * sensitivityX,
+				y: input.mouse.position.y * DeviceSensitivity * sensitivityY
 			};
 		};
 	}

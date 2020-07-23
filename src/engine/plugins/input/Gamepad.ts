@@ -3,6 +3,8 @@ import MathHelper from '@ecs/plugins/math/MathHelper';
 import InputManager from './InputManager';
 import InputDevice, { PressedState } from './InputDevice';
 
+const DeviceSensitivity = 0.02;
+
 export default class Gamepad extends InputDevice {
 	public padIndex: number;
 
@@ -42,8 +44,8 @@ export default class Gamepad extends InputDevice {
 				down: Boolean(axis.x != 0 || axis.y != 0),
 				once: Boolean(axis.x != 0 || axis.y != 0),
 				up: Boolean(axis.x != 0 || axis.y != 0),
-				x: axis.x * 0.02 * sensitivityX,
-				y: axis.y * 0.02 * sensitivityY
+				x: axis.x * DeviceSensitivity * sensitivityX,
+				y: axis.y * DeviceSensitivity * sensitivityY
 			};
 		};
 	}
