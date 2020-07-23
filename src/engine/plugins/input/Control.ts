@@ -150,7 +150,8 @@ export enum Gesture {
 	SwipeUp = 'swipeup',
 	SwipeDown = 'swipedown',
 	Pinch = 'pinch',
-	Rotate = 'rotate',
+	PinchIn = 'pinchin',
+	PinchOut = 'pinchout',
 	Pan = 'pan'
 }
 

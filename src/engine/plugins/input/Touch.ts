@@ -24,11 +24,20 @@ export default class Touch extends InputDevice {
 			swipedown: (event: HammerInput) => this.handleGesture(Gesture.SwipeDown, event),
 			pinch: (event: HammerInput) => this.handleGesture(Gesture.Pinch, event),
 			pinchend: (event: HammerInput) => this.handleGestureEnd(Gesture.Pinch, event),
-			rotate: (event: HammerInput) => this.handleGesture(Gesture.Rotate, event),
-			rotateend: (event: HammerInput) => this.handleGestureEnd(Gesture.Rotate, event),
 			press: (event: HammerInput) => this.handleGesture(Gesture.Press, event),
 			pressup: (event: HammerInput) => this.handleGestureEnd(Gesture.Press, event)
 		};
+	}
+
+	constructor() {
+		super();
+		this.manager = new Manager(document.body);
+
+		this.manager.add(new Hammer.Tap());
+		this.manager.add(new Hammer.Pan());
+		this.manager.add(new Hammer.Swipe({ direction: DIRECTION_ALL, enable: true })); // Not tested
+		this.manager.add(new Hammer.Pinch({ enable: true })); // Not tested
+		this.manager.add(new Hammer.Press());
 	}
 
 	static gesture(gesture: Gesture, sensitivityX = 1, sensitivityY = 1): Control {
@@ -48,37 +57,34 @@ export default class Touch extends InputDevice {
 	}
 
 	protected handleGesture(gesture: Gesture, event: HammerInput) {
-		// console.log(gesture, event);
-		this.pressed.set(gesture, this.pressed.has(gesture) ? null : PressedState.Down);
+		if (gesture == Gesture.Pinch) {
+			const subGesture = event['additionalEvent'] == 'pinchin' ? Gesture.PinchIn : Gesture.PinchOut;
+			if (!this.pressed.has(subGesture)) this.pressed.set(subGesture, PressedState.Down);
+		}
+
+		if (!this.pressed.has(gesture)) this.pressed.set(gesture, PressedState.Down);
 		this.lastEvent.set(gesture, event);
 	}
 
 	protected handleGestureEnd(gesture: Gesture, event: HammerInput) {
-		this.pressed.set(gesture, PressedState.Up);
+		// Mark all gestures as up as user has stopped touching screen
+		for (const [key] of this.pressed) {
+			this.pressed.set(key, PressedState.Up);
+		}
 	}
 
 	public update(deltaTime: number) {
 		super.update(deltaTime);
 
 		// These gestures have no up event, so got to clear it manually...
-		[Gesture.Tap, Gesture.SwipeDown, Gesture.SwipeLeft, Gesture.SwipeRight, Gesture.SwipeUp].forEach(g => {
-			if (this.isDownOnce(g)) this.pressed.set(g, null); // Set as down
-			if (this.isDown(g)) this.pressed.set(g, PressedState.Up); // Show as down for one tick, then trigger up
-		});
+		[Gesture.Tap, Gesture.SwipeDown, Gesture.SwipeLeft, Gesture.SwipeRight, Gesture.SwipeUp, Gesture.PinchIn, Gesture.PinchOut].forEach(
+			g => {
+				if (this.isDown(g)) this.pressed.set(g, PressedState.Up); // Show as down for one tick, then trigger up
+			}
+		);
 	}
 
 	protected addListeners() {
-		if (!this.manager) {
-			this.manager = new Manager(document.body);
-
-			this.manager.add(new Hammer.Tap());
-			this.manager.add(new Hammer.Pan());
-			this.manager.add(new Hammer.Swipe({ direction: DIRECTION_ALL })); // Not tested
-			this.manager.add(new Hammer.Pinch()); // Not tested
-			this.manager.add(new Hammer.Rotate()); // Not tested
-			this.manager.add(new Hammer.Press());
-		}
-
 		for (const event of Object.keys(this.listeners)) {
 			this.manager.on(event, this.listeners[event]);
 		}

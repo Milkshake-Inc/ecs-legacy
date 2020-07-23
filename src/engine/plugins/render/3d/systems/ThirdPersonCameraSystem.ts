@@ -14,8 +14,8 @@ import Input from '@ecs/plugins/input/components/Input';
 import { MouseScroll, Controls, Stick, Gesture } from '@ecs/plugins/input/Control';
 
 const CameraInput = {
-	zoomIn: Mouse.button(MouseScroll.Up),
-	zoomOut: Mouse.button(MouseScroll.Down),
+	zoomIn: Controls.or(Mouse.button(MouseScroll.Up), Touch.gesture(Gesture.PinchOut)),
+	zoomOut: Controls.or(Mouse.button(MouseScroll.Down), Touch.gesture(Gesture.PinchIn)),
 	move: Controls.or(
 		Gamepad.stick(Stick.Left, 0, -1),
 		Gamepad.stick(Stick.Right, 0, -1),

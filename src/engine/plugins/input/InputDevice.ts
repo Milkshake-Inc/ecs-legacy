@@ -11,7 +11,7 @@ export default abstract class InputDevice {
 	public active: boolean;
 
 	public update(deltaTime: number) {
-		for (const key of Array.from(this.pressed.keys())) {
+		for (const [key] of this.pressed) {
 			if (this.isDownOnce(key)) this.pressed.set(key, null);
 			if (this.isUpOnce(key)) this.pressed.delete(key);
 		}

@@ -65,7 +65,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new ClientPingSystem());
 		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
 
-		this.addSystem(new InputSystem());
+		this.addSystem(new InputSystem(), 1000);
 
 		this.addSystem(new ClientSnapshotSystem(this.worldEngine));
 		this.addSystem(new GolfViewSystem());
