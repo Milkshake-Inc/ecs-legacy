@@ -1,0 +1,13 @@
+name: docker-compose deploy
+on: push
+jobs:
+    deploy:
+        runs-on: self-hosted
+        steps:
+            - uses: actions/checkout@v2
+            - name: Build
+              run: yarn && yarn build
+            - name: Copy
+              run: mkdir -p /tmp/golfparty && cp -r bin package.json yarn.lock docker-compose.yml /tmp/golfparty
+            - name: Restart Apps
+              run: PORT=80 cd /tmp/golfparty && docker-compose up -d --force-recreate
