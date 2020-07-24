@@ -1,13 +1,23 @@
-version: '3'
+version: '3.4'
 services:
-    app:
-        build:
-            dockerfile: ./Dockerfile
-            context: .
-        command: yarn start
+    client:
+        image: nginx
         volumes:
-            - ./:/usr/src/app/
+            - ./bin/www:/usr/share/nginx/html
         ports:
-            - '9090:9090'
-        environment:
-            - TEST=www.google.com
+            - '${PORT:-80}:80'
+        restart: unless-stopped
+    server:
+        image: node:13
+        network_mode: host
+        command: bash -c "yarn --production && node server.js"
+        volumes:
+            - ./bin:/app
+            - ./package.json:/app/package.json
+            - ./yarn.lock:/app/yarn.lock
+            - yarn-cache:/root/.yarn-cache
+        working_dir: /app
+        restart: unless-stopped
+
+volumes:
+    yarn-cache:

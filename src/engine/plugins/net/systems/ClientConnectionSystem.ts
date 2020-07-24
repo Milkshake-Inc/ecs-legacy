@@ -30,10 +30,12 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		client.onConnect(error => this.handleConnection(client, error));
 		client.onDisconnect(() => this.handleDisconnection());
 
-		console.log(`🔌 Server started!`);
+		console.log(`🔌 Connecting to server...!`);
 	}
 
 	protected handleConnection(channel: ClientChannel, error?: Error) {
+		console.log(`🔌 Connected!`);
+
 		if (error) {
 			console.log(`🔌 Socket failed to connect`);
 			throw error;

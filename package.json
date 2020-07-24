@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"license": "BSD-3-Clause",
 	"scripts": {
+		"build": "rm -rf ./bin && yarn build:client && yarn build:server",
 		"build:client": "webpack --config webpack.client.js",
 		"build:server": "webpack --config webpack.server.js",
 		"commit": "yarn lint && git-cz",
@@ -38,7 +39,7 @@
 		"@geckos.io/client": "^1.6.0",
 		"@geckos.io/server": "^1.6.0",
 		"@geckos.io/snapshot-interpolation": "^0.0.5",
-		"@types/webfontloader": "^1.6.31",
+		"@msgpack/msgpack": "^1.12.0",
 		"cannon-es": "^0.9.1",
 		"dat.gui": "^0.7.7",
 		"dog-names": "^2.0.0",
@@ -72,7 +73,6 @@
 	},
 	"devDependencies": {
 		"@babel/plugin-transform-modules-commonjs": "^7.9.6",
-		"@msgpack/msgpack": "^1.12.0",
 		"@types/dat.gui": "^0.7.5",
 		"@types/hammerjs": "^2.0.36",
 		"@types/howler": "^2.1.2",
@@ -83,6 +83,7 @@
 		"@types/seedrandom": "^2.4.28",
 		"@typescript-eslint/eslint-plugin": "^2.26.0",
 		"@typescript-eslint/parser": "^2.26.0",
+		"@types/webfontloader": "^1.6.31",
 		"babel-loader": "^8.1.0",
 		"chalk": "^4.0.0",
 		"commitizen": "^4.0.3",
