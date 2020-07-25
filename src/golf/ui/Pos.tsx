@@ -1,11 +1,17 @@
 import { h } from 'preact';
 import Transform from '@ecs/plugins/math/Transform';
-import { useQuery } from '@ecs/plugins/ui/react';
+import { useECS } from '@ecs/plugins/ui/react';
 import { QueryPattern } from '@ecs/ecs/Query';
+import { useQueries } from '@ecs/ecs/helpers';
 
 export const Pos = (props: { query: QueryPattern }) => {
-	const query = useQuery(props.query);
-	const pos = query.first?.get(Transform);
+	const { queries } = useECS(engine => ({
+		queries: useQueries(engine, {
+			pos: props.query
+		})
+	}));
+
+	const pos = queries.pos.first?.get(Transform);
 
 	if (!pos) return <p>no player found :(</p>;
 

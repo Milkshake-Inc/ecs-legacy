@@ -1,9 +1,7 @@
 import { createContext } from 'preact';
 import { Engine } from '@ecs/ecs/Engine';
-import { QueryPattern } from '@ecs/ecs/Query';
 import { useState, useEffect, useContext, EffectCallback, useRef } from 'preact/hooks';
 import { functionalSystem } from '@ecs/ecs/helpers';
-import { Query } from '@ecs/ecs/Query';
 
 export const EngineContext = createContext(null as Engine);
 
@@ -27,24 +25,18 @@ export const useBeforeMount = (callback: EffectCallback) => {
 	willMount.current = false;
 };
 
-export const useQuery = (...patterns: QueryPattern[]) => {
-	// eslint-disable-next-line prefer-const
-	let [query, setQuery] = useState(undefined as Query);
+export const attachToEngine = () => {
+	const engine = useContext(EngineContext);
 	const forceUpdate = useForceUpdate();
 
 	useBeforeMount(() => {
 		console.log('creating ui system');
-		const engine = useContext(EngineContext);
-		const system = functionalSystem(patterns, {
+		const system = functionalSystem([], {
 			update: dt => {
 				forceUpdate();
 			}
 		});
 		engine.addSystem(system);
-
-		// Set query and cache it
-		query = system.query;
-		setQuery(system.query);
 
 		// cleanup system
 		return () => {
@@ -53,5 +45,14 @@ export const useQuery = (...patterns: QueryPattern[]) => {
 		};
 	});
 
-	return query;
+	return engine;
+};
+
+export const useECS = <T>(state: (engine: Engine) => T) => {
+	const [s] = useState(() => {
+		const engine = attachToEngine();
+		return state(engine);
+	});
+
+	return s;
 };

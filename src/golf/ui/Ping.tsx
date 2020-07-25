@@ -1,12 +1,17 @@
 import { h } from 'preact';
-import { useQuery } from '@ecs/plugins/ui/react';
+import { useECS } from '@ecs/plugins/ui/react';
 import { ClientPingState } from '@ecs/plugins/net/components/ClientPingState';
 import { all } from '@ecs/ecs/Query';
+import { useQueries } from '@ecs/ecs/helpers';
 
 export const Ping = () => {
-	const query = useQuery(all(ClientPingState));
-	const ping = query.first?.get(ClientPingState);
+	const { queries } = useECS(engine => ({
+		queries: useQueries(engine, {
+			ping: all(ClientPingState)
+		})
+	}));
 
+	const ping = queries.ping.first?.get(ClientPingState);
 	if (!ping) return null;
 
 	return (

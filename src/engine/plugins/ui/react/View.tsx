@@ -1,8 +1,9 @@
-import { useQuery, EngineContext, useBeforeMount } from '.';
+import { EngineContext, useBeforeMount, useECS } from '.';
 import { useContext } from 'preact/hooks';
 import { Entity } from '@ecs/ecs/Entity';
 import { ComponentChildren, h, Fragment } from 'preact';
 import { all } from '@ecs/ecs/Query';
+import { useQueries } from '@ecs/ecs/helpers';
 
 export class Views {
 	views: Map<string, boolean> = new Map();
@@ -59,8 +60,13 @@ export const ViewController = props => {
 };
 
 export const View = (props: { name: string; open?: boolean; children: ComponentChildren }) => {
-	const query = useQuery(all(Views));
-	const views = query.first?.get(Views);
+	const { queries } = useECS(engine => ({
+		queries: useQueries(engine, {
+			views: all(Views)
+		})
+	}));
+
+	const views = queries.views.first?.get(Views);
 
 	useBeforeMount(() => {
 		if (props.open) views.open(props.name);

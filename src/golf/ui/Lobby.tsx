@@ -1,25 +1,29 @@
-import { EngineContext, useQuery } from '@ecs/plugins/ui/react';
+import { useECS } from '@ecs/plugins/ui/react';
 import { all } from '@ecs/ecs/Query';
 import { Box, Row } from 'jsxstyle/preact';
 import { h } from 'preact';
-import { useContext } from 'preact/hooks';
 import GolfPlayer from '../components/GolfPlayer';
 import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
 import { FullscreenModal } from './FullscreenModal';
-import { Button, Colors, Flex, H1, H2 } from './Shared';
+import { Button, Flex, H1, H2 } from './Shared';
 import Session from '@ecs/plugins/net/components/Session';
+import { useQueries } from '@ecs/ecs/helpers';
+import { ConnectionStatistics } from '@ecs/plugins/net/systems/ClientConnectionSystem';
 
 export const Lobby = () => {
-	const sessions = useQuery(all(GolfPlayer));
-	const engine = useContext(EngineContext);
+	const { queries, networking } = useECS(engine => ({
+		queries: useQueries(engine, {
+			sessions: all(GolfPlayer),
+			connectionStats: all(ConnectionStatistics)
+		}),
+		networking: useGolfNetworking(engine)
+	}));
 
-	const networking = useGolfNetworking(engine);
-
-	const players = sessions.map(entity => {
+	const players = queries.sessions.map(entity => {
 		return entity.get(GolfPlayer);
 	});
 
-	const self = sessions.find(entity => entity.has(Session));
+	const self = queries.sessions.find(entity => entity.has(Session));
 	const isHost = self ? Boolean(self.get(GolfPlayer).host) : false;
 
 	const createPlayer = (player, index) => {

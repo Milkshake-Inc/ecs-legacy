@@ -1,14 +1,19 @@
 import Color from '@ecs/plugins/math/Color';
-import { useQuery } from '@ecs/plugins/ui/react';
+import { useECS } from '@ecs/plugins/ui/react';
 import { all } from '@ecs/ecs/Query';
 import { h } from 'preact';
 import { BallControllerState } from '../systems/client/ClientBallControllerSystem';
 import { Colors as GolfColors, Flex, FlexCenter } from './Shared';
+import { useQueries } from '@ecs/ecs/helpers';
 
 export const PowerBar = () => {
-	const query = useQuery(all(BallControllerState));
+	const { queries } = useECS(engine => ({
+		queries: useQueries(engine, {
+			ball: all(BallControllerState)
+		})
+	}));
 
-	const power = query.first?.get(BallControllerState).power || 0;
+	const power = queries.ball.first?.get(BallControllerState).power || 0;
 
 	return (
 		<FlexCenter width='100%' height='100%' justifyContent='flex-end' background={Color.White}>
