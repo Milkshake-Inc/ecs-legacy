@@ -8,6 +8,7 @@ import Socket from '../utils/Socket';
 import { useState } from '@ecs/ecs/helpers';
 
 export class ConnectionStatistics {
+	public connected = false;
 	public bytesIn = 0;
 	public bytesOut = 0;
 }
@@ -41,8 +42,11 @@ export default class ClientConnectionSystem extends IterativeSystem {
 
 		if (error) {
 			console.log(`🔌 Socket failed to connect`);
+			setTimeout(() => this.connect(localStorage.getItem('token')), 1000);
 			throw error;
 		}
+
+		this.state.connected = true;
 
 		// Persist session
 		const token = channel.userData['token'];
@@ -58,11 +62,11 @@ export default class ClientConnectionSystem extends IterativeSystem {
 	}
 
 	protected handleDisconnection() {
+		this.state.connected = false;
 		this.engine.removeEntity(this.sessionEntity);
 		this.sessionEntity = null;
 
 		console.log(`🔌 Socket disconnected`);
-
 		console.log(`🔌 Reconnecting...`);
 		setTimeout(() => this.connect(localStorage.getItem('token')), 1000);
 	}

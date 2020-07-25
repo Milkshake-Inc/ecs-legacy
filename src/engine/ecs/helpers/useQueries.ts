@@ -58,5 +58,5 @@ export const useQueriesManual = <Q extends Queries = {}>(system: System, queries
 export const useSingletonQuery = <T>(system, component: Class<T>) => {
 	const queries = useQueries(system, { singleton: all(component) });
 
-	return () => queries.singleton.first ? queries.singleton.first.get(component) : undefined;
+	return () => (queries.singleton.first ? queries.singleton.first.get(component) : undefined);
 };

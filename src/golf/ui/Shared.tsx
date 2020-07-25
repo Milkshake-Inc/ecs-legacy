@@ -18,6 +18,7 @@ export const FlexCenter = props => <Flex justifyContent='center' alignItems='cen
 
 export const H1 = props => <Box fontSize='3vw' {...props} />;
 export const H2 = props => <Box fontSize='2.5vw' {...props} />;
+export const H3 = props => <Box fontSize='2vw' {...props} />;
 
 export const Button = props => (
 	<FlexCenter

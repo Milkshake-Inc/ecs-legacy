@@ -48,10 +48,10 @@ export const attachToEngine = () => {
 	return engine;
 };
 
-export const useECS = <T>(state: (engine: Engine) => T) => {
+export const useECS = <T>(state?: (engine: Engine) => T) => {
 	const [s] = useState(() => {
 		const engine = attachToEngine();
-		return state(engine);
+		return state ? state(engine) : ({} as T);
 	});
 
 	return s;

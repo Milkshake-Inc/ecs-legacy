@@ -8,13 +8,11 @@ import { FullscreenModal } from './FullscreenModal';
 import { Button, Flex, H1, H2 } from './Shared';
 import Session from '@ecs/plugins/net/components/Session';
 import { useQueries } from '@ecs/ecs/helpers';
-import { ConnectionStatistics } from '@ecs/plugins/net/systems/ClientConnectionSystem';
 
 export const Lobby = () => {
 	const { queries, networking } = useECS(engine => ({
 		queries: useQueries(engine, {
-			sessions: all(GolfPlayer),
-			connectionStats: all(ConnectionStatistics)
+			sessions: all(GolfPlayer)
 		}),
 		networking: useGolfNetworking(engine)
 	}));

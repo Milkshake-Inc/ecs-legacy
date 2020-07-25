@@ -75,7 +75,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(new CartTrackSystem());
 
-		if(Config.tweak) {
+		if (Config.tweak) {
 			this.addSystem(new TweakSystem());
 		}
 

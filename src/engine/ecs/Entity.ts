@@ -98,7 +98,7 @@ export class Entity {
 
 		this._components.set(id, component);
 		this.onComponentAdded.emit(this, component);
-		Entity.COMPONENTS ++;
+		Entity.COMPONENTS++;
 
 		return this;
 	}

@@ -61,7 +61,7 @@ export class ServerBallControllerSystem extends System {
 			if (collisions.hasCollidedWith(...this.queries.hole.entities)) {
 				const timeSinceLastPutt = Date.now() - playerBall.timeWhenPutt;
 
-				if(timeSinceLastPutt > BALL_PUTT_TIMER) {
+				if (timeSinceLastPutt > BALL_PUTT_TIMER) {
 					playerBall.timeWhenPutt = Date.now();
 					this.handleBallPot(ball);
 				}

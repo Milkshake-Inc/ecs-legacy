@@ -8,6 +8,7 @@ import PlayerBall from '../../components/PlayerBall';
 import Session from '@ecs/plugins/net/components/Session';
 import Input from '@ecs/plugins/input/components/Input';
 import { Key } from '@ecs/plugins/input/Control';
+import { ConnectionStatistics } from '@ecs/plugins/net/systems/ClientConnectionSystem';
 
 const ViewInputs = {
 	Score: Keyboard.key(Key.Z)
@@ -16,6 +17,7 @@ const ViewInputs = {
 export default class GolfViewSystem extends System {
 	protected getViews = useSingletonQuery(this, Views);
 	protected getGameState = useSingletonQuery(this, GolfGameState);
+	protected getConnectionState = useSingletonQuery(this, ConnectionStatistics);
 
 	protected queries = useQueries(this, {
 		localPlayer: all(PlayerBall, Session)
@@ -33,10 +35,12 @@ export default class GolfViewSystem extends System {
 		const views = this.getViews();
 		const gameState = this.getGameState();
 		const hasLocalPlayer = !!this.queries.localPlayer.first;
+		const connected = this.getConnectionState().connected;
 
-		views.set('lobby', gameState.state == GameState.LOBBY);
-		views.set('score', gameState.state == GameState.INGAME && inputs.Score.down);
-		views.set('power', gameState.state == GameState.INGAME && hasLocalPlayer);
-		views.set('spectator', gameState.state == GameState.INGAME && !hasLocalPlayer);
+		views.set('lobby', connected && gameState.state == GameState.LOBBY);
+		views.set('score', connected && gameState.state == GameState.INGAME && inputs.Score.down);
+		views.set('power', connected && gameState.state == GameState.INGAME && hasLocalPlayer);
+		views.set('spectator', connected && gameState.state == GameState.INGAME && !hasLocalPlayer);
+		views.set('connecting', !connected);
 	}
 }

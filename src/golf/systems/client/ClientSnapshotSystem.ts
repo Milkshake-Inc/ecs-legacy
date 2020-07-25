@@ -47,8 +47,8 @@ export default class ClientSnapshotSystem extends System {
 
 	private statistics = useState(this, new ClientSnapshotStatistics(), {
 		timeSinceLastSnapshot: -1,
-		lastSnapshotTime: -1,
-	})
+		lastSnapshotTime: -1
+	});
 
 	constructor(protected engine: Engine) {
 		super();
@@ -57,11 +57,10 @@ export default class ClientSnapshotSystem extends System {
 	}
 
 	handleWorldUpdate({ snapshot }: WorldSnapshot<GolfWorldSnapshot>) {
-		if(this.statistics.lastSnapshotTime != -1) {
+		if (this.statistics.lastSnapshotTime != -1) {
 			this.statistics.timeSinceLastSnapshot = performance.now() - this.statistics.lastSnapshotTime;
 		}
 		this.statistics.lastSnapshotTime = performance.now();
-
 
 		this.snapshotPlayerInterpolation.snapshot.add(snapshot.players);
 		this.snapshotEntitiesInterpolation.snapshot.add(snapshot.entities);
