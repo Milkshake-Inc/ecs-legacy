@@ -123,9 +123,9 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 					}
 				});
 
-				entity.add(Sound, {
-					src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
-				});
+				// entity.add(Sound, {
+				// 	src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
+				// });
 
 				this.state.power = 0;
 			}

@@ -2154,10 +2154,10 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
-cannon-es@^0.9.1:
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.9.1.tgz#b19c41080ad5064e7c55039475a7fe6b4bf7115c"
-  integrity sha512-wWzbWQJ4yDiIkmGiAEWVG8rKCLJv88C68JJmGVEBRXpGJZIwbcyWWP18zXZYpy9vYM8v/usupCTpbgMGcb1ogA==
+cannon-es@^0.15.1:
+  version "0.15.1"
+  resolved "https://registry.yarnpkg.com/cannon-es/-/cannon-es-0.15.1.tgz#c5185e7efc19ca8b3b494eccd257256425b1642f"
+  integrity sha512-NkrU8OkM5K4q7Ljj69nfwC5UmPuoiAga6v98Aus0QHTdgJFwBfPTDXRkc3qpGGOixdUisFzmJo0DpKWIi6N+4g==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -9246,6 +9246,11 @@ tunnel-agent@^0.6.0:
   integrity sha1-J6XeoGs2sEoKmWZ3SykIaPD8QP0=
   dependencies:
     safe-buffer "^5.0.1"
+
+tweakpane@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/tweakpane/-/tweakpane-1.5.3.tgz#a67dc0eb96e4134069188b19a20079ea7e71946b"
+  integrity sha512-GYaKd+6Tm/f/lWYSvdN2hJ3GANHer81i/A9CPjoRX2kF42yIrQIgkhzRi8UJzAbpi/mH32LkiGNHWBhQOKz5ZA==
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   version "0.14.5"

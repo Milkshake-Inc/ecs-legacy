@@ -30,6 +30,7 @@ import GolfViewSystem from '../systems/client/GolfViewSystem';
 import CartTrackSystem from '../systems/shared/CartTrackSystem';
 import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
+import TweakSystem from '../systems/client/TweakSystem';
 
 const Assets = {
 	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
@@ -73,6 +74,10 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.addSystem(new SoundSystem());
 
 		this.addSystem(new CartTrackSystem());
+
+		if(Config.tweak) {
+			this.addSystem(new TweakSystem());
+		}
 
 		this.setupEntities();
 	}

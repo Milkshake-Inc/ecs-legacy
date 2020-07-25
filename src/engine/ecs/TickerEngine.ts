@@ -1,13 +1,22 @@
 import { Engine } from './Engine';
 import Ticker from '@ecs/plugins/ticker/Ticker';
+import { useState } from './helpers';
+
+export class TickerEngineStatistics {
+	frameTime: number;
+	timeFrameStarted: number;
+}
 
 export default abstract class TickerEngine extends Engine {
 	protected tickRate: number;
 	protected ticker: Ticker;
 
+	statistics = useState(this, new TickerEngineStatistics(), {
+		frameTime: -1
+	});
+
 	constructor(tickRate = 60) {
 		super();
-
 		this.tickRate = tickRate;
 
 		this.ticker = new Ticker(tickRate);
@@ -22,5 +31,13 @@ export default abstract class TickerEngine extends Engine {
 			}
 		});
 		this.ticker.start();
+
+		this.ticker.signalFrameStart.connect(deltaTime => {
+			this.statistics.timeFrameStarted = Date.now();
+		});
+
+		this.ticker.signalFrameEnd.connect(deltaTime => {
+			this.statistics.frameTime = Date.now() - this.statistics.timeFrameStarted;
+		});
 	}
 }
