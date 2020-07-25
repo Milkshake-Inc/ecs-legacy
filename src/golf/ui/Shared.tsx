@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { Box, Col, JsxstyleProps } from 'jsxstyle/preact';
+import { Box, Col, JsxstyleProps, Block } from 'jsxstyle/preact';
 
 export const Colors = {
 	WHITE: '#ffffff',
@@ -30,6 +30,20 @@ export const Button = props => (
 		hoverBackgroundColor={props.disabled ? undefined : HexAdjust(Colors.PINK, 15)}
 		cursor={props.disabled ? 'disabled' : 'pointer'}
 		{...props}
+	/>
+);
+
+export const Input = props => (
+	<Block
+		component='input'
+		fontFamily='Quicksand'
+		borderTopLeftRadius={5}
+		borderBottomLeftRadius={5}
+		border='none'
+		outline='none'
+		letterSpacing={2}
+		{...props}
+		props={{ ...props }}
 	/>
 );
 
