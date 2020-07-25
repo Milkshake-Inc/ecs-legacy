@@ -13,13 +13,13 @@ export class InputSystem extends IterativeSystem {
 		this.inputManager = new InputManager();
 	}
 
-	public updateLate(dt: number) {
-		super.updateLate(dt);
+	public updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.inputManager.update(dt);
 	}
 
-	protected updateEntityLate(entity: Entity, dt: number) {
+	protected updateEntityFixed(entity: Entity, dt: number) {
 		entity.get(Input).update(this.inputManager);
 	}
 }
