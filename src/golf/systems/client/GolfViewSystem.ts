@@ -32,9 +32,11 @@ export default class GolfViewSystem extends System {
 
 		const views = this.getViews();
 		const gameState = this.getGameState();
+		const hasLocalPlayer = !!this.queries.localPlayer.first;
 
 		views.set('lobby', gameState.state == GameState.LOBBY);
 		views.set('score', gameState.state == GameState.INGAME && inputs.Score.down);
-		views.set('power', gameState.state == GameState.INGAME && !!this.queries.localPlayer.first);
+		views.set('power', gameState.state == GameState.INGAME && hasLocalPlayer);
+		views.set('spectator', gameState.state == GameState.INGAME && !hasLocalPlayer);
 	}
 }

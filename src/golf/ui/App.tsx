@@ -12,6 +12,7 @@ import { Splash } from './Splash';
 import { Scoreboard } from './Scoreboard';
 import { ViewController, View } from '@ecs/plugins/ui/react/View';
 import { PowerBar } from './PowerBar';
+import { Spectator } from './Spectator';
 
 export default class App extends Component<{ engine: Engine }, { visible: true }> {
 	render() {
@@ -34,6 +35,9 @@ export default class App extends Component<{ engine: Engine }, { visible: true }
 						</View>
 						<View name='power'>
 							<PowerBar />
+						</View>
+						<View name='spectator' >
+							<Spectator />
 						</View>
 					</Hud>
 				</ViewController>

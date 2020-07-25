@@ -9,14 +9,15 @@ export const Colors = {
 	GREEN: '#32ec9f',
 	YELLOW: '#ecc732',
 	DARK: '#1e1e1e',
-	LIGHT: '#cdcdcd'
+	LIGHT: '#cdcdcd',
+	BLACK: '#000000'
 };
 
 export const Flex = props => <Col display='flex' {...props} />;
 export const FlexCenter = props => <Flex justifyContent='center' alignItems='center' {...props} />;
 
-export const H1 = props => <Box {...props} fontSize='3vw' />;
-export const H2 = props => <Box {...props} fontSize='2.5vw' />;
+export const H1 = props => <Box fontSize='3vw' {...props} />;
+export const H2 = props => <Box fontSize='2.5vw' {...props} />;
 
 export const Button = props => (
 	<FlexCenter
