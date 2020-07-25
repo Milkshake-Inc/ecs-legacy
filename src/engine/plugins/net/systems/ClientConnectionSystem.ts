@@ -23,14 +23,17 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		super(makeQuery());
 		this.engine = engine;
 
+		console.log(`🔌 Connecting to server...!`);
+		this.connect(); // localStorage.getItem('token'); // <-- persist connections
+	}
+
+	protected connect(token = '') {
 		const client = geckosClient({
-			authorization: '' // localStorage.getItem('token'); // <-- persist connections
+			authorization: token
 		});
 
 		client.onConnect(error => this.handleConnection(client, error));
 		client.onDisconnect(() => this.handleDisconnection());
-
-		console.log(`🔌 Connecting to server...!`);
 	}
 
 	protected handleConnection(channel: ClientChannel, error?: Error) {
@@ -59,6 +62,9 @@ export default class ClientConnectionSystem extends IterativeSystem {
 		this.sessionEntity = null;
 
 		console.log(`🔌 Socket disconnected`);
+
+		console.log(`🔌 Reconnecting...`);
+		setTimeout(() => this.connect(localStorage.getItem('token')), 1000);
 	}
 
 	public updateFixed(deltaTime: number) {
