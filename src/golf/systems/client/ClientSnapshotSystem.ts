@@ -85,29 +85,32 @@ export default class ClientSnapshotSystem extends System {
 	}
 
 	updatePlayer(entity: Entity, playerSnapshot: GolfSnapshotPlayer) {
-		if (playerSnapshot.state == 'playing' && !entity.has(PlayerBall)) {
-			console.log('⏫  Upgrading player to ball');
-
-			// Need a nicer way - maybe pass entity in?
-			const ballPrefab = createBallClient(entity.get(GolfPlayer));
-			ballPrefab.components.forEach(component => {
-				entity.add(component);
-			});
-
-			// Tag up player
-			entity.add(PlayerBall);
-
-			const isLocalPlayer = entity.has(Session);
-
-			if (isLocalPlayer) {
-				this.engine.addSystem(new ClientBallControllerSystem());
-			}
-		}
-
 		if (playerSnapshot.state == 'playing') {
+			if (!entity.has(PlayerBall)) {
+				console.log('⏫  Upgrading player to ball');
+
+				// Need a nicer way - maybe pass entity in?
+				const ballPrefab = createBallClient(entity.get(GolfPlayer));
+				ballPrefab.components.forEach(component => {
+					entity.add(component);
+				});
+
+				// Tag up player
+				entity.add(PlayerBall);
+
+				const isLocalPlayer = entity.has(Session);
+
+				if (isLocalPlayer) {
+					this.engine.addSystem(new ClientBallControllerSystem());
+				}
+			}
+
 			const body = entity.get(Transform);
 			body.position.set(playerSnapshot.x, playerSnapshot.y, playerSnapshot.z);
 		}
+
+		// Update GolfPlayer state...
+		Object.assign(entity.get(GolfPlayer), playerSnapshot);
 	}
 
 	updateFixed(deltaTime: number) {

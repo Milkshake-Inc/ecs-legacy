@@ -34,6 +34,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				id: player.id,
 				name: player.name,
 				color: player.color,
+				host: player.host ? 1 : 0,
 				state: 'spectating'
 			};
 

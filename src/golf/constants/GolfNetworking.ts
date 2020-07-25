@@ -9,6 +9,7 @@ export type GolfSnapshotPlayer = {
 	id: string;
 	name: string;
 	color: number;
+	host: number;
 	state: 'spectating' | 'playing';
 	x?: number;
 	y?: number;

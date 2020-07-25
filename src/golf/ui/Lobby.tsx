@@ -7,6 +7,7 @@ import GolfPlayer from '../components/GolfPlayer';
 import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
 import { FullscreenModal } from './FullscreenModal';
 import { Button, Colors, Flex, H1, H2 } from './Shared';
+import Session from '@ecs/plugins/net/components/Session';
 
 export const Lobby = () => {
 	const sessions = useQuery(all(GolfPlayer));
@@ -18,15 +19,21 @@ export const Lobby = () => {
 		return entity.get(GolfPlayer);
 	});
 
+	const self = sessions.find(entity => entity.has(Session));
+	const isHost = self ? Boolean(self.get(GolfPlayer).host) : false;
+
 	const createPlayer = (player, index) => {
+		const name = player.host ? `${player.name} (host)` : player.name;
+
 		return (
 			<H2 color={`#${player.color.toString(16)}`} background={!(index % 2) && '#00000036'} margin={0} padding='0.6vw'>
-				{player.name}
+				{name}
 			</H2>
 		);
 	};
 
 	const handleStartGame = () => {
+		if (!isHost) return;
 		console.info('Start game');
 		networking.send(
 			{
@@ -45,8 +52,8 @@ export const Lobby = () => {
 				</Flex>
 				<Flex width='56%'>
 					<Box height='77%' background={'url(assets/golf/map_preview.png)'} backgroundSize='cover' />
-					<Button props={{ onClick: handleStartGame }} borderRadius={0} height='23%' background={Colors.PINK}>
-						<H2 margin={0}>Start Game</H2>
+					<Button props={{ onClick: handleStartGame }} borderRadius={0} height='23%' disabled={!isHost}>
+						<H2 margin={0}>{isHost ? 'Start Game' : 'Waiting For Host'}</H2>
 					</Button>
 				</Flex>
 			</Row>

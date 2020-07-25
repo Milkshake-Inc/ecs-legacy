@@ -7,10 +7,12 @@ export default class GolfPlayer {
 	public id: string;
 	public name: string;
 	public color: number;
+	public host: number;
 
-	constructor(id: string, name: string = allRandom(), color: number = Random.fromArray(COLORS)) {
+	constructor(id: string, name: string = allRandom(), color: number = Random.fromArray(COLORS), host = 0) {
 		this.id = id;
 		this.name = name;
 		this.color = color;
+		this.host = host;
 	}
 }

@@ -44,6 +44,9 @@ class GolfGameServerEngine extends Engine {
 	}
 
 	handleStartGame(packet: StartGame, entity: Entity) {
+		// Ignore if they aren't the host
+		if (!entity.get(GolfPlayer).host) return;
+
 		this.playerQueries.players.entities.forEach(entity => {
 			const player = createBall();
 			player.add(PlayerBall);
@@ -62,6 +65,11 @@ class GolfGameServerEngine extends Engine {
 		if (this.state.state == GameState.INGAME && this.playerQueries.balls.length == 0) {
 			console.log(`🏠  Reset lobby`);
 			this.state.state = GameState.LOBBY;
+		}
+
+		const host = this.playerQueries.players.first;
+		if (host) {
+			host.get(GolfPlayer).host = 1;
 		}
 	}
 }
@@ -115,12 +123,14 @@ export class ServerRoomSystem extends System {
 	}
 
 	handleJoinGamesRequest(packet: JoinRoom, entity: Entity) {
+		// remove from old room
 		if (this.entityToRoomEngine.has(entity)) {
 			const currentRoom = this.entityToRoomEngine.get(entity);
 
 			currentRoom.removeEntity(entity);
 		}
 
+		// add to new room
 		if (this.rooms.has(packet.roomId)) {
 			const newRoom = this.rooms.get(packet.roomId);
 
