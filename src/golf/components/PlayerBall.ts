@@ -1,3 +1,5 @@
 export default class PlayerBall {
-	constructor(public spawn = 0) {}
+	public spawn = 0;
+	public timeWhenPutt = -1;
+	public isBallResetting = false;
 }
