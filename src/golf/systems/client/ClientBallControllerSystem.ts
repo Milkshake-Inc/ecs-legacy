@@ -45,7 +45,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 	protected state = useState(this, new BallControllerState(), {
 		power: 0,
-		direction: 1,
+		direction: 1
 	});
 
 	protected inputs = useState(this, new Input(PlayerInputs));
@@ -100,7 +100,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				this.state.power += 0.6 * this.state.direction;
 				this.state.power = MathHelper.clamp(this.state.power, 0, 100);
 
-				if(this.state.power == 100 || this.state.power == 0) {
+				if (this.state.power == 100 || this.state.power == 0) {
 					this.state.direction *= -1;
 				}
 

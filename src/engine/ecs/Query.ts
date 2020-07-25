@@ -18,11 +18,10 @@ export class Query {
 	 */
 	public onEntityRemoved: Signal<(entity: EntitySnapshot) => void> = new Signal();
 
-	private readonly _helper: Entity = new Entity();
 	private readonly _snapshot: EntitySnapshot = new EntitySnapshot();
 
 	private readonly _predicate: (entity: Entity) => boolean;
-	private _entities: Entity[] = [];
+	private _entities: Map<number, Entity> = new Map();
 
 	/**
 	 * Initializes Query instance
@@ -36,52 +35,55 @@ export class Query {
 	 * Entities list which matches the query
 	 */
 	public get entities(): ReadonlyArray<Entity> {
-		return Array.from(this._entities);
+		return Array.from(this._entities.values());
 	}
 
 	public get first(): Entity | undefined {
-		if (this._entities.length === 0) return undefined;
-		return this._entities[0];
+		for (const [, entity] of this._entities) {
+			return entity;
+		}
+
+		return undefined;
 	}
 
 	public get last(): Entity | undefined {
-		if (this._entities.length === 0) return undefined;
-		return this._entities[this._entities.length - 1];
+		if (this._entities.size === 0) return undefined;
+		return this.entities[this._entities.size - 1];
 	}
 
 	public get length(): number {
-		return this._entities.length;
+		return this._entities.size;
 	}
 
 	public countBy(predicate: (entity: Entity) => boolean): number {
 		let result = 0;
-		for (const entity of this._entities) {
+		for (const [, entity] of this._entities) {
 			if (predicate(entity)) result++;
 		}
 		return result;
 	}
 
 	public firstBy(predicate: (entity: Entity) => boolean): Entity | undefined {
-		for (const entity of this._entities) {
+		for (const [, entity] of this._entities) {
 			if (predicate(entity)) return entity;
 		}
 		return undefined;
 	}
 
 	public filter(predicate: (entity: Entity) => boolean): Entity[] {
-		return this._entities.filter(predicate);
+		return this.entities.filter(predicate);
 	}
 
 	public find(predicate: (entity: Entity) => boolean): Entity {
-		return this._entities.find(predicate);
+		return this.entities.find(predicate);
 	}
 
 	public forEach(predicate: (value: Entity, index: number, array: Entity[]) => void): void {
-		this._entities.forEach(predicate);
+		this.entities.forEach(predicate);
 	}
 
 	public map<T>(predicate: (entity: Entity) => T): T[] {
-		return this._entities.map(predicate);
+		return this.entities.map(predicate);
 	}
 
 	/**
@@ -95,77 +97,67 @@ export class Query {
 	 * Gets a value indicating that query is empty
 	 */
 	public get isEmpty(): boolean {
-		return this.entities.length == 0;
+		return this._entities.size == 0;
 	}
 
 	public clear(): void {
-		this._entities = [];
+		this._entities.clear();
 	}
 
 	public validateEntity(entity: Entity): void {
-		const index = this.entities.indexOf(entity);
+		const queryEntity = this._entities.get(entity.id);
 		const isMatch = this._predicate(entity);
-		if (index !== -1 && !isMatch) {
+		if (queryEntity && !isMatch) {
 			this.entityRemoved(entity);
-		} else if (index === -1 && isMatch) {
+		} else if (!queryEntity && isMatch) {
 			this.entityAdded(entity);
 		}
 	}
 
 	public entityAdded = (entity: Entity) => {
-		const index = this._entities.indexOf(entity);
-		if (index === -1 && this._predicate(entity)) {
-			this._entities.push(entity);
+		const queryEntity = this._entities.get(entity.id);
+		if (!queryEntity && this._predicate(entity)) {
+			this._entities.set(entity.id, entity);
 			this._snapshot.takeSnapshot(entity);
 			this.onEntityAdded.emit(this._snapshot);
 		}
 	};
 
 	public entityRemoved = (entity: Entity) => {
-		const index = this._entities.indexOf(entity);
-		if (index !== -1) {
-			this._entities.splice(index, 1);
+		const queryEntity = this._entities.get(entity.id);
+		if (queryEntity) {
+			this._entities.delete(entity.id);
 			this._snapshot.takeSnapshot(entity);
 			this.onEntityRemoved.emit(this._snapshot);
 		}
 	};
 
 	public entityComponentAdded = (entity: Entity, component: any) => {
-		this.updateHelper(entity, component);
-
-		const index = this._entities.indexOf(entity);
-		const isMatch = this._predicate(this._helper);
-		if (index === -1 && isMatch) {
+		const queryEntity = this._entities.get(entity.id);
+		const isMatch = this._predicate(entity);
+		if (!queryEntity && isMatch) {
 			this._snapshot.takeSnapshot(entity, component);
-			this._entities.push(entity);
+			this._entities.set(entity.id, entity);
 			this.onEntityAdded.emit(this._snapshot);
-		} else if (index !== -1 && !isMatch) {
+		} else if (queryEntity && !isMatch) {
 			this._snapshot.takeSnapshot(entity, component);
-			this._entities.splice(index, 1);
+			this._entities.delete(entity.id);
 			this.onEntityRemoved.emit(this._snapshot);
 		}
 	};
 
 	public entityComponentRemoved = (entity: Entity, component: any) => {
-		this.updateHelper(entity, component);
-
-		const index = this._entities.indexOf(entity);
-		if (index !== -1 && this._predicate(this._helper) && !this._predicate(entity)) {
+		const queryEntity = this._entities.get(entity.id);
+		if (queryEntity && !this._predicate(entity)) {
 			this._snapshot.takeSnapshot(entity, component);
-			this._entities.splice(index, 1);
+			this._entities.delete(entity.id);
 			this.onEntityRemoved.emit(this._snapshot);
-		} else if (index === -1 && this._predicate(entity) && !this._predicate(this._helper)) {
+		} else if (!queryEntity && this._predicate(entity)) {
 			this._snapshot.takeSnapshot(entity, component);
-			this._entities.push(entity);
+			this._entities.set(entity.id, entity);
 			this.onEntityAdded.emit(this._snapshot);
 		}
 	};
-
-	private updateHelper(entity: Entity, component: any) {
-		this._helper.clear();
-		this._helper.copyFrom(entity);
-		this._helper.addComponent(component);
-	}
 }
 
 function hasAll(entity: Entity, components: number[]): boolean {
