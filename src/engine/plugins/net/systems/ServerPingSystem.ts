@@ -8,6 +8,9 @@ import { ServerPingState } from '../components/ServerPingState';
 import Session from '../components/Session';
 import { ServerConnectionState } from './ServerConnectionSystem';
 
+const MAX_PING_DELAY = 2000;
+const PING_INTERVAL = 3000;
+
 export default class ServerPingSystem extends IterativeSystem {
 	protected state = useState(this, new ServerPingState());
 
@@ -15,7 +18,7 @@ export default class ServerPingSystem extends IterativeSystem {
 		serverConnection: all(ServerConnectionState)
 	});
 
-	constructor(tickRate: number, pingInterval = 3000) {
+	constructor(tickRate: number, pingInterval = PING_INTERVAL) {
 		super(makeQuery(any(Session)));
 
 		this.state.serverTickRate = tickRate;
@@ -44,7 +47,7 @@ export default class ServerPingSystem extends IterativeSystem {
 	protected updateEntityFixed(entity: Entity, dt: number): void {
 		// Disconnect players that don't respond to ping
 		const session = entity.get(Session);
-		if (session.lastPongResponse != -1 && performance.now() - session.lastPongResponse > this.state.serverPingInterval + 1000) {
+		if (session.lastPongResponse != -1 && performance.now() - session.lastPongResponse > this.state.serverPingInterval + MAX_PING_DELAY) {
 			console.log(`Disconnecting player ${performance.now() - session.lastPongResponse}`);
 			console.log(this.state.serverPingInterval);
 			// We should send a disconnect packet to player...

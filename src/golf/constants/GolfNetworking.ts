@@ -44,7 +44,8 @@ export enum GolfPacketOpcode {
 	ALL_GAMES_RESPONSE,
 	JOIN_GAME,
 	START_GAME,
-	POT_BALL
+	POT_BALL,
+	SERVER_DEBUG
 }
 
 export type AllGamesRequest = {
@@ -81,7 +82,12 @@ export type PotBall = {
 	opcode: GolfPacketOpcode.POT_BALL;
 };
 
-export type GolfPackets = PrepShot | ShootBall | AllGamesRequest | AllGamesResponse | JoinRoom | StartGame | PotBall;
+export type ServerDebug = {
+	opcode: GolfPacketOpcode.SERVER_DEBUG;
+	frameTime: number;
+};
+
+export type GolfPackets = PrepShot | ShootBall | AllGamesRequest | AllGamesResponse | JoinRoom | StartGame | PotBall | ServerDebug;
 
 export const useGolfNetworking = (system: System | Engine, callbacks?: NetworkingCallbacks) =>
 	useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);

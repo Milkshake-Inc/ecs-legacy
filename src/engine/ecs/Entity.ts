@@ -74,6 +74,9 @@ export class Entity {
 	 *  .add(new View())
 	 *  .add(new Velocity());
 	 */
+
+	public static COMPONENTS = 0;
+
 	public addComponent<T extends K, K extends any>(component: T, resolveClass?: Class<K>): Entity {
 		let componentClass = component ? component.constructor : undefined;
 		if (!component || !componentClass) {
@@ -95,6 +98,7 @@ export class Entity {
 
 		this._components.set(id, component);
 		this.onComponentAdded.emit(this, component);
+		Entity.COMPONENTS ++;
 
 		return this;
 	}
@@ -185,7 +189,7 @@ export class Entity {
 		if (id === undefined || !this._components.has(id)) {
 			return undefined;
 		}
-
+		Entity.COMPONENTS--;
 		const value = this._components.get(id);
 		this._components.delete(id);
 		this.onComponentRemoved.emit(this, value);

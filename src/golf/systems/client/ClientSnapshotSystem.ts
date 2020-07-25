@@ -22,6 +22,11 @@ import { deepMerge } from '../../utils/Serialization';
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
 
+export class ClientSnapshotStatistics {
+	timeSinceLastSnapshot: number;
+	lastSnapshotTime: number;
+}
+
 export default class ClientSnapshotSystem extends System {
 	protected queries = useQueries(this, {
 		players: all(GolfPlayer),
@@ -40,6 +45,11 @@ export default class ClientSnapshotSystem extends System {
 		state: GameState.LOBBY
 	});
 
+	private statistics = useState(this, new ClientSnapshotStatistics(), {
+		timeSinceLastSnapshot: -1,
+		lastSnapshotTime: -1,
+	})
+
 	constructor(protected engine: Engine) {
 		super();
 
@@ -47,6 +57,12 @@ export default class ClientSnapshotSystem extends System {
 	}
 
 	handleWorldUpdate({ snapshot }: WorldSnapshot<GolfWorldSnapshot>) {
+		if(this.statistics.lastSnapshotTime != -1) {
+			this.statistics.timeSinceLastSnapshot = performance.now() - this.statistics.lastSnapshotTime;
+		}
+		this.statistics.lastSnapshotTime = performance.now();
+
+
 		this.snapshotPlayerInterpolation.snapshot.add(snapshot.players);
 		this.snapshotEntitiesInterpolation.snapshot.add(snapshot.entities);
 

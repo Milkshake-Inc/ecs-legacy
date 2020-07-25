@@ -13,7 +13,7 @@ export default class GolfRenderSystem extends RenderSystem {
 			{
 				color: 0x262626,
 				configure: (renderer, scene) => {
-					renderer.shadowMap.enabled = true;
+					// renderer.shadowMap.enabled = true;
 
 					scene.fog = new Fog(0x262626, 10, 200);
 				},
@@ -24,7 +24,7 @@ export default class GolfRenderSystem extends RenderSystem {
 		);
 
 		// Maybe tweak this based on performance...
-		this.state.renderer.setPixelRatio(window.devicePixelRatio);
+		this.state.renderer.setPixelRatio(1);
 		this.state.renderer.autoClear = false;
 
 		// Styling
@@ -38,16 +38,16 @@ export default class GolfRenderSystem extends RenderSystem {
 		window.addEventListener('resize', () => this.resize());
 
 		if (Config.debug) {
-			(function () {
-				const old = console.log;
-				const logger = document.createElement('div');
-				document.body.prepend(logger);
-				logger.style.color = 'white';
-				console.log = function (...message) {
-					logger.innerHTML = JSON.stringify(message);
-					old(...message);
-				};
-			})();
+			// (function () {
+			// 	const old = console.log;
+			// 	const logger = document.createElement('div');
+			// 	document.body.prepend(logger);
+			// 	logger.style.color = 'white';
+			// 	console.log = function (...message) {
+			// 		logger.innerHTML = JSON.stringify(message);
+			// 		old(...message);
+			// 	};
+			// })();
 		}
 	}
 
