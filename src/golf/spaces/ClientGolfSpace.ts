@@ -31,26 +31,24 @@ import CartTrackSystem from '../systems/shared/CartTrackSystem';
 import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
 import TweakSystem from '../systems/client/TweakSystem';
-
-const Assets = {
-	DARK_TEXTURE: 'assets/prototype/textures/dark/texture_08.png'
-};
+import { Colors } from '../ui/Shared';
 
 const Images = {
+	GroundTexture: 'assets/golf/ground-desert.jpg',
 	Logo: 'assets/golf/logo.png',
 	Noise: 'assets/golf/noise.png',
 	Crosshair: 'assets/prototype/crosshair.png'
 };
 
 export default class ClientGolfSpace extends BaseGolfSpace {
-	protected darkTexture: Texture;
+	protected groundTexture: Texture;
 
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
 	}
 
 	protected async preload() {
-		[this.darkTexture] = await Promise.all([LoadTexture(Assets.DARK_TEXTURE)]);
+		[this.groundTexture] = await Promise.all([LoadTexture(Images.GroundTexture)]);
 
 		await LoadPixiAssets(Images);
 		await super.preload();
@@ -109,10 +107,13 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 	createGround() {
 		const ground = super.createGround();
-		this.darkTexture.repeat.set(1000, 1000);
-		this.darkTexture.wrapT = this.darkTexture.wrapS = RepeatWrapping;
+		this.groundTexture.repeat.set(1000, 1000);
+		this.groundTexture.wrapT = this.groundTexture.wrapS = RepeatWrapping;
 		ground.add(
-			new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.darkTexture, shininess: 0, color: 0x333333 })),
+			new Mesh(
+				new PlaneGeometry(1000, 1000),
+				new MeshPhongMaterial({ map: this.groundTexture, shininess: 0, color: Color.SandyBrown })
+			),
 			{
 				castShadow: true,
 				receiveShadow: true
