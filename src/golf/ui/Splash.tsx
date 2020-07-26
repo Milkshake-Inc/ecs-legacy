@@ -65,7 +65,7 @@ export const Splash = () => {
 				</Box>
 
 				<Row background='white' borderRadius={5} margin={10}>
-					<Input fontSize='2.5vw' textAlign='center' placeholder='Enter your name' onChange={handleChange} />
+					<Input fontSize='2.5vw' textAlign='center' placeholder='Enter your name' onChange={handleChange} autofocus />
 					<Button
 						background={Colors.PURPLE}
 						borderTopLeftRadius={0}

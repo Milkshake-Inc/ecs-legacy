@@ -5,12 +5,16 @@ import { h } from 'preact';
 import GolfPlayer from '../components/GolfPlayer';
 import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
 import { FullscreenModal } from './FullscreenModal';
-import { Button, Flex, H1, H2 } from './Shared';
+import { Button, Flex, H1, H2, Input, Colors } from './Shared';
 import Session from '@ecs/plugins/net/components/Session';
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useState } from '@ecs/ecs/helpers';
+import { writeText as copyTextToClipboard } from 'clipboard-polyfill';
 
 export const Lobby = () => {
-	const { queries, networking } = useECS(engine => ({
+	const { state, queries, networking } = useECS(engine => ({
+		state: useState(engine, {
+			copyText: 'invite your friends'
+		}),
 		queries: useQueries(engine, {
 			sessions: all(GolfPlayer)
 		}),
@@ -45,6 +49,22 @@ export const Lobby = () => {
 		);
 	};
 
+	const handleCopyLink = () => {
+		copyTextToClipboard(location.href);
+		state.copyText = 'Link copied!';
+		setTimeout(() => {
+			state.copyText = 'Invite your friends!';
+		}, 2000);
+	};
+
+	const handleCopyInputMouseEnter = () => {
+		state.copyText = location.href;
+	};
+
+	const handleCopyInputMouseLeave = () => {
+		state.copyText = 'Invite your friends!';
+	};
+
 	return (
 		<FullscreenModal>
 			<Row width='100%' height='100%'>
@@ -58,6 +78,28 @@ export const Lobby = () => {
 						<H2 margin={0}>{isHost ? 'Start Game' : 'Waiting For Host'}</H2>
 					</Button>
 				</Flex>
+			</Row>
+			<Row width='100%' marginTop={50}>
+				<Input
+					width='100%'
+					fontSize='1.5vw'
+					padding={10}
+					textAlign='center'
+					value={state.copyText}
+					onMouseEnter={handleCopyInputMouseEnter}
+					onMouseLeave={handleCopyInputMouseLeave}
+					readonly
+				/>
+				<Button
+					background={Colors.PURPLE}
+					borderTopLeftRadius={0}
+					borderBottomLeftRadius={0}
+					fontSize='1.5vw'
+					padding={10}
+					props={{ onClick: handleCopyLink }}
+				>
+					COPY
+				</Button>
 			</Row>
 		</FullscreenModal>
 	);
