@@ -1,15 +1,28 @@
-import { Box, Row, Col } from 'jsxstyle/preact';
+import { useQueries } from '@ecs/ecs/helpers';
+import { all } from '@ecs/ecs/Query';
+import { useECS } from '@ecs/plugins/ui/react';
+import { Row } from 'jsxstyle/preact';
 import { h } from 'preact';
-import { Button, Colors, FullscreenNoise, H1, H2 } from './Shared';
+import GolfPlayer from '../components/GolfPlayer';
 import { FullscreenModal } from './FullscreenModal';
+import { H1, H2 } from './Shared';
 
 export const Scoreboard = () => {
-	const players = [
-		{ name: 'Buster', color: '#7e32ec', score: [ 2, 3, 1, 5, 2, 6 ] },
-		{ name: 'Lucy', color: '#ec324c', score: [ 2, 3, 1, 5, 2, 6 ] },
-		{ name: 'Ruby', color: '#32ec9f', score: [ 2, 3, 1, 5, 2, 6 ] },
-		{ name: 'Rover', color: '#ecc732', score: [ 2, 3, 1, 5, 2, 6 ] }
-	];
+	const { queries } = useECS(engine => ({
+		queries: useQueries(engine, {
+			players: all(GolfPlayer)
+		})
+	}));
+
+	const players = queries.players.map((entity) => {
+		const player = entity.get(GolfPlayer);
+
+		return {
+			name: player.name,
+			color: "#" + player.color.toString(16),
+			score: player.score
+		}
+	});
 
 	const createHeader = () => {
 		return (

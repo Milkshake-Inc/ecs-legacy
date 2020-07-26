@@ -14,6 +14,7 @@ import Collisions from '@ecs/plugins/physics/3d/components/Collisions';
 import Spawn from '../../components/Spawn';
 import { BALL_HIT_POWER } from '../../constants/Physics';
 import { Plane } from 'cannon-es';
+import GolfPlayer from '../../components/GolfPlayer';
 
 const BALL_PUTT_TIMER = 1000;
 const OUT_OF_BOUNDS_TIMER = 1000;
@@ -87,6 +88,10 @@ export class ServerBallControllerSystem extends System {
 	handleShootBall(packet: ShootBall, entity: Entity) {
 		console.log(`Received shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
+		const golfPlayer = entity.get(GolfPlayer);
+		const golfBall = entity.get(PlayerBall);
+
+		golfPlayer.score[golfBall.spawn]++;
 
 		cannonBody.applyImpulse(
 			ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z).multiF(BALL_HIT_POWER)),

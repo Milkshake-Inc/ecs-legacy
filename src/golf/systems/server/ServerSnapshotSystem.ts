@@ -35,6 +35,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				name: player.name,
 				color: player.color,
 				host: player.host ? 1 : 0,
+				score: player.score,
 				state: 'spectating'
 			};
 
@@ -67,7 +68,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 		});
 
 		return {
-			players: this.snapshotInterpolation.snapshot.create(players),
+			players: this.snapshotInterpolation.snapshot.create(players as any),
 			state: this.gameState(),
 			entities: this.snapshotInterpolation.snapshot.create(entities as any)
 		};

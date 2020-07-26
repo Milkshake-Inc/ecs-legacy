@@ -8,11 +8,13 @@ export default class GolfPlayer {
 	public name: string;
 	public color: number;
 	public host: number;
+	public score: number[];
 
-	constructor(id: string, name: string = allRandom(), color: number = Random.fromArray(COLORS), host = 0) {
+	constructor(id: string, name: string = allRandom(), color: number = Random.fromArray(COLORS), host = 0, score = []) {
 		this.id = id;
 		this.name = name;
 		this.color = color;
 		this.host = host;
+		this.score = new Array(8).fill(0);
 	}
 }

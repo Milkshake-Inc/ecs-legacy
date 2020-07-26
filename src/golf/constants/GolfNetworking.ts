@@ -11,6 +11,7 @@ export type GolfSnapshotPlayer = {
 	color: number;
 	host: number;
 	state: 'spectating' | 'playing';
+	score: number[];
 	x?: number;
 	y?: number;
 	z?: number;

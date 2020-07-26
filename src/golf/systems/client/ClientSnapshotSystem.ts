@@ -84,7 +84,8 @@ export default class ClientSnapshotSystem extends System {
 				entity.add(GolfPlayer, {
 					id: playerSnapshot.id,
 					color: playerSnapshot.color,
-					name: playerSnapshot.name
+					name: playerSnapshot.name,
+					score: playerSnapshot.score,
 				});
 
 				console.log(`🔨  Created new entity ${playerSnapshot.id} local: ${localSession != undefined}`);
