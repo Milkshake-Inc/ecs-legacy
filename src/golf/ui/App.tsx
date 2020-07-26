@@ -25,7 +25,7 @@ export default class App extends Component<{ engine: Engine }, { visible: true }
 							<Pos query={all(Transform, PlayerBall)} />
 							<Ping />
 						</View>
-						<View name='splash' open={true}>
+						<View name='splash'>
 							<Splash />
 						</View>
 						<View name='score'>

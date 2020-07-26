@@ -18,6 +18,7 @@ export type GolfSnapshotPlayer = {
 };
 
 export enum GameState {
+	SPLASH,
 	LOBBY,
 	INGAME
 }
@@ -41,25 +42,38 @@ export enum GolfPacketOpcode {
 	SEND_MAP = 6,
 	PREP_SHOOT,
 	SHOOT_BALL,
-	ALL_GAMES_REQUEST,
-	ALL_GAMES_RESPONSE,
-	JOIN_GAME,
+	PUBLIC_ROOMS_REQUEST,
+	PUBLIC_ROOMS_RESPONSE,
+	CREATE_ROOM_REQUEST,
+	CREATE_ROOM_RESPONSE,
+	JOIN_ROOM,
 	START_GAME,
 	POT_BALL,
-	SERVER_DEBUG
+	SERVER_DEBUG,
+	UPDATE_PROFILE
 }
 
-export type AllGamesRequest = {
-	opcode: GolfPacketOpcode.ALL_GAMES_REQUEST;
+export type PublicRoomsRequest = {
+	opcode: GolfPacketOpcode.PUBLIC_ROOMS_REQUEST;
 };
 
-export type AllGamesResponse = {
-	opcode: GolfPacketOpcode.ALL_GAMES_RESPONSE;
-	games: string[];
+export type PublicRoomsResponse = {
+	opcode: GolfPacketOpcode.PUBLIC_ROOMS_RESPONSE;
+	rooms: string[];
 };
 
 export type JoinRoom = {
-	opcode: GolfPacketOpcode.JOIN_GAME;
+	opcode: GolfPacketOpcode.JOIN_ROOM;
+	roomId: string;
+};
+
+export type CreateRoomRequest = {
+	opcode: GolfPacketOpcode.CREATE_ROOM_REQUEST;
+	public: boolean;
+};
+
+export type CreateRoomResponse = {
+	opcode: GolfPacketOpcode.CREATE_ROOM_RESPONSE;
 	roomId: string;
 };
 
@@ -88,7 +102,23 @@ export type ServerDebug = {
 	frameTime: number;
 };
 
-export type GolfPackets = PrepShot | ShootBall | AllGamesRequest | AllGamesResponse | JoinRoom | StartGame | PotBall | ServerDebug;
+export type UpdateProfile = {
+	opcode: GolfPacketOpcode.UPDATE_PROFILE;
+	name: string;
+};
+
+export type GolfPackets =
+	| PrepShot
+	| ShootBall
+	| PublicRoomsRequest
+	| PublicRoomsResponse
+	| CreateRoomRequest
+	| CreateRoomResponse
+	| JoinRoom
+	| StartGame
+	| PotBall
+	| ServerDebug
+	| UpdateProfile;
 
 export const useGolfNetworking = (system: System | Engine, callbacks?: NetworkingCallbacks) =>
 	useNetworking<GolfPacketOpcode, GolfPackets>(system, callbacks);

@@ -42,7 +42,7 @@ export default class ClientSnapshotSystem extends System {
 	protected snapshotEntitiesInterpolation = new GolfSnapshotInterpolation(TICK_RATE);
 
 	private state = useState(this, new GolfGameState(), {
-		state: GameState.LOBBY
+		state: GameState.SPLASH
 	});
 
 	private statistics = useState(this, new ClientSnapshotStatistics(), {
@@ -85,7 +85,7 @@ export default class ClientSnapshotSystem extends System {
 					id: playerSnapshot.id,
 					color: playerSnapshot.color,
 					name: playerSnapshot.name,
-					score: playerSnapshot.score,
+					score: playerSnapshot.score
 				});
 
 				console.log(`🔨  Created new entity ${playerSnapshot.id} local: ${localSession != undefined}`);

@@ -23,7 +23,7 @@ import {
 	RepeatWrapping,
 	Texture
 } from 'three';
-import ClientMapSystem from '../systems/client/ClientMapSystem';
+import ClientRoomSystem from '../systems/client/ClientRoomSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import GolfCameraSystem from '../systems/client/GolfCameraSystem';
 import GolfViewSystem from '../systems/client/GolfViewSystem';
@@ -64,7 +64,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared
 		this.addSystem(new ClientPingSystem());
-		this.addSystem(new ClientMapSystem(this.golfAssets.gltfs));
+		this.addSystem(new ClientRoomSystem());
 
 		this.addSystem(new InputSystem(), 1000);
 

@@ -1,21 +1,55 @@
 import { Box, Row } from 'jsxstyle/preact';
 import { h } from 'preact';
 import { Button, Colors, FullscreenNoise, H2, Input } from './Shared';
-import { useState } from '@ecs/ecs/helpers';
+import { useState, useSingletonQuery } from '@ecs/ecs/helpers';
 import { useECS } from '@ecs/plugins/ui/react';
-import { useNetworking } from '@ecs/plugins/net/helpers/useNetworking';
+import { GolfPacketOpcode, useGolfNetworking } from '../constants/GolfNetworking';
+import { ClientRoomState } from '../systems/client/ClientRoomSystem';
 
 export const Splash = () => {
-	const { state, networking } = useECS(engine => ({
+	const { state, network, roomState } = useECS(engine => ({
+		roomState: useSingletonQuery(engine, ClientRoomState),
 		state: useState(engine, {
 			name: ''
 		}),
-		networking: useNetworking(engine)
+		network: useGolfNetworking(engine, {
+			connect: () => {
+				setTimeout(() => {
+					network.on(GolfPacketOpcode.CREATE_ROOM_RESPONSE, (packet, entity) => {
+						roomState().room = packet.roomId;
+					});
+				});
+			}
+		})
 	}));
 
-	const handleSubmit = (event: Event) => {
+	const handleJoin = (event: Event) => {
 		event.preventDefault();
-		// networking.send();
+
+		if (state.name.length > 0) {
+			network.send({
+				opcode: GolfPacketOpcode.UPDATE_PROFILE,
+				name: state.name
+			});
+		}
+
+		roomState().joinRandomRoom();
+	};
+
+	const handleCreate = (event: Event) => {
+		event.preventDefault();
+
+		if (state.name.length > 0) {
+			network.send({
+				opcode: GolfPacketOpcode.UPDATE_PROFILE,
+				name: state.name
+			});
+		}
+
+		network.send({
+			opcode: GolfPacketOpcode.CREATE_ROOM_REQUEST,
+			public: false
+		});
 	};
 
 	const handleChange = (event: Event) => {
@@ -24,7 +58,7 @@ export const Splash = () => {
 	};
 
 	return (
-		<form onSubmit={handleSubmit}>
+		<form onSubmit={handleJoin}>
 			<FullscreenNoise>
 				<Box paddingBottom={20}>
 					<img src='assets/golf/logo.png' width='400' />
@@ -32,12 +66,20 @@ export const Splash = () => {
 
 				<Row background='white' borderRadius={5} margin={10}>
 					<Input fontSize='2.5vw' textAlign='center' placeholder='Enter your name' onChange={handleChange} />
-					<Button background={Colors.PURPLE} borderTopLeftRadius={0} borderBottomLeftRadius={0} padding={10}>
+					<Button
+						background={Colors.PURPLE}
+						borderTopLeftRadius={0}
+						borderBottomLeftRadius={0}
+						padding={10}
+						props={{ onClick: handleJoin }}
+					>
 						JOIN
 					</Button>
 				</Row>
 
-				<Button margin={10}>CREATE</Button>
+				<Button margin={10} props={{ onClick: handleCreate }}>
+					CREATE
+				</Button>
 			</FullscreenNoise>
 		</form>
 	);

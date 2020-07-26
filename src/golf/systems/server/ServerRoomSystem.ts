@@ -8,20 +8,24 @@ import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import { createBall } from '../../utils/CreateBall';
 import {
-	AllGamesRequest,
+	PublicRoomsRequest,
 	GameState,
 	GolfPacketOpcode,
 	JoinRoom,
 	StartGame,
 	useGolfNetworking,
-	GolfGameState
+	GolfGameState,
+	CreateRoomRequest,
+	UpdateProfile
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
 import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import Spawn from '../../../golf/components/Spawn';
+import shortid from 'shortid';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
+	public name: string;
 
 	private playerQueries = useQueries(this, {
 		players: all(GolfPlayer, Session),
@@ -35,11 +39,15 @@ class GolfGameServerEngine extends Engine {
 		state: GameState.LOBBY
 	});
 
-	constructor() {
+	get isEmpty() {
+		return this.playerQueries.players.length <= 0;
+	}
+
+	constructor(name: string) {
 		super();
 
+		this.name = name;
 		this.space = new ServerGolfSpace(this, true);
-
 		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this));
 	}
 
@@ -76,24 +84,31 @@ class GolfGameServerEngine extends Engine {
 
 export class ServerRoomSystem extends System {
 	protected networking = useGolfNetworking(this, {
+		connect: entity => this.handleConnect(entity),
 		disconnect: entity => this.handleDisconnect(entity)
 	});
 
-	protected rooms: Map<string, GolfGameServerEngine>;
-	protected entityToRoomEngine: Map<Entity, GolfGameServerEngine>;
+	protected rooms: Map<string, GolfGameServerEngine> = new Map();
+	protected publicRooms: Set<string> = new Set();
+	protected entityToRoomEngine: Map<Entity, GolfGameServerEngine> = new Map();
 
 	constructor() {
 		super();
 
-		this.rooms = new Map();
-		this.entityToRoomEngine = new Map();
-
-		this.networking.on(GolfPacketOpcode.ALL_GAMES_REQUEST, this.handleAllGamesRequest.bind(this));
-		this.networking.on(GolfPacketOpcode.JOIN_GAME, this.handleJoinGamesRequest.bind(this));
+		this.networking.on(GolfPacketOpcode.PUBLIC_ROOMS_REQUEST, this.handleAllGamesRequest.bind(this));
+		this.networking.on(GolfPacketOpcode.CREATE_ROOM_REQUEST, this.handleCreateRoomRequest.bind(this));
+		this.networking.on(GolfPacketOpcode.JOIN_ROOM, this.handleJoinRoomRequest.bind(this));
+		this.networking.on(GolfPacketOpcode.UPDATE_PROFILE, this.handleUpdateProfileRequest.bind(this));
 
 		this.createRoom('default');
 		this.createRoom('lucas');
 		this.createRoom('jeff');
+	}
+
+	handleConnect(entity: Entity): void {
+		// TODO Persist golfplayer against sessionId?
+		const session = entity.get(Session);
+		entity.add(new GolfPlayer(session.id));
 	}
 
 	handleDisconnect(entity: Entity): void {
@@ -101,28 +116,43 @@ export class ServerRoomSystem extends System {
 			const currentRoom = this.entityToRoomEngine.get(entity);
 
 			currentRoom.removeEntity(entity);
+
+			this.cleanupEmptyRoom(currentRoom);
 		}
 	}
 
 	allRoomIds() {
-		return Array.from(this.rooms.keys());
+		return Array.from(this.publicRooms.keys());
 	}
 
-	createRoom(name: string) {
-		const newEngine = new GolfGameServerEngine();
+	createRoom(name: string, isPublic = true) {
+		const newEngine = new GolfGameServerEngine(name);
 		this.rooms.set(name, newEngine);
+		if (isPublic) {
+			this.publicRooms.add(name);
+		}
 
 		console.log(`🏠 Created new room ${name}`);
 	}
 
-	handleAllGamesRequest(packet: AllGamesRequest, entity: Entity) {
+	handleAllGamesRequest(packet: PublicRoomsRequest, entity: Entity) {
 		this.networking.sendTo(entity, {
-			opcode: GolfPacketOpcode.ALL_GAMES_RESPONSE,
-			games: this.allRoomIds()
+			opcode: GolfPacketOpcode.PUBLIC_ROOMS_RESPONSE,
+			rooms: this.allRoomIds()
 		});
 	}
 
-	handleJoinGamesRequest(packet: JoinRoom, entity: Entity) {
+	handleCreateRoomRequest(packet: CreateRoomRequest, entity: Entity) {
+		const roomId = shortid.generate();
+		this.createRoom(roomId, packet.public);
+
+		this.networking.sendTo(entity, {
+			opcode: GolfPacketOpcode.CREATE_ROOM_RESPONSE,
+			roomId
+		});
+	}
+
+	handleJoinRoomRequest(packet: JoinRoom, entity: Entity) {
 		// remove from old room
 		if (this.entityToRoomEngine.has(entity)) {
 			const currentRoom = this.entityToRoomEngine.get(entity);
@@ -136,6 +166,23 @@ export class ServerRoomSystem extends System {
 
 			newRoom.addEntity(entity);
 			this.entityToRoomEngine.set(entity, newRoom);
+		} else {
+			console.warn(`room ${packet.roomId} not found`);
+		}
+	}
+
+	handleUpdateProfileRequest(packet: UpdateProfile, entity: Entity) {
+		if (packet.name.length > 0) {
+			const player = entity.get(GolfPlayer);
+			if (player) {
+				player.name = packet.name;
+			}
+		}
+	}
+
+	cleanupEmptyRoom(room: GolfGameServerEngine) {
+		if (room.isEmpty && !this.publicRooms.has(room.name)) {
+			this.rooms.delete(room.name);
 		}
 	}
 

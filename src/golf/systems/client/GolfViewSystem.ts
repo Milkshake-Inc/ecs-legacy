@@ -37,6 +37,7 @@ export default class GolfViewSystem extends System {
 		const hasLocalPlayer = !!this.queries.localPlayer.first;
 		const connected = this.getConnectionState().connected;
 
+		views.set('splash', connected && gameState.state == GameState.SPLASH);
 		views.set('lobby', connected && gameState.state == GameState.LOBBY);
 		views.set('score', connected && gameState.state == GameState.INGAME && inputs.Score.down);
 		views.set('power', connected && gameState.state == GameState.INGAME && hasLocalPlayer);
