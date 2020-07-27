@@ -138,7 +138,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	}
 
 	handleBallPot(packet: PotBall, entity: Entity) {
-		console.log('☀SUNSHINE DAY!☀');
+		console.log('☀SUNSHINE DAY !☀');
 		const player = entity.get(GolfPlayer);
 
 		entity.add(Sound, { src: 'assets/golf/sounds/hole.mp3' });
