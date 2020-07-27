@@ -176,7 +176,7 @@ export class ServerRoomSystem extends System {
 	}
 
 	handleCreateRoomRequest(packet: CreateRoomRequest, entity: Entity) {
-		const roomId = shortid.generate();
+		const roomId = shortid.generate().slice(0, 4).toUpperCase();
 		this.createRoom(roomId, packet.public);
 
 		this.networking.sendTo(entity, {
