@@ -18,6 +18,10 @@ export default class CannonBody extends Body {
 		}
 	}
 
+	get moving() {
+		return !new Vec3(this.velocity.x, 0, this.velocity.z).almostZero(1e-1);
+	}
+
 	setPosition(position: Vector) {
 		this.position = ToCannonVector3(position);
 		this.velocity.set(0, 0, 0);

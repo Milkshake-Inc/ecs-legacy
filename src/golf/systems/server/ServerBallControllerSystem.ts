@@ -62,14 +62,17 @@ export class ServerBallControllerSystem extends System {
 
 	handlePrepShot(packet: any, entity: Entity) {
 		const cannonBody = entity.get(CannonBody);
+		if (cannonBody.moving) return;
 
 		cannonBody.velocity.set(0, 0, 0);
 		cannonBody.angularVelocity.set(0, 0, 0);
 	}
 
 	handleShootBall(packet: ShootBall, entity: Entity) {
-		console.log(`Received shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
+		if (cannonBody.moving) return;
+
+		console.log(`Received shot from ${entity.get(Session).id}`);
 		const golfPlayer = entity.get(GolfPlayer);
 		const playerBall = entity.get(PlayerBall);
 

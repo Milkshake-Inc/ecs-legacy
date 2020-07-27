@@ -17,6 +17,7 @@ export type GolfSnapshotPlayer = {
 	host: number;
 	state: GolfSnapshotPlayerState;
 	score: number[];
+	moving: number;
 	x?: number;
 	y?: number;
 	z?: number;

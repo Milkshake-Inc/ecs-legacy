@@ -130,6 +130,9 @@ export default class ClientSnapshotSystem extends System {
 
 			const body = entity.get(Transform);
 			body.position.set(playerSnapshot.x, playerSnapshot.y, playerSnapshot.z);
+
+			const playerBall = entity.get(PlayerBall);
+			playerBall.moving = Boolean(playerSnapshot.moving);
 		}
 
 		if (playerSnapshot.state == GolfSnapshotPlayerState.SPECTATING) {

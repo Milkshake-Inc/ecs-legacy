@@ -85,7 +85,9 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		this.directionLine.get(Transform).rz = Math.PI / 2;
 		this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
 
-		if (camera) {
+		const moving = entity.get(PlayerBall).moving;
+
+		if (camera && !moving) {
 			if (this.inputs.state.shoot.once) {
 				this.state.power = 1;
 

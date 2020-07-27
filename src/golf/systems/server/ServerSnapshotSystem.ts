@@ -37,15 +37,18 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				color: player.color,
 				host: player.host,
 				score: player.score,
-				state: GolfSnapshotPlayerState.SPECTATING
+				state: GolfSnapshotPlayerState.SPECTATING,
+				moving: 0
 			};
 
 			if (entity.has(CannonBody)) {
-				const position = entity.get(CannonBody).position;
+				const body = entity.get(CannonBody);
+				const position = body.position;
 
 				result.x = position.x;
 				result.y = position.y;
 				result.z = position.z;
+				result.moving = body.moving ? 1 : 0;
 			}
 
 			if (entity.has(PlayerBall)) {
