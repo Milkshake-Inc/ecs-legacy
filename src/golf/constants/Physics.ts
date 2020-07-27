@@ -3,6 +3,13 @@ import { CannonBodyOptions } from '@ecs/plugins/physics/3d/components/CannonBody
 
 export const BALL_HIT_POWER = 1.25;
 
+// Must be powers of 2
+export enum CollisionFilterGroups {
+	COURSE = 1,
+	BALL = 2,
+	OTHER = 4
+}
+
 export const COURSE_MATERIAL = new Material('COURSE_MATERIAL');
 
 export const BALL_MATERIAL = new Material('BALL_MATERIAL');
@@ -20,9 +27,13 @@ export const BALL_BODY: CannonBodyOptions = {
 	angularDamping: 0.7,
 	linearDamping: 0.5,
 	angularFactor: new Vec3(1.5, 1.5, 1.5),
-	linearFactor: new Vec3(1, 0.8, 1)
+	linearFactor: new Vec3(1, 0.8, 1),
+	collisionFilterGroup: CollisionFilterGroups.BALL, // Example: https://github.com/react-spring/cannon-es/blob/master/examples/collisionFilter.html#L40
+	collisionFilterMask: CollisionFilterGroups.COURSE
 };
 
 export const COURSE_BODY: CannonBodyOptions = {
-	material: COURSE_MATERIAL
+	material: COURSE_MATERIAL,
+	collisionFilterGroup: CollisionFilterGroups.COURSE,
+	collisionFilterMask: CollisionFilterGroups.BALL
 };
