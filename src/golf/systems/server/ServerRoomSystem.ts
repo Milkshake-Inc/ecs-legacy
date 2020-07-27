@@ -65,7 +65,7 @@ class GolfGameServerEngine extends Engine {
 	}
 
 	nextHole() {
-		if (this.state.currentHole > this.playerQueries.spawn.length) {
+		if (this.state.currentHole > this.playerQueries.spawn.length || !this.spawns[this.state.currentHole]) {
 			console.log(`🏠  Game End`);
 			this.state.state = GameState.LOBBY;
 			return;

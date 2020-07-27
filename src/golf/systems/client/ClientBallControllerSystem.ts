@@ -1,6 +1,6 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries, useState } from '@ecs/ecs/helpers';
+import { useQueries, useState, useSingletonQuery } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
 import Keyboard from '@ecs/plugins/input/Keyboard';
 import MathHelper from '@ecs/plugins/math/MathHelper';
@@ -12,12 +12,15 @@ import Transform from '@ecs/plugins/math/Transform';
 import { all, makeQuery } from '@ecs/ecs/Query';
 import { ArrowHelper, PerspectiveCamera } from 'three';
 import PlayerBall from '../../components/PlayerBall';
-import { GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import { GolfPacketOpcode, PotBall, useGolfNetworking, GolfGameState } from '../../constants/GolfNetworking';
 import { Key, Controls, MouseButton, GamepadButton, Gesture } from '@ecs/plugins/input/Control';
 import Input from '@ecs/plugins/input/components/Input';
 import Mouse from '@ecs/plugins/input/Mouse';
 import Gamepad from '@ecs/plugins/input/Gamepad';
 import Touch from '@ecs/plugins/input/Touch';
+import { Sound } from '@ecs/plugins/sound/components/Sound';
+import Random from '@ecs/plugins/math/Random';
+import GolfPlayer from '../../components/GolfPlayer';
 
 export class BallControllerState {
 	public power: number;
@@ -45,6 +48,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		power: 0,
 		direction: 1
 	});
+
+	protected gameState = useSingletonQuery(this, GolfGameState);
 
 	protected inputs = useState(this, new Input(PlayerInputs));
 
@@ -123,9 +128,9 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 					}
 				});
 
-				// entity.add(Sound, {
-				// 	src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
-				// });
+				entity.add(Sound, {
+					src: `assets/golf/sounds/hit${Random.fromArray(['1', '2', '3', '4'])}.mp3`
+				});
 
 				this.state.power = 0;
 			}
@@ -134,6 +139,10 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 	handleBallPot(packet: PotBall, entity: Entity) {
 		console.log('☀SUNSHINE DAY!☀');
-		// entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
+		const player = entity.get(GolfPlayer);
+
+		if (player?.score[this.gameState().currentHole] <= 1) {
+			entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
+		}
 	}
 }
