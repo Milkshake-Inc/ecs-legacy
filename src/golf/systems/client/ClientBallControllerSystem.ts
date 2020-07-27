@@ -141,6 +141,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		console.log('☀SUNSHINE DAY!☀');
 		const player = entity.get(GolfPlayer);
 
+		entity.add(Sound, { src: 'assets/golf/sounds/hole.mp3' });
+
 		if (player?.score[this.gameState().currentHole] <= 1) {
 			entity.add(Sound, { src: 'assets/golf/sounds/yay.mp3' });
 		}
