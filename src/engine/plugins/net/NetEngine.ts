@@ -17,8 +17,8 @@ export class NetEngine extends TickerEngine {
 	public server: GeckosServer;
 	public connections: ServerConnectionSystem;
 
-	constructor() {
-		super(60);
+	constructor(fps = 60) {
+		super(fps);
 
 		this.server = geckosServer({
 			authorization: async token => {
