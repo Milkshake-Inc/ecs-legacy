@@ -44,6 +44,7 @@
 		"clipboard-polyfill": "^3.0.0",
 		"dat.gui": "^0.7.7",
 		"dog-names": "^2.0.0",
+		"git-revision-webpack-plugin": "^3.0.6",
 		"glslify-loader": "^2.0.0",
 		"hammerjs": "^2.0.8",
 		"howler": "^2.1.3",

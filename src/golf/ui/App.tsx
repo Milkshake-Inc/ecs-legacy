@@ -14,6 +14,7 @@ import { ViewController, View } from '@ecs/plugins/ui/react/View';
 import { PowerBar } from './PowerBar';
 import { Spectator } from './Spectator';
 import { Connecting } from './Connecting';
+import { Version } from './Version';
 
 export default class App extends Component<{ engine: Engine }, { visible: true }> {
 	render() {
@@ -24,6 +25,9 @@ export default class App extends Component<{ engine: Engine }, { visible: true }
 						<View name='debug'>
 							<Pos query={all(Transform, PlayerBall)} />
 							<Ping />
+						</View>
+						<View name='version'>
+							<Version />
 						</View>
 						<View name='splash'>
 							<Splash />
