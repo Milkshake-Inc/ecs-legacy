@@ -60,8 +60,8 @@ export default class RenderSystem extends System {
 		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
-			antialias: true,
-			alpha: true
+			antialias: false, // Bad performance on OSX. TODO optionally enable these...
+			alpha: false
 		});
 
 		this.state.renderer.outputEncoding = sRGBEncoding;
