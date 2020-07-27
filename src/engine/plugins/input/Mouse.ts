@@ -24,7 +24,8 @@ export default class Mouse extends InputDevice {
 		};
 	}
 
-	private lastPosition = { x: 0, y: 0 };
+	private lastEventPosition = { x: 0, y: 0 };
+	private eventPosition = { x: 0, y: 0 };
 	private position = { x: 0, y: 0 };
 
 	static startPointerLock() {
@@ -78,7 +79,8 @@ export default class Mouse extends InputDevice {
 			}
 		}
 
-		this.position = { x: 0, y: 0 };
+		this.position = this.eventPosition;
+		this.eventPosition = { x: 0, y: 0 };
 	}
 
 	private handleMouseWheel(event: any) {
@@ -109,13 +111,13 @@ export default class Mouse extends InputDevice {
 					y: mouse.y
 			  }
 			: {
-					x: mouse.x - this.lastPosition.x,
-					y: mouse.y - this.lastPosition.y
+					x: mouse.x - this.lastEventPosition.x,
+					y: mouse.y - this.lastEventPosition.y
 			  };
 
-		this.position.x += delta.x;
-		this.position.y += delta.y;
-		this.lastPosition = mouse;
+		this.eventPosition.x += delta.x;
+		this.eventPosition.y += delta.y;
+		this.lastEventPosition = mouse;
 	}
 
 	private handleMouseDown({ button }: MouseEvent) {

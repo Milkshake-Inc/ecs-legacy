@@ -54,11 +54,6 @@ export default class Gamepad extends InputDevice {
 		super.update(deltaTime);
 
 		if (!this.pad) return;
-		// Update any existing pressed buttons
-		for (const btn of Array.from(this.pressed.keys())) {
-			if (this.isDownOnce(btn)) this.pressed.set(btn, null);
-			if (this.isUpOnce(btn)) this.pressed.delete(btn);
-		}
 
 		// Add any new buttons that have been pressed since last update
 		for (let btn = 0; btn < this.pad.buttons.length - 1; btn++) {

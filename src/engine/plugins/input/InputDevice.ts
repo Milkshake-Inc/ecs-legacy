@@ -5,12 +5,14 @@ export enum PressedState {
 
 export default abstract class InputDevice {
 	protected pressed: Map<any, PressedState.Down | PressedState.Up> = new Map();
+	private _lastFramePressed: Map<any, PressedState.Down | PressedState.Up> = new Map();
 
 	protected abstract get listeners(): { [event: string]: any };
 
 	public active: boolean;
 
 	public update(deltaTime: number) {
+		this._lastFramePressed = this.pressed;
 		for (const [key] of this.pressed) {
 			if (this.isDownOnce(key)) this.pressed.set(key, null);
 			if (this.isUpOnce(key)) this.pressed.delete(key);
@@ -18,15 +20,15 @@ export default abstract class InputDevice {
 	}
 
 	public isDown(btn: any) {
-		return this.pressed.has(btn);
+		return this._lastFramePressed.has(btn);
 	}
 
 	public isDownOnce(btn: any) {
-		return this.pressed.get(btn) == PressedState.Down;
+		return this._lastFramePressed.get(btn) == PressedState.Down;
 	}
 
 	public isUpOnce(btn: any) {
-		return this.pressed.get(btn) == PressedState.Up;
+		return this._lastFramePressed.get(btn) == PressedState.Up;
 	}
 
 	public setup() {
