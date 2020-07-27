@@ -28,7 +28,7 @@ export const Scoreboard = () => {
 		return (
 			<Row margin={0} padding={8} opacity={0.3} >
 				<H2 width="20%" />
-				{players[0].score.map((value, index) => <H2 paddingLeft={40} >{index}</H2>)}
+				{players[0].score.map((value, index) => <H2 paddingLeft={40} >{index + 1}</H2>)}
 				<H2 textAlign="right" width="15%"paddingLeft={40}>Total</H2>
 			</Row>
 		);
