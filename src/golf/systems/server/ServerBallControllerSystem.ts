@@ -1,14 +1,13 @@
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries } from '@ecs/ecs/helpers';
+import { useQueries, useSingletonQuery } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
 import { all } from '@ecs/ecs/Query';
-import { GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import { GolfPacketOpcode, ShootBall, useGolfNetworking, GolfGameState } from '../../constants/GolfNetworking';
 import PlayerBall from '../../components/PlayerBall';
 import Session from '@ecs/plugins/net/components/Session';
-import Transform from '@ecs/plugins/math/Transform';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/3d/components/Collisions';
 import Spawn from '../../components/Spawn';
@@ -20,6 +19,8 @@ const BALL_PUTT_TIMER = 1000;
 const OUT_OF_BOUNDS_TIMER = 1000;
 
 export class ServerBallControllerSystem extends System {
+	protected gameState = useSingletonQuery(this, GolfGameState);
+
 	protected queries = useQueries(this, {
 		balls: all(PlayerBall),
 		hole: all(Hole),
@@ -42,19 +43,13 @@ export class ServerBallControllerSystem extends System {
 
 	updateFixed(deltaTime: number) {
 		this.queries.balls.forEach(ball => {
-			const transform = ball.get(Transform);
 			const collisions = ball.get(Collisions);
 			const playerBall = ball.get(PlayerBall);
-
-			// Hack?
-			if (transform.position == Vector3.ZERO) {
-				this.resetBall(ball);
-			}
 
 			if (collisions.hasCollidedWith(...this.queries.ground.entities) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
-					this.resetBall(ball);
+					ball.get(CannonBody).setPosition(this.spawns[this.gameState().currentHole].position); // TODO should be from last shot pos...
 					playerBall.isBallResetting = false;
 				}, OUT_OF_BOUNDS_TIMER);
 			}
@@ -70,14 +65,6 @@ export class ServerBallControllerSystem extends System {
 		});
 	}
 
-	resetBall(entity: Entity) {
-		const cannonBody = entity.get(CannonBody);
-
-		cannonBody.position = ToCannonVector3(this.spawns[entity.get(PlayerBall).spawn].position);
-		cannonBody.velocity.set(0, 0, 0);
-		cannonBody.angularVelocity.set(0, 0, 0);
-	}
-
 	handlePrepShot(packet: any, entity: Entity) {
 		const cannonBody = entity.get(CannonBody);
 
@@ -89,9 +76,8 @@ export class ServerBallControllerSystem extends System {
 		console.log(`Received shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
 		const golfPlayer = entity.get(GolfPlayer);
-		const golfBall = entity.get(PlayerBall);
 
-		golfPlayer.score[golfBall.spawn]++;
+		golfPlayer.score[this.gameState().currentHole]++;
 
 		cannonBody.applyImpulse(
 			ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z).multiF(BALL_HIT_POWER)),
@@ -99,17 +85,11 @@ export class ServerBallControllerSystem extends System {
 		);
 	}
 
-	nextHole(entity: Entity) {
-		// TODO this should be shared across room
-		const spawns = this.spawns;
-		const playerBall = entity.get(PlayerBall);
-
-		playerBall.spawn = playerBall.spawn == spawns.length - 1 ? 0 : playerBall.spawn + 1;
-	}
-
 	handleBallPot(entity: Entity) {
 		this.networking.sendTo(entity, { opcode: GolfPacketOpcode.POT_BALL });
-		this.nextHole(entity);
-		setTimeout(() => this.resetBall(entity), 1500);
+
+		setTimeout(() => {
+			entity.remove(PlayerBall);
+		}, 1500);
 	}
 }

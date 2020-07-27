@@ -5,12 +5,17 @@ import { Snapshot } from '@geckos.io/snapshot-interpolation/lib/types';
 
 export const TICK_RATE = 30;
 
+export enum GolfSnapshotPlayerState {
+	SPECTATING,
+	PLAYING
+}
+
 export type GolfSnapshotPlayer = {
 	id: string;
 	name: string;
 	color: number;
 	host: number;
-	state: 'spectating' | 'playing';
+	state: GolfSnapshotPlayerState;
 	score: number[];
 	x?: number;
 	y?: number;
@@ -20,11 +25,13 @@ export type GolfSnapshotPlayer = {
 export enum GameState {
 	SPLASH,
 	LOBBY,
-	INGAME
+	INGAME,
+	SCORE
 }
 
 export class GolfGameState {
 	state: GameState;
+	currentHole: number;
 }
 
 export type GolfWorldSnapshot = {

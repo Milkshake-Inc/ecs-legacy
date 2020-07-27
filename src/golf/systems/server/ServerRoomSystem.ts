@@ -19,9 +19,9 @@ import {
 	UpdateProfile
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import Spawn from '../../../golf/components/Spawn';
 import shortid from 'shortid';
+import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
@@ -29,18 +29,23 @@ class GolfGameServerEngine extends Engine {
 
 	private playerQueries = useQueries(this, {
 		players: all(GolfPlayer, Session),
-		balls: all(CannonBody, Session),
+		balls: all(PlayerBall, Session),
 		spawn: all(Spawn)
 	});
 
 	private networking = useGolfNetworking(this);
 
 	private state = useState(this, new GolfGameState(), {
-		state: GameState.LOBBY
+		state: GameState.LOBBY,
+		currentHole: 0
 	});
 
 	get isEmpty() {
 		return this.playerQueries.players.length <= 0;
+	}
+
+	get spawns() {
+		return this.playerQueries.spawn.map(s => s.get(Spawn)).sort((a, b) => a.index - b.index);
 	}
 
 	constructor(name: string) {
@@ -55,13 +60,28 @@ class GolfGameServerEngine extends Engine {
 		// Ignore if they aren't the host
 		if (!entity.get(GolfPlayer).host) return;
 
+		this.state.currentHole = 0;
+		this.nextHole();
+	}
+
+	nextHole() {
+		if (this.state.currentHole > this.playerQueries.spawn.length) {
+			console.log(`🏠  Game End`);
+			this.state.state = GameState.LOBBY;
+			return;
+		}
+
 		this.playerQueries.players.entities.forEach(entity => {
-			const player = createBall();
-			player.add(PlayerBall);
-			console.log('Creating balls');
-			player.components.forEach(c => {
-				entity.add(c);
-			});
+			if (!entity.has(CannonBody)) {
+				console.log('Creating ball');
+				const player = createBall();
+				player.components.forEach(c => {
+					entity.add(c);
+				});
+			}
+
+			entity.add(PlayerBall);
+			entity.get(CannonBody).setPosition(this.spawns[this.state.currentHole].position);
 		});
 
 		this.state.state = GameState.INGAME;
@@ -70,9 +90,22 @@ class GolfGameServerEngine extends Engine {
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
-		if (this.state.state == GameState.INGAME && this.playerQueries.balls.length == 0) {
-			console.log(`🏠  Reset lobby`);
-			this.state.state = GameState.LOBBY;
+		if (this.state.state == GameState.INGAME) {
+			if (this.playerQueries.players.length == 0) {
+				console.log(`🏠  Reset lobby`);
+				this.state.state = GameState.LOBBY;
+			}
+
+			if (this.playerQueries.balls.length == 0) {
+				console.log(`All players finished`);
+				this.state.state = GameState.SCORE;
+
+				setTimeout(() => {
+					this.state.currentHole++;
+					this.nextHole();
+				}, 3000);
+				this.state.currentHole;
+			}
 		}
 
 		const host = this.playerQueries.players.first;

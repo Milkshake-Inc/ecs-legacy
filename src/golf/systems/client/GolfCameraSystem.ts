@@ -52,18 +52,12 @@ export default class GolfCameraSystem extends System {
 			const currentTarget = this.query.currentTarget.first;
 			let newTarget = currentTarget;
 
-			if (currentTarget == undefined && this.query.localPlayer.length == 0) {
-				// Spectate random player
-				if (this.query.players.length > 0) {
-					const randomPlayer = Random.fromArray(Array.from(this.query.players.entities));
-					newTarget = randomPlayer;
-				} else {
-					console.log('No one to spectate.');
-				}
-			}
-
-			if (currentTarget == undefined && this.query.localPlayer.length > 0) {
+			if (this.query.localPlayer.length > 0) {
 				newTarget = this.query.localPlayer.first;
+			} else if (this.query.players.length > 0) {
+				newTarget = this.query.players.first;
+			} else {
+				console.log('No one to spectate.');
 			}
 
 			if (currentTarget != newTarget) {

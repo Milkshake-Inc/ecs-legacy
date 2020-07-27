@@ -10,7 +10,14 @@ import { Views } from '@ecs/plugins/ui/react/View';
 import Transform from '@ecs/plugins/math/Transform';
 import { all } from '@ecs/ecs/Query';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
-import { GameState, GolfGameState, GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE } from '../../../golf/constants/GolfNetworking';
+import {
+	GameState,
+	GolfGameState,
+	GolfSnapshotPlayer,
+	GolfWorldSnapshot,
+	TICK_RATE,
+	GolfSnapshotPlayerState
+} from '../../../golf/constants/GolfNetworking';
 import GolfPlayer from '../../components/GolfPlayer';
 import PlayerBall from '../../components/PlayerBall';
 import Synchronize from '../../components/Synchronize';
@@ -101,7 +108,7 @@ export default class ClientSnapshotSystem extends System {
 	}
 
 	updatePlayer(entity: Entity, playerSnapshot: GolfSnapshotPlayer) {
-		if (playerSnapshot.state == 'playing') {
+		if (playerSnapshot.state == GolfSnapshotPlayerState.PLAYING) {
 			if (!entity.has(PlayerBall)) {
 				console.log('⏫  Upgrading player to ball');
 
@@ -123,6 +130,17 @@ export default class ClientSnapshotSystem extends System {
 
 			const body = entity.get(Transform);
 			body.position.set(playerSnapshot.x, playerSnapshot.y, playerSnapshot.z);
+		}
+
+		if (playerSnapshot.state == GolfSnapshotPlayerState.SPECTATING) {
+			if (entity.has(PlayerBall)) {
+				const ballPrefab = createBallClient(entity.get(GolfPlayer));
+				ballPrefab.components.forEach(component => {
+					entity.remove(component);
+				});
+
+				entity.remove(PlayerBall);
+			}
 		}
 
 		// Update GolfPlayer state...

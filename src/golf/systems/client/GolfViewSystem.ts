@@ -39,7 +39,7 @@ export default class GolfViewSystem extends System {
 
 		views.set('splash', connected && gameState.state == GameState.SPLASH);
 		views.set('lobby', connected && gameState.state == GameState.LOBBY);
-		views.set('score', connected && gameState.state == GameState.INGAME && inputs.Score.down);
+		views.set('score', connected && (gameState.state == GameState.SCORE || (gameState.state == GameState.INGAME && inputs.Score.down)));
 		views.set('power', connected && gameState.state == GameState.INGAME && hasLocalPlayer);
 		views.set('spectator', connected && gameState.state == GameState.INGAME && !hasLocalPlayer);
 		views.set('connecting', !connected);

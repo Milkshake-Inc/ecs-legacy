@@ -1,5 +1,5 @@
 import { Body, Quaternion, Vec3, BodyOptions } from 'cannon-es';
-import Vector3 from '@ecs/plugins/math/Vector';
+import Vector3, { Vector } from '@ecs/plugins/math/Vector';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
 
@@ -16,6 +16,12 @@ export default class CannonBody extends Body {
 		if (options && options.interpolation) {
 			this.interpolation = options.interpolation;
 		}
+	}
+
+	setPosition(position: Vector) {
+		this.position = ToCannonVector3(position);
+		this.velocity.set(0, 0, 0);
+		this.angularVelocity.set(0, 0, 0);
 	}
 
 	rotate(euler: Vector3 | Vec3) {

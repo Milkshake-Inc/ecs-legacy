@@ -12,7 +12,7 @@ let componentClassId = 1;
 export function getComponentId<T>(component: Class<T>, createIfNotExists = false): number | undefined {
 	if (component == undefined) return undefined;
 
-	const className = component.prototype.constructor.name;
+	const className = component.prototype ? component.prototype.constructor.name : component.constructor.name;
 	if (componentIds.has(className)) {
 		return componentIds.get(className);
 	} else if (createIfNotExists) {

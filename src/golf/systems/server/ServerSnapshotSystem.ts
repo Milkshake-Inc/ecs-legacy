@@ -3,11 +3,12 @@ import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldS
 import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import GolfPlayer from '../../components/GolfPlayer';
-import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState } from '../../constants/GolfNetworking';
+import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState, GolfSnapshotPlayerState } from '../../constants/GolfNetworking';
 import { all } from '@ecs/ecs/Query';
 import Session from '@ecs/plugins/net/components/Session';
 import Synchronize from '../../components/Synchronize';
 import { getComponentIdByName } from '@ecs/ecs/ComponentId';
+import PlayerBall from '../../components/PlayerBall';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
 	protected snapshotQueries = useQueries(this, {
@@ -34,18 +35,21 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				id: player.id,
 				name: player.name,
 				color: player.color,
-				host: player.host ? 1 : 0,
+				host: player.host,
 				score: player.score,
-				state: 'spectating'
+				state: GolfSnapshotPlayerState.SPECTATING
 			};
 
 			if (entity.has(CannonBody)) {
 				const position = entity.get(CannonBody).position;
 
-				result.state = 'playing';
 				result.x = position.x;
 				result.y = position.y;
 				result.z = position.z;
+			}
+
+			if (entity.has(PlayerBall)) {
+				result.state = GolfSnapshotPlayerState.PLAYING;
 			}
 
 			return result;
