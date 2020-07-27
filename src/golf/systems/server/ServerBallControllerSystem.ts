@@ -3,7 +3,7 @@ import { useQueries, useSingletonQuery } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
-import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
+import { ToCannonVector3, ToVector3 } from '@ecs/plugins/tools/Conversions';
 import { all } from '@ecs/ecs/Query';
 import { GolfPacketOpcode, ShootBall, useGolfNetworking, GolfGameState } from '../../constants/GolfNetworking';
 import PlayerBall from '../../components/PlayerBall';
@@ -24,7 +24,6 @@ export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
 		balls: all(PlayerBall),
 		hole: all(Hole),
-		spawn: all(Spawn),
 		ground: all(Plane)
 	});
 
@@ -37,10 +36,6 @@ export class ServerBallControllerSystem extends System {
 		this.networking.on(GolfPacketOpcode.PREP_SHOOT, (packet, entity) => this.handlePrepShot(packet, entity));
 	}
 
-	get spawns() {
-		return this.queries.spawn.map(s => s.get(Spawn)).sort((a, b) => a.index - b.index);
-	}
-
 	updateFixed(deltaTime: number) {
 		this.queries.balls.forEach(ball => {
 			const collisions = ball.get(Collisions);
@@ -49,7 +44,7 @@ export class ServerBallControllerSystem extends System {
 			if (collisions.hasCollidedWith(...this.queries.ground.entities) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
-					ball.get(CannonBody).setPosition(this.spawns[this.gameState().currentHole].position); // TODO should be from last shot pos...
+					ball.get(CannonBody).setPosition(playerBall.lastPosition);
 					playerBall.isBallResetting = false;
 				}, OUT_OF_BOUNDS_TIMER);
 			}
@@ -76,8 +71,12 @@ export class ServerBallControllerSystem extends System {
 		console.log(`Received shot from ${entity.get(Session).id}`);
 		const cannonBody = entity.get(CannonBody);
 		const golfPlayer = entity.get(GolfPlayer);
+		const playerBall = entity.get(PlayerBall);
 
 		golfPlayer.score[this.gameState().currentHole]++;
+
+		// Store last pos so we can reset ball if it goes out of bounds
+		playerBall.lastPosition = ToVector3(cannonBody.position);
 
 		cannonBody.applyImpulse(
 			ToCannonVector3(new Vector3(packet.velocity.x, 0, packet.velocity.z).multiF(BALL_HIT_POWER)),
