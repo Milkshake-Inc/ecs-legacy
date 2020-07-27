@@ -13,7 +13,8 @@ export default class GolfAssets {
 }
 
 export const MapAssets = {
-	TRAIN: 'course-train.glb'
+	TRAIN: 'course-train.glb',
+	LUCAS: 'lucas.glb',
 };
 
 export const KenneyAssets = {
