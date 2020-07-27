@@ -1,5 +1,7 @@
 FROM node:latest
 
+RUN apk add --no-cache git
+
 WORKDIR /usr/src/app
 
 COPY . /usr/src/app
