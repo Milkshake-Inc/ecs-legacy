@@ -3,7 +3,7 @@ import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import RenderState from '@ecs/plugins/render/3d/components/RenderState';
 import { any } from '@ecs/ecs/Query';
-import { GSSolver, World } from 'cannon-es';
+import { GSSolver, World, Broadphase, SAPBroadphase } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 import { useBodyCouple } from '../couples/BodyCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';
@@ -46,7 +46,9 @@ export default class CannonPhysicsSystem extends System {
 	constructor(gravity = DefaultGravity, iterations = 10, debug = false, subSteps = 1) {
 		super();
 
-		this.state.world = new World();
+		this.state.world = new World({
+			broadphase: new SAPBroadphase(this.state.world)
+		});
 		(this.state.world.solver as GSSolver).iterations = iterations;
 
 		this.state.gravity = gravity;
