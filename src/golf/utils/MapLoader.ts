@@ -52,17 +52,17 @@ const pieceModifiers = {
 	cart: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.add(Cart);
 	},
-	// wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
-	// 	const uniqueId = `${node.name}${node.position.toArray()}`;
-	// 	entity.add(Rotor);
-	// 	entity.add(Synchronize, {
-	// 		id: uniqueId,
-	// 		components: {
-	// 			Transform
-	// 		}
-	// 	});
-	// },
-	'fence|detail|cart|track|flag|poles|wicks': (entity: Entity, node: Mesh, entities: Entity[]) => {
+	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		const uniqueId = `${node.name}${node.position.toArray()}`;
+		entity.add(Rotor);
+		entity.add(Synchronize, {
+			id: uniqueId,
+			components: {
+				Transform
+			}
+		});
+	},
+	'fence|detail|cart|track|flag|poles': (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.remove(CoursePiece);
 		entity.remove(CannonBody);
 		entity.remove(TrimeshShape);
