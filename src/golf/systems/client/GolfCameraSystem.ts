@@ -85,7 +85,7 @@ export default class GolfCameraSystem extends System {
 		const lightEntity = this.query.lights.first;
 		const target = this.query.currentTarget.first;
 
-		if (lightEntity && target) {
+		if (lightEntity && target && target.has(Transform)) {
 			const directionalLight = lightEntity.get(DirectionalLight);
 			const directionalLightTrasnform = lightEntity.get(Transform);
 			const targetPosition = target.get(Transform).position;
