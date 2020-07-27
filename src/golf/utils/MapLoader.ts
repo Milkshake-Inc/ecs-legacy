@@ -17,10 +17,6 @@ import Synchronize from '../components/Synchronize';
 
 const pieceModifiers = {
 	flag: (entity: Entity, node: Mesh, entities: Entity[]) => {
-		// Make flag pieces not collidable
-		entity.remove(TrimeshShape);
-		entity.remove(CannonBody);
-
 		// Add holeTrigger
 		const holeTrigger = new Entity();
 		holeTrigger.add(entity.get(Transform)); // TODO don't share the same transform...
@@ -55,7 +51,6 @@ const pieceModifiers = {
 	},
 	cart: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.add(Cart);
-		entity.remove(CannonBody);
 	},
 	wicks: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		const uniqueId = `${node.name}${node.position.toArray()}`;
@@ -66,6 +61,11 @@ const pieceModifiers = {
 				Transform
 			}
 		});
+	},
+	'fence|detail|cart|track|flag|poles': (entity: Entity, node: Mesh, entities: Entity[]) => {
+		entity.remove(CoursePiece);
+		entity.remove(CannonBody);
+		entity.remove(TrimeshShape);
 	}
 };
 
