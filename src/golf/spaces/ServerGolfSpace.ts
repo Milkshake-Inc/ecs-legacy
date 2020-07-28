@@ -5,11 +5,13 @@ import { ServerBallControllerSystem } from '../systems/server/ServerBallControll
 import ServerSnapshotSystem from '../systems/server/ServerSnapshotSystem';
 import BaseGolfSpace from './BaseGolfSpace';
 import { TerrainAnimationSystem } from '../systems/shared/TerrainAnimationSystem';
+import { PhysxSystem } from '@ecs/plugins/physics/physx/PhysxSystem';
 
 export class ServerGolfSpace extends BaseGolfSpace {
 	constructor(engine: Engine, open = false) {
 		super(engine, open);
 
+		this.addSystem(new PhysxSystem());
 		this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 10, false, 5));
 		this.addSystem(new ServerBallControllerSystem());
 		this.addSystem(new ServerSnapshotSystem());

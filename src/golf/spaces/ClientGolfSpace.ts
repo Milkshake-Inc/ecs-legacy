@@ -32,6 +32,7 @@ import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
 import TweakSystem from '../systems/client/TweakSystem';
 import { Colors } from '../ui/Shared';
+import { PhysxSystem } from '@ecs/plugins/physics/physx/PhysxSystem';
 
 const Images = {
 	GroundTexture: 'assets/golf/ground-desert.jpg',
@@ -48,13 +49,15 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 	}
 
 	protected async preload() {
-		[this.groundTexture] = await Promise.all([LoadTexture("assets/prototype/textures/dark/texture_08.png")]);
+		[this.groundTexture] = await Promise.all([LoadTexture('assets/prototype/textures/dark/texture_08.png')]);
 
 		await LoadPixiAssets(Images);
 		await super.preload();
 	}
 
 	setup() {
+		this.addSystem(new PhysxSystem());
+
 		if (Config.debug) {
 			this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, true, 0));
 		}
@@ -110,10 +113,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.groundTexture.repeat.set(1000, 1000);
 		this.groundTexture.wrapT = this.groundTexture.wrapS = RepeatWrapping;
 		ground.add(
-			new Mesh(
-				new PlaneGeometry(1000, 1000),
-				new MeshPhongMaterial({ map: this.groundTexture, shininess: 1, color: 0xcccccc })
-			),
+			new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.groundTexture, shininess: 1, color: 0xcccccc })),
 			{
 				castShadow: true,
 				receiveShadow: true
