@@ -15,6 +15,7 @@ export default class GolfAssets {
 export const MapAssets = {
 	TRAIN: 'course-train.glb',
 	LUCAS: 'lucas.glb',
+	CITY: 'course-city.glb'
 };
 
 export const KenneyAssets = {
