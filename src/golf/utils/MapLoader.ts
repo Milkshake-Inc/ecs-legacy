@@ -13,24 +13,28 @@ import Synchronize from '../components/Synchronize';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 const pieceModifiers = {
-	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[]) => {
+	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
 		// Add holeTrigger
 		const holeTrigger = new Entity();
 		const holePosition = entity.get(Transform).clone();
 		holePosition.y += 0.025;
 		holeTrigger.add(holePosition); // TODO don't share the same transform...
 		holeTrigger.add(Hole);
-		holeTrigger.add(AmmoBody, {
-			ghost: true // Make hole collider not collidable. Only used for triggering.
-		})
+
 
 		const HOLE_SIZE = 0.1;
 
-		holeTrigger.add(AmmoBox, {
-			size: HOLE_SIZE / 2
-		});
+		if(isServer) {
+			holeTrigger.add(AmmoShape.BOX(HOLE_SIZE / 2))
+			holeTrigger.add(AmmoBody, {
+				mass: 0,
+				ghost: true // Make hole collider not collidable. Only used for triggering.
+			})
+		}
+
 		holeTrigger.add(new Mesh(
 			new BoxGeometry(HOLE_SIZE, HOLE_SIZE, HOLE_SIZE),
 			new MeshPhongMaterial()
@@ -78,7 +82,7 @@ const pieceModifiers = {
 	}
 };
 
-export const loadMap = (map: GLTF): Entity[] => {
+export const loadMap = (map: GLTF, isServer = false): Entity[] => {
 	const entities: Entity[] = [];
 	map.scene.traverse(node => {
 		// Enable shadows etc on all models
@@ -111,11 +115,13 @@ export const loadMap = (map: GLTF): Entity[] => {
 			entity.add(node);
 			entity.add(CoursePiece);
 			entity.add(new TrimeshShape());
-			entity.add(new AmmoBody());
+			entity.add(AmmoBody, {
+				mass: 0,
+			});
 			entities.push(entity);
 
 			Object.keys(pieceModifiers).forEach(key => {
-				if (node.name.toLowerCase().match(key)) pieceModifiers[key](entity, node, entities);
+				if (node.name.toLowerCase().match(key)) pieceModifiers[key](entity, node, entities, isServer);
 			});
 		}
 	});

@@ -6,7 +6,22 @@ import Collisions from '../../3d/components/Collisions';
 import { Optional } from '../../3d/couples/CannonCouple';
 import { AmmoState } from '../AmmoPhysicsSystem';
 import AmmoBody from '../components/AmmoBody';
+import { Entity } from '@ecs/ecs/Entity';
+import Transform from '@ecs/plugins/math/Transform';
 
+export const genericAmmoTransformUpdate = (entity: Entity, object3D: Ammo.btCollisionObject) => {
+	const ammoTransform = object3D.getWorldTransform();
+	const ammoPosition = ammoTransform.getOrigin();
+	const ammoRotation = ammoTransform.getRotation();
+
+	const transform = entity.get(Transform);
+
+	transform.position.set(ammoPosition.x(), ammoPosition.y(), ammoPosition.z());
+
+	transform.quaternion.set(ammoRotation.x(), ammoRotation.y(), ammoRotation.z(), ammoRotation.w());
+};
+
+// TODO: Maybe have useAmmoShapeCouple - For shared code between AmmoShapeCouple & AmmoTrimeshCouple
 export const useAmmoCouple = (
 	system: System,
 	physicsObject: QueryPattern | QueryPattern[],
@@ -33,10 +48,14 @@ export const useAmmoCouple = (
 			}
 			ammoBody.body = createdPhysicsObject;
 
-			if(ammoBody.ghost) {
+			// TODO
+			// Better place for this?
+			if (ammoBody.ghost) {
 				createdPhysicsObject.setCollisionFlags(4); // CF_NO_CONTACT_RESPONSE
 			}
 
+			// TODO
+			// Should this be added manually when creating an entity
 			entity.add(Collisions);
 
 			if (createdPhysicsObject instanceof Ammo.btRigidBody) {
@@ -58,10 +77,10 @@ export const useAmmoCouple = (
 			entity.get(Collisions).contacts.clear();
 		},
 		onDestroy: (entity, physicsObject) => {
-			// const { world } = getAmmoState();
-			// if(physicsObject instanceof Ammo.btRigidBody) {
-			//     world.removeRigidBody(physicsObject);
-			// }
+			const { world } = getAmmoState();
+			if (physicsObject instanceof Ammo.btRigidBody) {
+				world.removeRigidBody(physicsObject);
+			}
 		}
 	});
 
@@ -74,8 +93,8 @@ export const useAmmoCouple = (
 				// TODO
 				// Maybe a cheaper way of doing this?
 				// And with types
-				if((ammoObjectA as any).getCollisionShape() == ammoObjectB.getCollisionShape()) return entity;
+				if ((ammoObjectA as any).getCollisionShape() == ammoObjectB.getCollisionShape()) return entity;
 			}
-		},
-	}
+		}
+	};
 };

@@ -7,11 +7,11 @@ import { ServerRoomSystem } from './systems/server/ServerRoomSystem';
 // TODO
 // Bit of a hack to initialise Ammo before starting the engine
 // Maybe systems can have a async "setup" function?
-Ammo(Ammo).then((ammo) => {
-    setupAmmoInstance(ammo);
+Ammo(Ammo).then(ammo => {
+	setupAmmoInstance(ammo);
 
-    const engine = new NetEngine(30);
-    engine.addSystem(new ServerRoomSystem());
-    engine.addSystem(new ServerDebugSystem());
-    console.log('🎉 Server');
+	const engine = new NetEngine(30);
+	engine.addSystem(new ServerRoomSystem());
+	engine.addSystem(new ServerDebugSystem());
+	console.log('🎉 Server');
 });

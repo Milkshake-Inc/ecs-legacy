@@ -7,7 +7,7 @@ import BaseGolfSpace from './BaseGolfSpace';
 
 export class ServerGolfSpace extends BaseGolfSpace {
 	constructor(engine: Engine, open = false) {
-		super(engine, open);
+		super(engine, open, true);
 
 		this.addSystem(new AmmoPhysicsSystem());
 		this.addSystem(new ServerBallControllerSystem());

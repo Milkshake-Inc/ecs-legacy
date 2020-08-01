@@ -10,7 +10,7 @@ import shortid from 'shortid';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import Spawn from '../../../golf/components/Spawn';
-import { createBall } from '../../utils/CreateBall';
+import { createBall, createBallServer } from '../../utils/CreateBall';
 import {
 	CreateRoomRequest,
 	GameState,
@@ -84,7 +84,7 @@ class GolfGameServerEngine extends Engine {
 
 			if (!entity.has(AmmoBody)) {
 				console.log('Creating ball');
-				const player = createBall();
+				const player = createBallServer();
 				player.components.forEach(c => {
 					entity.add(c);
 				});

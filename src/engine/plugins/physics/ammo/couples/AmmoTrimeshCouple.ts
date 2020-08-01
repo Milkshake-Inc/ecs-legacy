@@ -5,12 +5,14 @@ import Ammo from 'ammojs-typed';
 import TrimeshShape from '../../3d/components/TrimeshShape';
 import { applyToMeshesIndividually } from '../../3d/couples/ShapeCouple';
 import { AmmoInstance } from '../AmmoPhysicsSystem';
-import { useAmmoCouple } from './AmmoCouple';
+import { useAmmoCouple, genericAmmoTransformUpdate } from './AmmoCouple';
+import AmmoBody from '../components/AmmoBody';
 
 export const useAmmoTrimeshCouple = (system: System) =>
 	useAmmoCouple(system, all(TrimeshShape), {
 		onCreate: entity => {
 			const { position, quaternion } = entity.get(Transform);
+			const { mass } = entity.get(AmmoBody);
 
 			const mesh = new Ammo.btTriangleMesh();
 
@@ -45,19 +47,11 @@ export const useAmmoTrimeshCouple = (system: System) =>
 			// shapes.calculateLocalInertia(1, localInertia);
 
 			const motionState = new AmmoInstance.btDefaultMotionState(transform);
-			const rbInfo = new AmmoInstance.btRigidBodyConstructionInfo(0, motionState, shape, localInertia);
+			const rbInfo = new AmmoInstance.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
 
 			return new AmmoInstance.btRigidBody(rbInfo);
 		},
 		onUpdate: (entity, couple: Ammo.btRigidBody) => {
-			const ammoTransform = couple.getWorldTransform();
-			const ammoPosition = ammoTransform.getOrigin();
-			const ammoRotation = ammoTransform.getRotation();
-
-			const transform = entity.get(Transform);
-
-			transform.position.set(ammoPosition.x(), ammoPosition.y(), ammoPosition.z());
-
-			transform.quaternion.set(ammoRotation.x(), ammoRotation.y(), ammoRotation.z(), ammoRotation.w());
+			genericAmmoTransformUpdate(entity, couple);
 		}
 	});

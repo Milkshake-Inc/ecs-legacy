@@ -5,19 +5,26 @@ import { SDFText } from '../systems/client/render/useSDFTextCouple';
 import GolfPlayer from '../components/GolfPlayer';
 import AmmoSphere from '@ecs/plugins/physics/ammo/components/AmmoSphere';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 export const BALL_SIZE = 0.03;
 
 export const createBall = (): Entity => {
 	const entity = new Entity();
 	entity.add(Transform, {});
-	entity.add(new AmmoBody());
-	entity.add(new AmmoSphere(), {
-		size: BALL_SIZE
-	});
+
 
 	return entity;
 };
+
+export const createBallServer = (): Entity => {
+	const entity = createBall();
+
+	entity.add(new AmmoBody());
+	entity.add(AmmoShape.SPHERE(BALL_SIZE))
+
+	return entity;
+}
 
 export const createBallClient = (golfplayer: GolfPlayer): Entity => {
 	const entity = createBall();

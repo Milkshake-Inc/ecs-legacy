@@ -2,9 +2,14 @@ import Ammo from "ammojs-typed";
 import { AmmoInstance } from "../AmmoPhysicsSystem";
 import { Vector } from "@ecs/plugins/math/Vector";
 
+// TODO
+// Maybe we should extend Ammo.btRigidBody?
 export default class AmmoBody {
     body: Ammo.btRigidBody;
     ghost: boolean;
+    mass = 1;
+    linearDamping = 0;
+    restitution = 0;
 
     public get moving() {
         return this.body.getLinearVelocity().length() > 0

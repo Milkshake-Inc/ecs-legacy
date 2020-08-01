@@ -9,12 +9,16 @@ import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
 import { loadMap } from '../utils/MapLoader';
 import Ground from '../components/Ground';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
+	protected isServer: boolean;
 
-	constructor(engine: Engine, open = false) {
+	constructor(engine: Engine, open = false, isServer = false) {
 		super(engine, open);
+
+		this.isServer = isServer;
 
 		const kenneyAssetsEntity = new Entity();
 		kenneyAssetsEntity.add((this.golfAssets = new GolfAssets()));
@@ -49,7 +53,7 @@ export default class BaseGolfSpace extends Space {
 
 	setup() {
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
-		const mapPieces = loadMap(this.golfAssets.maps.CITY);
+		const mapPieces = loadMap(this.golfAssets.maps.TRAIN, this.isServer);
 
 		// mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
 		this.addEntities(...mapPieces, this.createGround());
@@ -57,10 +61,28 @@ export default class BaseGolfSpace extends Space {
 
 	protected createGround(): Entity {
 		const ground = new Entity();
-		ground.add(Transform, { rx: -Math.PI / 2, y: -0 });
+
+		// TODO
+		// This is a bit weird, as client needs the plane rotated visually
+		// ThreeJS plane vs AmmoShape.BOX are misaligned
+		if(this.isServer) {
+			ground.add(Transform, { y: -0.5 });
+		} else {
+			ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
+		}
 		ground.add(Ground)
-		ground.add(AmmoPlane);
-		ground.add(AmmoBody);
+
+		if(this.isServer) {
+			ground.add(AmmoBody, {
+				mass: 0
+			});
+			ground.add(AmmoShape.BOX({
+				x: 100,
+				y: 0.5,
+				z: 100
+			}))
+		}
+
 		return ground;
 	}
 }

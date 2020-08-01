@@ -1,13 +1,11 @@
+import { Entity } from '@ecs/ecs/Entity';
 import { useState } from '@ecs/ecs/helpers';
 import { System } from '@ecs/ecs/System';
-import Ammo from 'ammojs-typed';
-import { Entity } from '@ecs/ecs/Entity';
-import Collisions from '../3d/components/Collisions';
-import { useAmmoTrimeshCouple } from './couples/AmmoTrimeshCouple';
-import { useAmmoSphereCouple } from './couples/AmmoSphereCouple';
-import { useAmmoPlaneCouple } from './couples/AmmoPlaneCouple';
-import { useAmmoBoxCouple } from './couples/AmmoBoxCouple';
 import Vector3 from '@ecs/plugins/math/Vector';
+import Ammo from 'ammojs-typed';
+import Collisions from '../3d/components/Collisions';
+import { useAmmoShapeCouple } from './couples/AmmoShapeCouple';
+import { useAmmoTrimeshCouple } from './couples/AmmoTrimeshCouple';
 
 type Unpacked<T> =
     T extends (infer U)[] ? U :
@@ -33,9 +31,7 @@ export default class AmmoPhysicsSystem extends System {
 
 	protected couples = [
 		useAmmoTrimeshCouple(this),
-		useAmmoSphereCouple(this),
-		useAmmoPlaneCouple(this),
-		useAmmoBoxCouple(this),
+		useAmmoShapeCouple(this),
 	];
 
 	constructor(gravity: Vector3 = new Vector3(0, -1, 0)) {
@@ -68,6 +64,8 @@ export default class AmmoPhysicsSystem extends System {
 		super.updateFixed(dt);
 
 		if(this.state.world) {
+			// TODO
+			// stepSimulation expects detlaTime in seconds! Should be (dt / 1000)
 			this.state.world.stepSimulation(dt / 10, 10);
 			this.updateCollisions();
 		}
