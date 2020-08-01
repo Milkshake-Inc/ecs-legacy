@@ -4,7 +4,6 @@ import { useState } from './helpers';
 
 export class TickerEngineStatistics {
 	frameTime: number;
-	timeFrameStarted: number;
 }
 
 export default abstract class TickerEngine extends Engine {
@@ -32,12 +31,8 @@ export default abstract class TickerEngine extends Engine {
 		});
 		this.ticker.start();
 
-		this.ticker.signalFrameStart.connect(deltaTime => {
-			this.statistics.timeFrameStarted = Date.now();
-		});
-
 		this.ticker.signalFrameEnd.connect(deltaTime => {
-			this.statistics.frameTime = Date.now() - this.statistics.timeFrameStarted;
+			this.statistics.frameTime = this.ticker.frameTime;
 		});
 	}
 }

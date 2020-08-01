@@ -30,7 +30,7 @@ export const useBodyCouple = (system: System) =>
 				const collisions = entity.get(Collisions);
 				const other = bodyToEntity.get(event.body);
 
-				collisions.contacts.set(other, event.contact);
+				collisions.contacts.add(other);
 			};
 
 			entity.add(Collisions);

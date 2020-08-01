@@ -1,32 +1,41 @@
-import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import { Entity } from '@ecs/ecs/Entity';
-import { Mesh, Material, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import Transform from '@ecs/plugins/math/Transform';
-import Hole from '../components/Hole';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
-import { Box, Vec3 } from 'cannon-es';
-import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
-import { COURSE_BODY } from '../constants/Physics';
-import CoursePiece from '../components/CoursePiece';
-import Spawn from '../components/Spawn';
 import Vector3 from '@ecs/plugins/math/Vector';
-import Track from '../components/terrain/Track';
+import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import AmmoBox from '@ecs/plugins/physics/ammo/components/AmmoBox';
+import { BoxGeometry, Material, Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
+import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
+import CoursePiece from '../components/CoursePiece';
+import Hole from '../components/Hole';
+import Spawn from '../components/Spawn';
+import Synchronize from '../components/Synchronize';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
-import Synchronize from '../components/Synchronize';
+import Track from '../components/terrain/Track';
 
 const pieceModifiers = {
-	flag: (entity: Entity, node: Mesh, entities: Entity[]) => {
+	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		// Add holeTrigger
 		const holeTrigger = new Entity();
-		holeTrigger.add(entity.get(Transform)); // TODO don't share the same transform...
+		const holePosition = entity.get(Transform).clone();
+		holePosition.y += 0.025;
+		holeTrigger.add(holePosition); // TODO don't share the same transform...
 		holeTrigger.add(Hole);
-		holeTrigger.add(
-			new CannonBody({
-				collisionResponse: false // Make hole collider not collidable. Only used for triggering.
-			})
-		);
-		holeTrigger.add(new Box(new Vec3(0.06, 0.07, 0.06)));
+		holeTrigger.add(AmmoBody, {
+			ghost: true // Make hole collider not collidable. Only used for triggering.
+		})
+
+		const HOLE_SIZE = 0.1;
+
+		holeTrigger.add(AmmoBox, {
+			size: HOLE_SIZE / 2
+		});
+		holeTrigger.add(new Mesh(
+			new BoxGeometry(HOLE_SIZE, HOLE_SIZE, HOLE_SIZE),
+			new MeshPhongMaterial()
+		))
+
 		entities.push(holeTrigger);
 	},
 	spawn: (entity: Entity, node: Mesh, entities: Entity[]) => {
@@ -64,7 +73,7 @@ const pieceModifiers = {
 	},
 	'fence|detail|cart|track|flag|poles': (entity: Entity, node: Mesh, entities: Entity[]) => {
 		entity.remove(CoursePiece);
-		entity.remove(CannonBody);
+		entity.remove(AmmoBody);
 		entity.remove(TrimeshShape);
 	}
 };
@@ -102,7 +111,7 @@ export const loadMap = (map: GLTF): Entity[] => {
 			entity.add(node);
 			entity.add(CoursePiece);
 			entity.add(new TrimeshShape());
-			entity.add(new CannonBody(COURSE_BODY));
+			entity.add(new AmmoBody());
 			entities.push(entity);
 
 			Object.keys(pieceModifiers).forEach(key => {

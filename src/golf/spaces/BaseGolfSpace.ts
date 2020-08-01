@@ -1,13 +1,14 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/math/Transform';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import AmmoPlane from '@ecs/plugins/physics/ammo/components/AmmoPlane';
+import Space from '@ecs/plugins/space/Space';
 import { LoadGLTF } from '@ecs/plugins/tools/ThreeHelper';
-import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
-import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 import { loadMap } from '../utils/MapLoader';
+import Ground from '../components/Ground';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
@@ -57,9 +58,9 @@ export default class BaseGolfSpace extends Space {
 	protected createGround(): Entity {
 		const ground = new Entity();
 		ground.add(Transform, { rx: -Math.PI / 2, y: -0 });
-		ground.add(new Body());
-		ground.add(new Plane());
-		ground.add(FLOOR_BALL_MATERIAL);
+		ground.add(Ground)
+		ground.add(AmmoPlane);
+		ground.add(AmmoBody);
 		return ground;
 	}
 }

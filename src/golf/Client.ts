@@ -5,6 +5,7 @@ import GolfRenderSystem from './systems/client/GolfRenderSystem';
 import { render, h } from 'preact';
 import App from './ui/App';
 import WebFont from 'webfontloader';
+
 const engine = new ThreeEngine(new GolfRenderSystem());
 
 const ui = document.createElement('div');

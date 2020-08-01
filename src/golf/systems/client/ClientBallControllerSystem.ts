@@ -1,26 +1,25 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import { useQueries, useState, useSingletonQuery } from '@ecs/ecs/helpers';
+import { useQueries, useSingletonQuery, useState } from '@ecs/ecs/helpers';
 import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { all, makeQuery } from '@ecs/ecs/Query';
+import Input from '@ecs/plugins/input/components/Input';
+import { Controls, GamepadButton, Gesture, Key, MouseButton } from '@ecs/plugins/input/Control';
+import Gamepad from '@ecs/plugins/input/Gamepad';
 import Keyboard from '@ecs/plugins/input/Keyboard';
+import Mouse from '@ecs/plugins/input/Mouse';
+import Touch from '@ecs/plugins/input/Touch';
 import MathHelper from '@ecs/plugins/math/MathHelper';
+import Transform from '@ecs/plugins/math/Transform';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Session from '@ecs/plugins/net/components/Session';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
-import { ToThreeVector3 } from '@ecs/plugins/tools/Conversions';
-import Transform from '@ecs/plugins/math/Transform';
-import { all, makeQuery } from '@ecs/ecs/Query';
-import { ArrowHelper, PerspectiveCamera } from 'three';
-import PlayerBall from '../../components/PlayerBall';
-import { GolfPacketOpcode, PotBall, useGolfNetworking, GolfGameState } from '../../constants/GolfNetworking';
-import { Key, Controls, MouseButton, GamepadButton, Gesture } from '@ecs/plugins/input/Control';
-import Input from '@ecs/plugins/input/components/Input';
-import Mouse from '@ecs/plugins/input/Mouse';
-import Gamepad from '@ecs/plugins/input/Gamepad';
-import Touch from '@ecs/plugins/input/Touch';
 import { Sound } from '@ecs/plugins/sound/components/Sound';
-import Random from '@ecs/plugins/math/Random';
+import { ToThreeVector3 } from '@ecs/plugins/tools/Conversions';
+import { ArrowHelper, PerspectiveCamera } from 'three';
 import GolfPlayer from '../../components/GolfPlayer';
+import PlayerBall from '../../components/PlayerBall';
+import { GolfGameState, GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import Random from '@ecs/plugins/math/Random';
 
 export class BallControllerState {
 	public power: number;
@@ -58,7 +57,7 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 	directionLine: Entity;
 
 	constructor() {
-		super(makeQuery(all(Transform, PlayerBall, CannonBody, Session)));
+		super(makeQuery(all(Transform, PlayerBall, Session)));
 
 		this.networking.on(GolfPacketOpcode.POT_BALL, (packet, entity) => this.handleBallPot(packet, entity));
 	}

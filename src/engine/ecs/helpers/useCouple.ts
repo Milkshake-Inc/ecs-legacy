@@ -27,6 +27,7 @@ export const useCouple = <T>(query: Query, callbacks: CoupleCallbacks<T>) => {
 	query.onEntityRemoved.connect(onDestroy);
 
 	return {
+		entities: map,
 		update: (deltaTime: number) => {
 			if (callbacks.onUpdate) {
 				query.entities.forEach(entity => {

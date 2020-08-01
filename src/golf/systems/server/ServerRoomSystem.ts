@@ -1,27 +1,28 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import { useQueries, useState } from '@ecs/ecs/helpers';
-import { System } from '@ecs/ecs/System';
-import Session from '@ecs/plugins/net/components/Session';
 import { all } from '@ecs/ecs/Query';
+import { System } from '@ecs/ecs/System';
+import Transform from '@ecs/plugins/math/Transform';
+import Session from '@ecs/plugins/net/components/Session';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import shortid from 'shortid';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
+import Spawn from '../../../golf/components/Spawn';
 import { createBall } from '../../utils/CreateBall';
 import {
-	PublicRoomsRequest,
+	CreateRoomRequest,
 	GameState,
+	GolfGameState,
 	GolfPacketOpcode,
 	JoinRoom,
+	PublicRoomsRequest,
 	StartGame,
-	useGolfNetworking,
-	GolfGameState,
-	CreateRoomRequest,
-	UpdateProfile
+	UpdateProfile,
+	useGolfNetworking
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
-import Spawn from '../../../golf/components/Spawn';
-import shortid from 'shortid';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
@@ -52,13 +53,20 @@ class GolfGameServerEngine extends Engine {
 		super();
 
 		this.name = name;
+
 		this.space = new ServerGolfSpace(this, true);
+
 		this.networking.on(GolfPacketOpcode.START_GAME, this.handleStartGame.bind(this));
 	}
 
 	handleStartGame(packet: StartGame, entity: Entity) {
 		// Ignore if they aren't the host
 		if (!entity.get(GolfPlayer).host) return;
+
+		const totalHoles = this.playerQueries.spawn.length;
+		this.playerQueries.players.forEach((entity) => {
+			entity.get(GolfPlayer).score = new Array(totalHoles).fill(0)
+		});
 
 		this.state.currentHole = 0;
 		this.nextHole();
@@ -72,7 +80,9 @@ class GolfGameServerEngine extends Engine {
 		}
 
 		this.playerQueries.players.entities.forEach(entity => {
-			if (!entity.has(CannonBody)) {
+			const spawn = this.spawns[this.state.currentHole].position;
+
+			if (!entity.has(AmmoBody)) {
 				console.log('Creating ball');
 				const player = createBall();
 				player.components.forEach(c => {
@@ -80,8 +90,13 @@ class GolfGameServerEngine extends Engine {
 				});
 			}
 
-			entity.add(PlayerBall);
-			entity.get(CannonBody).setPosition(this.spawns[this.state.currentHole].position);
+			// entity.get(AmmoBody).body.activate(true);
+			entity.get(Transform).position.copy(spawn);
+			entity.get(AmmoBody).setPosition(spawn);
+
+			entity.add(PlayerBall, {
+				lastPosition: spawn.clone()
+			});
 		});
 
 		this.state.state = GameState.INGAME;
@@ -132,10 +147,6 @@ export class ServerRoomSystem extends System {
 		this.networking.on(GolfPacketOpcode.CREATE_ROOM_REQUEST, this.handleCreateRoomRequest.bind(this));
 		this.networking.on(GolfPacketOpcode.JOIN_ROOM, this.handleJoinRoomRequest.bind(this));
 		this.networking.on(GolfPacketOpcode.UPDATE_PROFILE, this.handleUpdateProfileRequest.bind(this));
-
-		this.createRoom('default');
-		this.createRoom('lucas');
-		this.createRoom('jeff');
 	}
 
 	handleConnect(entity: Entity): void {
@@ -200,7 +211,14 @@ export class ServerRoomSystem extends System {
 			newRoom.addEntity(entity);
 			this.entityToRoomEngine.set(entity, newRoom);
 		} else {
+
 			console.warn(`room ${packet.roomId} not found`);
+			this.createRoom(packet.roomId, true);
+
+			this.networking.sendTo(entity, {
+				opcode: GolfPacketOpcode.CREATE_ROOM_RESPONSE,
+				roomId: packet.roomId,
+			});
 		}
 	}
 

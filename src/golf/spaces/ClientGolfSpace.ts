@@ -1,15 +1,14 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Color from '@ecs/plugins/math/Color';
-import Vector3 from '@ecs/plugins/math/Vector';
 import { InputSystem } from '@ecs/plugins/input/systems/InputSystem';
+import Color from '@ecs/plugins/math/Color';
+import Transform from '@ecs/plugins/math/Transform';
+import Vector3 from '@ecs/plugins/math/Vector';
 import ClientConnectionSystem from '@ecs/plugins/net/systems/ClientConnectionSystem';
 import ClientPingSystem from '@ecs/plugins/net/systems/ClientPingSystem';
-import CannonPhysicsSystem from '@ecs/plugins/physics/3d/systems/CannonPhysicsSystem';
 import Sprite from '@ecs/plugins/render/2d/components/Sprite';
 import SoundListener from '@ecs/plugins/sound/components/SoundListener';
 import SoundSystem from '@ecs/plugins/sound/systems/SoundSystem';
-import Transform from '@ecs/plugins/math/Transform';
 import { LoadPixiAssets } from '@ecs/plugins/tools/PixiHelper';
 import { LoadTexture } from '@ecs/plugins/tools/ThreeHelper';
 import {
@@ -27,11 +26,10 @@ import ClientRoomSystem from '../systems/client/ClientRoomSystem';
 import ClientSnapshotSystem from '../systems/client/ClientSnapshotSystem';
 import GolfCameraSystem from '../systems/client/GolfCameraSystem';
 import GolfViewSystem from '../systems/client/GolfViewSystem';
+import TweakSystem from '../systems/client/TweakSystem';
 import CartTrackSystem from '../systems/shared/CartTrackSystem';
 import Config from '../utils/Config';
 import BaseGolfSpace from './BaseGolfSpace';
-import TweakSystem from '../systems/client/TweakSystem';
-import { Colors } from '../ui/Shared';
 
 const Images = {
 	GroundTexture: 'assets/golf/ground-desert.jpg',
@@ -55,9 +53,6 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 	}
 
 	setup() {
-		if (Config.debug) {
-			this.addSystem(new CannonPhysicsSystem(new Vector3(0, -5, 0), 1, true, 0));
-		}
 		super.setup();
 
 		this.addSystem(new ClientConnectionSystem(this.worldEngine), 1000); // has to be low priority so systems get packets before the queue is cleared

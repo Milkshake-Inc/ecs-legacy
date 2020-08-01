@@ -33,6 +33,8 @@ export default class Socket {
 
 	public send<TPacketType = Packet>(packet: TPacketType, reliable = false) {
 		const data = encode(packet);
+		// TODO: Update Geckos https://github.com/geckosio/geckos.io/issues/41
+		this.socket.maxMessageSize = undefined;
 		reliable ? this.emitReliable(data) : this.emit(data);
 	}
 

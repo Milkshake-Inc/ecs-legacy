@@ -1,10 +1,10 @@
-import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
-import { makeQuery, all, any } from '@ecs/ecs/Query';
-import Transform from '@ecs/plugins/math/Transform';
-import Rotor from '../../components/terrain/Rotor';
 import { Entity } from '@ecs/ecs/Entity';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
-import { Vec3 } from 'cannon-es';
+import { IterativeSystem } from '@ecs/ecs/IterativeSystem';
+import { all, any, makeQuery } from '@ecs/ecs/Query';
+import Transform from '@ecs/plugins/math/Transform';
+import { AmmoInstance } from '@ecs/plugins/physics/ammo/AmmoPhysicsSystem';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import Rotor from '../../components/terrain/Rotor';
 
 export class TerrainAnimationSystem extends IterativeSystem {
 	constructor() {
@@ -12,8 +12,15 @@ export class TerrainAnimationSystem extends IterativeSystem {
 	}
 
 	updateEntityFixed(entity: Entity, deltaTime: number) {
+		// TODO
+		// This seems to be buggy
 		if (entity.has(Rotor)) {
-			entity.get(CannonBody).rotate(new Vec3(0, 0, 0.01));
+			const rotation = entity.get(AmmoBody).body.getWorldTransform().getRotation();
+			const movement = new AmmoInstance.btQuaternion(0, 0, 0, 0);
+			movement.setEulerZYX(0.01, 0, 0)
+			const newRotation = rotation.op_mulq(movement);
+
+			entity.get(AmmoBody).body.getWorldTransform().setRotation(newRotation);
 		}
 	}
 }

@@ -1,19 +1,20 @@
 import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/math/Transform';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
-import { BALL_BODY } from '../constants/Physics';
-import { Sphere } from 'cannon-es';
 import { Mesh, SphereGeometry, MeshPhongMaterial } from 'three';
 import { SDFText } from '../systems/client/render/useSDFTextCouple';
 import GolfPlayer from '../components/GolfPlayer';
+import AmmoSphere from '@ecs/plugins/physics/ammo/components/AmmoSphere';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 
 export const BALL_SIZE = 0.03;
 
 export const createBall = (): Entity => {
 	const entity = new Entity();
 	entity.add(Transform, {});
-	entity.add(new CannonBody(BALL_BODY));
-	entity.add(new Sphere(BALL_SIZE));
+	entity.add(new AmmoBody());
+	entity.add(new AmmoSphere(), {
+		size: BALL_SIZE
+	});
 
 	return entity;
 };
