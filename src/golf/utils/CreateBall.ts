@@ -1,11 +1,10 @@
 import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/math/Transform';
-import { Mesh, SphereGeometry, MeshPhongMaterial } from 'three';
-import { SDFText } from '../systems/client/render/useSDFTextCouple';
-import GolfPlayer from '../components/GolfPlayer';
-import AmmoSphere from '@ecs/plugins/physics/ammo/components/AmmoSphere';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
+import { Mesh, MeshPhongMaterial, SphereGeometry } from 'three';
+import GolfPlayer from '../components/GolfPlayer';
+import { SDFText } from '../systems/client/render/useSDFTextCouple';
 
 export const BALL_SIZE = 0.03;
 

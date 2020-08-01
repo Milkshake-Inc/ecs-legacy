@@ -2,14 +2,13 @@ import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
 import Transform from '@ecs/plugins/math/Transform';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
-import AmmoPlane from '@ecs/plugins/physics/ammo/components/AmmoPlane';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 import Space from '@ecs/plugins/space/Space';
 import { LoadGLTF } from '@ecs/plugins/tools/ThreeHelper';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
+import Ground from '../components/Ground';
 import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
 import { loadMap } from '../utils/MapLoader';
-import Ground from '../components/Ground';
-import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;

@@ -3,7 +3,7 @@ import Transform from '@ecs/plugins/math/Transform';
 import Vector3 from '@ecs/plugins/math/Vector';
 import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
-import AmmoBox from '@ecs/plugins/physics/ammo/components/AmmoBox';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 import { BoxGeometry, Material, Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import CoursePiece from '../components/CoursePiece';
@@ -13,7 +13,6 @@ import Synchronize from '../components/Synchronize';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
-import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 const pieceModifiers = {
 	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {

@@ -68,8 +68,6 @@ export const useAmmoCouple = (
 			if (callbacks.onUpdate) {
 				if (physicsObject) {
 					callbacks.onUpdate(entity, physicsObject, dt);
-				} else {
-					console.log('No physics object...');
 				}
 			}
 		},
