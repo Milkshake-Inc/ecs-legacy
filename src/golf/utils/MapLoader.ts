@@ -19,7 +19,7 @@ const pieceModifiers = {
 		// Add holeTrigger
 		const holeTrigger = new Entity();
 		const holePosition = entity.get(Transform).clone();
-		// holePosition.y += 0.025;
+		holePosition.y += 0.015;
 		holeTrigger.add(holePosition); // TODO don't share the same transform...
 		holeTrigger.add(Hole);
 
