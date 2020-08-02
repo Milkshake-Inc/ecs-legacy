@@ -48,6 +48,10 @@ export const useAmmoCouple = (
 			}
 			ammoBody.body = createdPhysicsObject;
 
+			ammoBody.body.setFriction(2);
+			ammoBody.body.setRestitution(0.5);
+			ammoBody.body.setRollingFriction(0.05);
+			// ammoBody.body.setDamping(0, 0.2);
 			// TODO
 			// Better place for this?
 			if (ammoBody.ghost) {

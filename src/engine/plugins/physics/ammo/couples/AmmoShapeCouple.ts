@@ -28,10 +28,8 @@ export const useAmmoShapeCouple = (system: System) => useAmmoCouple(system, all(
 		const rbInfo = new AmmoInstance.btRigidBodyConstructionInfo(mass, motionState, shape, localInertia);
 		const body = new AmmoInstance.btRigidBody(rbInfo);
 
-		if(mass == 0) {
-			console.log("CREATING " + entity);
-		}
-
+		// body.setRollingFriction(2);
+		// body.setFriction(1);
 
 		// body.setFriction(2000);
 		// body.setRollingFriction(20000);
@@ -39,8 +37,8 @@ export const useAmmoShapeCouple = (system: System) => useAmmoCouple(system, all(
 		// body.setDamping(0.15, 0);
 		// body.setRestitution(0.7);
 
-		// body.setCcdMotionThreshold(1);
-		// body.setCcdSweptSphereRadius(size)
+		body.setCcdMotionThreshold(0.1);
+		body.setCcdSweptSphereRadius(0.05)
 
 		return body;
 	},

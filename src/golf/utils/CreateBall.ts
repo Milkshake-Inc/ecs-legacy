@@ -19,7 +19,9 @@ export const createBall = (): Entity => {
 export const createBallServer = (): Entity => {
 	const entity = createBall();
 
-	entity.add(new AmmoBody());
+	entity.add(AmmoBody, {
+		mass: 1
+	});
 	entity.add(AmmoShape.SPHERE(BALL_SIZE))
 
 	return entity;

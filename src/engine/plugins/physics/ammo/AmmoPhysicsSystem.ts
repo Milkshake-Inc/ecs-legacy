@@ -66,7 +66,8 @@ export default class AmmoPhysicsSystem extends System {
 		if(this.state.world) {
 			// TODO
 			// stepSimulation expects detlaTime in seconds! Should be (dt / 1000)
-			this.state.world.stepSimulation(dt / 10, 10);
+
+			this.state.world.stepSimulation(1.0/10.,100);
 			this.updateCollisions();
 		}
 
