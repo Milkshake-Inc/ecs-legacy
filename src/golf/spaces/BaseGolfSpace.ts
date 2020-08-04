@@ -1,19 +1,23 @@
 import { Engine } from '@ecs/ecs/Engine';
 import { Entity } from '@ecs/ecs/Entity';
-import Space from '@ecs/plugins/space/Space';
 import Transform from '@ecs/plugins/math/Transform';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
+import Space from '@ecs/plugins/space/Space';
 import { LoadGLTF } from '@ecs/plugins/tools/ThreeHelper';
-import { Body, Plane } from 'cannon-es';
 import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
+import Ground from '../components/Ground';
 import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
-import { FLOOR_BALL_MATERIAL } from '../constants/Physics';
 import { loadMap } from '../utils/MapLoader';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
+	protected isServer: boolean;
 
-	constructor(engine: Engine, open = false) {
+	constructor(engine: Engine, open = false, isServer = false) {
 		super(engine, open);
+
+		this.isServer = isServer;
 
 		const kenneyAssetsEntity = new Entity();
 		kenneyAssetsEntity.add((this.golfAssets = new GolfAssets()));
@@ -48,7 +52,7 @@ export default class BaseGolfSpace extends Space {
 
 	setup() {
 		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
-		const mapPieces = loadMap(this.golfAssets.maps.CITY);
+		const mapPieces = loadMap(this.golfAssets.maps.CITY, this.isServer);
 
 		// mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
 		this.addEntities(...mapPieces, this.createGround());
@@ -56,10 +60,28 @@ export default class BaseGolfSpace extends Space {
 
 	protected createGround(): Entity {
 		const ground = new Entity();
-		ground.add(Transform, { rx: -Math.PI / 2, y: -0 });
-		ground.add(new Body());
-		ground.add(new Plane());
-		ground.add(FLOOR_BALL_MATERIAL);
+
+		// TODO
+		// This is a bit weird, as client needs the plane rotated visually
+		// ThreeJS plane vs AmmoShape.BOX are misaligned
+		if(this.isServer) {
+			ground.add(Transform, { y: -0.5 });
+		} else {
+			ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
+		}
+		ground.add(Ground)
+
+		if(this.isServer) {
+			ground.add(AmmoBody, {
+				mass: 0
+			});
+			ground.add(AmmoShape.BOX({
+				x: 100,
+				y: 0.5,
+				z: 100
+			}))
+		}
+
 		return ground;
 	}
 }

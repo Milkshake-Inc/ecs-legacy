@@ -24,7 +24,7 @@ export default class GolfRenderSystem extends RenderSystem {
 		);
 
 		// Maybe tweak this based on performance...
-		this.state.renderer.setPixelRatio(window.devicePixelRatio);
+		this.state.renderer.setPixelRatio(devicePixelRatio);
 		this.state.renderer.autoClear = false;
 
 		// Styling

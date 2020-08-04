@@ -24,6 +24,8 @@ export default class Ticker {
 	public signalRenderUpdate: Signal<(dt: number) => void> = new Signal();
 	public signalFrameEnd: Signal<(fps: number, panic: boolean) => void> = new Signal();
 
+	public frameTime = 0;
+
 	constructor(public tickRate = 60) {
 		this.simulationTimeStep = 1000 / this.tickRate;
 	}
@@ -85,6 +87,8 @@ export default class Ticker {
 	protected tick(timestamp: number) {
 		this.rafHandle = requestAnimationFrame(dt => this.tick(dt));
 
+		const started = performance.now()
+
 		if (timestamp < this.lastFrameTimeMs + this.minFrameDelay) {
 			return;
 		}
@@ -121,5 +125,7 @@ export default class Ticker {
 		this.signalLateUpdate.emit(frameTime);
 		this.signalRenderUpdate.emit(frameTime / this.simulationTimeStep);
 		this.signalFrameEnd.emit(this.fps, panic);
+
+		this.frameTime = performance.now() - started;
 	}
 }

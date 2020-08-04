@@ -3,7 +3,7 @@ import { System } from '@ecs/ecs/System';
 import { usePerspectiveCameraCouple } from '../couples/PerspectiveCameraCouple';
 import { useMeshCouple } from '../couples/MeshCouple';
 import RenderState from '../components/RenderState';
-import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor, sRGBEncoding } from 'three';
+import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor, sRGBEncoding, Object3D } from 'three';
 import { any } from '@ecs/ecs/Query';
 import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/plugins/math/Color';
@@ -41,11 +41,13 @@ export default class RenderSystem extends System {
 		useRaycastDebugCouple(this)
 	];
 
+
 	constructor(
 		customSettings?: Partial<RenderSystemSettings>,
 		customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
 	) {
 		super();
+
 
 		const settings = {
 			...DefaultRenderSystemSettings,
@@ -53,7 +55,7 @@ export default class RenderSystem extends System {
 		};
 
 		if (customCouples) {
-			this.couples.push(...customCouples(this));
+			this.couples.push(...customCouples(this) as any);
 		}
 
 		this.state.scene = new Scene();

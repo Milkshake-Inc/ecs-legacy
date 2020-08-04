@@ -24,10 +24,20 @@ import Synchronize from '../../components/Synchronize';
 import { createBallClient } from '../../utils/CreateBall';
 import GolfSnapshotInterpolation from '../../utils/GolfSnapshotInterpolation';
 import ClientBallControllerSystem from './ClientBallControllerSystem';
-import { deepMerge } from '../../utils/Serialization';
 
 const findGolfPlayerById = (id: string) => (entity: Entity) => entity.get(GolfPlayer).id == id;
 const findEntityBySessionId = (id: string) => (entity: Entity) => entity.has(Session) && entity.get(Session).id == id;
+
+export const deepMerge = (target: any, source: any) => {
+	Object.entries(source).forEach(([key, value]) => {
+		if (value && typeof value === 'object') {
+			deepMerge((target[key] = target[key] || {}), value);
+			return;
+		}
+		target[key] = value;
+	});
+	return target;
+};
 
 export class ClientSnapshotStatistics {
 	timeSinceLastSnapshot: number;
@@ -123,8 +133,12 @@ export default class ClientSnapshotSystem extends System {
 
 				const isLocalPlayer = entity.has(Session);
 
+				// TODO
+				// Is this the best place to put this?
 				if (isLocalPlayer) {
-					this.engine.addSystem(new ClientBallControllerSystem());
+					if(!this.engine.hasSystem(ClientBallControllerSystem)) {
+						this.engine.addSystem(new ClientBallControllerSystem());
+					}
 				}
 			}
 

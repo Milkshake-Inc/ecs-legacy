@@ -74,6 +74,14 @@ export default class Vector3 {
 		return this;
 	}
 
+	copy(value: Vector) {
+		this.x = value.x;
+		this.y = value.y;
+		this.z = value.z;
+
+		return this;
+	}
+
 	setFromQuaternion({ x, y, z, w }: Quaternion) {
 		this.x = Math.atan2(2 * (x * y + z * w), 1 - 2 * (y * y + z * z));
 		this.y = Math.asin(2 * (x * z - w * y));

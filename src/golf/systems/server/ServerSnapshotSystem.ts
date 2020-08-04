@@ -1,14 +1,15 @@
-import { useSingletonQuery, useQueries } from '@ecs/ecs/helpers';
+import { getComponentIdByName } from '@ecs/ecs/ComponentId';
+import { useQueries, useSingletonQuery } from '@ecs/ecs/helpers';
+import { all } from '@ecs/ecs/Query';
+import Transform from '@ecs/plugins/math/Transform';
+import Session from '@ecs/plugins/net/components/Session';
 import { ServerWorldSnapshotSystem } from '@ecs/plugins/net/systems/ServerWorldSnapshotSystem';
-import CannonBody from '@ecs/plugins/physics/3d/components/CannonBody';
 import { SnapshotInterpolation } from '@geckos.io/snapshot-interpolation';
 import GolfPlayer from '../../components/GolfPlayer';
-import { GolfSnapshotPlayer, GolfWorldSnapshot, TICK_RATE, GolfGameState, GolfSnapshotPlayerState } from '../../constants/GolfNetworking';
-import { all } from '@ecs/ecs/Query';
-import Session from '@ecs/plugins/net/components/Session';
-import Synchronize from '../../components/Synchronize';
-import { getComponentIdByName } from '@ecs/ecs/ComponentId';
 import PlayerBall from '../../components/PlayerBall';
+import Synchronize from '../../components/Synchronize';
+import { GolfGameState, GolfSnapshotPlayer, GolfSnapshotPlayerState, GolfWorldSnapshot, TICK_RATE } from '../../constants/GolfNetworking';
+import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
 	protected snapshotQueries = useQueries(this, {
@@ -41,14 +42,15 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				moving: 0
 			};
 
-			if (entity.has(CannonBody)) {
-				const body = entity.get(CannonBody);
-				const position = body.position;
+			if (entity.has(Transform)) {
+				const { position } = entity.get(Transform);
+				// const { moving } = entity.get(AmmoBody);
 
 				result.x = position.x;
 				result.y = position.y;
 				result.z = position.z;
-				result.moving = body.moving ? 1 : 0;
+				result.moving = 0;// TODO good for debug
+				// result.moving = moving ? 1 : 0;
 			}
 
 			if (entity.has(PlayerBall)) {
