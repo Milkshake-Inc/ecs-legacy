@@ -13,6 +13,9 @@ import Synchronize from '../components/Synchronize';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
+import Synchronize from '../components/Synchronize';
+import Bounds from '../components/Bounds';
+import MeshShape from '@ecs/plugins/physics/3d/components/MeshShape';
 
 const pieceModifiers = {
 	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
@@ -40,6 +43,17 @@ const pieceModifiers = {
 		))
 
 		entities.push(holeTrigger);
+	},
+	bounds: (entity: Entity, node: Mesh, entities: Entity[]) => {
+		const index = parseInt(node.name.match(/\d+/)[0]) || 0;
+		entity.remove(CannonBody);
+		entity.add(
+			new CannonBody({
+				collisionResponse: false // Make bounds collider not collidable. Only used for triggering.
+			})
+		);
+		entity.add(new Bounds(index));
+		node.visible = false;
 	},
 	spawn: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		const pos = entity.get(Transform);

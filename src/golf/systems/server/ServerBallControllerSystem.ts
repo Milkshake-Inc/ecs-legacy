@@ -11,6 +11,10 @@ import Ground from '../../components/Ground';
 import Hole from '../../components/Hole';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfGameState, GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import { BALL_HIT_POWER } from '../../constants/Physics';
+import { Plane } from 'cannon-es';
+import GolfPlayer from '../../components/GolfPlayer';
+import Bounds from '../../components/Bounds';
 
 const BALL_PUTT_TIMER = 10000;
 const OUT_OF_BOUNDS_TIMER = 1000;
@@ -22,8 +26,13 @@ export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
 		balls: all(PlayerBall),
 		hole: all(Hole),
-		ground: all(Ground)
+		ground: all(Ground),
+		bounds: all(Bounds)
 	});
+
+	get currentBounds() {
+		return this.queries.bounds.find(e => e.get(Bounds)?.index == this.gameState()?.currentHole + 1);
+	}
 
 	protected networking = useGolfNetworking(this);
 
@@ -35,11 +44,16 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	updateFixed(deltaTime: number) {
+		let currentBounds = this.currentBounds;
+		if (!currentBounds) {
+			currentBounds = this.queries.ground.first;
+		}
+
 		this.queries.balls.forEach(ball => {
 			const collisions = ball.get(Collisions);
 			const playerBall = ball.get(PlayerBall);
 
-			if (collisions.hasCollidedWith(this.queries.ground.first) && !playerBall.isBallResetting) {
+			if (collisions.hasCollidedWith(currentBounds) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
 					playerBall.isBallResetting = false;
