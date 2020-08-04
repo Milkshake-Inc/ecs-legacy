@@ -10,10 +10,10 @@ import PlayerBall from '../../components/PlayerBall';
 import Session from '@ecs/plugins/net/components/Session';
 import Hole from '../../components/Hole';
 import Collisions from '@ecs/plugins/physics/3d/components/Collisions';
-import Spawn from '../../components/Spawn';
 import { BALL_HIT_POWER } from '../../constants/Physics';
 import { Plane } from 'cannon-es';
 import GolfPlayer from '../../components/GolfPlayer';
+import Bounds from '../../components/Bounds';
 
 const BALL_PUTT_TIMER = 1000;
 const OUT_OF_BOUNDS_TIMER = 1000;
@@ -24,8 +24,13 @@ export class ServerBallControllerSystem extends System {
 	protected queries = useQueries(this, {
 		balls: all(PlayerBall),
 		hole: all(Hole),
-		ground: all(Plane)
+		ground: all(Plane),
+		bounds: all(Bounds)
 	});
+
+	get currentBounds() {
+		return this.queries.bounds.find(e => e.get(Bounds)?.index == this.gameState()?.currentHole + 1);
+	}
 
 	protected networking = useGolfNetworking(this);
 
@@ -37,11 +42,16 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	updateFixed(deltaTime: number) {
+		let currentBounds = this.currentBounds;
+		if (!currentBounds) {
+			currentBounds = this.queries.ground.first;
+		}
+
 		this.queries.balls.forEach(ball => {
 			const collisions = ball.get(Collisions);
 			const playerBall = ball.get(PlayerBall);
 
-			if (collisions.hasCollidedWith(...this.queries.ground.entities) && !playerBall.isBallResetting) {
+			if (collisions.hasCollidedWith(currentBounds) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
 					ball.get(CannonBody).setPosition(playerBall.lastPosition);
