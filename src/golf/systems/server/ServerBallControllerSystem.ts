@@ -41,16 +41,13 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	updateFixed(deltaTime: number) {
-		let currentBounds = this.currentBounds;
-		if (!currentBounds) {
-			currentBounds = this.queries.ground.first;
-		}
+		const bounds = [this.queries.ground.first, this.currentBounds];
 
 		this.queries.balls.forEach(ball => {
 			const collisions = ball.get(Collisions);
 			const playerBall = ball.get(PlayerBall);
 
-			if (collisions.hasCollidedWith(currentBounds) && !playerBall.isBallResetting) {
+			if (collisions.hasCollidedWith(...bounds) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
 					playerBall.isBallResetting = false;

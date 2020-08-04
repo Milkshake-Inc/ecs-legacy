@@ -4,7 +4,7 @@ import Vector3 from '@ecs/plugins/math/Vector';
 import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
-import { BoxGeometry, Material, Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
+import { Material, Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import Bounds from '../components/Bounds';
 import CoursePiece from '../components/CoursePiece';
@@ -16,7 +16,7 @@ import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
 
 const pieceModifiers = {
-	["detail_flag"]: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
+	['detail_flag']: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
 		// Add holeTrigger
 		const holeTrigger = new Entity();
 		const holePosition = entity.get(Transform).clone();
@@ -24,30 +24,23 @@ const pieceModifiers = {
 		holeTrigger.add(holePosition); // TODO don't share the same transform...
 		holeTrigger.add(Hole);
 
-
 		const HOLE_SIZE = 0.1;
 
-		if(isServer) {
-			holeTrigger.add(AmmoShape.BOX(HOLE_SIZE / 2))
+		if (isServer) {
+			holeTrigger.add(AmmoShape.BOX(HOLE_SIZE / 2));
 			holeTrigger.add(AmmoBody, {
 				mass: 0,
 				ghost: true // Make hole collider not collidable. Only used for triggering.
-			})
+			});
 		}
 
-		holeTrigger.add(new Mesh(
-			new BoxGeometry(HOLE_SIZE, HOLE_SIZE, HOLE_SIZE),
-			new MeshPhongMaterial()
-		))
+		// holeTrigger.add(new Mesh(new BoxGeometry(HOLE_SIZE, HOLE_SIZE, HOLE_SIZE), new MeshPhongMaterial()));
 
 		entities.push(holeTrigger);
 	},
 	bounds: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		const index = parseInt(node.name.match(/\d+/)[0]) || 0;
-		entity.remove(AmmoBody)
-		entity.add(AmmoBody, {
-			ghost: true
-		});
+		entity.get(AmmoBody).ghost = true;
 		entity.add(new Bounds(index));
 		node.visible = false;
 	},
@@ -125,7 +118,7 @@ export const loadMap = (map: GLTF, isServer = false): Entity[] => {
 			entity.add(CoursePiece);
 			entity.add(new TrimeshShape());
 			entity.add(AmmoBody, {
-				mass: 0,
+				mass: 0
 			});
 			entities.push(entity);
 
