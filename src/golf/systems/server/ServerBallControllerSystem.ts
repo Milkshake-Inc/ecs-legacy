@@ -6,15 +6,12 @@ import Transform from '@ecs/plugins/math/Transform';
 import Session from '@ecs/plugins/net/components/Session';
 import Collisions from '@ecs/plugins/physics/3d/components/Collisions';
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
+import Bounds from '../../components/Bounds';
 import GolfPlayer from '../../components/GolfPlayer';
 import Ground from '../../components/Ground';
 import Hole from '../../components/Hole';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfGameState, GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
-import { BALL_HIT_POWER } from '../../constants/Physics';
-import { Plane } from 'cannon-es';
-import GolfPlayer from '../../components/GolfPlayer';
-import Bounds from '../../components/Bounds';
 
 const BALL_PUTT_TIMER = 10000;
 const OUT_OF_BOUNDS_TIMER = 1000;
