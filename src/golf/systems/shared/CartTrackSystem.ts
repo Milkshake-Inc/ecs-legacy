@@ -67,7 +67,7 @@ export default class CartTrackSystem extends IterativeSystem {
 	update(dt: number) {
 		if (this.state.path.length == 0) {
 			const tracks = this.queries.track;
-			if(tracks.length > 0) {
+			if (tracks.length > 0) {
 				this.state.path = this.findNeighbors(tracks.first, tracks, [tracks.first]);
 				this.state.path.reverse();
 			}

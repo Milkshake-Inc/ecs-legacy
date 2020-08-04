@@ -136,7 +136,7 @@ export default class ClientSnapshotSystem extends System {
 				// TODO
 				// Is this the best place to put this?
 				if (isLocalPlayer) {
-					if(!this.engine.hasSystem(ClientBallControllerSystem)) {
+					if (!this.engine.hasSystem(ClientBallControllerSystem)) {
 						this.engine.addSystem(new ClientBallControllerSystem());
 					}
 				}

@@ -3,7 +3,7 @@ import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import RenderState from '@ecs/plugins/render/3d/components/RenderState';
 import { any } from '@ecs/ecs/Query';
-import { GSSolver, World, Broadphase, SAPBroadphase } from 'cannon-es';
+import { GSSolver, World, SAPBroadphase } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 import { useBodyCouple } from '../couples/BodyCouple';
 import { useConstraintCouple } from '../couples/ConstraintCouple';

@@ -17,7 +17,7 @@ export class TerrainAnimationSystem extends IterativeSystem {
 		if (entity.has(Rotor)) {
 			const rotation = entity.get(AmmoBody).body.getWorldTransform().getRotation();
 			const movement = new AmmoInstance.btQuaternion(0, 0, 0, 0);
-			movement.setEulerZYX(0.01, 0, 0)
+			movement.setEulerZYX(0.01, 0, 0);
 			const newRotation = rotation.op_mulq(movement);
 
 			entity.get(AmmoBody).body.getWorldTransform().setRotation(newRotation);

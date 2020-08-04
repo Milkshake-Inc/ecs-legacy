@@ -64,22 +64,24 @@ export default class BaseGolfSpace extends Space {
 		// TODO
 		// This is a bit weird, as client needs the plane rotated visually
 		// ThreeJS plane vs AmmoShape.BOX are misaligned
-		if(this.isServer) {
+		if (this.isServer) {
 			ground.add(Transform, { y: -0.5 });
 		} else {
 			ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
 		}
-		ground.add(Ground)
+		ground.add(Ground);
 
-		if(this.isServer) {
+		if (this.isServer) {
 			ground.add(AmmoBody, {
 				mass: 0
 			});
-			ground.add(AmmoShape.BOX({
-				x: 100,
-				y: 0.5,
-				z: 100
-			}))
+			ground.add(
+				AmmoShape.BOX({
+					x: 100,
+					y: 0.5,
+					z: 100
+				})
+			);
 		}
 
 		return ground;

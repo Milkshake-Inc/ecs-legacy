@@ -87,7 +87,7 @@ export default class Ticker {
 	protected tick(timestamp: number) {
 		this.rafHandle = requestAnimationFrame(dt => this.tick(dt));
 
-		const started = performance.now()
+		const started = performance.now();
 
 		if (timestamp < this.lastFrameTimeMs + this.minFrameDelay) {
 			return;

@@ -12,7 +12,6 @@ export const createBall = (): Entity => {
 	const entity = new Entity();
 	entity.add(Transform, {});
 
-
 	return entity;
 };
 
@@ -22,10 +21,10 @@ export const createBallServer = (): Entity => {
 	entity.add(AmmoBody, {
 		mass: 1
 	});
-	entity.add(AmmoShape.SPHERE(BALL_SIZE))
+	entity.add(AmmoShape.SPHERE(BALL_SIZE));
 
 	return entity;
-}
+};
 
 export const createBallClient = (golfplayer: GolfPlayer): Entity => {
 	const entity = createBall();

@@ -7,32 +7,24 @@ import Collisions from '../3d/components/Collisions';
 import { useAmmoShapeCouple } from './couples/AmmoShapeCouple';
 import { useAmmoTrimeshCouple } from './couples/AmmoTrimeshCouple';
 
-type Unpacked<T> =
-    T extends (infer U)[] ? U :
-    T extends (...args: any[]) => infer U ? U :
-    T extends Promise<infer U> ? U :
-	T;
-
+type Unpacked<T> = T extends (infer U)[] ? U : T extends (...args: any[]) => infer U ? U : T extends Promise<infer U> ? U : T;
 
 export type AmmoType = Unpacked<ReturnType<typeof Ammo>>;
 export let AmmoInstance: AmmoType = null;
 
 export const setAmmo = (ammo: any) => {
 	AmmoInstance = ammo;
-}
+};
 
 export class AmmoState {
-	world: Ammo.btDiscreteDynamicsWorld
+	world: Ammo.btDiscreteDynamicsWorld;
 	ground: Ammo.btRigidBody;
 }
 
 export default class AmmoPhysicsSystem extends System {
 	protected state = useState(this, new AmmoState());
 
-	protected couples = [
-		useAmmoTrimeshCouple(this),
-		useAmmoShapeCouple(this),
-	];
+	protected couples = [useAmmoTrimeshCouple(this), useAmmoShapeCouple(this)];
 
 	constructor(gravity: Vector3 = new Vector3(0, -1, 0)) {
 		super();
@@ -56,18 +48,18 @@ export default class AmmoPhysicsSystem extends System {
 		for (const couple of this.couples) {
 			const entity = couple.getEntity(ammoObject);
 
-			if(entity) return entity;
+			if (entity) return entity;
 		}
 	}
 
 	updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		if(this.state.world) {
+		if (this.state.world) {
 			// TODO
 			// stepSimulation expects detlaTime in seconds! Should be (dt / 1000)
 
-			this.state.world.stepSimulation(1.0/10.,100);
+			this.state.world.stepSimulation(1.0 / 10, 100);
 			this.updateCollisions();
 		}
 
@@ -80,11 +72,11 @@ export default class AmmoPhysicsSystem extends System {
 		for (let index = 0; index < collisionCount; index++) {
 			const element = this.state.world.getDispatcher().getManifoldByIndexInternal(index);
 
-			if(element.getNumContacts() > 0) {
-				const entityA = this.findEntityByAmmoObject(element.getBody0())
-				const entityB = this.findEntityByAmmoObject(element.getBody1())
+			if (element.getNumContacts() > 0) {
+				const entityA = this.findEntityByAmmoObject(element.getBody0());
+				const entityB = this.findEntityByAmmoObject(element.getBody1());
 
-				if(entityA && entityB) {
+				if (entityA && entityB) {
 					entityA.get(Collisions).contacts.add(entityB);
 					entityB.get(Collisions).contacts.add(entityA);
 				}

@@ -46,7 +46,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 	}
 
 	protected async preload() {
-		[this.groundTexture] = await Promise.all([LoadTexture("assets/prototype/textures/dark/texture_08.png")]);
+		[this.groundTexture] = await Promise.all([LoadTexture('assets/prototype/textures/dark/texture_08.png')]);
 
 		await LoadPixiAssets(Images);
 		await super.preload();
@@ -105,10 +105,7 @@ export default class ClientGolfSpace extends BaseGolfSpace {
 		this.groundTexture.repeat.set(1000, 1000);
 		this.groundTexture.wrapT = this.groundTexture.wrapS = RepeatWrapping;
 		ground.add(
-			new Mesh(
-				new PlaneGeometry(1000, 1000),
-				new MeshPhongMaterial({ map: this.groundTexture, shininess: 1, color: 0xcccccc })
-			),
+			new Mesh(new PlaneGeometry(1000, 1000), new MeshPhongMaterial({ map: this.groundTexture, shininess: 1, color: 0xcccccc })),
 			{
 				castShadow: true,
 				receiveShadow: true

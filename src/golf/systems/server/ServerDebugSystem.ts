@@ -7,7 +7,7 @@ import { useTimer } from '@ecs/ecs/helpers/useTimer';
 export default class ServerDebugSystem extends System {
 	getEngineStatistics = useSingletonQuery(this, TickerEngineStatistics);
 	networking = useGolfNetworking(this);
-	timer = useTimer(this, () => this.sendStatistics(), 1000)
+	timer = useTimer(this, () => this.sendStatistics(), 1000);
 
 	sendStatistics() {
 		if (this.getEngineStatistics()) {

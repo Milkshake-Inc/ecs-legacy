@@ -9,7 +9,6 @@ import GolfPlayer from '../../components/GolfPlayer';
 import PlayerBall from '../../components/PlayerBall';
 import Synchronize from '../../components/Synchronize';
 import { GolfGameState, GolfSnapshotPlayer, GolfSnapshotPlayerState, GolfWorldSnapshot, TICK_RATE } from '../../constants/GolfNetworking';
-import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 
 export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<GolfWorldSnapshot> {
 	protected snapshotQueries = useQueries(this, {
@@ -49,7 +48,7 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 				result.x = position.x;
 				result.y = position.y;
 				result.z = position.z;
-				result.moving = 0;// TODO good for debug
+				result.moving = 0; // TODO good for debug
 				// result.moving = moving ? 1 : 0;
 			}
 

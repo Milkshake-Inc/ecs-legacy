@@ -10,7 +10,7 @@ import shortid from 'shortid';
 import GolfPlayer from '../../../golf/components/GolfPlayer';
 import PlayerBall from '../../../golf/components/PlayerBall';
 import Spawn from '../../../golf/components/Spawn';
-import { createBall, createBallServer } from '../../utils/CreateBall';
+import { createBallServer } from '../../utils/CreateBall';
 import {
 	CreateRoomRequest,
 	GameState,
@@ -64,8 +64,8 @@ class GolfGameServerEngine extends Engine {
 		if (!entity.get(GolfPlayer).host) return;
 
 		const totalHoles = this.playerQueries.spawn.length;
-		this.playerQueries.players.forEach((entity) => {
-			entity.get(GolfPlayer).score = new Array(totalHoles).fill(0)
+		this.playerQueries.players.forEach(entity => {
+			entity.get(GolfPlayer).score = new Array(totalHoles).fill(0);
 		});
 
 		this.state.currentHole = 0;
@@ -211,13 +211,12 @@ export class ServerRoomSystem extends System {
 			newRoom.addEntity(entity);
 			this.entityToRoomEngine.set(entity, newRoom);
 		} else {
-
 			console.warn(`room ${packet.roomId} not found`);
 			this.createRoom(packet.roomId, true);
 
 			this.networking.sendTo(entity, {
 				opcode: GolfPacketOpcode.CREATE_ROOM_RESPONSE,
-				roomId: packet.roomId,
+				roomId: packet.roomId
 			});
 		}
 	}
