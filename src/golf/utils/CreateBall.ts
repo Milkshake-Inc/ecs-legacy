@@ -5,6 +5,7 @@ import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 import { Mesh, MeshPhongMaterial, SphereGeometry } from 'three';
 import GolfPlayer from '../components/GolfPlayer';
 import { SDFText } from '../systems/client/render/useSDFTextCouple';
+import { BallBody } from '../constants/Physics';
 
 export const BALL_SIZE = 0.03;
 
@@ -18,9 +19,7 @@ export const createBall = (): Entity => {
 export const createBallServer = (): Entity => {
 	const entity = createBall();
 
-	entity.add(AmmoBody, {
-		mass: 1
-	});
+	entity.add(BallBody());
 	entity.add(AmmoShape.SPHERE(BALL_SIZE));
 
 	return entity;

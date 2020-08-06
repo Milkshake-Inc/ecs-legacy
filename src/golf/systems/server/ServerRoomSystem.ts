@@ -90,9 +90,8 @@ class GolfGameServerEngine extends Engine {
 				});
 			}
 
-			// entity.get(AmmoBody).body.activate(true);
 			entity.get(Transform).position.copy(spawn);
-			entity.get(AmmoBody).setPosition(spawn);
+			entity.get(AmmoBody).position = spawn;
 
 			entity.add(PlayerBall, {
 				lastPosition: spawn.clone()

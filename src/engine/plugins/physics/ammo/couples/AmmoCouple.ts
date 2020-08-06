@@ -5,21 +5,6 @@ import Ammo from 'ammojs-typed';
 import Collisions from '../../3d/components/Collisions';
 import { Optional } from '../../3d/couples/CannonCouple';
 import { AmmoState } from '../AmmoPhysicsSystem';
-import AmmoBody from '../components/AmmoBody';
-import { Entity } from '@ecs/ecs/Entity';
-import Transform from '@ecs/plugins/math/Transform';
-
-export const genericAmmoTransformUpdate = (entity: Entity, object3D: Ammo.btCollisionObject) => {
-	const ammoTransform = object3D.getWorldTransform();
-	const ammoPosition = ammoTransform.getOrigin();
-	const ammoRotation = ammoTransform.getRotation();
-
-	const transform = entity.get(Transform);
-
-	transform.position.set(ammoPosition.x(), ammoPosition.y(), ammoPosition.z());
-
-	transform.quaternion.set(ammoRotation.x(), ammoRotation.y(), ammoRotation.z(), ammoRotation.w());
-};
 
 // TODO: Maybe have useAmmoShapeCouple - For shared code between AmmoShapeCouple & AmmoTrimeshCouple
 export const useAmmoCouple = (
@@ -40,27 +25,6 @@ export const useAmmoCouple = (
 		onCreate: entity => {
 			const createdPhysicsObject = callbacks.onCreate(entity);
 			const world = getAmmoState().world;
-
-			const ammoBody = entity.get(AmmoBody);
-			if (!ammoBody) {
-				console.log(entity);
-				throw 'Missing AmmoBody!';
-			}
-			ammoBody.body = createdPhysicsObject;
-
-			ammoBody.body.setFriction(2);
-			ammoBody.body.setRestitution(0.5);
-			ammoBody.body.setRollingFriction(0.05);
-			// ammoBody.body.setDamping(0, 0.2);
-			// TODO
-			// Better place for this?
-			if (ammoBody.ghost) {
-				createdPhysicsObject.setCollisionFlags(4); // CF_NO_CONTACT_RESPONSE
-			}
-
-			// TODO
-			// Should this be added manually when creating an entity
-			entity.add(Collisions);
 
 			if (createdPhysicsObject instanceof Ammo.btRigidBody) {
 				world.addRigidBody(createdPhysicsObject);

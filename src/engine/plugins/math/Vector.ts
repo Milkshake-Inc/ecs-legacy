@@ -74,6 +74,10 @@ export default class Vector3 {
 		return this;
 	}
 
+	setFromVector({ x, y, z }: Vector) {
+		return this.set(x, y, z);
+	}
+
 	copy(value: Vector) {
 		this.x = value.x;
 		this.y = value.y;

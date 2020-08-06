@@ -87,7 +87,7 @@ export default class Quaternion {
 		return new Vector3(bank, heading, attitude);
 	}
 
-	multiV({ x, y, z }: Vector3) {
+	multiV({ x, y, z }: Vector3 | Vector) {
 		const qx = this.x,
 			qy = this.y,
 			qz = this.z,

@@ -12,10 +12,10 @@ import Ground from '../../components/Ground';
 import Hole from '../../components/Hole';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfGameState, GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
+import { BALL_HIT_MULTIPLIER } from '../../constants/Physics';
 
 const BALL_PUTT_TIMER = 10000;
 const OUT_OF_BOUNDS_TIMER = 1000;
-const VELOCITY_MULTIPLIER = 0.4;
 
 export class ServerBallControllerSystem extends System {
 	protected gameState = useSingletonQuery(this, GolfGameState);
@@ -50,12 +50,13 @@ export class ServerBallControllerSystem extends System {
 			if (collisions.hasCollidedWith(...bounds) && !playerBall.isBallResetting) {
 				playerBall.isBallResetting = true;
 				setTimeout(() => {
+					console.log('RESET BALL');
 					playerBall.isBallResetting = false;
 
 					const body = ball.get(AmmoBody);
 
 					body.clearForces();
-					body.setPosition(playerBall.lastPosition);
+					body.position = playerBall.lastPosition;
 				}, OUT_OF_BOUNDS_TIMER);
 			}
 
@@ -99,10 +100,10 @@ export class ServerBallControllerSystem extends System {
 
 		lastPosition.set(position.x, position.y, position.z);
 
-		body.applyCentralImpulse({
-			x: packet.velocity.x * VELOCITY_MULTIPLIER,
+		body.applyCentralImpulseV({
+			x: packet.velocity.x * BALL_HIT_MULTIPLIER,
 			y: 0,
-			z: packet.velocity.z * VELOCITY_MULTIPLIER
+			z: packet.velocity.z * BALL_HIT_MULTIPLIER
 		});
 	}
 

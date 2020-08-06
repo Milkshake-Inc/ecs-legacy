@@ -4,17 +4,10 @@ import { System } from '@ecs/ecs/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Ammo from 'ammojs-typed';
 import Collisions from '../3d/components/Collisions';
+import { useAmmoBodyCouple } from './couples/AmmoBodyCouple';
 import { useAmmoShapeCouple } from './couples/AmmoShapeCouple';
 import { useAmmoTrimeshCouple } from './couples/AmmoTrimeshCouple';
-
-type Unpacked<T> = T extends (infer U)[] ? U : T extends (...args: any[]) => infer U ? U : T extends Promise<infer U> ? U : T;
-
-export type AmmoType = Unpacked<ReturnType<typeof Ammo>>;
-export let AmmoInstance: AmmoType = null;
-
-export const setAmmo = (ammo: any) => {
-	AmmoInstance = ammo;
-};
+import { AmmoInstance } from './AmmoLoader';
 
 export class AmmoState {
 	world: Ammo.btDiscreteDynamicsWorld;
@@ -24,7 +17,7 @@ export class AmmoState {
 export default class AmmoPhysicsSystem extends System {
 	protected state = useState(this, new AmmoState());
 
-	protected couples = [useAmmoTrimeshCouple(this), useAmmoShapeCouple(this)];
+	protected couples = [useAmmoBodyCouple(this), useAmmoTrimeshCouple(this), useAmmoShapeCouple(this)];
 
 	constructor(gravity: Vector3 = new Vector3(0, -1, 0)) {
 		super();
@@ -58,7 +51,6 @@ export default class AmmoPhysicsSystem extends System {
 		if (this.state.world) {
 			// TODO
 			// stepSimulation expects detlaTime in seconds! Should be (dt / 1000)
-
 			this.state.world.stepSimulation(1.0 / 10, 100);
 			this.updateCollisions();
 		}

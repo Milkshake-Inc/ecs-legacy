@@ -14,6 +14,7 @@ import Synchronize from '../components/Synchronize';
 import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
+import { TerrainBody } from '../constants/Physics';
 
 const pieceModifiers = {
 	['detail_flag']: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
@@ -117,9 +118,7 @@ export const loadMap = (map: GLTF, isServer = false): Entity[] => {
 			entity.add(node);
 			entity.add(CoursePiece);
 			entity.add(new TrimeshShape());
-			entity.add(AmmoBody, {
-				mass: 0
-			});
+			entity.add(TerrainBody());
 			entities.push(entity);
 
 			Object.keys(pieceModifiers).forEach(key => {

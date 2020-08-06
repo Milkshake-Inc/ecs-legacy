@@ -12,7 +12,7 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin();
 
 const config = {
-	entry: [`${projectPath}/Client.ts`],
+	entry: [`${projectPath}/ClientEntry.ts`],
 	module: {
 		rules: [
 			{

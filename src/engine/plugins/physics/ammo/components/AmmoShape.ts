@@ -1,12 +1,13 @@
-import { AmmoInstance } from '../AmmoPhysicsSystem';
 import Ammo from 'ammojs-typed';
 import { Vector } from '@ecs/plugins/math/Vector';
+import { AmmoInstance } from '../AmmoLoader';
 
 export default class AmmoShape {
 	public shape: Ammo.btCollisionShape;
 
 	constructor(shape: Ammo.btCollisionShape) {
 		this.shape = shape;
+		this.shape.setMargin(0.05);
 	}
 
 	public static BOX(size: number | Vector) {
