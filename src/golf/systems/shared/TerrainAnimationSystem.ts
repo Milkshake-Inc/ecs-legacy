@@ -14,7 +14,7 @@ export class TerrainAnimationSystem extends IterativeSystem {
 		// TODO
 		// This seems to be buggy
 		if (entity.has(Rotor)) {
-			entity.get(AmmoBody).rotate({ x: 0.01, y: 0, z: 0 });
+			entity.get(AmmoBody).rotate({ x: 0, y: 0, z: 0.01 });
 		}
 	}
 }

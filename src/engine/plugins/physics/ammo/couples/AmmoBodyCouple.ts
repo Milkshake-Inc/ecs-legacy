@@ -23,6 +23,6 @@ export const useAmmoBodyCouple = (system: System) =>
 			const transform = entity.get(Transform);
 
 			transform.position.setFromVector(body.position);
-			transform.rotation.setFromVector(body.quaternion);
+			transform.quaternion = body.quaternion;
 		}
 	});
