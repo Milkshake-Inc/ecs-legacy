@@ -126,8 +126,37 @@ export default class Vector3 {
 		return new Vector3(this.x / value, this.y / value, this.z / value);
 	}
 
+	reverse() {
+		return new Vector3(-this.x, -this.y, -this.z);
+	}
+
+	projectOnVector(vector: Vector3) {
+		const denom = vector.lengthSq();
+		if (denom === 0) {
+			return Vector3.ZERO;
+		}
+
+		return vector.multiF(vector.dot(this) / denom);
+	}
+
+	projectOnPlane(planeNormal: Vector3) {
+		return this.sub(this.projectOnVector(planeNormal));
+	}
+
 	distance(value: Vector3 | Vector): number {
-		return Math.sqrt(Math.pow(this.x - value.x, 2) + Math.pow(this.y - value.y, 2) + Math.pow(this.z - value.z, 2));
+		return Math.sqrt(this.distanceSq(value));
+	}
+
+	distanceSq(value: Vector3 | Vector): number {
+		return Math.pow(this.x - value.x, 2) + Math.pow(this.y - value.y, 2) + Math.pow(this.z - value.z, 2);
+	}
+
+	length() {
+		return this.x * this.x + this.y * this.y + this.z * this.z;
+	}
+
+	lengthSq() {
+		return Math.sqrt(this.length());
 	}
 
 	equals(value: Vector3 | Vector): boolean {

@@ -12,6 +12,7 @@ import Touch from '@ecs/plugins/input/Touch';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import Input from '@ecs/plugins/input/components/Input';
 import { MouseScroll, Controls, Stick, Gesture } from '@ecs/plugins/input/Control';
+import { ToQuaternion } from '@ecs/plugins/tools/Conversions';
 
 const CameraInput = {
 	zoomIn: Controls.or(Mouse.button(MouseScroll.Up), Touch.gesture(Gesture.PinchOut)),
@@ -91,6 +92,10 @@ export default class ThirdPersonCameraSystem extends System {
 
 		// Update Camera
 		this.acamera.position.set(this.camera.x, this.camera.y, this.camera.z);
+		// TODO Port lookat to ecs maths (requires matrix4)
 		this.acamera.lookAt(this.target.position.x, this.target.position.y, this.target.position.z);
+
+		// Update camera quaternion
+		this.camera.quaternion = ToQuaternion(this.acamera.quaternion);
 	}
 }

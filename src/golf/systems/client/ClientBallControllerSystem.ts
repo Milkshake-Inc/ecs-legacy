@@ -85,15 +85,13 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 		const cameraTransform = camera.get(Transform);
 		const characterTransform = entity.get(Transform);
 
-		const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
+		const directionVector = cameraTransform.forward.projectOnPlane(Vector3.UP).normalize();
 
 		if (this.directionLine) {
 			this.directionLine.get(Transform).position = characterTransform.position.clone();
 			const mappedPower = MathHelper.map(0, 100, 0, 9, this.state.power);
-			const powerVector = directionVector.multiF(mappedPower);
-			this.directionLine.get(Raycast).direction.x = -powerVector.x;
-			this.directionLine.get(Raycast).direction.z = -powerVector.z;
-			this.directionLine.get(RaycastDebug).length = mappedPower;
+			this.directionLine.get(Raycast).direction = directionVector;
+			this.directionLine.get(RaycastDebug).length = mappedPower / 10;
 		}
 
 		const moving = entity.get(PlayerBall).moving;
@@ -127,8 +125,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				this.networking.send({
 					opcode: GolfPacketOpcode.SHOOT_BALL,
 					velocity: {
-						x: -powerVector.x,
-						z: -powerVector.z
+						x: powerVector.x,
+						z: powerVector.z
 					}
 				});
 

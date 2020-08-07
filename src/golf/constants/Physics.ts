@@ -1,7 +1,7 @@
 import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 import { AmmoInstance } from '@ecs/plugins/physics/ammo/AmmoLoader';
 
-export const BALL_HIT_MULTIPLIER = 1;
+export const BALL_HIT_MULTIPLIER = 0.5;
 
 export const BallBody = () => {
 	const body = new AmmoBody(1);
