@@ -53,7 +53,7 @@ export default class ServerConnectionSystem extends IterativeSystem {
 	protected handleConnection(channel: ServerChannel) {
 		const session = new Entity();
 		const socket = new Socket(channel);
-		session.add(Session, { id: socket.id, socket });
+		session.add(Session, { socket });
 		this.engine.addEntity(session);
 
 		channel.onDisconnect(() => this.handleDisconnection(session));

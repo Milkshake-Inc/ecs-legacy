@@ -54,7 +54,7 @@ export default class ClientConnectionSystem extends IterativeSystem {
 
 		this.sessionEntity = new Entity();
 		const socket = new Socket(channel);
-		this.sessionEntity.add(Session, { id: socket.id, socket });
+		this.sessionEntity.add(Session, { socket });
 
 		console.log(`🔌 Socket connected ${socket.id}`);
 

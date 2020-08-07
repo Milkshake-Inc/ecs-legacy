@@ -2,20 +2,21 @@ import { ClientChannel } from '@geckos.io/client';
 import { ServerChannel } from '@geckos.io/server';
 import { Packet, PacketOpcode } from '../components/Packet';
 import { encode, decode } from '@msgpack/msgpack';
+import { FakeChannel } from './FakeSocket';
 
 export type PacketHandler = (packet: Packet) => void;
 const RELIABLE_MESSAGE = 'reliableRawMessage';
 
 export default class Socket {
 	public readonly id: string;
-	protected socket: ServerChannel | ClientChannel;
+	protected socket: ServerChannel | ClientChannel | FakeChannel;
 	protected incoming: Packet[] = [];
 	protected handlers: PacketHandler[] = [];
 
 	public bytesIn = 0;
 	public bytesOut = 0;
 
-	constructor(socket: ServerChannel | ClientChannel) {
+	constructor(socket: ServerChannel | ClientChannel | FakeChannel) {
 		this.socket = socket;
 		this.id = socket.userData['id'];
 

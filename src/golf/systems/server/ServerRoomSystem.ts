@@ -23,6 +23,8 @@ import {
 	useGolfNetworking
 } from './../../constants/GolfNetworking';
 import { ServerGolfSpace } from './../../spaces/ServerGolfSpace';
+import FakeSocket from '@ecs/plugins/net/utils/FakeSocket';
+import Random from '@ecs/plugins/math/Random';
 
 class GolfGameServerEngine extends Engine {
 	public space: ServerGolfSpace;
@@ -68,12 +70,13 @@ class GolfGameServerEngine extends Engine {
 			entity.get(GolfPlayer).score = new Array(totalHoles).fill(0);
 		});
 
+		console.log('starting game');
 		this.state.currentHole = 0;
 		this.nextHole();
 	}
 
 	nextHole() {
-		if (this.state.currentHole > this.playerQueries.spawn.length || !this.spawns[this.state.currentHole]) {
+		if (this.state.currentHole > this.spawns.length || !this.spawns[this.state.currentHole]) {
 			console.log(`🏠  Game End`);
 			this.state.state = GameState.LOBBY;
 			return;
@@ -99,6 +102,31 @@ class GolfGameServerEngine extends Engine {
 		});
 
 		this.state.state = GameState.INGAME;
+	}
+
+	addBot(name = 'Not A Robot') {
+		const bot = new Entity();
+		const socket = new FakeSocket();
+		bot.add(new Session(socket));
+		bot.add(GolfPlayer, {
+			id: socket.id,
+			name
+		});
+		this.addEntity(bot);
+
+		setTimeout(() => {
+			setInterval(() => {
+				socket.emulatePacket({
+					opcode: GolfPacketOpcode.SHOOT_BALL,
+					velocity: {
+						x: Random.float(-1, 1) * 3,
+						z: Random.float(-1, 1) * 3
+					}
+				});
+			}, Random.int(5000, 10000));
+		}, Random.int(1000, 5000));
+
+		return bot;
 	}
 
 	updateFixed(deltaTime: number) {
@@ -146,6 +174,16 @@ export class ServerRoomSystem extends System {
 		this.networking.on(GolfPacketOpcode.CREATE_ROOM_REQUEST, this.handleCreateRoomRequest.bind(this));
 		this.networking.on(GolfPacketOpcode.JOIN_ROOM, this.handleJoinRoomRequest.bind(this));
 		this.networking.on(GolfPacketOpcode.UPDATE_PROFILE, this.handleUpdateProfileRequest.bind(this));
+
+		const room = this.createRoom('AI', true);
+		const bot = room.addBot();
+		[...Array(9)].forEach(() => {
+			room.addBot();
+		});
+
+		setTimeout(() => {
+			room.handleStartGame({ opcode: GolfPacketOpcode.START_GAME }, bot);
+		}, 1000);
 	}
 
 	handleConnect(entity: Entity): void {
@@ -176,6 +214,7 @@ export class ServerRoomSystem extends System {
 		}
 
 		console.log(`🏠 Created new room ${name}`);
+		return newEngine;
 	}
 
 	handleAllGamesRequest(packet: PublicRoomsRequest, entity: Entity) {
