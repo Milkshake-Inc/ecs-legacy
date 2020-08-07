@@ -5,7 +5,7 @@ import { PlatformHelper } from './Platform';
 export const LoadGLTF = (content: string): Promise<GLTF> => {
 	return new Promise((resolve, reject) => {
 		const loader = new GLTFLoader();
-		if (PlatformHelper.IsServer()) {
+		if (PlatformHelper.IsServer) {
 			const data = require('fs').readFileSync(`${__dirname}/www/${content}`);
 
 			loader.parse(trimBuffer(data), '', resolve, reject);
@@ -17,7 +17,7 @@ export const LoadGLTF = (content: string): Promise<GLTF> => {
 
 export const LoadTexture = (content: string): Promise<Texture> => {
 	return new Promise((resolve, reject) => {
-		if (PlatformHelper.IsServer()) return resolve();
+		if (PlatformHelper.IsServer) return resolve();
 		const loader = new TextureLoader();
 		loader.load(content, resolve, undefined, reject);
 	});

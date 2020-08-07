@@ -34,6 +34,22 @@ export default class Space {
 	public addEntity(entity: Entity) {
 		entity.add(SpaceTag, { spaceName: this.name });
 		this.entities.push(entity);
+
+		if (this.visible) {
+			this.worldEngine.addEntity(entity);
+		}
+	}
+
+	public removeEntities(...entities: Entity[]) {
+		entities.forEach(entity => this.removeEntity(entity));
+	}
+
+	public removeEntity(entity: Entity) {
+		this.entities = this.entities.filter(e => e != entity);
+
+		if (this.visible) {
+			this.worldEngine.removeEntity(entity);
+		}
 	}
 
 	public addSystem(system: System, priority = 0) {

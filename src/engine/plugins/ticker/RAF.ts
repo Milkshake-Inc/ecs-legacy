@@ -1,7 +1,7 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { PlatformHelper } from '@ecs/plugins/tools/Platform';
 
-export const requestAnimationFrame = PlatformHelper.IsClient()
+export const requestAnimationFrame = PlatformHelper.IsClient
 	? window.requestAnimationFrame.bind(window)
 	: (() => {
 			let lastTimestamp = performance.now(),
@@ -17,6 +17,6 @@ export const requestAnimationFrame = PlatformHelper.IsClient()
 			};
 	  })();
 
-export const cancelAnimationFrame: (handle: number) => void = PlatformHelper.IsClient()
+export const cancelAnimationFrame: (handle: number) => void = PlatformHelper.IsClient
 	? window.cancelAnimationFrame.bind(window)
 	: clearTimeout;

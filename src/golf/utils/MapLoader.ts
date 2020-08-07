@@ -15,9 +15,10 @@ import Cart from '../components/terrain/Cart';
 import Rotor from '../components/terrain/Rotor';
 import Track from '../components/terrain/Track';
 import { TerrainBody } from '../constants/Physics';
+import { PlatformHelper } from '@ecs/plugins/tools/Platform';
 
 const pieceModifiers = {
-	['detail_flag']: (entity: Entity, node: Mesh, entities: Entity[], isServer: boolean) => {
+	['detail_flag']: (entity: Entity, node: Mesh, entities: Entity[]) => {
 		// Add holeTrigger
 		const holeTrigger = new Entity();
 		const holePosition = entity.get(Transform).clone();
@@ -27,7 +28,7 @@ const pieceModifiers = {
 
 		const HOLE_SIZE = 0.1;
 
-		if (isServer) {
+		if (PlatformHelper.IsServer) {
 			holeTrigger.add(AmmoShape.BOX(HOLE_SIZE / 2));
 			holeTrigger.add(AmmoBody, {
 				mass: 0,
@@ -85,7 +86,7 @@ const pieceModifiers = {
 	}
 };
 
-export const loadMap = (map: GLTF, isServer = false): Entity[] => {
+export const loadMap = (map: GLTF): Entity[] => {
 	const entities: Entity[] = [];
 	map.scene.traverse(node => {
 		// Enable shadows etc on all models
@@ -122,7 +123,7 @@ export const loadMap = (map: GLTF, isServer = false): Entity[] => {
 			entities.push(entity);
 
 			Object.keys(pieceModifiers).forEach(key => {
-				if (node.name.toLowerCase().match(key)) pieceModifiers[key](entity, node, entities, isServer);
+				if (node.name.toLowerCase().match(key)) pieceModifiers[key](entity, node, entities);
 			});
 		}
 	});

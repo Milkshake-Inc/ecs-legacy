@@ -12,11 +12,13 @@ export default class GolfAssets {
 	maps: MapAssetsGLTF = {};
 }
 
-export const MapAssets = {
-	TRAIN: 'course-train.glb',
-	LUCAS: 'lucas.glb',
-	CITY: 'course-city.glb'
-};
+export type Maps = keyof typeof MapAssets;
+
+export enum MapAssets {
+	TRAIN = 'course-train.glb',
+	LUCAS = 'lucas.glb',
+	CITY = 'course-city.glb'
+}
 
 export const KenneyAssets = {
 	BALL_BLUE: 'ball_blue.glb',

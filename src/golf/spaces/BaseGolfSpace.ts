@@ -5,19 +5,17 @@ import AmmoBody from '@ecs/plugins/physics/ammo/components/AmmoBody';
 import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 import Space from '@ecs/plugins/space/Space';
 import { LoadGLTF } from '@ecs/plugins/tools/ThreeHelper';
-import { Mesh, MeshPhongMaterial, MeshStandardMaterial } from 'three';
 import Ground from '../components/Ground';
-import GolfAssets, { KenneyAssets, MapAssets } from '../constants/GolfAssets';
+import GolfAssets, { MapAssets, Maps } from '../constants/GolfAssets';
 import { loadMap } from '../utils/MapLoader';
+import { PlatformHelper } from '@ecs/plugins/tools/Platform';
 
 export default class BaseGolfSpace extends Space {
 	protected golfAssets: GolfAssets;
-	protected isServer: boolean;
+	protected mapEntities: Entity[];
 
-	constructor(engine: Engine, open = false, isServer = false) {
+	constructor(engine: Engine, open = false) {
 		super(engine, open);
-
-		this.isServer = isServer;
 
 		const kenneyAssetsEntity = new Entity();
 		kenneyAssetsEntity.add((this.golfAssets = new GolfAssets()));
@@ -25,37 +23,26 @@ export default class BaseGolfSpace extends Space {
 	}
 
 	protected async preload() {
-		const loadModels = Object.keys(KenneyAssets).map(async key => {
-			const gltf = await LoadGLTF(`assets/golf/${KenneyAssets[key]}`);
-
-			// Proccess mesh to nicer material - Not needed on server
-			gltf.scene.traverse(child => {
-				if (child instanceof Mesh) {
-					const color = (child.material as MeshStandardMaterial).color;
-					child.material = new MeshPhongMaterial({
-						color
-					});
-					child.castShadow = true;
-				}
-			});
-
-			this.golfAssets.gltfs[key] = gltf;
-		});
-
 		const loadMaps = Object.keys(MapAssets).map(async key => {
 			const gltf = await LoadGLTF(`assets/golf/maps/${MapAssets[key]}`);
 			this.golfAssets.maps[key] = gltf;
 		});
 
-		await Promise.all([...loadModels, ...loadMaps]);
+		await Promise.all([...loadMaps]);
 	}
 
 	setup() {
-		// const mapPieces = deserializeMap(this.golfAssets.gltfs, Maps.DefaultMap);
-		const mapPieces = loadMap(this.golfAssets.maps.TRAIN, this.isServer);
+		this.switchMap('CITY');
+		this.addEntities(this.createGround());
+	}
 
-		// mapPieces.forEach(piece => piece.has(CoursePiece) && piece.get(Transform).position.y++);
-		this.addEntities(...mapPieces, this.createGround());
+	switchMap(map: Maps) {
+		if (this.mapEntities) {
+			this.removeEntities(...this.mapEntities);
+		}
+
+		this.mapEntities = loadMap(this.golfAssets.maps[map]);
+		this.addEntities(...this.mapEntities);
 	}
 
 	protected createGround(): Entity {
@@ -64,14 +51,8 @@ export default class BaseGolfSpace extends Space {
 		// TODO
 		// This is a bit weird, as client needs the plane rotated visually
 		// ThreeJS plane vs AmmoShape.BOX are misaligned
-		if (this.isServer) {
+		if (PlatformHelper.IsServer) {
 			ground.add(Transform, { y: -0.5 });
-		} else {
-			ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
-		}
-		ground.add(Ground);
-
-		if (this.isServer) {
 			ground.add(AmmoBody, {
 				mass: 0
 			});
@@ -82,8 +63,11 @@ export default class BaseGolfSpace extends Space {
 					z: 100
 				})
 			);
+		} else {
+			ground.add(Transform, { rx: -Math.PI / 2, y: 0 });
 		}
 
+		ground.add(Ground);
 		return ground;
 	}
 }

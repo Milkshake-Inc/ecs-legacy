@@ -1,9 +1,9 @@
 export class PlatformHelper {
-	static IsClient() {
-		return !PlatformHelper.IsServer();
+	static get IsClient() {
+		return !PlatformHelper.IsServer;
 	}
 
-	static IsServer() {
+	static get IsServer() {
 		return typeof window === 'undefined';
 	}
 }
@@ -19,7 +19,7 @@ export function client(target, key, descriptor) {
 	return {
 		configurable: true,
 		get() {
-			return PlatformHelper.IsClient() ? fn : () => {};
+			return PlatformHelper.IsClient ? fn : () => {};
 		}
 	};
 }
@@ -35,7 +35,7 @@ export function server(target, key, descriptor) {
 	return {
 		configurable: true,
 		get() {
-			return PlatformHelper.IsServer() ? fn : () => {};
+			return PlatformHelper.IsServer ? fn : () => {};
 		}
 	};
 }
