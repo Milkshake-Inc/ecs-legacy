@@ -20,6 +20,7 @@ import GolfPlayer from '../../components/GolfPlayer';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfGameState, GolfPacketOpcode, PotBall, useGolfNetworking } from '../../constants/GolfNetworking';
 import Random from '@ecs/plugins/math/Random';
+import Raycast, { RaycastDebug } from '@ecs/plugins/render/3d/components/Raycaster';
 
 export class BallControllerState {
 	public power: number;
@@ -67,7 +68,8 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 		this.directionLine = new Entity();
 		this.directionLine.add(Transform);
-		this.directionLine.add(new ArrowHelper(ToThreeVector3(Vector3.FORWARD), ToThreeVector3(Vector3.ZERO), 10, 0xff0050));
+		this.directionLine.add(RaycastDebug, { length: 0 });
+		this.directionLine.add(Raycast);
 		engine.addEntity(this.directionLine);
 	}
 
@@ -85,9 +87,14 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 
 		const directionVector = cameraTransform.position.sub(characterTransform.position).normalize();
 
-		this.directionLine.get(Transform).position = characterTransform.position.clone();
-		this.directionLine.get(Transform).rz = Math.PI / 2;
-		this.directionLine.get(Transform).ry = -Math.atan2(directionVector.z, directionVector.x);
+		if (this.directionLine) {
+			this.directionLine.get(Transform).position = characterTransform.position.clone();
+			const mappedPower = MathHelper.map(0, 100, 0, 9, this.state.power);
+			const powerVector = directionVector.multiF(mappedPower);
+			this.directionLine.get(Raycast).direction.x = -powerVector.x;
+			this.directionLine.get(Raycast).direction.z = -powerVector.z;
+			this.directionLine.get(RaycastDebug).length = mappedPower;
+		}
 
 		const moving = entity.get(PlayerBall).moving;
 
@@ -107,8 +114,6 @@ export default class ClientBallControllerSystem extends IterativeSystem {
 				if (this.state.power == 100 || this.state.power == 0) {
 					this.state.direction *= -1;
 				}
-
-				this.directionLine.get(ArrowHelper).setLength(this.state.power / 10);
 			}
 
 			if (this.inputs.state.shoot.up) {

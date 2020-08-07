@@ -10,6 +10,7 @@ import Color from '@ecs/plugins/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
 import { useThreeCouple } from '../couples/ThreeCouple';
+import { useDebugCouple } from '../couples/DebugCouple';
 
 export type RenderSystemSettings = {
 	width: number;

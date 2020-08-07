@@ -6,12 +6,14 @@ class RaycastBase {
 }
 
 export default class Raycast extends RaycastBase {
-	public offset?: Vector3;
-	public direction: Vector3;
+	public offset?: Vector3 = Vector3.ZERO;
+	public direction: Vector3 = Vector3.ZERO;
 }
 
 export class RaycastCamera extends RaycastBase {
 	public position = { x: 0, y: 0 };
 }
 
-export class RaycastDebug {}
+export class RaycastDebug {
+	public length = 1000;
+}

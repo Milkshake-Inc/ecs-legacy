@@ -22,7 +22,9 @@ export const useRaycastCouple = <T extends Object3D>(system: System) => {
 
 	return useCouple<Raycaster>(query.raycast, {
 		onCreate: entity => {
-			return new Raycaster();
+			const raycaster = new Raycaster();
+			entity.add(raycaster);
+			return raycaster;
 		},
 		onUpdate: (entity, raycaster, dt) => {
 			if (entity.has(Raycast)) {
@@ -62,9 +64,8 @@ export const useRaycastDebugCouple = (system: RenderSystem) =>
 			return new ArrowHelper(new Vector3());
 		},
 		onUpdate(entity, line) {
-			const { rotation: direction } = entity.get(Transform);
-			// line.position
-			line.setDirection(ToThreeVector3(direction));
-			line.setLength(10000);
+			const { ray } = entity.get(Raycaster);
+			line.setDirection(ToThreeVector3(ray.direction));
+			line.setLength(entity.get(RaycastDebug).length);
 		}
 	});
