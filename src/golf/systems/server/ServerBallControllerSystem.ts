@@ -75,6 +75,7 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	handlePrepShot(packet: any, entity: Entity) {
+		if (!entity.has(PlayerBall)) return;
 		const body = entity.get(AmmoBody);
 
 		// TODO
@@ -88,6 +89,8 @@ export class ServerBallControllerSystem extends System {
 	}
 
 	handleShootBall(packet: ShootBall, entity: Entity) {
+		if (!entity.has(PlayerBall)) return;
+
 		const body = entity.get(AmmoBody);
 		const { position } = entity.get(Transform);
 		const { score } = entity.get(GolfPlayer);
