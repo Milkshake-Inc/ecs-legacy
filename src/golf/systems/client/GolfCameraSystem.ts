@@ -12,6 +12,11 @@ import Mouse from '@ecs/plugins/input/Mouse';
 import Input from '@ecs/plugins/input/components/Input';
 import { MouseButton } from '@ecs/plugins/input/Control';
 import Transform from '@ecs/plugins/math/Transform';
+import Random from '@ecs/plugins/math/Random';
+
+export class GolfCameraState {
+	constructor(public target = Random.int(0, 30)) {}
+}
 
 export default class GolfCameraSystem extends System {
 	protected engine: Engine;
@@ -24,6 +29,8 @@ export default class GolfCameraSystem extends System {
 			click: Mouse.button(MouseButton.Left)
 		})
 	);
+
+	protected state = useState(this, new GolfCameraState());
 
 	private query = useQueries(this, {
 		players: all(Transform, PlayerBall),
@@ -38,23 +45,33 @@ export default class GolfCameraSystem extends System {
 		this.engine = engine;
 	}
 
+	get localPlayer() {
+		return this.query.localPlayer.first;
+	}
+
 	updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
 		const gameState = this.getGameState();
 
 		if (gameState.state == GameState.INGAME) {
-			if (this.inputs.state.click.once) {
-				Mouse.startPointerLock();
-			}
-
+			// See of we need to change from current target
 			const currentTarget = this.query.currentTarget.first;
 			let newTarget = currentTarget;
 
-			if (this.query.localPlayer.length > 0) {
-				newTarget = this.query.localPlayer.first;
+			if (this.localPlayer) {
+				newTarget = this.localPlayer;
+
+				// Probably move this somewhere else?
+				if (this.inputs.state.click.once) {
+					Mouse.startPointerLock();
+				}
 			} else if (this.query.players.length > 0) {
-				newTarget = this.query.players.first;
+				const targetIndex = Math.abs(this.state.target % this.query.players.length);
+				newTarget = this.query.players.entities[targetIndex];
+
+				// Probably move this somewhere else?
+				Mouse.stopPointerLock();
 			} else {
 				console.log('No one to spectate.');
 			}

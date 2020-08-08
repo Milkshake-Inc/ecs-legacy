@@ -104,14 +104,11 @@ class GolfGameServerEngine extends Engine {
 		this.state.state = GameState.INGAME;
 	}
 
-	addBot(name = 'Not A Robot') {
+	addBot(name?: string) {
 		const bot = new Entity();
 		const socket = new FakeSocket();
 		bot.add(new Session(socket));
-		bot.add(GolfPlayer, {
-			id: socket.id,
-			name
-		});
+		bot.add(new GolfPlayer(socket.id, name));
 		this.addEntity(bot);
 
 		setTimeout(() => {

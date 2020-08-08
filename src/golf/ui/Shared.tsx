@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { Box, Col, JsxstyleProps, Block } from 'jsxstyle/preact';
+import { Box, Col, JsxstyleProps, Block, Row } from 'jsxstyle/preact';
 
 export const Colors = {
 	WHITE: '#ffffff',
@@ -14,6 +14,8 @@ export const Colors = {
 };
 
 export const Flex = props => <Col display='flex' {...props} />;
+export const FlexRow = props => <Row display='flex' {...props} />;
+export const FlexCenterRow = props => <FlexRow justifyContent='center' alignItems='center' {...props} />;
 export const FlexCenter = props => <Flex justifyContent='center' alignItems='center' {...props} />;
 
 export const H1 = props => <Box fontSize='3vw' {...props} />;

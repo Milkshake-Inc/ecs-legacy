@@ -25,7 +25,7 @@ export const useBeforeMount = (callback: EffectCallback) => {
 	willMount.current = false;
 };
 
-export const attachToEngine = () => {
+export const attachToEngine = (cleanup?: (engine: Engine) => void) => {
 	const engine = useContext(EngineContext);
 	const forceUpdate = useForceUpdate();
 
@@ -42,15 +42,18 @@ export const attachToEngine = () => {
 		return () => {
 			console.log('removing ui system');
 			engine.removeSystem(system);
+			if (cleanup) {
+				cleanup(engine);
+			}
 		};
 	});
 
 	return engine;
 };
 
-export const useECS = <T>(state?: (engine: Engine) => T) => {
+export const useECS = <T>(state?: (engine: Engine) => T, cleanup?: (engine: Engine) => void) => {
 	const [s] = useState(() => {
-		const engine = attachToEngine();
+		const engine = attachToEngine(cleanup);
 		return state ? state(engine) : ({} as T);
 	});
 

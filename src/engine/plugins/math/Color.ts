@@ -139,4 +139,8 @@ export default class Color {
 	public static readonly WhiteSmoke = 0xf5f5f5;
 	public static readonly Yellow = 0xffff00;
 	public static readonly YellowGreen = 0x9acd32;
+
+	public static ToHex(color: number): string {
+		return `#${color.toString(16)}`;
+	}
 }
