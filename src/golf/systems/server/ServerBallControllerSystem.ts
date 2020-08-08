@@ -40,6 +40,10 @@ export class ServerBallControllerSystem extends System {
 		this.networking.on(GolfPacketOpcode.PREP_SHOOT, (packet, entity) => this.handlePrepShot(packet, entity));
 	}
 
+	onRemovedFromEngine() {
+		this.gameState = this.queries = this.networking = null;
+	}
+
 	updateFixed(deltaTime: number) {
 		const bounds = [this.queries.ground.first, this.currentBounds];
 

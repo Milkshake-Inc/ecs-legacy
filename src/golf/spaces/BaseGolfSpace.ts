@@ -36,6 +36,13 @@ export default class BaseGolfSpace extends Space {
 		this.addEntities(this.createGround());
 	}
 
+	clear() {
+		super.clear();
+
+		this.golfAssets.maps = null;
+		this.mapEntities = null;
+	}
+
 	switchMap(map: Maps) {
 		if (this.mapEntities) {
 			this.removeEntities(...this.mapEntities);

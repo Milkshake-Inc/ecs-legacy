@@ -56,4 +56,13 @@ export abstract class System {
 	 * @param engine
 	 */
 	public onRemovedFromEngine(engine: Engine) {}
+
+	public destroy() {
+		this.signalBeforeUpdate.disconnectAll();
+		this.signalOnAddedToEngine.disconnectAll();
+		this.signalOnRemovedFromEngine.disconnectAll();
+		this.signalBeforeUpdate = null;
+		this.signalOnAddedToEngine = null;
+		this.signalOnRemovedFromEngine = null;
+	}
 }

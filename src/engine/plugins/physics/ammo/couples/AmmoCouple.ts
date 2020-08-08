@@ -18,7 +18,7 @@ export const useAmmoCouple = (
 	});
 
 	const getAmmoState = () => {
-		return query.ammoState.first.get(AmmoState);
+		return query.ammoState.first?.get(AmmoState);
 	};
 
 	const couple = useCouple(query.physicsObject, {
@@ -43,6 +43,7 @@ export const useAmmoCouple = (
 			entity.get(Collisions).contacts.clear();
 		},
 		onDestroy: (entity, physicsObject) => {
+			if (!getAmmoState()) return;
 			const { world } = getAmmoState();
 			if (physicsObject instanceof Ammo.btRigidBody) {
 				world.removeRigidBody(physicsObject);

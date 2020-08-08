@@ -27,6 +27,10 @@ export default class ServerSnapshotSystem extends ServerWorldSnapshotSystem<Golf
 		this.snapshotInterpolation = new SnapshotInterpolation(TICK_RATE);
 	}
 
+	onRemovedFromEngine() {
+		this.gameState = this.snapshotInterpolation = this.snapshotQueries = null;
+	}
+
 	generateSnapshot(): GolfWorldSnapshot {
 		const players: GolfSnapshotPlayer[] = this.snapshotQueries.players.map(entity => {
 			const player = entity.get(GolfPlayer);

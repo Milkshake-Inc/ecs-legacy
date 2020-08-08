@@ -152,6 +152,15 @@ class GolfGameServerEngine extends Engine {
 			host.get(GolfPlayer).host = 1;
 		}
 	}
+
+	destroy() {
+		this.space.close(true);
+		this.space = this.playerQueries = this.networking = null;
+
+		this.removeAllEntities();
+		this.removeAllQueries();
+		this.removeAllSystems();
+	}
 }
 
 export class ServerRoomSystem extends System {
@@ -268,6 +277,8 @@ export class ServerRoomSystem extends System {
 	cleanupEmptyRoom(room: GolfGameServerEngine) {
 		if (room.isEmpty && !this.publicRooms.has(room.name)) {
 			this.rooms.delete(room.name);
+			room.destroy();
+			console.log('destroyed room ' + room.name);
 		}
 	}
 

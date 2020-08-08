@@ -129,6 +129,7 @@ export class Engine {
 		this._systems.splice(index, 1);
 		system.onRemovedFromEngine(this);
 		system.signalOnRemovedFromEngine.emit(this);
+		system.destroy();
 
 		return this;
 	}
