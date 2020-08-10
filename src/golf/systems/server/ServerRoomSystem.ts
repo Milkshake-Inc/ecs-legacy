@@ -116,8 +116,8 @@ class GolfGameServerEngine extends Engine {
 				socket.emulatePacket({
 					opcode: GolfPacketOpcode.SHOOT_BALL,
 					velocity: {
-						x: Random.float(-1, 1) * 9,
-						z: Random.float(-1, 1) * 9
+						x: Random.float(-1, 1) * 5,
+						z: Random.float(-1, 1) * 5
 					}
 				});
 			}, Random.int(5000, 10000));
