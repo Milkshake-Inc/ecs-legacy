@@ -13,6 +13,7 @@ import Hole from '../../components/Hole';
 import PlayerBall from '../../components/PlayerBall';
 import { GolfGameState, GolfPacketOpcode, ShootBall, useGolfNetworking } from '../../constants/GolfNetworking';
 import { BALL_HIT_MULTIPLIER } from '../../constants/Physics';
+import AmmoShape from '@ecs/plugins/physics/ammo/components/AmmoShape';
 
 const BALL_PUTT_TIMER = 10000;
 const OUT_OF_BOUNDS_TIMER = 1000;
@@ -118,6 +119,9 @@ export class ServerBallControllerSystem extends System {
 		this.networking.sendTo(entity, { opcode: GolfPacketOpcode.POT_BALL });
 
 		setTimeout(() => {
+			// Should be re-added ing ServerRoomSystem::nextHole
+			entity.remove(AmmoBody);
+			entity.remove(AmmoShape)
 			entity.remove(PlayerBall);
 		}, 1500);
 	}
