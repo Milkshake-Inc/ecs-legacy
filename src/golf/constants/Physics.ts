@@ -8,8 +8,8 @@ export const BallBody = () => {
 	body.restitution = 0.5;
 	body.setDamping(0.3, 0);
 
-	body.ccdMotionThreshold = 0.1;
-	body.ccdSweptSphereRadius = 0.06;
+	// body.ccdMotionThreshold = 0.1;
+	// body.ccdSweptSphereRadius = 0.06;
 	// body.setAngularFactor(new AmmoInstance.btVector3(1, 1, 1));
 	// body.setLinearFactor(new AmmoInstance.btVector3(1, 0.9, 1));
 	// body.friction = 0.2;
