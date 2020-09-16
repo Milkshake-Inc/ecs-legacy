@@ -2,6 +2,8 @@
 
 Experimental ECS Game Engine
 
+Currently doesn't build standalone
+
 ## Getting started
 
 ```
