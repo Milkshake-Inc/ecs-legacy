@@ -8,7 +8,14 @@ import { Events } from './helpers';
  * Query represents list of entities that matches query request.
  * @see QueryBuilder
  */
-export class Query {
+export class Query implements Iterable<Entity> {
+
+	*[Symbol.iterator](): Iterator<Entity> {
+        for (const entity of this.entities) {
+            yield entity;
+        }
+	}
+
 	/**
 	 * Signal dispatches if new matched entity were added
 	 */
