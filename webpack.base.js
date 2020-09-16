@@ -24,7 +24,7 @@ const project = argv.project || 'golf';
 
 module.exports = {
 	project,
-	projectPath: `./src/${project}`,
+	projectPath: `./game/${project}/`,
 	host: argv.host || '127.0.0.1',
 	baseConfig: {
 		mode: 'development',

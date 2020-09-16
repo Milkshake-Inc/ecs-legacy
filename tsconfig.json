@@ -4,7 +4,7 @@
 		"target": "ES6",
 		"baseUrl": ".",
 		"paths": {
-			"@ecs/*": ["./src/engine/*"]
+			"@ecs/*": ["./ecs/src/engine/*"]
 		},
 		"lib": ["es2015", "ES2019", "DOM", "ES7"],
 		"moduleResolution": "Node",
@@ -13,7 +13,7 @@
 		"jsxFactory": "h",
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["./src", "./src/ship/global.d.ts"],
+	"include": ["./game/"],
 	"exclude": ["node_modules", "test"]
 
 }

@@ -5,8 +5,8 @@ const path = require('path');
 const { project, projectPath, host } = require('./webpack.base.js');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
 
-const hasClient = fs.existsSync(`${projectPath}/Client.ts`);
-const hasServer = fs.existsSync(`${projectPath}/Server.ts`);
+const hasClient = fs.existsSync(`${projectPath}/src/Client.ts`);
+const hasServer = fs.existsSync(`${projectPath}/src/Server.ts`);
 
 const webpacks = [];
 

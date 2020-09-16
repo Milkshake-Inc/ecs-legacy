@@ -6,7 +6,7 @@ const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 
 const config = {
-	entry: `${projectPath}/ServerEntry.ts`,
+	entry: `${projectPath}/src/Server.ts`,
 	target: 'node',
 	node: {
 		// Need this when working with express, otherwise the build fails

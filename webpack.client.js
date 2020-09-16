@@ -12,7 +12,7 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin();
 
 const config = {
-	entry: [`${projectPath}/ClientEntry.ts`],
+	entry: [`${projectPath}/src/Client.ts`],
 	module: {
 		rules: [
 			{
@@ -37,7 +37,7 @@ const config = {
 		filename: 'client.js'
 	},
 	plugins: [
-		new CopyPlugin([{ from: './www', to: './', context: './' }]),
+		new CopyPlugin([{ from: `${projectPath}/www`, to: './', context: './' }]),
 		new HtmlWebpackPlugin({
 			title: 'ECS'
 		}),
