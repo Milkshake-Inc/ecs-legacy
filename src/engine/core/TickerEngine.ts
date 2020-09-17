@@ -6,7 +6,7 @@ export class TickerEngineStatistics {
 	frameTime: number;
 }
 
-export default abstract class TickerEngine extends Engine {
+export default class TickerEngine extends Engine {
 	protected tickRate: number;
 	protected ticker: Ticker;
 

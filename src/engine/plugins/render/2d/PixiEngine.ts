@@ -11,7 +11,7 @@ export class PixiEngine extends TickerEngine {
 		super(tickRate);
 
 		this.addSystem(new CameraRenderSystem());
-		this.addSystem(new RenderSystem(1280, 720, backgroundColor));
+		this.addSystem(new RenderSystem());
 
 		const camera = new Entity();
 		camera.add(Transform);

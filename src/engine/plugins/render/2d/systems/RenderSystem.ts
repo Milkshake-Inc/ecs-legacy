@@ -9,7 +9,26 @@ import { useParticleCouple } from '../couples/ParticleCouple';
 import { useSpriteCouple } from '../couples/SpriteCouple';
 import { useTextCouple } from '../couples/TextCouple';
 import { useSpineCouple } from '../couples/SpineCouple';
+import Color from '@ecs/plugins/math/Color';
+import { usePixiCouple } from '../couples/PixiCouple';
 
+export type RenderSystemSettings = {
+	width: number;
+	height: number;
+	clearColor: number;
+	transparent: boolean;
+	addCanvas: boolean;
+};
+
+export const DefaultRenderSystemSettings: RenderSystemSettings = {
+	width: 1280,
+	height: 720,
+	clearColor: Color.Tomato,
+	addCanvas: true,
+	transparent: false,
+};
+
+// customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
 export default class RenderSystem extends System {
 	protected state = useState(this, new PixiRenderState());
 
@@ -30,25 +49,36 @@ export default class RenderSystem extends System {
 		useSpineCouple(this)
 	];
 
-	constructor(width = 1280, height = 720, backgroundColor = 0xff0000, scale = 1, addCanvas = true) {
+	constructor(
+		customSettings?: Partial<RenderSystemSettings>,
+		customCouples?: (system: RenderSystem) => ReturnType<typeof usePixiCouple>[]
+	) {
 		super();
+
+		const settings = {
+			...DefaultRenderSystemSettings,
+			...customSettings
+		};
+
+		if (customCouples) {
+			this.couples.push(...(customCouples(this) as any));
+		}
 
 		this.state.container = new Container();
 		this.state.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
-			width,
-			height,
-			transparent: false,
-			backgroundColor,
+			width: settings.width,
+			height: settings.height,
+			transparent: settings.transparent,
+			backgroundColor: settings.clearColor,
 			antialias: false,
 			autoStart: false
 		});
 
 		(window as any).renderSystem = this;
 
-		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width, height }))));
+		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width: settings.width, height: settings.height }))));
 
-		this.state.container.scale.set(scale, scale);
 		this.state.container.sortableChildren = true;
 
 		// Interaction styff
@@ -56,7 +86,7 @@ export default class RenderSystem extends System {
 		this.state.container.interactive = true;
 		this.state.container.interactiveChildren = true;
 
-		if (addCanvas) {
+		if (settings.addCanvas) {
 			document.body.appendChild(this.state.application.view);
 		}
 	}
