@@ -4,6 +4,8 @@ Experimental ECS Game Engine
 
 Currently doesn't build standalone
 
+![logo.png](logo.png)
+
 ## Getting started
 
 ```
@@ -13,5 +15,11 @@ yarn start
 ```
 
 ## Resources
+
+# useCouple
+# useEntity
+# useEvents
+# useQueries
+# useState
 
  - [ECS Architecture](https://ecsy.io/docs/#/manual/Architecture)

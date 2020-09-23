@@ -11,6 +11,7 @@ import { useTextCouple } from '../couples/TextCouple';
 import { useSpineCouple } from '../couples/SpineCouple';
 import Color from '@ecs/plugins/math/Color';
 import { usePixiCouple } from '../couples/PixiCouple';
+import { useContainerCouple } from '../couples/ContainerCouple';
 
 export type RenderSystemSettings = {
 	width: number;
@@ -46,7 +47,8 @@ export default class RenderSystem extends System {
 		useParticleCouple(this),
 		useGraphicsCouple(this),
 		useTextCouple(this),
-		useSpineCouple(this)
+		useSpineCouple(this),
+		useContainerCouple(this)
 	];
 
 	constructor(
