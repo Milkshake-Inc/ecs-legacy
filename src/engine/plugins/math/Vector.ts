@@ -2,6 +2,10 @@ import Quaternion from './Quaternion';
 
 export type Vector = { x: number; y: number; z: number };
 
+export type Vector2 = { x: number; y: number };
+
+
+
 // Refs
 // https://github.com/ManojLakshan/monogame/blob/master/MonoGame.Framework/Vector3.cs
 // https://github.com/photonstorm/phaser/blob/v2.4.4/src/geom/Point.js
