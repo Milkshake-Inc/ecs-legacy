@@ -62,20 +62,24 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 
 		// Hack ATM - Collision response - Should move to own system
 		if (collision && response && entityA.has(ArcadePhysics)) {
-			// if(entityA.get(ArcadePhysics).isStatic) return;
+			if(entityA.get(ArcadePhysics).isStatic) return;
 
-			// const velocity = new Vector3(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y, 0);
-			// const inverseAngle = new Vector(velocity.x, velocity.y).projectN(response.overlapN);
-			// inverseAngle.normalize().scale(velocity.magnitude() * 1.2);
-
+			// // const velocity = new Vector3(entityAComponents.physics.velocity.x, entityAComponents.physics.velocity.y, 0);
+			// // const inverseAngle = new Vector(velocity.x, velocity.y).projectN(response.overlapN);
+			// // inverseAngle.normalize().scale(velocity.magnitude() * 1.2);
+			// console.log("collision")
 			entityAComponents.transform.position.y -= response.overlapV.y;
 			entityAComponents.transform.position.x -= response.overlapV.x;
 
-			entityAComponents.physics.velocity.x = 0;
-			entityAComponents.physics.velocity.y = 0;
-			entityBComponents.physics.velocity.set(0, 0, 0);
+			// entityAComponents.physics.velocity.x = 0;
+			// entityAComponents.physics.velocity.y = 0;
+			// entityAComponents.physics.velocity.set(0, 0, 0);
 
 			this.updateCollisionShape(entityA);
+
+			console.log("collision")
+
+			// this.updateCollisionShape(entityB);
 
 			// if (response.overlapV.x < 0 || response.overlapV.x > 0) {
 			// 	velocity.x = -inverseAngle.x;
