@@ -41,6 +41,8 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 		const entityAComponents = this.getEntityComponents(entityA);
 		const entityBComponents = this.getEntityComponents(entityB);
 
+		if(entityAComponents.physics.isStatic && entityBComponents.physics.isStatic) return;
+
 		let collision = false;
 		const response: Response = new Response();
 		response.clear();
