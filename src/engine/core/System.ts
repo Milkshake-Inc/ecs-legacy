@@ -29,7 +29,7 @@ export abstract class System {
 	 *
 	 * @param dt Delta time in seconds
 	 */
-	public update(dt: number) {}
+	public update(dt: number, frameDelta?: number) {}
 
 	/**
 	 * Called once per frame, after update. Useful for updating cameras before updateRender is called.

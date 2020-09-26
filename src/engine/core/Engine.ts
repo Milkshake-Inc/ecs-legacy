@@ -206,10 +206,10 @@ export class Engine {
 	 *
 	 * @param dt Delta time in seconds
 	 */
-	public update(dt: number): void {
+	public update(dt: number, frameDelta: number): void {
 		for (const system of this._systems) {
 			system.signalBeforeUpdate.emit(dt);
-			system.update(dt);
+			system.update(dt, frameDelta);
 		}
 	}
 

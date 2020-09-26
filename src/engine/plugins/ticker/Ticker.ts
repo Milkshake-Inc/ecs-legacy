@@ -19,9 +19,8 @@ export default class Ticker {
 
 	public signalFrameStart: Signal<(dt: number, currentTime: number) => void> = new Signal();
 	public signalFixedUpdate: Signal<(dt: number) => void> = new Signal();
-	public signalUpdate: Signal<(dt: number) => void> = new Signal();
+	public signalUpdate: Signal<(dt: number, frameDelta: number) => void> = new Signal();
 	public signalLateUpdate: Signal<(dt: number) => void> = new Signal();
-	public signalRenderUpdate: Signal<(dt: number) => void> = new Signal();
 	public signalFrameEnd: Signal<(fps: number, panic: boolean) => void> = new Signal();
 
 	public frameTime = 0;
@@ -35,7 +34,7 @@ export default class Ticker {
 			this.started = true;
 			this.rafHandle = requestAnimationFrame(dt => {
 				// Render the initial state before any updates occur.
-				this.signalUpdate.emit(1);
+				this.signalUpdate.emit(1, 0);
 
 				// Reset variables that are used for tracking time so that we
 				// don't simulate time passed while the application was paused.
@@ -121,9 +120,8 @@ export default class Ticker {
 			}
 		}
 
-		this.signalUpdate.emit(frameTime);
+		this.signalUpdate.emit(frameTime, frameTime / this.simulationTimeStep);
 		this.signalLateUpdate.emit(frameTime);
-		this.signalRenderUpdate.emit(frameTime / this.simulationTimeStep);
 		this.signalFrameEnd.emit(this.fps, panic);
 
 		this.frameTime = performance.now() - started;

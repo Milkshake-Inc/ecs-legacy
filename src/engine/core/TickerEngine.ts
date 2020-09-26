@@ -20,9 +20,8 @@ export default class TickerEngine extends Engine {
 
 		this.ticker = new Ticker(tickRate);
 		this.ticker.signalFixedUpdate.connect(dt => this.updateFixed(dt));
-		this.ticker.signalUpdate.connect(dt => this.update(dt));
+		this.ticker.signalUpdate.connect((dt, frameDelta) => this.update(dt, frameDelta));
 		this.ticker.signalLateUpdate.connect(dt => this.updateLate(dt));
-		this.ticker.signalRenderUpdate.connect(dt => this.updateRender(dt));
 		this.ticker.signalFrameEnd.connect((dt, panic) => {
 			if (panic) {
 				const oldFrameDelta = this.ticker.resetFrameDelta();

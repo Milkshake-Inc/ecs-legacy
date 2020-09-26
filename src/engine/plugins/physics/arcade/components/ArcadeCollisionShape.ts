@@ -1,6 +1,5 @@
 import { Circle, Box, Polygon, Vector } from 'sat';
 import Vector3 from '@ecs/plugins/math/Vector';
-import { off } from 'hammerjs';
 
 type Shapes = Circle | Polygon;
 
