@@ -2,7 +2,7 @@ import { useQueries, useState } from '@ecs/core/helpers';
 import { System } from '@ecs/core/System';
 import CameraRenderState from '@ecs/plugins/render/2d/components/CameraRenderState';
 import { all } from '@ecs/core/Query';
-import { Application, Container, RenderTexture, Sprite as PixiSprite } from 'pixi.js';
+import { Application, Container, RenderTexture, Sprite as PixiSprite, Graphics, spine } from 'pixi.js';
 import PixiRenderState from '../components/RenderState';
 import { useGraphicsCouple } from '../couples/GraphicsCouple';
 import { useParticleCouple } from '../couples/ParticleCouple';
@@ -67,6 +67,8 @@ export default class RenderSystem extends System {
 		}
 
 		this.state.container = new Container();
+		this.state.ui = new Container();
+
 		this.state.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
 			width: settings.width,
@@ -118,9 +120,11 @@ export default class RenderSystem extends System {
 				);
 
 				this.state.application.renderer.render(this.state.container, sprite.texture as RenderTexture, true);
+				this.state.application.renderer.render(this.state.ui, sprite.texture as RenderTexture, false);
 			}
 		} else {
 			this.state.application.renderer.render(this.state.container, this.defaultRenderSprite.texture as RenderTexture, true);
+			this.state.application.renderer.render(this.state.ui, this.defaultRenderSprite.texture as RenderTexture, false);
 		}
 
 		this.state.application.render();

@@ -6,6 +6,8 @@ import { all, QueryPattern } from '@ecs/core/Query';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
 import PixiRenderState from '../components/RenderState';
 import { Interactable } from '../components/Interactable';
+import { Engine } from '@ecs/core/Engine';
+import UIDisplayObject from '../components/UIDisplayObject';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {
 	const transform = entity.get(Transform);
@@ -47,7 +49,11 @@ export const usePixiCouple = <T extends DisplayObject>(
 				events.dispatchGlobal('CLICK', entity);
 			});
 
-			return getRenderState().container.addChild(createdDisplayObject);
+			const { container, ui } = getRenderState();
+
+			const parent = entity.has(UIDisplayObject) ? ui : container;
+
+			return parent.addChild(createdDisplayObject);
 		},
 		onUpdate: (entity, displayObject, dt) => {
 			genericDisplayObjectUpdate(entity, displayObject);
@@ -56,7 +62,7 @@ export const usePixiCouple = <T extends DisplayObject>(
 			}
 		},
 		onDestroy: (entity, displayObject) => {
-			getRenderState().container.removeChild(displayObject);
+			displayObject.parent.removeChild(displayObject);
 		}
 	});
 };
