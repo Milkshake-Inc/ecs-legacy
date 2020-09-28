@@ -51,7 +51,13 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 
 		// Hack ATM - Collision response - Should move to own system
 		if (collision && response && entityA.has(ArcadePhysics)) {
-			if(entityA.get(ArcadePhysics).isStatic) return;
+			// Skip
+			if(entityAComponents.physics.isStatic) return;
+
+			if(!entityBComponents.physics.isStatic) {
+				// Dynamic vs Dnamic?
+				response.overlapV.scale(0.5)
+			}
 
 			entityAComponents.collision.shape.pos.y -= response.overlapV.y;
 			entityAComponents.collision.shape.pos.x -= response.overlapV.x;
