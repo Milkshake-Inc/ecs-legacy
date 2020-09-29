@@ -1,11 +1,15 @@
 import SeedRandom, { prng } from 'seedrandom';
 
-export default class Random {
+export class Random {
+
 	private rng: prng;
 
 	constructor(seed: string | number = Date.now()) {
-		seed = seed.toString();
-		this.rng = SeedRandom(seed);
+		this.seed(seed);
+	}
+
+	public seed(seed: string | number = Date.now()) {
+		this.rng = SeedRandom(seed.toString());
 	}
 
 	public random() {
@@ -28,23 +32,16 @@ export default class Random {
 		return array[this.int(0, array.length - 1)];
 	}
 
-	public static seed(seed: string | number) {
-		return new Random(seed);
-	}
+	public shuffleArray = <T>(array: T[]) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
 
-	public static bool(chance = 0.5): boolean {
-		return new Random().bool(chance);
-	}
-
-	public static float(from: number, to: number): number {
-		return new Random().float(from, to);
-	}
-
-	public static int(from: number, to: number): number {
-		return new Random().int(from, to);
-	}
-
-	public static fromArray<T>(array: T[]): T {
-		return new Random().fromArray(array);
+        return array;
 	}
 }
+
+export default new Random();
