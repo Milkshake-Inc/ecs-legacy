@@ -19,6 +19,7 @@ export type RenderSystemSettings = {
 	clearColor: number;
 	transparent: boolean;
 	addCanvas: boolean;
+	uiZIndex: number;
 };
 
 export const DefaultRenderSystemSettings: RenderSystemSettings = {
@@ -27,6 +28,7 @@ export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	clearColor: Color.Tomato,
 	addCanvas: true,
 	transparent: false,
+	uiZIndex: 10,
 };
 
 // customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
@@ -68,6 +70,9 @@ export default class RenderSystem extends System {
 
 		this.state.container = new Container();
 		this.state.ui = new Container();
+		this.state.ui.zIndex = settings.uiZIndex;
+
+		this.state.container.addChild(this.state.ui);
 
 		this.state.application = new Application({
 			view: <HTMLCanvasElement>document.getElementById('canvas'),
@@ -82,6 +87,7 @@ export default class RenderSystem extends System {
 		(window as any).renderSystem = this;
 
 		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width: settings.width, height: settings.height }))));
+
 
 		this.state.container.sortableChildren = true;
 
@@ -119,12 +125,12 @@ export default class RenderSystem extends System {
 					camera.transform.pivot.y
 				);
 
+				this.state.ui.position.set(-camera.transform.position.x - (1280 / 2), -camera.transform.position.y - (720 / 2));
+
 				this.state.application.renderer.render(this.state.container, sprite.texture as RenderTexture, true);
-				this.state.application.renderer.render(this.state.ui, sprite.texture as RenderTexture, false);
 			}
 		} else {
 			this.state.application.renderer.render(this.state.container, this.defaultRenderSprite.texture as RenderTexture, true);
-			this.state.application.renderer.render(this.state.ui, this.defaultRenderSprite.texture as RenderTexture, false);
 		}
 
 		this.state.application.render();
