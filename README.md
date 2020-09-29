@@ -1,9 +1,3 @@
-# 🚀 ECS
-
-Experimental ECS Game Engine
-
-Currently doesn't build standalone
-
 ![logo.png](logo.png)
 
 ## Getting started
