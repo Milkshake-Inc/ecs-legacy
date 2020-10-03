@@ -11,9 +11,9 @@ import { Events } from './helpers';
 export class Query implements Iterable<Entity> {
 
 	*[Symbol.iterator](): Iterator<Entity> {
-        for (const entity of this.entities) {
-            yield entity;
-        }
+		for (const entity of this.entities) {
+			yield entity;
+		}
 	}
 
 	/**
@@ -60,6 +60,10 @@ export class Query implements Iterable<Entity> {
 
 	public get length(): number {
 		return this._entities.size;
+	}
+
+	public getAll<T>(componentClass: Class<T>): T[] | undefined {
+		return this.entities.map(entity => entity.get(componentClass));
 	}
 
 	public countBy(predicate: (entity: Entity) => boolean): number {
