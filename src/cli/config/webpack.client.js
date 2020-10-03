@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const cwd = process.cwd();
 
-const { baseConfig, projectPath } = require('./webpack.base.js');
+const { baseConfig, projectPath, port } = require('./webpack.base.js');
 const merge = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
@@ -46,7 +46,12 @@ const config = {
 			name: 'Client',
 			reporter: {
 				allDone(context) {
-					console.log(chalk.bold('✨  Server running at ') + chalk.green('http://localhost:9090'));
+					const publicIp = require('public-ip')
+
+					publicIp.v4().then(ip => {
+						console.log(chalk.bold('✨  Server running at ') + chalk.green(`http://${ip}:${port}`));
+					})
+
 				}
 			}
 		}),

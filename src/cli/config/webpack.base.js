@@ -21,17 +21,24 @@ const argv = yargs
 			type: 'string'
 		}
 	})
+	.command('port', 'Port', {
+		year: {
+			description: 'port for run dev server on',
+			alias: 'p',
+			type: 'number'
+		}
+	})
 	.help()
 	.alias('help', 'h').argv;
 
 const project = argv.project || games[0];
 
 
-
 module.exports = {
 	project,
 	projectPath: `${process.cwd()}/game/${project}/`,
-	host: argv.host || '127.0.0.1',
+	host: argv.host || '0.0.0.0',
+	port: argv.port || 80,
 	baseConfig: {
 		mode: 'development',
 		module: {

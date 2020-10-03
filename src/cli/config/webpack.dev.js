@@ -2,9 +2,10 @@ const fs = require('fs');
 const chalk = require('chalk');
 const emoji = require('node-emoji');
 const path = require('path');
-const { project, projectPath, host } = require('./webpack.base.js');
+const { project, projectPath, publicIP, port } = require('./webpack.base.js');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
 const cwd = process.cwd();
+const publicIp = require('public-ip')
 
 const hasClient = fs.existsSync(`${projectPath}/src/Client.ts`);
 const hasServer = fs.existsSync(`${projectPath}/src/Server.ts`);
@@ -12,9 +13,10 @@ const hasServer = fs.existsSync(`${projectPath}/src/Server.ts`);
 const webpacks = [];
 
 if (hasClient) {
+
 	const devServer = new Serve({
-		port: 9090,
-		host: host,
+		port,
+		host: publicIp.v4(),
 		open: true,
 		static: path.join(cwd, 'bin/www'),
 		hmr: false,
