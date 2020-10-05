@@ -18,24 +18,23 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 			for (const entityB of this.entities) {
 				if (entityA != entityB) {
 					this.checkCollision(entityA, entityB);
-					// this.checkCollision(entityB, entityA);
 				}
 			}
 		}
 	}
 
 	protected checkCollision(entityA: Entity, entityB: Entity) {
-		const entityAComponents = this.getEntityComponents(entityA);
-		const entityBComponents = this.getEntityComponents(entityB);
+		const physicsA = entityA.get(ArcadePhysics)
+		const physicsB = entityB.get(ArcadePhysics)
 
-		if(entityAComponents.physics.isStatic && entityBComponents.physics.isStatic) return;
+		if (physicsA.isStatic && physicsB.isStatic) return;
 
 		let collision = false;
 		const response: Response = new Response();
 		response.clear();
 
-		const shapeA = entityAComponents.collision.shape;
-		const shapeB = entityBComponents.collision.shape;
+		const shapeA = entityA.get(ArcadeCollisionShape).shape;
+		const shapeB = entityB.get(ArcadeCollisionShape).shape;
 
 		if (shapeA instanceof Circle && shapeB instanceof Circle) {
 			collision = testCircleCircle(shapeA, shapeB, response);
@@ -52,24 +51,23 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 		// Hack ATM - Collision response - Should move to own system
 		if (collision && response && entityA.has(ArcadePhysics)) {
 			// Skip
-			if(entityAComponents.physics.isStatic) return;
+			if (physicsA.isStatic) return;
 
-			if(!entityBComponents.physics.isStatic) {
+			if (!physicsB.isStatic) {
 				// Dynamic vs Dnamic?
 				response.overlapV.scale(0.5)
 			}
 
-			entityAComponents.collision.shape.pos.y -= response.overlapV.y;
-			entityAComponents.collision.shape.pos.x -= response.overlapV.x;
+			shapeA.pos.y -= response.overlapV.y;
+			shapeA.pos.x -= response.overlapV.x;
 
-			entityAComponents.physics.velocity.x = 0;
-			entityAComponents.physics.velocity.y = 0;
+			physicsA.velocity.x = 0;
+			physicsA.velocity.y = 0;
 		}
 	}
 
 	private getEntityComponents(entity: Entity) {
 		return {
-			transform: entity.get(Transform),
 			collision: entity.get(ArcadeCollisionShape),
 			physics: entity.get(ArcadePhysics)
 		};
