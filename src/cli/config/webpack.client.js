@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const cwd = process.cwd();
 
 const { baseConfig, projectPath, port } = require('./webpack.base.js');
-const merge = require('webpack-merge');
+const {merge} = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
 
@@ -38,9 +38,14 @@ const config = {
 		filename: 'client.js'
 	},
 	plugins: [
-		new CopyPlugin([{ from: `${projectPath}/www`, to: './', context: './' }]),
+		new CopyPlugin({
+			patterns: [
+				{ from: `${projectPath}/www`, to: './' },
+			],
+		  }),
 		new HtmlWebpackPlugin({
-			title: 'ECS'
+			title: 'ECS Apple',
+
 		}),
 		new WebpackBar({
 			name: 'Client',
