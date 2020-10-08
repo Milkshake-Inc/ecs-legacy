@@ -22,6 +22,7 @@ compiler.watch({
             const err = error.split("\n");
 
             console.log(`${err[2]}\n${err[3]}\n`)
+            console.log(err)
         })
     }
 

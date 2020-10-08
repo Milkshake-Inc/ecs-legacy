@@ -1,9 +1,11 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const { baseConfig, projectPath } = require('./webpack.base.js');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const WebpackBar = require('webpackbar');
+const cwd = process.cwd();
 
 const config = {
 	entry: `${projectPath}/src/Server.ts`,
@@ -26,16 +28,21 @@ const config = {
 		new WebpackBar({
 			name: 'Server',
 			color: 'orange'
-		})
+		}),
+		new CopyPlugin({
+			patterns: [
+				{ from: `${projectPath}/www`, to: './www' },
+			],
+		}),
 	],
 	externals: [
 		nodeExternals({
-			whitelist: [/^three/]
+			allowlist: [/^three/]
 		})
 	],
 	output: {
-		filename: 'server.js',
-		path: path.resolve(__dirname, 'bin')
+		path: path.resolve(cwd, 'bin/server'),
+		filename: 'server.js'
 	}
 };
 
