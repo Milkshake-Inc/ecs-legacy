@@ -3,7 +3,7 @@ import { Query } from '../Query';
 
 export type CoupleCallbacks<T> = {
 	onCreate: (entity: Entity) => T;
-	onUpdate?: (entity: Entity, coupleType: T, deltaTime: number) => void;
+	onUpdate?: (entity: Entity, coupleType: T, deltaTime: number, frameDelta?: number) => void;
 	onLateUpdate?: (entity: Entity, coupleType: T, deltaTime: number) => void;
 	onDestroy: (entity: Entity, coupleType: T) => void;
 };
@@ -28,10 +28,10 @@ export const useCouple = <T>(query: Query, callbacks: CoupleCallbacks<T>) => {
 
 	return {
 		entities: map,
-		update: (deltaTime: number) => {
+		update: (deltaTime: number, frameDelta?: number) => {
 			if (callbacks.onUpdate) {
 				query.entities.forEach(entity => {
-					callbacks.onUpdate(entity, map.get(entity), deltaTime);
+					callbacks.onUpdate(entity, map.get(entity), deltaTime, frameDelta);
 				});
 			}
 		},

@@ -76,37 +76,17 @@ export default class RenderSystem extends System {
 		(window as any).renderSystem = this;
 
 		document.body.appendChild(this.state.renderer.getContext().canvas as HTMLCanvasElement);
-		this.render();
 	}
 
-	updateFixed(dt: number) {
-		super.updateFixed(dt);
+	update(dt: number, frameDelta: number) {
+		super.update(dt, frameDelta);
 
-		this.couples.forEach(couple => couple.update(dt));
+		this.couples.forEach(couple => couple.update(dt, frameDelta));
 	}
 
 	updateLate(dt: number) {
 		super.updateLate(dt);
 
 		this.couples.forEach(couple => couple.lateUpdate(dt));
-	}
-
-	updateRender(dt: number) {
-		super.updateRender(dt);
-
-		this.render();
-	}
-
-	render() {
-		this.queries.camera.forEach(entity => {
-			let camera = entity.get(Camera);
-			if (entity.has(PerspectiveCamera)) {
-				camera = entity.get(PerspectiveCamera);
-			}
-
-			if (!camera) return;
-
-			this.state.renderer.render(this.state.scene, camera);
-		});
 	}
 }
