@@ -7,22 +7,24 @@ import { PacketOpcode } from '../components/Packet';
 import Session from '../components/Session';
 import { IterativeSystem } from '@ecs/core/IterativeSystem';
 import { Class } from '@ecs/core/Class';
+import { useBaseNetworking } from '../helpers/useNetworking';
 
 export default class ClientInputSenderSystem extends IterativeSystem {
 	protected queries = useQueries(this, {
 		pingState: all(ClientPingState)
 	});
 
+	protected networking = useBaseNetworking(this);
+
 	constructor() {
 		super(makeQuery(all(Session, Input)));
 	}
 
 	protected updateEntityFixed(entity: Entity, deltaTime: number) {
-		const session = entity.get(Session);
 		const input = entity.get(Input);
 		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-		session.socket.send({
+		this.networking.send({
 			opcode: PacketOpcode.PLAYER_INPUT,
 			input,
 			tick: serverTick
@@ -36,6 +38,8 @@ export class ClientCustomInputSenderSystem<T = Input<any>> extends IterativeSyst
 		pingState: all(ClientPingState)
 	});
 
+	protected networking = useBaseNetworking(this);
+
 	private inputClass: Class<T>;
 
 	constructor(inputClass: Class<T>) {
@@ -45,11 +49,10 @@ export class ClientCustomInputSenderSystem<T = Input<any>> extends IterativeSyst
 	}
 
 	protected updateEntityFixed(entity: Entity, deltaTime: number) {
-		const session = entity.get(Session);
 		const input = entity.get(this.inputClass);
 		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-		session.socket.send({
+		this.networking.send({
 			opcode: PacketOpcode.PLAYER_CUSTOM_INPUT,
 			input,
 			tick: serverTick

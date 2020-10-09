@@ -1,9 +1,3 @@
-import Socket from '../utils/Socket';
-
 export default class Session {
-	constructor(public socket: Socket, public lastPongResponse: number = -1, public rtt: number = 0) {}
-
-	get id() {
-		return this.socket.id;
-	}
+	constructor(public id: string, public lastPongResponse: number = -1, public rtt: number = 0, public bytesIn = 0, public bytesOut = 0) {}
 }

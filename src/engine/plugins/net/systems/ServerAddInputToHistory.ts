@@ -6,28 +6,22 @@ import { PacketOpcode, PlayerInput, PlayerCustomInput } from '@ecs/plugins/net/c
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
 import { all, makeQuery } from '@ecs/core/Query';
+import { useBaseNetworking } from '../helpers/useNetworking';
 
 export class ServerAddInputToHistory extends IterativeSystem {
 	protected queries = useQueries(this, {
 		serverPing: all(ServerPingState)
 	});
 
+	protected networking = useBaseNetworking(this);
+
 	constructor() {
 		super(makeQuery(all(Session, InputHistory)));
+
+		this.networking.on(PacketOpcode.PLAYER_INPUT, this.handleInputPacket.bind(this));
 	}
 
-	protected entityAdded = (snapshot: EntitySnapshot) => {
-		const entity = snapshot.entity;
-		const session = entity.get(Session);
-
-		session.socket.handleImmediate(packet => {
-			if (packet.opcode == PacketOpcode.PLAYER_INPUT) {
-				this.handleInputPacket(entity, packet);
-			}
-		});
-	};
-
-	protected handleInputPacket(entity: Entity, { tick, input }: PlayerInput) {
+	protected handleInputPacket({ tick, input }: PlayerInput, entity: Entity) {
 		const { serverTick } = this.queries.serverPing.first.get(ServerPingState);
 		const inputHistory = entity.get(InputHistory);
 
@@ -52,22 +46,15 @@ export class ServerCustomAddInputToHistory extends IterativeSystem {
 		serverPing: all(ServerPingState)
 	});
 
+	protected networking = useBaseNetworking(this);
+
 	constructor() {
 		super(makeQuery(all(Session, InputHistory)));
+
+		this.networking.on(PacketOpcode.PLAYER_CUSTOM_INPUT, this.handleInputPacket.bind(this));
 	}
 
-	protected entityAdded = (snapshot: EntitySnapshot) => {
-		const entity = snapshot.entity;
-		const session = entity.get(Session);
-
-		session.socket.handleImmediate(packet => {
-			if (packet.opcode == PacketOpcode.PLAYER_CUSTOM_INPUT) {
-				this.handleInputPacket(entity, packet);
-			}
-		});
-	};
-
-	protected handleInputPacket(entity: Entity, { tick, input }: PlayerCustomInput) {
+	protected handleInputPacket({ tick, input }: PlayerCustomInput, entity: Entity) {
 		const { serverTick } = this.queries.serverPing.first.get(ServerPingState);
 		const inputHistory = entity.get(InputHistory);
 

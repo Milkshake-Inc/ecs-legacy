@@ -1,25 +1,17 @@
-import { Entity } from '@ecs/core/Entity';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { any, makeQuery } from '@ecs/core/Query';
+import { System } from '@ecs/core/System';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
-import Session from '../components/Session';
+import { useBaseNetworking } from '../helpers/useNetworking';
 
-export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}> extends IterativeSystem {
+export abstract class ClientBasicWorldSnapshotSystem<TSnapshot extends {}> extends System {
+	protected networking = useBaseNetworking(this);
+
 	constructor() {
-		super(makeQuery(any(Session)));
+		super();
+
+		this.networking.on(PacketOpcode.WORLD, this.updateSnapshot.bind(this));
 	}
 
 	abstract applySnapshot(snapshot: TSnapshot): void;
-
-	updateEntityFixed(entity: Entity, deltaTime: number) {
-		// Handle world packets
-		const session = entity.get(Session);
-		const packets = session.socket.handle<WorldSnapshot<TSnapshot>>(PacketOpcode.WORLD);
-
-		if (packets.length > 0) {
-			this.updateSnapshot(packets.pop());
-		}
-	}
 
 	updateSnapshot({ snapshot }: WorldSnapshot<TSnapshot>) {
 		this.applySnapshot(snapshot);

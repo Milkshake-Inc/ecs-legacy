@@ -1,4 +1,3 @@
-import { Entity } from '@ecs/core/Entity';
 import { useQueries, useState } from '@ecs/core/helpers';
 import { IterativeSystem } from '@ecs/core/IterativeSystem';
 import { all, any, makeQuery } from '@ecs/core/Query';
@@ -6,6 +5,7 @@ import diff from 'json-diff';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
 import Session from '../components/Session';
+import { useBaseNetworking } from '../helpers/useNetworking';
 import { objectIsEqual } from '../utils/ObjectCompare';
 
 export class ClientWorldSnapshotState<T> {
@@ -30,8 +30,14 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends It
 
 	protected state = useState(this, new ClientWorldSnapshotState());
 
+	protected networking = useBaseNetworking(this);
+
 	constructor() {
 		super(makeQuery(any(Session)));
+
+		this.networking.on(PacketOpcode.WORLD, packet => {
+			this.updateSnapshot(packet as any);
+		});
 	}
 
 	abstract takeSnapshot(): TSnapshot;
@@ -39,22 +45,6 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends It
 	abstract createEntitiesFromSnapshot(snapshot: TSnapshot): void;
 	abstract runSimulation(deltaTime: number): void;
 	abstract applyPlayerInput(tick: number): void;
-
-	added = false;
-
-	updateEntityFixed(entity: Entity, deltaTime: number) {
-		// Handle world packets
-		if (!this.added) {
-			const session = entity.get(Session);
-			session.socket.handleImmediate(packet => {
-				if (packet.opcode == PacketOpcode.WORLD) {
-					this.updateSnapshot(packet as any);
-				}
-			});
-
-			this.added = true;
-		}
-	}
 
 	updateFixed(dt: number) {
 		this.state.snapshotHistory[this.serverTick] = this.takeSnapshot();
