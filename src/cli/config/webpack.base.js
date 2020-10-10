@@ -3,6 +3,7 @@ const path = require('path');
 const yargs = require('yargs');
 const { readdirSync } = require('fs');
 const cwd = process.cwd();
+const emoji = require('node-emoji');
 
 const games = readdirSync(path.resolve(cwd, './game')).filter((folder) => !folder.includes("."));
 
@@ -34,11 +35,19 @@ const argv = yargs
 const project = argv.project || games[0];
 
 
+let projectEmoji = '🌱';
+
+const results = emoji.search(project);
+if (results.length > 0) {
+    projectEmoji = results[0].emoji;
+}
+
 module.exports = {
     project,
     projectPath: `${process.cwd()}/game/${project}/`,
     host: argv.host || '0.0.0.0',
     port: argv.port || 3000,
+    emoji: projectEmoji,
     baseConfig: {
         mode: 'development',
         module: {

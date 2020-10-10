@@ -4,10 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const cwd = process.cwd();
 
-const { baseConfig, projectPath, port } = require('./webpack.base.js');
+const { baseConfig, projectPath, port, project, emoji } = require('./webpack.base.js');
 const {merge} = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
+const capitalize = require('capitalize');
 
 const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin();
@@ -44,8 +45,11 @@ const config = {
 			],
 		  }),
 		new HtmlWebpackPlugin({
-			title: 'ECS Apple',
-
+			title: capitalize(project),
+			template: __dirname + "/template.html",
+			templateParameters: {
+				emoji
+			},
 		}),
 		new WebpackBar({
 			name: 'Client',

@@ -1,8 +1,7 @@
 const fs = require('fs');
 const chalk = require('chalk');
-const emoji = require('node-emoji');
 const path = require('path');
-const { project, projectPath, host, port } = require('./webpack.base.js');
+const { project, projectPath, host, port, emoji } = require('./webpack.base.js');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
 const cwd = process.cwd();
 const publicIp = require('public-ip')
@@ -39,13 +38,6 @@ if (!hasClient && !hasServer) {
     process.exit();
 }
 
-let projectEmoji = '🌱';
-
-const results = emoji.search(project);
-if (results.length > 0) {
-    projectEmoji = results[0].emoji;
-}
-
-console.log(chalk.bold.blue(`\n ${projectEmoji}  Starting project '${project}' - Client: ${hasClient} Server: ${hasServer}`));
+console.log(chalk.bold.blue(`\n ${emoji}  Starting project '${project}' - Client: ${hasClient} Server: ${hasServer}`));
 
 module.exports = webpacks;
