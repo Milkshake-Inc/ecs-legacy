@@ -17,7 +17,7 @@ const config = {
 	},
 	plugins: [
 		new NodemonPlugin({
-			nodeArgs: ['--inspect'],
+			nodeArgs: ['--inspect=0.0.0.0:9229'],
 			watch: path.resolve('./bin'),
 			ignore: ['client.js', 'client.js.map'],
 			ext: 'js,glb',
