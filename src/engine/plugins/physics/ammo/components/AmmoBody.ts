@@ -10,7 +10,18 @@ export enum BodyType {
 	Ghost = 4
 }
 
+export enum BodyCollisionMask {
+	NONE = 0,
+    ONE = 1,
+    TERRAIN = 64,
+	GROUND = 128,
+	BALL = 256
+}
+
 export default class AmmoBody extends AmmoInstance.btRigidBody {
+	public mask: BodyCollisionMask = BodyCollisionMask.ONE;
+	public group: BodyCollisionMask = BodyCollisionMask.ONE;
+
 	private _mass: number;
 
 	constructor(mass = 0) {
