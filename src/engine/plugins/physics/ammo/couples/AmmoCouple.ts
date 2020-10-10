@@ -4,6 +4,7 @@ import { System } from '@ecs/core/System';
 import Ammo from 'ammojs-typed';
 import Collisions from '../../3d/components/Collisions';
 import { Optional } from '../../3d/couples/CannonCouple';
+import { AmmoInstance } from '../AmmoLoader';
 import { AmmoState } from '../AmmoPhysicsSystem';
 
 // TODO: Maybe have useAmmoShapeCouple - For shared code between AmmoShapeCouple & AmmoTrimeshCouple
@@ -26,7 +27,10 @@ export const useAmmoCouple = (
 			const createdPhysicsObject = callbacks.onCreate(entity);
 			const world = getAmmoState().world;
 
-			if (createdPhysicsObject instanceof Ammo.btRigidBody) {
+			// console.log("About to add")
+			// (createdPhysicsObject as Ammo.btRigidBody)
+			if (createdPhysicsObject instanceof AmmoInstance.btRigidBody) {
+
 				world.addRigidBody(createdPhysicsObject);
 			}
 
@@ -45,7 +49,7 @@ export const useAmmoCouple = (
 		onDestroy: (entity, physicsObject) => {
 			if (!getAmmoState()) return;
 			const { world } = getAmmoState();
-			if (physicsObject instanceof Ammo.btRigidBody) {
+			if (physicsObject instanceof AmmoInstance.btRigidBody) {
 				world.removeRigidBody(physicsObject);
 			}
 		}

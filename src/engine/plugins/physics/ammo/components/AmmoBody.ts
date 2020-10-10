@@ -129,7 +129,7 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 	}
 
 	public clearForces() {
-		super.clearForces();
+		// super.clearForces();
 		this.setLinearVelocity(new AmmoInstance.btVector3(0, 0, 0));
 		this.setAngularVelocity(new AmmoInstance.btVector3(0, 0, 0));
 		this.activate(true);
