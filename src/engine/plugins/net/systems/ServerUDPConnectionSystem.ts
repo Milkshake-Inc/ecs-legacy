@@ -1,63 +1,28 @@
 import { Engine } from '../../../core/Engine';
 import { Entity } from '../../../core/Entity';
-import { useSimpleEvents } from '../../../core/helpers';
 import { GeckosServer, ServerChannel } from '@geckos.io/server';
 import geckosServer from '@geckos.io/server/lib/geckos/server';
-import { sign, verify } from 'jsonwebtoken';
-import { uuid } from 'uuidv4';
 import { Packet } from '../components/Packet';
 import Session from '../components/Session';
 import { encode, decode } from '@msgpack/msgpack';
-import { System } from '../../../core/System';
 import { NetEvents } from '../components/NetEvents';
+import ServerConnectionSystem from './ServerConnectionSystem';
 
-const secret = 'somethingsupersecretyo';
 const RELIABLE_MESSAGE = 'reliableRawMessage';
 
-interface JWTData {
-	id: string;
-}
-
-export default class ServerUDPConnectionSystem extends System {
-	protected engine: Engine;
+export default class ServerUDPConnectionSystem extends ServerConnectionSystem {
 	protected server: GeckosServer;
-	protected events = useSimpleEvents();
 	protected sockets: Map<Entity, ServerChannel> = new Map();
 
 	constructor(engine: Engine) {
-		super();
+		super(engine);
 
 		this.engine = engine;
-
-		this.events = useSimpleEvents();
-		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
-		this.events.on(NetEvents.Send, this.send.bind(this));
-		this.events.on(NetEvents.SendTo, this.sendTo.bind(this));
-		this.events.on(NetEvents.SendExcept, this.sendExcept.bind(this));
-
 		this.server = geckosServer({
-			authorization: async token => {
-				// If token exists, verify it and return as userData for client to get existing user.
-				if (token) {
-					try {
-						const { id } = verify(token, secret) as JWTData;
-						return { token, id };
-					} catch (e) {
-						console.warn(`invalid token ${token}. Generating new one...`);
-					}
-				}
-
-				// Generate new user
-				const id = uuid();
-				token = sign({ id: id }, secret, {
-					expiresIn: '1 day'
-				});
-				return { token, id };
-			}
+			authorization: this.authorization
 		});
 
 		this.server.onConnection(this.handleConnection.bind(this));
-		console.log(`🔌 Server started!`);
 		this.server.listen();
 	}
 

@@ -1,13 +1,10 @@
 import { Entity } from '@ecs/core/Entity';
-import { Engine } from '@ecs/core/Engine';
-import { makeQuery } from '@ecs/core/Query';
 import Session from '../components/Session';
 import geckosClient, { ClientChannel } from '@geckos.io/client';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { useSimpleEvents, useState } from '@ecs/core/helpers';
 import { NetEvents } from '../components/NetEvents';
 import { decode, encode } from '@msgpack/msgpack';
 import { Packet } from '../components/Packet';
+import ClientConnectionSystem from './ClientConnectionSystem';
 
 export class ConnectionStatistics {
 	public connected = false;
@@ -17,27 +14,8 @@ export class ConnectionStatistics {
 
 const RELIABLE_MESSAGE = 'reliableRawMessage';
 
-export default class ClientUDPConnectionSystem extends IterativeSystem {
-	private engine: Engine;
-	private sessionEntity: Entity;
-	private channel: ClientChannel;
-	protected events = useSimpleEvents();
-
-	private time = 0;
-
-	private state = useState(this, new ConnectionStatistics());
-
-	constructor(engine: Engine) {
-		super(makeQuery());
-		this.engine = engine;
-
-		this.events = useSimpleEvents();
-		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
-		this.events.on(NetEvents.Send, this.send.bind(this));
-
-		console.log(`🔌 Connecting to server...!`);
-		this.connect(); // localStorage.getItem('token'); // <-- persist connections
-	}
+export default class ClientUDPConnectionSystem extends ClientConnectionSystem {
+	protected channel: ClientChannel;
 
 	protected connect(token = '') {
 		const client = geckosClient({

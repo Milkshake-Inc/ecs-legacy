@@ -72,7 +72,7 @@
         "three-bmfont-text": "^3.0.1",
         "tweakpane": "^1.5.5",
         "typed-signals": "^2.1.0",
-        "uWebSockets.js": "uNetworking/uWebSockets.js#v18.5.0",
+        "uWebSockets.js": "uNetworking/uWebSockets.js#v18.6.0",
         "uuidv4": "^6.2.4",
         "webfontloader": "^1.6.28",
         "yargs": "^16.0.3"
