@@ -13,6 +13,9 @@ export const useAmmoBodyCouple = (system: System) =>
 			body.position = transform.position;
 			body.quaternion = transform.quaternion;
 
+			// Should this always be here
+			body.setCollisionFlags(body.getCollisionFlags() | 8)
+
 			// TODO
 			// Should this be added manually when creating an entity
 			entity.add(Collisions);
@@ -23,6 +26,6 @@ export const useAmmoBodyCouple = (system: System) =>
 			const transform = entity.get(Transform);
 
 			transform.position.setFromVector(body.position);
-			transform.quaternion = body.quaternion;
+			transform.quaternion.set(body.quaternion.x, body.quaternion.y, body.quaternion.z, body.quaternion.w);
 		}
 	});

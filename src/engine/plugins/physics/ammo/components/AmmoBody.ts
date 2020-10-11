@@ -10,17 +10,28 @@ export enum BodyType {
 	Ghost = 4
 }
 
-export enum BodyCollisionMask {
-	NONE = 0,
-    ONE = 1,
-    TERRAIN = 64,
-	GROUND = 128,
-	BALL = 256
+
+export enum CollisionFilterGroups {
+	NoFilter = 0,
+	DefaultFilter = 1,
+	StaticFilter = 2,
+	KinematicFilter = 4,
+	DebrisFilter = 8,
+	SensorTrigger = 16,
+	CharacterFilter = 32,
+
+	Terrain = 64,
+	Ground = 128,
+	Ball = 256,
+
+	AllFilter = -1
+
 }
 
 export default class AmmoBody extends AmmoInstance.btRigidBody {
-	public mask: BodyCollisionMask = BodyCollisionMask.ONE;
-	public group: BodyCollisionMask = BodyCollisionMask.ONE;
+
+	public groups?: CollisionFilterGroups;
+	public groupsCollideWith?: CollisionFilterGroups;
 
 	private _mass: number;
 

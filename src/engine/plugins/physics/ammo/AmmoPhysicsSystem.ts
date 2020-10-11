@@ -33,6 +33,7 @@ export default class AmmoPhysicsSystem extends System {
 		const world = new AmmoInstance.btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
 
 		world.setGravity(new AmmoInstance.btVector3(gravity.x, gravity.y, gravity.z));
+		(world as any).activateContactAddedCallbackAdjustInternalEdgeContacts();
 
 		return world;
 	}

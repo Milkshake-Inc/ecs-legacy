@@ -29,8 +29,14 @@ export const useAmmoCouple = (
 			const world = getAmmoState().world;
 
 			if (createdPhysicsObject instanceof AmmoInstance.btRigidBody) {
-				const asAmmoBody = createdPhysicsObject as AmmoBody;
-				world.addRigidBody(createdPhysicsObject, asAmmoBody.group, asAmmoBody.mask);
+				const body = createdPhysicsObject as AmmoBody;
+
+				// https://pybullet.org/Bullet/BulletFull/btDiscreteDynamicsWorld_8cpp_source.html
+				if (body.groups || body.groupsCollideWith) {
+					world.addRigidBody(createdPhysicsObject, body.groups, body.groupsCollideWith);
+				} else {
+					world.addRigidBody(createdPhysicsObject);
+				}
 			}
 
 			return createdPhysicsObject;

@@ -7,7 +7,6 @@ export default class AmmoShape {
 
 	constructor(shape: Ammo.btCollisionShape) {
 		this.shape = shape;
-		this.shape.setMargin(0.05);
 	}
 
 	public static BOX(size: number | Vector) {
@@ -20,5 +19,13 @@ export default class AmmoShape {
 
 	public static SPHERE(radius: number) {
 		return new AmmoShape(new AmmoInstance.btSphereShape(radius));
+	}
+
+	public static CYLINDER(size: number | Vector) {
+		if (typeof size == 'number') {
+			return new AmmoShape(new AmmoInstance.btCylinderShape(new AmmoInstance.btVector3(size, size, size)));
+		}
+
+		return new AmmoShape(new AmmoInstance.btCylinderShape(new AmmoInstance.btVector3(size.x, size.y, size.z)));
 	}
 }

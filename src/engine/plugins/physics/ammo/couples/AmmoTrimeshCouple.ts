@@ -1,11 +1,10 @@
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
-import Ammo from 'ammojs-typed';
 import TrimeshShape from '../../3d/components/TrimeshShape';
 import { applyToMeshesIndividually } from '../../3d/couples/ShapeCouple';
-import { useAmmoCouple } from './AmmoCouple';
-import AmmoBody from '../components/AmmoBody';
 import { AmmoInstance } from '../AmmoLoader';
+import AmmoBody from '../components/AmmoBody';
+import { useAmmoCouple } from './AmmoCouple';
 
 export const useAmmoTrimeshCouple = (system: System) =>
 	useAmmoCouple(system, all(TrimeshShape), {
@@ -29,11 +28,15 @@ export const useAmmoTrimeshCouple = (system: System) =>
 					vec3B.setValue(b.x, b.y, b.z);
 					vec3C.setValue(c.x, c.y, c.z);
 
-					mesh.addTriangle(vec3A, vec3B, vec3C, true);
+					mesh.addTriangle(vec3A, vec3B, vec3C);
 				}
 			});
 
-			const shape = new AmmoInstance.btBvhTriangleMeshShape(mesh, true, true);
+			const shape = new AmmoInstance.btBvhTriangleMeshShape(mesh, true);
+
+			const triangleInfoMap = new (AmmoInstance as any).btTriangleInfoMap();
+			triangleInfoMap.generateInternalEdgeInfo(shape);
+
 			body.shape = shape;
 
 			return shape;
