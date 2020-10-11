@@ -32,9 +32,13 @@ export const useAmmoTrimeshCouple = (system: System) =>
 				}
 			});
 
-			const shape = new AmmoInstance.btBvhTriangleMeshShape(mesh, true);
+			const shape = new AmmoInstance.btBvhTriangleMeshShape(mesh, true, true);
 
 			const triangleInfoMap = new (AmmoInstance as any).btTriangleInfoMap();
+
+			// Higher detail edges
+			triangleInfoMap.m_edgeDistanceThreshold = 0.01;
+
 			triangleInfoMap.generateInternalEdgeInfo(shape);
 
 			body.shape = shape;
