@@ -13,10 +13,26 @@ export type NetworkingCallbacks = {
 export const useBaseNetworking = (system: System, callbacks?: NetworkingCallbacks) =>
 	useNetworking<PacketOpcode, Packet>(system, callbacks);
 
+const useEngine = (systemOrEngine: System | Engine) => {
+
+	let engineInstance: Engine = undefined;
+
+	if (systemOrEngine instanceof System) {
+		systemOrEngine.signalOnAddedToEngine.connect(engine => {
+			engineInstance = engine;
+		});
+	} else {
+		engineInstance = systemOrEngine;
+	}
+
+	return () => engineInstance;
+}
+
 export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System | Engine, callbacks?: NetworkingCallbacks) => {
 	type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
 	const events = useSimpleEvents();
+	const getEngine = useEngine(system);
 
 	if (callbacks?.connect) {
 		events.on(NetEvents.OnConnected, callbacks.connect);
@@ -26,11 +42,17 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		events.on(NetEvents.OnDisconnected, callbacks.disconnect);
 	}
 
+	const hasEntity = (entity: Entity) => {
+		return getEngine().entities.includes(entity);
+	}
+
 	return {
 		on: <T extends TOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>, entity?: Entity) => void) => {
-			const handler = (e: Entity, packet: TPackets) => {
-				if (packet.opcode === opcode) {
-					onPacket(packet as PacketsOfType<T>, e);
+			const handler = (entity: Entity, packet: TPackets) => {
+				if(hasEntity(entity)) {
+					if (packet.opcode === opcode) {
+						onPacket(packet as PacketsOfType<T>, entity);
+					}
 				}
 			};
 			events.on(NetEvents.OnPacket, handler);
