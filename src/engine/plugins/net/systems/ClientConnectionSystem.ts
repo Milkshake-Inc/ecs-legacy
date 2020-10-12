@@ -26,6 +26,7 @@ export default abstract class ClientConnectionSystem extends System {
 		this.events = useSimpleEvents();
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
 		this.events.on(NetEvents.Send, this.send.bind(this));
+		this.events.on(NetEvents.SendTo, (_, packet, reliable) => this.send(packet, reliable));
 
 		console.log(`🔌 Connecting to server...!`);
 		this.connect(); // localStorage.getItem('token'); // <-- persist connections

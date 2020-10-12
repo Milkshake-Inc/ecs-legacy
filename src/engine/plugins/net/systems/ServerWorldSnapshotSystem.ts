@@ -34,9 +34,7 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 				snapshot: this.generateSnapshot()
 			};
 
-			this.queries.sessions.forEach(entity => {
-				this.networking.sendTo(entity, packet as any);
-			});
+			this.networking.send(packet as any);
 		}
 	}
 
