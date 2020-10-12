@@ -85,6 +85,10 @@ export class Query implements Iterable<Entity> {
 		return this.entities.filter(predicate);
 	}
 
+	public includes(entity: Entity): boolean {
+		return this.entities.includes(entity);
+	}
+
 	public find(predicate: (entity: Entity) => boolean): Entity {
 		return this.entities.find(predicate);
 	}

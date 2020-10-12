@@ -2,7 +2,7 @@ import { Engine } from '@ecs/core/Engine';
 import { Entity } from '@ecs/core/Entity';
 import { System } from '@ecs/core/System';
 import { Packet, PacketOpcode } from '../components/Packet';
-import { useSimpleEvents } from '@ecs/core/helpers';
+import { useQueries, useSimpleEvents } from '@ecs/core/helpers';
 import { NetEvents } from '@ecs/plugins/net/components/NetEvents';
 import Session from '../components/Session';
 import { all, makeQuery } from '@ecs/core/Query';
@@ -42,21 +42,12 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		events.on(NetEvents.OnDisconnected, callbacks.disconnect);
 	}
 
-	const sessionQuery = makeQuery(all(Session));
-
-	const onAddedCallback = (engine: Engine) => {
-		engine.addQuery(sessionQuery);
-	};
-
-	if (system instanceof System) {
-		system.signalOnAddedToEngine.connect(onAddedCallback);
-		system.signalOnRemovedFromEngine.disconnect(onAddedCallback);
-	} else {
-		onAddedCallback(system);
-	}
+	const queries = useQueries(system, {
+		sessions: all(Session)
+	});
 
 	const hasEntity = (entity: Entity) => {
-		return sessionQuery.entities.includes(entity);
+		return queries.sessions.includes(entity);
 	};
 
 	return {
@@ -84,7 +75,7 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 			events.emit(NetEvents.Send, packet, reliable);
 		},
 		send: (packet: TPackets, reliable = false) => {
-			sessionQuery.forEach(entity => events.emit(NetEvents.SendTo, entity, packet, reliable));
+			queries.sessions.forEach(entity => events.emit(NetEvents.SendTo, entity, packet, reliable));
 		},
 		sendTo: (entity: Entity, packet: TPackets, reliable = false) => {
 			events.emit(NetEvents.SendTo, entity, packet, reliable);
