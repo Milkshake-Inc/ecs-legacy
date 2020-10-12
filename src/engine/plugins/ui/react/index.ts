@@ -30,7 +30,6 @@ export const attachToEngine = (cleanup?: (engine: Engine) => void) => {
 	const forceUpdate = useForceUpdate();
 
 	useBeforeMount(() => {
-		console.log('creating ui system');
 		const system = functionalSystem([], {
 			update: dt => {
 				forceUpdate();
