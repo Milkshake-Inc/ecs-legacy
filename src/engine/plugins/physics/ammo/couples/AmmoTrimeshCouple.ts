@@ -1,16 +1,27 @@
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
+import { BufferGeometry, Geometry } from 'three';
 import TrimeshShape from '../../3d/components/TrimeshShape';
 import { applyToMeshesIndividually } from '../../3d/couples/ShapeCouple';
 import { AmmoInstance } from '../AmmoLoader';
 import AmmoBody from '../components/AmmoBody';
 import { useAmmoCouple } from './AmmoCouple';
+import { getObject3d } from './../../3d/couples/ShapeCouple';
+
+const cachedTrimeshShapes = new Map();
 
 export const useAmmoTrimeshCouple = (system: System) =>
 	useAmmoCouple(system, all(TrimeshShape), {
 		onCreate: entity => {
 			const body = entity.get(AmmoBody);
 			const mesh = new AmmoInstance.btTriangleMesh();
+			const object3d = getObject3d(entity);
+
+			if (cachedTrimeshShapes.has(object3d)) {
+				const shape = cachedTrimeshShapes.get(object3d);
+				body.shape = shape
+				return shape;
+			}
 
 			applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
 				const vec3A = new AmmoInstance.btVector3(0, 0, 0);
@@ -42,6 +53,8 @@ export const useAmmoTrimeshCouple = (system: System) =>
 			triangleInfoMap.generateInternalEdgeInfo(shape);
 
 			body.shape = shape;
+
+			cachedTrimeshShapes.set(object3d, shape);
 
 			return shape;
 		}
