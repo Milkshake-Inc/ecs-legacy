@@ -1,6 +1,6 @@
 import { Entity } from '@ecs/core/Entity';
 import { Engine } from '@ecs/core/Engine';
-import { useSimpleEvents, useState } from '@ecs/core/helpers';
+import { useEvents, useState } from '@ecs/core/helpers';
 import { NetEvents } from '../components/NetEvents';
 import { decode } from '@msgpack/msgpack';
 import { Packet } from '../components/Packet';
@@ -15,7 +15,7 @@ export class ConnectionStatistics {
 export default abstract class ClientConnectionSystem extends System {
 	protected engine: Engine;
 	protected sessionEntity: Entity;
-	protected events = useSimpleEvents();
+	protected events = useEvents();
 	protected time = 0;
 	protected state = useState(this, new ConnectionStatistics());
 
@@ -23,7 +23,7 @@ export default abstract class ClientConnectionSystem extends System {
 		super();
 		this.engine = engine;
 
-		this.events = useSimpleEvents();
+		this.events = useEvents();
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
 		this.events.on(NetEvents.Send, this.send.bind(this));
 		this.events.on(NetEvents.SendTo, (_, packet, reliable) => this.send(packet, reliable));

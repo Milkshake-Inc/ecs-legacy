@@ -23,6 +23,10 @@ export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDi
 
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
+export enum PixiEvents {
+	Clicked = 'clicked',
+}
+
 export const usePixiCouple = <T extends DisplayObject>(
 	system: System,
 	displayObjectQuery: QueryPattern | QueryPattern[],
@@ -33,7 +37,7 @@ export const usePixiCouple = <T extends DisplayObject>(
 		displayObjectQuery
 	});
 
-	const events = useEvents(system);
+	const events = useEvents();
 
 	const getRenderState = () => {
 		return query.renderState.first.get(PixiRenderState);
@@ -45,8 +49,7 @@ export const usePixiCouple = <T extends DisplayObject>(
 
 			createdDisplayObject.on('click', e => {
 				e.stopPropagation();
-				// events.dispatchEntity(entity, 'CLICK');
-				events.dispatchGlobal('CLICK', entity);
+				events.emit(PixiEvents.Clicked, entity);
 			});
 
 			const { container, ui } = getRenderState();

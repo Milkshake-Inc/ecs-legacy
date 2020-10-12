@@ -2,7 +2,7 @@ import { Engine } from '@ecs/core/Engine';
 import { Entity } from '@ecs/core/Entity';
 import { System } from '@ecs/core/System';
 import { Packet, PacketOpcode } from '../components/Packet';
-import { useQueries, useSimpleEvents } from '@ecs/core/helpers';
+import { useQueries, useEvents } from '@ecs/core/helpers';
 import { NetEvents } from '@ecs/plugins/net/components/NetEvents';
 import Session from '../components/Session';
 import { all, makeQuery } from '@ecs/core/Query';
@@ -32,7 +32,7 @@ const useEngine = (systemOrEngine: System | Engine) => {
 export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System | Engine, callbacks?: NetworkingCallbacks) => {
 	type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
-	const events = useSimpleEvents();
+	const events = useEvents();
 
 	if (callbacks?.connect) {
 		events.on(NetEvents.OnConnected, callbacks.connect);

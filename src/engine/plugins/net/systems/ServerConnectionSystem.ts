@@ -1,6 +1,6 @@
 import { Engine } from '../../../core/Engine';
 import { Entity } from '../../../core/Entity';
-import { useSimpleEvents } from '../../../core/helpers';
+import { useEvents } from '../../../core/helpers';
 import { sign, verify } from 'jsonwebtoken';
 import { uuid } from 'uuidv4';
 import { Packet } from '../components/Packet';
@@ -15,14 +15,14 @@ interface JWTData {
 
 export default abstract class ServerConnectionSystem extends System {
 	protected engine: Engine;
-	protected events = useSimpleEvents();
+	protected events = useEvents();
 
 	constructor(engine: Engine) {
 		super();
 
 		this.engine = engine;
 
-		this.events = useSimpleEvents();
+		this.events = useEvents();
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
 		this.events.on(NetEvents.Send, this.send.bind(this));
 		this.events.on(NetEvents.SendTo, this.sendTo.bind(this));

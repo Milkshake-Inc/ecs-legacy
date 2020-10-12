@@ -2,7 +2,6 @@ import { getComponentId } from './ComponentId';
 import { Entity, EntitySnapshot } from './Entity';
 import { Signal } from 'typed-signals';
 import { Class } from './Class';
-import { Events } from './helpers';
 
 /**
  * Query represents list of entities that matches query request.
@@ -219,19 +218,6 @@ export class QueryBuilder {
 }
 
 export type QueryPattern = (entity: Entity) => boolean;
-
-export const event = (eventType: string): QueryPattern => {
-	return (entity: Entity) => {
-		if (entity.has(Events)) {
-			const { events } = entity.get(Events);
-			for (const event of events) {
-				if (event.type == eventType) return true;
-			}
-		}
-
-		return false;
-	};
-};
 
 export const all = (...components: Class<any>[]): QueryPattern => {
 	return (entity: Entity) => {
