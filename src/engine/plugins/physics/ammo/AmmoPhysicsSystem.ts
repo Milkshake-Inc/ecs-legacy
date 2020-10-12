@@ -1,5 +1,5 @@
 import { Entity } from '@ecs/core/Entity';
-import { useState } from '@ecs/core/helpers';
+import { useEvents, useState } from '@ecs/core/helpers';
 import { System } from '@ecs/core/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Ammo from 'ammojs-typed';
@@ -14,8 +14,13 @@ export class AmmoState {
 	ground: Ammo.btRigidBody;
 }
 
+export enum AmmoEvents {
+	Collision = 'collision'
+}
+
 export default class AmmoPhysicsSystem extends System {
 	protected state = useState(this, new AmmoState());
+	protected events = useEvents();
 
 	protected couples = [useAmmoBodyCouple(this), useAmmoTrimeshCouple(this), useAmmoShapeCouple(this)];
 
@@ -69,10 +74,7 @@ export default class AmmoPhysicsSystem extends System {
 				const entityA = this.findEntityByAmmoObject(element.getBody0());
 				const entityB = this.findEntityByAmmoObject(element.getBody1());
 
-				if (entityA && entityB) {
-					entityA.get(Collisions).contacts.add(entityB);
-					entityB.get(Collisions).contacts.add(entityA);
-				}
+				this.events.emit(AmmoEvents.Collision, entityA, entityB);
 			}
 		}
 	}

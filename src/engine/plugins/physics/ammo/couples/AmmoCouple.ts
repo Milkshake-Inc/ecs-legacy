@@ -48,9 +48,6 @@ export const useAmmoCouple = (
 				}
 			}
 		},
-		onLateUpdate: (entity, physicsObject, dt) => {
-			entity.get(Collisions).contacts.clear();
-		},
 		onDestroy: (entity, physicsObject) => {
 			if (!getAmmoState()) return;
 			const { world } = getAmmoState();
