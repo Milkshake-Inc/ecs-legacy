@@ -49,7 +49,7 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 		if (socket) {
 			socket.send(data, true, true);
 		} else {
-			console.warn(`tried sending to session ${session.id} where id doesn't exist`);
+			// console.warn(`tried sending to session ${session.id} where id doesn't exist`);
 		}
 	}
 

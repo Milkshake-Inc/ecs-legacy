@@ -35,7 +35,7 @@ export default class ServerUDPConnectionSystem extends ServerConnectionSystem {
 		if (channel) {
 			reliable ? channel.emit(RELIABLE_MESSAGE, data, { reliable: true }) : channel.raw.emit(data);
 		} else {
-			console.warn(`tried sending to session ${session.id} where channel doesn't exist`);
+			// console.warn(`tried sending to session ${session.id} where channel doesn't exist`);
 		}
 	}
 
