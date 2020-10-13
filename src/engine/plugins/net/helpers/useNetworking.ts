@@ -77,8 +77,14 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 		send: (packet: TPackets, reliable = false) => {
 			queries.sessions.forEach(entity => events.emit(NetEvents.SendTo, entity, packet, reliable));
 		},
+		sendRaw: (packet: Uint8Array, reliable = false) => {
+			queries.sessions.forEach(entity => events.emit(NetEvents.SendToRaw, entity, packet, reliable));
+		},
 		sendTo: (entity: Entity, packet: TPackets, reliable = false) => {
 			events.emit(NetEvents.SendTo, entity, packet, reliable);
+		},
+		sendToRaw: (entity: Entity, packet: Uint8Array, reliable = false) => {
+			events.emit(NetEvents.SendToRaw, entity, packet, reliable);
 		},
 		sendExcept: (exceptEntity: Entity, packet: TPackets, reliable = false) => {
 			events.emit(NetEvents.SendExcept, exceptEntity, packet, reliable);

@@ -8,7 +8,7 @@ import { ServerPingState } from '../components/ServerPingState';
 import Session from '../components/Session';
 import { useBaseNetworking } from '../helpers/useNetworking';
 
-const MAX_PING_DELAY = 2000;
+const MAX_PING_DELAY = 5000;
 const PING_INTERVAL = 3000;
 
 export default class ServerPingSystem extends IterativeSystem {
@@ -63,7 +63,7 @@ export default class ServerPingSystem extends IterativeSystem {
 			session.lastPongResponse != -1 &&
 			performance.now() - session.lastPongResponse > this.state.serverPingInterval + MAX_PING_DELAY
 		) {
-			console.log(`Disconnecting player ${performance.now() - session.lastPongResponse}`);
+			console.log(`Ping too high. Disconnecting player ${performance.now() - session.lastPongResponse}`);
 			console.log(this.state.serverPingInterval);
 
 			this.networking.disconnect(entity);

@@ -26,6 +26,7 @@ export default abstract class ServerConnectionSystem extends System {
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));
 		this.events.on(NetEvents.Send, this.send.bind(this));
 		this.events.on(NetEvents.SendTo, this.sendTo.bind(this));
+		this.events.on(NetEvents.SendToRaw, this.sendToRaw.bind(this));
 		this.events.on(NetEvents.SendExcept, this.sendExcept.bind(this));
 
 		console.log(`🔌 Server started!`);
@@ -52,6 +53,8 @@ export default abstract class ServerConnectionSystem extends System {
 	}
 
 	public abstract sendTo(entity: Entity, packet: Packet, reliable: boolean): void;
+
+	public abstract sendToRaw(entity: Entity, rawPacket: Uint8Array, reliable: boolean): void;
 
 	public abstract send(packet: Packet, reliable: boolean): void;
 

@@ -2,6 +2,7 @@ import { useQueries } from '@ecs/core/helpers';
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
+import { encode } from '@msgpack/msgpack';
 import Session from '../components/Session';
 import { useBaseNetworking } from '../helpers/useNetworking';
 
@@ -34,7 +35,9 @@ export abstract class ServerWorldSnapshotSystem<S extends {}> extends System {
 				snapshot: this.generateSnapshot()
 			};
 
-			this.networking.send(packet as any);
+			const encoded = encode(packet);
+
+			this.networking.sendRaw(encoded);
 		}
 	}
 

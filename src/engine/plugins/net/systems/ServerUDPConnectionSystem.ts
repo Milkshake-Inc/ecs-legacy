@@ -27,8 +27,11 @@ export default class ServerUDPConnectionSystem extends ServerConnectionSystem {
 	}
 
 	public sendTo(entity: Entity, packet: Packet, reliable = false): void {
+		this.sendToRaw(entity, encode(packet));
+	}
+
+	public sendToRaw(entity: Entity, data: Uint8Array, reliable = false): void {
 		const session = entity.get(Session);
-		const data = encode(packet);
 		session.bytesOut += data.byteLength;
 
 		const channel = this.sockets.get(entity);

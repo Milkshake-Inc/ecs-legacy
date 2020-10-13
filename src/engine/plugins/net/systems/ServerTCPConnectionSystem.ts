@@ -41,13 +41,17 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 	}
 
 	public sendTo(entity: Entity, packet: Packet, reliable = false): void {
-		const session = entity.get(Session);
-		const data = encode(packet);
-		session.bytesOut += data.byteLength;
+		this.sendToRaw(entity, encode(packet), reliable);
+	}
 
+	public sendToRaw(entity: Entity, rawPacket: Uint8Array, reliable = false): void {
+		const session = entity.get(Session);
 		const socket = this.sockets.get(entity);
+
+		session.bytesOut += rawPacket.byteLength;
+
 		if (socket) {
-			socket.send(data, true, true);
+			socket.send(rawPacket, true, true);
 		} else {
 			// console.warn(`tried sending to session ${session.id} where id doesn't exist`);
 		}
