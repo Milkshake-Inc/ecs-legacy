@@ -35,9 +35,15 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 
 	private _mass: number;
 
+	private cachedVector: Ammo.btVector3;
+	private cachedQuaternion: Ammo.btQuaternion;
+
 	constructor(mass = 0) {
 		super(new AmmoInstance.btRigidBodyConstructionInfo(mass, new AmmoInstance.btDefaultMotionState(), new AmmoInstance.btEmptyShape()));
 		this._mass = mass;
+
+		this.cachedVector = new AmmoInstance.btVector3();
+		this.cachedQuaternion = new AmmoInstance.btQuaternion(0, 0, 0, 0);
 	}
 
 	public get moving() {
@@ -68,9 +74,9 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 	}
 
 	public set mass(value: number) {
-		const localInertia = new AmmoInstance.btVector3(0, 0, 0);
-		this.getCollisionShape().calculateLocalInertia(value, localInertia);
-		this.setMassProps(value, localInertia);
+		this.cachedVector.setValue(0, 0, 0);
+		this.getCollisionShape().calculateLocalInertia(value, this.cachedVector);
+		this.setMassProps(value, this.cachedVector);
 		this.activate(true);
 	}
 
@@ -80,7 +86,8 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 	}
 
 	public set position(value: Vector) {
-		this.getWorldTransform().setOrigin(new AmmoInstance.btVector3(value.x, value.y, value.z));
+		this.cachedVector.setValue(value.x, value.y, value.z);
+		this.getWorldTransform().setOrigin(this.cachedVector);
 		this.activate(true);
 	}
 
@@ -90,7 +97,8 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 	}
 
 	public set quaternion(value: Quaternion) {
-		this.getWorldTransform().setRotation(new AmmoInstance.btQuaternion(value.x, value.y, value.z, value.w));
+		this.cachedQuaternion.setValue(value.x, value.y, value.z, value.w);
+		this.getWorldTransform().setRotation(this.cachedQuaternion);
 		this.activate(true);
 	}
 
@@ -151,14 +159,18 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 	}
 
 	public clearForces() {
-		// super.clearForces();
-		this.setLinearVelocity(new AmmoInstance.btVector3(0, 0, 0));
-		this.setAngularVelocity(new AmmoInstance.btVector3(0, 0, 0));
+		super.clearForces();
+
+		this.cachedVector.setValue(0, 0, 0);
+		this.setLinearVelocity(this.cachedVector);
+		this.setAngularVelocity(this.cachedVector);
+
 		this.activate(true);
 	}
 
 	public applyCentralImpulseV(vector: Vector) {
-		this.applyCentralImpulse(new AmmoInstance.btVector3(vector.x, vector.y, vector.z));
+		this.cachedVector.setValue(vector.x, vector.y, vector.z);
+		this.applyCentralImpulse(this.cachedVector);
 		this.activate(true);
 	}
 
