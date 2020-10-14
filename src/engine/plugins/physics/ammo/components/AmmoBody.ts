@@ -174,8 +174,8 @@ export default class AmmoBody extends AmmoInstance.btRigidBody {
 		this.activate(true);
 	}
 
-	public rotate(euler: Vector3 | Vector) {
-		this.quaternion = this.quaternion.multiply(new Quaternion().setFromEuler(euler));
+	public rotate(euler: Vector3) {
+		this.quaternion = this.quaternion.multiplyFromAxisAngle(euler, 1);
 		this.activate(true);
 	}
 }
