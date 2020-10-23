@@ -12,7 +12,7 @@ export type NetworkingCallbacks = {
 	disconnect?: (entity: Entity) => void;
 };
 
-export const useBaseNetworking = (system: System, callbacks?: NetworkingCallbacks) =>
+export const useBaseNetworking = (system: System | Engine, callbacks?: NetworkingCallbacks) =>
 	useNetworking<PacketOpcode, Packet>(system, callbacks);
 
 const useEngine = (systemOrEngine: System | Engine) => {
