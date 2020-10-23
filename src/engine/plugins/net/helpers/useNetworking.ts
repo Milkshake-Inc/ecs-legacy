@@ -29,6 +29,8 @@ const useEngine = (systemOrEngine: System | Engine) => {
 	return () => engineInstance;
 };
 
+export const networkingHandlers = new Map<any, Map<any, any>>();
+
 export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System | Engine, callbacks?: NetworkingCallbacks) => {
 	type PacketsOfType<T extends TOpcode> = Extract<TPackets, { opcode: T }>;
 
@@ -60,6 +62,20 @@ export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(sys
 				}
 			};
 			events.on(NetEvents.OnPacket, handler);
+
+			let opcodeHandlers = networkingHandlers.get(opcode);
+			if (!opcodeHandlers) {
+				opcodeHandlers = new Map();
+				networkingHandlers.set(opcode, opcodeHandlers);
+			}
+			opcodeHandlers.set(onPacket, handler);
+		},
+		off: <T extends TOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>, entity?: Entity) => void) => {
+			const handler = networkingHandlers.get(opcode)?.get(onPacket);
+
+			if (handler) {
+				events.off(NetEvents.OnPacket, handler);
+			}
 		},
 		once: <T extends TOpcode>(opcode: T, onPacket: (packet: PacketsOfType<T>, entity?: Entity) => void) => {
 			const handler = (entity: Entity, packet: TPackets) => {
