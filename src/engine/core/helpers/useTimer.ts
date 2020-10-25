@@ -1,10 +1,12 @@
 import { System } from '../System';
 
 export const useTimer = (system: System, callback: () => void, timeMs: number) => {
+	let totalElapsed = 0;
 	let elapsedClock = 0;
 
 	const update = (deltaTime: number) => {
 		elapsedClock += deltaTime;
+		totalElapsed += deltaTime;
 
 		if (elapsedClock >= timeMs) {
 			elapsedClock -= timeMs;
@@ -14,7 +16,10 @@ export const useTimer = (system: System, callback: () => void, timeMs: number) =
 
 	system.signalBeforeUpdate.connect(update);
 
-	return () => {
-		system.signalBeforeUpdate.disconnect(update);
+	return {
+		totalElapsed,
+		cleanup: () => {
+			system.signalBeforeUpdate.disconnect(update);
+		}
 	};
 };
