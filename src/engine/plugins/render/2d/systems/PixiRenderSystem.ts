@@ -32,7 +32,7 @@ export const DefaultRenderSystemSettings: RenderSystemSettings = {
 };
 
 // customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
-export default class RenderSystem extends System {
+export default class PixiRenderSystem extends System {
 	protected state = useState(this, new PixiRenderState());
 
 	protected queries = useQueries(this, {
@@ -55,7 +55,7 @@ export default class RenderSystem extends System {
 
 	constructor(
 		customSettings?: Partial<RenderSystemSettings>,
-		customCouples?: (system: RenderSystem) => ReturnType<typeof usePixiCouple>[]
+		customCouples?: (system: PixiRenderSystem) => ReturnType<typeof usePixiCouple>[]
 	) {
 		super();
 
@@ -80,8 +80,11 @@ export default class RenderSystem extends System {
 			height: settings.height,
 			transparent: settings.transparent,
 			backgroundColor: settings.clearColor,
-			antialias: false,
-			autoStart: false
+			antialias: true,
+			resolution: devicePixelRatio,
+			autoDensity: true,
+			autoStart: false,
+
 		});
 
 		(window as any).renderSystem = this;
