@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const cwd = process.cwd();
 
 const { baseConfig, projectPath, port, project, emoji } = require('./webpack.base.js');
-const {merge} = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const chalk = require('chalk');
 const capitalize = require('capitalize');
@@ -14,6 +14,7 @@ const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const gitRevisionPlugin = new GitRevisionPlugin();
 
 const config = {
+	name: 'Client',
 	entry: [`${projectPath}/src/Client.ts`],
 	module: {
 		rules: [
@@ -40,29 +41,18 @@ const config = {
 	},
 	plugins: [
 		new CopyPlugin({
-			patterns: [
-				{ from: `${projectPath}/www`, to: './' },
-			],
-		  }),
+			patterns: [{ from: `${projectPath}/www`, to: './' }]
+		}),
 		new HtmlWebpackPlugin({
 			title: capitalize(project),
-			template: __dirname + "/template.html",
+			template: __dirname + '/template.html',
 			templateParameters: {
 				emoji
-			},
+			}
 		}),
 		new WebpackBar({
 			name: 'Client',
-			reporter: {
-				allDone(context) {
-					const publicIp = require('public-ip')
-
-					publicIp.v4().then(ip => {
-						console.log(chalk.bold('✨  Server running at ') + chalk.green(`http://${ip}:${port}`));
-					})
-
-				}
-			}
+			profile: true
 		}),
 		new webpack.DefinePlugin({
 			VERSION: JSON.stringify(gitRevisionPlugin.commithash())

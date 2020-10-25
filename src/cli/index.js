@@ -1,29 +1,22 @@
 #!/usr/bin/env node
 
 const webpack = require('webpack');
-const webpackConfig = require('./config/webpack.dev')
-
+const webpackConfig = require('./config/webpack.dev');
+const chalk = require('chalk');
+const { port } = require('./config/webpack.base.js');
 const compiler = webpack(webpackConfig);
 
-compiler.watch({
-}, (err, stats) => {
-    if (err) {
-        console.error(err.stack || err);
-        if (err.details) {
-            console.error(err.details);
-        }
-        return;
-    }
+const publicIp = require('public-ip');
 
-    const info = stats.toJson();
+compiler.watch({}, (error, stats) => {
+	if (error) {
+		console.error(error);
+		return;
+	}
 
-    if (stats.hasErrors()) {
-        info.errors.forEach((error) => {
-            const err = error.split("\n");
+	console.log(stats.toString('errors-warnings'));
+});
 
-            console.log(`${err[2]}\n${err[3]}\n`)
-            console.log(err)
-        })
-    }
-
+publicIp.v4().then(ip => {
+	console.log(chalk.bold('✨  Client hosted at ') + chalk.green(`http://${ip}:${port}`));
 });
