@@ -143,4 +143,21 @@ export default class Color {
 	public static ToHex(color: number): string {
 		return `#${color.toString(16)}`;
 	}
+
+	public static ToRGB(color: number): { r: number; g: number; b: number } {
+		const r = (color & 0xff0000) >> 16;
+		const g = (color & 0x00ff00) >> 8;
+		const b = color & 0x0000ff;
+		return { r, g, b };
+	}
+
+	public static ColorText(text: string, color: number): string {
+		const { r, g, b } = this.ToRGB(color);
+		return `\x1B[38;2;${r};${g};${b}m${text}\x1B[39m`;
+	}
+
+	public static ColorBackgroundText(text: string, color: number): string {
+		const { r, g, b } = this.ToRGB(color);
+		return `\x1B[48;2;${r};${g};${b}m${text}\x1B[49m`;
+	}
 }
