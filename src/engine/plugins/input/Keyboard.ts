@@ -10,6 +10,9 @@ export default class Keyboard extends InputDevice {
 			}.bind(this),
 			keyup: function (e) {
 				this.handleKeyboardUp(e);
+			}.bind(this),
+			blur: function (e) {
+				this.handleBlur(e);
 			}.bind(this)
 		};
 	}
@@ -62,5 +65,11 @@ export default class Keyboard extends InputDevice {
 	private handleKeyboardUp({ keyCode }: KeyboardEvent) {
 		this.pressed.set(keyCode, PressedState.Up);
 		return false;
+	}
+
+	private handleBlur() {
+		for (const key of this.pressed.keys()) {
+			this.pressed.set(key, PressedState.Up);
+		}
 	}
 }
