@@ -26,7 +26,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 
 	public entityAdded = (snapshot: EntitySnapshot) => {
 		const camera = snapshot.get(Camera);
-		const sprite = new Sprite(RenderTexture.create({ width: camera.width, height: camera.height }));
+		const sprite = new Sprite(RenderTexture.create({ width: camera.renderWidth, height: camera.renderHeight }));
 		this.state.renderSprites.set(camera, sprite);
 		this.renderState.application.stage.addChild(sprite);
 	};
@@ -73,7 +73,7 @@ export default class CameraRenderSystem extends IterativeSystem {
 		const height = max.y - min.y + options.padding * 2;
 
 		// This should use camera view?
-		const widthDiff: number = camera.width / width;
+		const widthDiff: number = camera.renderWidth / width;
 		const heightDiff: number = camera.height / height;
 
 		transform.position.x = x + width / 2;
@@ -86,10 +86,12 @@ export default class CameraRenderSystem extends IterativeSystem {
 		const sprite = this.state.renderSprites.get(camera);
 		sprite.x = camera.x;
 		sprite.y = camera.y;
+		sprite.width = camera.width;
+		sprite.height = camera.height;
 
 		// Update viewport
-		const newWidth = this.screenWidth * (1 / camera.zoom);
-		const newHeight = this.screenHeight * (1 / camera.zoom);
+		const newWidth = camera.renderWidth * (1 / camera.zoom);
+		const newHeight = camera.renderHeight * (1 / camera.zoom);
 
 		const offsetX = newWidth * 0.5;
 		const offsetY = newHeight * 0.5;

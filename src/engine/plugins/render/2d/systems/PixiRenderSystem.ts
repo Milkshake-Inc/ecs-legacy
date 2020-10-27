@@ -4,14 +4,11 @@ import CameraRenderState from '@ecs/plugins/render/2d/components/CameraRenderSta
 import { all } from '@ecs/core/Query';
 import { Application, Container, RenderTexture, Sprite as PixiSprite, Graphics, spine } from 'pixi.js';
 import PixiRenderState from '../components/RenderState';
-import { useGraphicsCouple } from '../couples/GraphicsCouple';
 import { useParticleCouple } from '../couples/ParticleCouple';
-import { useSpriteCouple } from '../couples/SpriteCouple';
-import { useTextCouple } from '../couples/TextCouple';
 import { useSpineCouple } from '../couples/SpineCouple';
 import Color from '@ecs/plugins/math/Color';
 import { usePixiCouple } from '../couples/PixiCouple';
-import { useContainerCouple } from '../couples/ContainerCouple';
+import { useDisplayObjectsCouple } from '../couples/useDisplayObjectsCouple';
 
 export type RenderSystemSettings = {
 	width: number;
@@ -45,12 +42,9 @@ export default class PixiRenderSystem extends System {
 	// Maybe you could have TileMapCouplerPlugin - which renders tilemap (ParticleContainer etc)
 	// new RenderSystem([ useTileMapCouple ])
 	protected couples = [
-		useSpriteCouple(this),
+		useDisplayObjectsCouple(this),
 		useParticleCouple(this),
-		useGraphicsCouple(this),
-		useTextCouple(this),
 		useSpineCouple(this),
-		useContainerCouple(this)
 	];
 
 	constructor(

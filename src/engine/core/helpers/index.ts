@@ -4,3 +4,4 @@ export * from './functionalSystem';
 export * from './useCouple';
 export * from './useEvents';
 export * from './useTimer';
+export * from './useEngine';

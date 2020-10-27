@@ -15,20 +15,6 @@ export type NetworkingCallbacks = {
 export const useBaseNetworking = (system: System | Engine, callbacks?: NetworkingCallbacks) =>
 	useNetworking<PacketOpcode, Packet>(system, callbacks);
 
-const useEngine = (systemOrEngine: System | Engine) => {
-	let engineInstance: Engine = undefined;
-
-	if (systemOrEngine instanceof System) {
-		systemOrEngine.signalOnAddedToEngine.connect(engine => {
-			engineInstance = engine;
-		});
-	} else {
-		engineInstance = systemOrEngine;
-	}
-
-	return () => engineInstance;
-};
-
 export const networkingHandlers = new Map<any, Map<any, any>>();
 
 export const useNetworking = <TOpcode, TPackets extends { opcode: TOpcode }>(system: System | Engine, callbacks?: NetworkingCallbacks) => {
