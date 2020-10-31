@@ -73,5 +73,5 @@ export const View = (props: { name: string; open?: boolean; children: ComponentC
 	});
 
 	if (!views?.views.get(props.name)) return null;
-	return <Fragment>{props.children}</Fragment>;
+	return <div name={props.name}>{props.children}</div>;
 };
