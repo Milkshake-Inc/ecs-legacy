@@ -31,7 +31,7 @@ export const attachToEngine = (cleanup?: (engine: Engine) => void) => {
 
 	useBeforeMount(() => {
 		const system = functionalSystem([], {
-			update: dt => {
+			updateFixed: dt => {
 				forceUpdate();
 			}
 		});
