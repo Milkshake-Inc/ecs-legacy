@@ -1,7 +1,6 @@
 import SeedRandom, { prng } from 'seedrandom';
 
 export class Random {
-
 	private rng: prng;
 
 	constructor(seed: string | number = Date.now()) {
@@ -28,20 +27,28 @@ export class Random {
 		return Math.round(this.float(from, to));
 	}
 
+	public string(length = 10, characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'): string {
+		return Array(length)
+			.fill(0)
+			.map(x => this.int(0, characters.length))
+			.map(x => characters[x])
+			.join('');
+	}
+
 	public fromArray<T>(array: T[]): T {
 		return array[this.int(0, array.length - 1)];
 	}
 
 	public shuffleArray = <T>(array: T[]) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            const temp = array[i];
-            array[i] = array[j];
-            array[j] = temp;
-        }
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			const temp = array[i];
+			array[i] = array[j];
+			array[j] = temp;
+		}
 
-        return array;
-	}
+		return array;
+	};
 }
 
 export default new Random();
