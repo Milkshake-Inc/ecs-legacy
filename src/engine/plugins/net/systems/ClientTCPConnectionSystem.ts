@@ -62,7 +62,7 @@ export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 
 		if (packet.opcode == PacketOpcode.SESSION_UPDATE) {
 			this.handleSessionUpdated(packet);
-		} else {
+		} else if (packet) {
 			this.events.emit(NetEvents.OnPacket, this.sessionEntity, packet);
 		}
 	}

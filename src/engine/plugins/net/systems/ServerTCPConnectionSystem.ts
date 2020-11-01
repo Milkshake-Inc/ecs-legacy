@@ -106,7 +106,9 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 		session.bytesIn += data.byteLength;
 
 		const packet = decode(data) as Packet;
-		this.events.emit(NetEvents.OnPacket, entity, packet);
+		if (packet) {
+			this.events.emit(NetEvents.OnPacket, entity, packet);
+		}
 	}
 
 	protected handleDisconnection(ws: uws.WebSocket, code: number, message: ArrayBuffer): void {

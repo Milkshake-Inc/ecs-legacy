@@ -84,7 +84,9 @@ export default class ServerUDPConnectionSystem extends ServerConnectionSystem {
 		session.bytesIn += data instanceof ArrayBuffer ? data.byteLength : data.length;
 
 		const packet = decode(data) as Packet;
-		this.events.emit(NetEvents.OnPacket, entity, packet);
+		if (packet) {
+			this.events.emit(NetEvents.OnPacket, entity, packet);
+		}
 	}
 
 	protected handleDisconnection(entity: Entity): void {

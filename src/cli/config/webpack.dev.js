@@ -14,7 +14,7 @@ const webpacks = [];
 if (hasClient) {
 	const devServer = new Serve({
 		port,
-		host: publicIp.v4(),
+		host: 'localhost',
 		open: true,
 		static: path.join(cwd, 'bin/www'),
 		hmr: false,

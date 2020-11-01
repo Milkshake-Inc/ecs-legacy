@@ -70,7 +70,9 @@ export default class ClientUDPConnectionSystem extends ClientConnectionSystem {
 		this.state.bytesIn += data instanceof ArrayBuffer ? data.byteLength : data.length;
 
 		const packet = decode(data) as Packet;
-		this.events.emit(NetEvents.OnPacket, this.sessionEntity, packet);
+		if (packet) {
+			this.events.emit(NetEvents.OnPacket, this.sessionEntity, packet);
+		}
 	}
 
 	protected handleDisconnection() {
