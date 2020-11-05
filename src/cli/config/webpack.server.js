@@ -33,7 +33,8 @@ const config = {
 		new CopyPlugin({
 			patterns: [
 				{ from: `${projectPath}/www`, to: './www' },
-				{ from: 'node_modules/ammo.js/builds/', to: '.' }
+				{ from: 'node_modules/ammo.js/builds/', to: '.' },
+				{ from: './ecs/src/engine/plugins/physics/physx/build/', to: '.' }
 			]
 		})
 	],
