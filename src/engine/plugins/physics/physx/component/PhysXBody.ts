@@ -1,3 +1,4 @@
+import Quaternion from '@ecs/plugins/math/Quaternion';
 import { Vector } from '@ecs/plugins/math/Vector';
 import { PxShapeFlag } from '../PxShapeFlags';
 
@@ -13,6 +14,16 @@ export class PhysXBody {
 		const currentPose = this.body.getGlobalPose();
 		currentPose.translation = value;
 		this.body.setGlobalPose(currentPose, true);
+	}
+
+	public setRotation(value: Quaternion) {
+		const currentPose = this.body.getGlobalPose();
+		currentPose.rotation = value;
+		this.body.setGlobalPose(currentPose, true);
+	}
+
+	public getRotation() {
+		return this.body.getGlobalPose().rotation;
 	}
 
 	public clearVelocity() {
