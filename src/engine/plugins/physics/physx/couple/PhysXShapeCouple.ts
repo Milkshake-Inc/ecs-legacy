@@ -2,14 +2,10 @@ import { Entity } from '@ecs/core/Entity';
 import { useQueries } from '@ecs/core/helpers';
 import { all, any } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
-import Random from '@ecs/plugins/math/Random';
-import { Vector } from '@ecs/plugins/math/Vector';
-import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
-import { applyToMeshesIndividually } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
 import { PhysXBody } from '../component/PhysXBody';
+import { PhysXBox } from '../component/PhysXBox';
 import { PhysXPlane } from '../component/PhysXPlane';
 import { PhysXSphere } from '../component/PhysXSphere';
-import { PhysXBox } from '../component/PhysXBox';
 import { PhysXState } from '../PhysXPhysicsSystem';
 import { usePhysXCouple } from './PhysXCouple';
 
@@ -41,7 +37,7 @@ export const usePhysXShapeCouple = (system: System) => {
 
 	return usePhysXCouple(system, [all(PhysXBody), any(PhysXSphere, PhysXPlane, PhysXBox)], {
 		onCreate: entity => {
-			const { body, flags } = entity.get(PhysXBody);
+			const { body, shapeFlags: flags } = entity.get(PhysXBody);
 			const { physics, ptrToEntity } = getPhysXState();
 
 			const geomatry = generateShape(entity);

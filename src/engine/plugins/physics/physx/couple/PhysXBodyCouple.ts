@@ -7,6 +7,8 @@ import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
 import { applyToMeshesIndividually } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
 import { PhysXBody } from '../component/PhysXBody';
 import { PhysXState } from '../PhysXPhysicsSystem';
+import { PxActorFlag } from '../PxActorFlag';
+import { PxRidgidBodyFlags } from '../PxRidgidBodyFlags';
 import { usePhysXCouple } from './PhysXCouple';
 
 export const usePhysXBodyCouple = (system: System) => {
@@ -23,7 +25,7 @@ export const usePhysXBodyCouple = (system: System) => {
 			const body = entity.get(PhysXBody);
 			const transform = entity.get(Transform);
 
-			// console.log(transform.position);
+			const { physics, scene } = getPhysXState();
 
 			const pos = {
 				translation: {
@@ -32,7 +34,7 @@ export const usePhysXBodyCouple = (system: System) => {
 					z: transform.z
 				},
 				rotation: {
-					w: transform.qw, // PhysX uses WXYZ quaternions,
+					w: transform.qw,
 					x: transform.qx,
 					y: transform.qy,
 					z: transform.qz
@@ -40,14 +42,23 @@ export const usePhysXBodyCouple = (system: System) => {
 			};
 
 			if (body.static) {
-				// console.log("aadd static")
-				body.body = getPhysXState().physics.createRigidStatic(pos);
+				body.body = physics.createRigidStatic(pos);
 			} else {
-				body.body = getPhysXState().physics.createRigidDynamic(pos);
-				(body.body as any).setRigidBodyFlag(4, true);
+				const dynamicBody = physics.createRigidDynamic(pos);
+				dynamicBody.setMass(body.mass);
+				console.log(`🏳  Set! Mass:` + dynamicBody.getMass());
+
+				const flags = new PhysX.PxRigidBodyFlags(body.bodyFlags);
+				dynamicBody.setRigidBodyFlags(flags);
+
+				dynamicBody.setActorFlags(new PhysX.PxActorFlags(body.actorFlags));
+
+				// dynamicBody.setSolverIterationCounts(200, 5);
+
+				body.body = dynamicBody;
 			}
 
-			(getPhysXState().scene as any).addActor(body.body, null);
+			scene.addActor(body.body, null);
 
 			return body;
 		},

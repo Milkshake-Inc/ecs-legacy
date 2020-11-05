@@ -27,7 +27,7 @@ export const usePhysXTrimeshCouple = (system: System) => {
 				applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
 					const trimesh = createTrimesh(cooking, physics, geometry.vertices, geometry.faces);
 
-					const flags = new PhysX.PxShapeFlags(physXBody.flags); // const flags = new PhysX.PxShapeFlags(PhysX.PxShapeFlag..eVISUALIZATION | PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE);;
+					const flags = new PhysX.PxShapeFlags(physXBody.shapeFlags); // const flags = new PhysX.PxShapeFlags(PhysX.PxShapeFlag..eVISUALIZATION | PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE);;
 					const material = physics.createMaterial(physXBody.staticFriction, physXBody.dynamicFriction, physXBody.restitution);
 					const shape = physics.createShape(trimesh as any, material, false, flags);
 

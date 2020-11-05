@@ -109,7 +109,14 @@ declare namespace PhysX {
 		setContactOffset(contactOffset: number): void;
 	}
 
+	class PxActorFlags {
+		constructor(value: number);
+	}
+
 	class Actor extends Base {
+		setActorFlag(flag: number, value: boolean): void;
+		setActorFlags(flags: PxActorFlags): void;
+		getActorFlags(): number;
 		getGlobalPose(): PxTransform;
 		setGlobalPose(transform: PxTransform, autoAwake: boolean): void;
 		setLinearVelocity(value: PxVec3, autoAwake: boolean): void;
@@ -121,8 +128,16 @@ declare namespace PhysX {
 		addForce(force: PxVec3 | any, mode: PxForceMode | number, autowake: boolean): void;
 	}
 	enum PxForceMode {}
-	class RigidBody extends RigidActor {}
-	class RigidStatic extends RigidBody {}
+	class RigidBody extends RigidActor {
+		setRigidBodyFlag(flag: PxRigidBodyFlags, value: boolean): void;
+		setRigidBodyFlags(flags: PxRigidBodyFlags): void;
+		getRigidBodyFlags(): number;
+
+		setMass(value: number): void;
+		getMass(): number;
+	}
+
+	class RigidStatic extends RigidActor {}
 	class RigidDynamic extends RigidBody {
 		wakeUp(): void; //, &PxRigidDynamic::wakeUp)
 		setWakeCounter(): void; //, &PxRigidDynamic::setWakeCounter)
@@ -132,11 +147,16 @@ declare namespace PhysX {
 		getSleepThreshold(): number; //, &PxRigidDynamic::getSleepThreshold)
 		setKinematicTarget(): void; //, &PxRigidDynamic::setKinematicTarget)
 		setRigidDynamicLockFlags(): void; //, &PxRigidDynamic::setRigidDynamicLockFlags);
+		setSolverIterationCounts(minPositionIters: number, minVelocityIters: number): void;
+
+		setAngularVelocity(value: PxVec3, autoWake: boolean): void;
+		setAngularDamping(value: number): void;
 	}
 	class PxVec3 {}
 
 	class PxSceneDesc {}
 	class PxScene {
+		addActor(actor: Actor, unk: any): void;
 		simulate(timeStep: number, rando: boolean): void;
 		fetchResults(b: boolean): void;
 		getActiveActors(len: number): Actor[];
@@ -153,6 +173,10 @@ declare namespace PhysX {
 
 	class PxShapeFlags {
 		constructor(flags: PxShapeFlag | number);
+	}
+
+	class PxRigidBodyFlags {
+		constructor(flags: number);
 	}
 
 	class PxTriangleMeshGeometry {
