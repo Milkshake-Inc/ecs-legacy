@@ -12,6 +12,8 @@ export class ConnectionStatistics {
 	public bytesOut = 0;
 }
 
+const ReconnectInterval = 1000;
+
 export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 	protected socket: WebSocket;
 
@@ -76,6 +78,16 @@ export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 
 		console.log(`🔌 Socket disconnected`);
 		console.log(`🔌 Reconnecting...`);
-		setTimeout(() => this.connect(localStorage.getItem('token')), 1000);
+		this.reconnect();
+	}
+
+	protected reconnect() {
+		if (!this.state.connected) {
+			console.log('attempting reconnect...');
+
+			this.connect(localStorage.getItem('token'));
+
+			setTimeout(() => this.reconnect(), ReconnectInterval);
+		}
 	}
 }
