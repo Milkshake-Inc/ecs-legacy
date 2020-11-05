@@ -25,7 +25,7 @@ export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	clearColor: Color.Tomato,
 	addCanvas: true,
 	transparent: false,
-	uiZIndex: 10,
+	uiZIndex: 10
 };
 
 // customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
@@ -41,11 +41,7 @@ export default class PixiRenderSystem extends System {
 	// Query passed in must be added to engine.... & update has to be called manually
 	// Maybe you could have TileMapCouplerPlugin - which renders tilemap (ParticleContainer etc)
 	// new RenderSystem([ useTileMapCouple ])
-	protected couples = [
-		useDisplayObjectsCouple(this),
-		useParticleCouple(this),
-		useSpineCouple(this),
-	];
+	protected couples = [useDisplayObjectsCouple(this), useParticleCouple(this), useSpineCouple(this)];
 
 	constructor(
 		customSettings?: Partial<RenderSystemSettings>,
@@ -77,14 +73,14 @@ export default class PixiRenderSystem extends System {
 			antialias: true,
 			resolution: devicePixelRatio,
 			autoDensity: true,
-			autoStart: false,
-
+			autoStart: false
 		});
 
 		(window as any).renderSystem = this;
 
-		this.state.application.stage.addChild((this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width: settings.width, height: settings.height }))));
-
+		this.state.application.stage.addChild(
+			(this.defaultRenderSprite = new PixiSprite(RenderTexture.create({ width: settings.width, height: settings.height })))
+		);
 
 		this.state.container.sortableChildren = true;
 
@@ -122,7 +118,7 @@ export default class PixiRenderSystem extends System {
 					camera.transform.pivot.y
 				);
 
-				this.state.ui.position.set(-camera.transform.position.x - (1280 / 2), -camera.transform.position.y - (720 / 2));
+				this.state.ui.position.set(-camera.transform.position.x - 1280 / 2, -camera.transform.position.y - 720 / 2);
 
 				this.state.application.renderer.render(this.state.container, sprite.texture as RenderTexture, true);
 			}

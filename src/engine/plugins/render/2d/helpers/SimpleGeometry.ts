@@ -1,5 +1,5 @@
-import { Geometry } from "pixi.js";
-import { Vector2 } from "@ecs/plugins/math/Vector";
+import { Geometry } from 'pixi.js';
+import { Vector2 } from '@ecs/plugins/math/Vector';
 
 export class SimpleGeometry extends Geometry {
 	static VERTEX_POSITION = 'aVertexPosition';
@@ -11,11 +11,11 @@ export class SimpleGeometry extends Geometry {
 
 		this.cachedVertices = [];
 
-		this.addAttribute(SimpleGeometry.VERTEX_POSITION, [])
+		this.addAttribute(SimpleGeometry.VERTEX_POSITION, []);
 	}
 
 	get vertexBuffer() {
-		return this.getBuffer(SimpleGeometry.VERTEX_POSITION)
+		return this.getBuffer(SimpleGeometry.VERTEX_POSITION);
 	}
 
 	get verticies() {
@@ -25,7 +25,7 @@ export class SimpleGeometry extends Geometry {
 	set verticies(value: { x: number; y: number }[]) {
 		this.cachedVertices = value;
 
-		this.updateVerticiesBuffer()
+		this.updateVerticiesBuffer();
 	}
 
 	updateVerticiesBuffer() {
@@ -36,6 +36,6 @@ export class SimpleGeometry extends Geometry {
 			vertices.push(vertex.y);
 		});
 
-		this.vertexBuffer.update(new Float32Array(vertices))
+		this.vertexBuffer.update(new Float32Array(vertices));
 	}
 }

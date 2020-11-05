@@ -24,7 +24,7 @@ export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDi
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export enum PixiEvents {
-	Clicked = 'clicked',
+	Clicked = 'clicked'
 }
 
 export const usePixiCouple = <T extends DisplayObject>(

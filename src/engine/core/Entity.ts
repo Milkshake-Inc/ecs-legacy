@@ -78,7 +78,7 @@ export class Entity {
 	public static COMPONENTS = 0;
 
 	public addComponent<T extends K, K extends any>(component: T, resolveClass?: Class<K>): Entity {
-		let componentClass = component ? component.constructor as Class<K> : undefined;
+		let componentClass = component ? (component.constructor as Class<K>) : undefined;
 		if (!component || !componentClass) {
 			throw new Error("Component instance mustn't be null and must be an instance of the class");
 		}

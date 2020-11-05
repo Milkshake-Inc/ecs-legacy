@@ -25,7 +25,9 @@ export default class TickerEngine extends Engine {
 		this.ticker.signalFrameEnd.connect((dt, panic) => {
 			if (panic) {
 				const oldFrameDelta = this.ticker.resetFrameDelta();
-				console.log(`🚨  Ticker Panic - Ticker delta was ${Math.floor(oldFrameDelta)}ms Resetting frame delta in ticker. May cause chaos.`);
+				console.log(
+					`🚨  Ticker Panic - Ticker delta was ${Math.floor(oldFrameDelta)}ms Resetting frame delta in ticker. May cause chaos.`
+				);
 			}
 		});
 		this.ticker.start();

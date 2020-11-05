@@ -1,3 +1,1 @@
-export default class UIDisplayObject {
-
-}
+export default class UIDisplayObject {}

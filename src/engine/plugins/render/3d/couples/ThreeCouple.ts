@@ -17,7 +17,7 @@ export const genericObject3DUpdate = (entity: Entity, object3D: Object3D) => {
 export type Optional<T extends object, K extends keyof T = keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 export enum ThreeEvents {
-	Clicked = 'clicked',
+	Clicked = 'clicked'
 }
 
 export const useThreeCouple = <T extends Object3D>(

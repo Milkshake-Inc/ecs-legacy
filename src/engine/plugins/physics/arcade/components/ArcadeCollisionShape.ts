@@ -15,12 +15,14 @@ export class ArcadeCollisionShape {
 	public static BoxCenter(width: number, height: number) {
 		const halfWidth = width / 2;
 		const halfHeight = height / 2;
-		return new ArcadeCollisionShape(new Polygon(undefined, [
-			new Vector(-halfWidth, -halfHeight),
-			new Vector(halfWidth, -halfHeight),
-			new Vector(halfWidth, halfHeight),
-			new Vector(-halfWidth, halfHeight),
-		]));
+		return new ArcadeCollisionShape(
+			new Polygon(undefined, [
+				new Vector(-halfWidth, -halfHeight),
+				new Vector(halfWidth, -halfHeight),
+				new Vector(halfWidth, halfHeight),
+				new Vector(-halfWidth, halfHeight)
+			])
+		);
 	}
 
 	public static Polygon(points: Vector3[]) {

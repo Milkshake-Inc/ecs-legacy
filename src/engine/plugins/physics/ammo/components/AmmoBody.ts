@@ -10,7 +10,6 @@ export enum BodyType {
 	Ghost = 4
 }
 
-
 export enum CollisionFilterGroups {
 	NoFilter = 0,
 	DefaultFilter = 1,
@@ -25,11 +24,9 @@ export enum CollisionFilterGroups {
 	Ball = 256,
 
 	AllFilter = -1
-
 }
 
 export default class AmmoBody extends AmmoInstance.btRigidBody {
-
 	public groups?: CollisionFilterGroups;
 	public groupsCollideWith?: CollisionFilterGroups;
 

@@ -1,4 +1,4 @@
-import { Vector2 } from "./Vector";
+import { Vector2 } from './Vector';
 
 type Polygon = Vector2[];
 

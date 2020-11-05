@@ -39,7 +39,7 @@ const getPixiDisplayObjects = (entity: Entity) => {
 	}
 
 	return displayObjects;
-}
+};
 
 // Caveats: Since one entity can have multiple types of pixi display objets ie. Sprite & Graphic
 // we bundle them up into a container. Now allowing depth sorting etc. Also adding a container to an

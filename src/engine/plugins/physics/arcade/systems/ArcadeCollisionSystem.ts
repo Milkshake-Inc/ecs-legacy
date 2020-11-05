@@ -24,8 +24,8 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 	}
 
 	protected checkCollision(entityA: Entity, entityB: Entity) {
-		const physicsA = entityA.get(ArcadePhysics)
-		const physicsB = entityB.get(ArcadePhysics)
+		const physicsA = entityA.get(ArcadePhysics);
+		const physicsB = entityB.get(ArcadePhysics);
 
 		if (physicsA.isStatic && physicsB.isStatic) return;
 
@@ -55,7 +55,7 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 
 			if (!physicsB.isStatic) {
 				// Dynamic vs Dnamic?
-				response.overlapV.scale(0.5)
+				response.overlapV.scale(0.5);
 			}
 
 			shapeA.pos.y -= response.overlapV.y;

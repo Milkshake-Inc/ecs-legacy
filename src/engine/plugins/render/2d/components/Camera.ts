@@ -20,5 +20,5 @@ export default class Camera {
 		public offset = new Vector3(width / 2, height / 2),
 		public scrollOptions: FollowOptions = { bounded: false, padding: 100, minZoom: 1, maxZoom: 0.01 },
 		public transform = new Transform()
-	) { }
+	) {}
 }

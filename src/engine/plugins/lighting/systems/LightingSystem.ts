@@ -38,18 +38,17 @@ export const convertToLines = (polygons: Polygons): Line[] => {
 
 	polygons.polygons.forEach(polygon => {
 		for (let index = 0; index < polygon.length; index++) {
-
-			const last = (index + 1) % (polygon.length);
+			const last = (index + 1) % polygon.length;
 
 			lines.push({
 				a: polygon[index],
-				b: polygon[last],
-			})
+				b: polygon[last]
+			});
 		}
-	})
+	});
 
 	return lines;
-}
+};
 
 type LightShaderUniform = {
 	position: { x: number; y: number };

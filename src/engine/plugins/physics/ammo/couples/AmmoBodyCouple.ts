@@ -14,7 +14,7 @@ export const useAmmoBodyCouple = (system: System) =>
 			body.quaternion = transform.quaternion;
 
 			// Should this always be here
-			body.setCollisionFlags(body.getCollisionFlags() | 8)
+			body.setCollisionFlags(body.getCollisionFlags() | 8);
 
 			// TODO
 			// Should this be added manually when creating an entity

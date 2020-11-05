@@ -8,7 +8,6 @@ import { Class } from './Class';
  * @see QueryBuilder
  */
 export class Query implements Iterable<Entity> {
-
 	*[Symbol.iterator](): Iterator<Entity> {
 		for (const entity of this.entities) {
 			yield entity;

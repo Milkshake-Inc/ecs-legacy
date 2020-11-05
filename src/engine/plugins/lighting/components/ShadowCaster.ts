@@ -1,3 +1,1 @@
-export class ShadowCaster {
-
-}
+export class ShadowCaster {}

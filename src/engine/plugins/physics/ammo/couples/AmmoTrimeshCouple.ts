@@ -19,7 +19,7 @@ export const useAmmoTrimeshCouple = (system: System) =>
 
 			if (cachedTrimeshShapes.has(object3d)) {
 				const shape = cachedTrimeshShapes.get(object3d);
-				body.shape = shape
+				body.shape = shape;
 				return shape;
 			}
 

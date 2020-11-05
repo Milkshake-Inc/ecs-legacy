@@ -45,15 +45,15 @@ export default class PhysXPhysicsSystem extends System {
 				// Todo: Should this be emitted both ways A,B & B,A
 				this.events.emit(PhysXEvents.Collision, entityB, entityA);
 			},
-			onContactEnd: () => { },
-			onContactPersist: () => { },
+			onContactEnd: () => {},
+			onContactPersist: () => {},
 			onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
 				const entityA = this.findEntityByPhysxObject(shapeA);
 				const entityB = this.findEntityByPhysxObject(shapeB);
 
 				this.events.emit(PhysXEvents.Collision, entityA, entityB);
 			},
-			onTriggerEnd: () => { }
+			onTriggerEnd: () => {}
 		};
 
 		const physxSimulationCallbackInstance = (PhysX as any).PxSimulationEventCallback.implement(triggerCallback);

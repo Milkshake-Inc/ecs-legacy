@@ -49,12 +49,12 @@ declare namespace PhysX {
 	}
 
 	const PX_PHYSICS_VERSION: number;
-	interface PxAllocatorCallback { }
-	class PxDefaultErrorCallback implements PxAllocatorCallback { }
-	interface PxErrorCallback { }
-	class PxDefaultAllocator implements PxErrorCallback { }
+	interface PxAllocatorCallback {}
+	class PxDefaultErrorCallback implements PxAllocatorCallback {}
+	interface PxErrorCallback {}
+	class PxDefaultAllocator implements PxErrorCallback {}
 
-	class PxFoundation { }
+	class PxFoundation {}
 	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
 
 	class PxTransform {
@@ -103,7 +103,7 @@ declare namespace PhysX {
 		constructor(x: number, y: number, z: number);
 	}
 
-	class Material extends Base { }
+	class Material extends Base {}
 
 	class PxShape extends Base {
 		setContactOffset(contactOffset: number): void;
@@ -120,9 +120,9 @@ declare namespace PhysX {
 		detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void;
 		addForce(force: PxVec3 | any, mode: PxForceMode | number, autowake: boolean): void;
 	}
-	enum PxForceMode { }
-	class RigidBody extends RigidActor { }
-	class RigidStatic extends RigidBody { }
+	enum PxForceMode {}
+	class RigidBody extends RigidActor {}
+	class RigidStatic extends RigidBody {}
 	class RigidDynamic extends RigidBody {
 		wakeUp(): void; //, &PxRigidDynamic::wakeUp)
 		setWakeCounter(): void; //, &PxRigidDynamic::setWakeCounter)
@@ -133,9 +133,9 @@ declare namespace PhysX {
 		setKinematicTarget(): void; //, &PxRigidDynamic::setKinematicTarget)
 		setRigidDynamicLockFlags(): void; //, &PxRigidDynamic::setRigidDynamicLockFlags);
 	}
-	class PxVec3 { }
+	class PxVec3 {}
 
-	class PxSceneDesc { }
+	class PxSceneDesc {}
 	class PxScene {
 		simulate(timeStep: number, rando: boolean): void;
 		fetchResults(b: boolean): void;
@@ -188,7 +188,7 @@ declare namespace PhysX {
 		length: number | 1.0;
 		speed: number | 10.0;
 	}
-	class PxPvd { }
+	class PxPvd {}
 	function PxCreatePhysics(
 		a?: number,
 		b?: PxFoundation,
