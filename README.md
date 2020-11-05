@@ -1,4 +1,21 @@
-![logo.png](logo.png)
+<p align="center">
+  <img src="logo.png" width="60%"/>
+</p>
+<hr/>
+
+**ECS** is a experimental Entity Component System. Etc...
+
+## Features
+
+- 3D Rendering (ThreeJS)
+- 2D Rendering (PixiJS)
+- Sounds (HowlerJS)
+- UDP Networking (Geckos)
+- TCP Networking (uWebsockets)
+- Snapshot Interpolation
+- Physics (MatterJS, CannonJS, AmmoJS & PhysX)
+- Gamepad Input
+- React UI
 
 ## Getting started
 
