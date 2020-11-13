@@ -1,15 +1,14 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const RunNodeWebpackPlugin = require('run-node-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const { baseConfig, projectPath } = require('./webpack.base.js');
 const { merge } = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 const cwd = process.cwd();
 
 const config = {
-    name: 'Server',
-    entry: `${projectPath}/src/Server.ts`,
+    name: 'Api',
+    entry: [`${projectPath}/src/Api.ts`],
     target: 'node',
     node: {
         // Need this when working with express, otherwise the build fails
@@ -18,22 +17,15 @@ const config = {
     },
     plugins: [
         new RunNodeWebpackPlugin({
-            scriptsToRun: 'server.js',
-            scriptsToWatch: ['server.js'],
-            nodeArgs: ['--inspect=0.0.0.0:9229'],
+            scriptToRun: "api.js",
+            scriptsToWatch: ['api.js'],
+            nodeArgs: ['--inspect=0.0.0.0:9228'],
             runOnlyInWatchMode: true,
         }),
         new WebpackBar({
-            name: 'Server',
-            color: 'orange'
+            name: 'Api',
+            color: 'yellow'
         }),
-        new CopyPlugin({
-            patterns: [
-                { from: `${projectPath}/www`, to: './www' },
-                { from: 'node_modules/ammo.js/builds/', to: '.' },
-                { from: './ecs/src/engine/plugins/physics/physx/build/', to: '.' }
-            ]
-        })
     ],
     externals: [
         nodeExternals({
@@ -41,8 +33,8 @@ const config = {
         })
     ],
     output: {
-        path: path.resolve(cwd, 'bin/server'),
-        filename: 'server.js'
+        path: path.resolve(cwd, 'bin/api'),
+        filename: 'api.js'
     }
 };
 

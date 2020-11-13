@@ -11,7 +11,7 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 	protected server: TemplatedApp;
 	protected sockets: Map<Entity, uws.WebSocket> = new Map();
 
-	constructor(engine: Engine) {
+	constructor(engine: Engine, port = 9001) {
 		super(engine);
 
 		this.engine = engine;
@@ -35,8 +35,8 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 				message: this.handleMessage.bind(this),
 				close: this.handleDisconnection.bind(this)
 			})
-			.listen(3001, listenSocket => {
-				console.log('listening');
+			.listen(port, listenSocket => {
+				console.log('server listening on', port);
 			});
 	}
 

@@ -9,14 +9,14 @@ const compiler = webpack(webpackConfig);
 const publicIp = require('public-ip');
 
 compiler.watch({}, (error, stats) => {
-	if (error) {
-		console.error(error);
-		return;
-	}
+    if (error) {
+        console.error(error);
+        return;
+    }
 
-	console.log(stats.toString('errors-warnings'));
+    console.log(stats.toString('errors-warnings'));
 });
 
 publicIp.v4().then(ip => {
-	console.log(chalk.bold('✨  Client hosted at ') + chalk.green(`http://${ip}:${port}`));
+    console.log(chalk.bold('✨  Client hosted at ') + chalk.green(`http://${ip}:${port}`));
 });

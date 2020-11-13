@@ -17,13 +17,15 @@ const ReconnectInterval = 1000;
 export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 	protected socket: WebSocket;
 
-	protected connect(token = '') {
-		const vars = QueryString.parse(window.location.search);
-		const socket = vars['ws'] || `${window.location.hostname}`;
-		const protocol = window.location.protocol == 'https:' ? 'wss:' : 'ws:';
-		const url = `${protocol}//${socket}:3001`;
+	protected connect(token = 'guest', url = null) {
+		if (!url) {
+			const vars = QueryString.parse(window.location.search);
+			const socket = vars['ws'] || `${window.location.hostname}`;
+			const protocol = window.location.protocol == 'https:' ? 'wss:' : 'ws:';
+			url = `${protocol}//${socket}:9001`;
+		}
 
-		this.socket = new WebSocket(url, token || 'guest');
+		this.socket = new WebSocket(url, token);
 		this.socket.binaryType = 'arraybuffer';
 
 		this.socket.onopen = this.handleConnection.bind(this);
