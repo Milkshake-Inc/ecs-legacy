@@ -29,7 +29,7 @@ export default abstract class ClientConnectionSystem extends System {
 		this.events.on(NetEvents.SendTo, (_, packet, reliable) => this.send(packet, reliable));
 
 		console.log(`🔌 Connecting to server...!`);
-		this.connect(); // localStorage.getItem('token'); // <-- persist connections
+		this.connect(localStorage.getItem('token'));
 	}
 
 	protected abstract connect(token?: string): void;
@@ -51,8 +51,11 @@ export default abstract class ClientConnectionSystem extends System {
 		this.events.emit(NetEvents.OnDisconnected, this.sessionEntity);
 
 		this.state.connected = false;
-		this.engine.removeEntity(this.sessionEntity);
-		this.sessionEntity = null;
+
+		if (this.sessionEntity) {
+			this.engine.removeEntity(this.sessionEntity);
+			this.sessionEntity = null;
+		}
 
 		console.log(`🔌 Socket disconnected`);
 		console.log(`🔌 Reconnecting...`);

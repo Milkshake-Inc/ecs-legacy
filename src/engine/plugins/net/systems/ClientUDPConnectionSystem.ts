@@ -74,16 +74,4 @@ export default class ClientUDPConnectionSystem extends ClientConnectionSystem {
 			this.events.emit(NetEvents.OnPacket, this.sessionEntity, packet);
 		}
 	}
-
-	protected handleDisconnection() {
-		this.events.emit(NetEvents.OnDisconnected, this.sessionEntity);
-
-		this.state.connected = false;
-		this.engine.removeEntity(this.sessionEntity);
-		this.sessionEntity = null;
-
-		console.log(`🔌 Socket disconnected`);
-		console.log(`🔌 Reconnecting...`);
-		setTimeout(() => this.connect(localStorage.getItem('token')), 1000);
-	}
 }

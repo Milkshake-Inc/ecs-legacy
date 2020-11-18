@@ -12,25 +12,30 @@ export class ConnectionStatistics {
 	public bytesOut = 0;
 }
 
-const ReconnectInterval = 1000;
+export const ReconnectInterval = 1000;
 
 export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 	protected socket: WebSocket;
+	protected url: string;
 
-	protected connect(token = 'guest', url = null) {
-		if (!url) {
+	protected connect(token = 'guest') {
+		if (!this.url) {
 			const vars = QueryString.parse(window.location.search);
 			const socket = vars['ws'] || `${window.location.hostname}`;
 			const protocol = window.location.protocol == 'https:' ? 'wss:' : 'ws:';
-			url = `${protocol}//${socket}:9001`;
+			this.url = `${protocol}//${socket}:9001`;
 		}
 
-		this.socket = new WebSocket(url, token);
+		this.socket = new WebSocket(this.url, token);
 		this.socket.binaryType = 'arraybuffer';
 
 		this.socket.onopen = this.handleConnection.bind(this);
 		this.socket.onmessage = message => this.handleMessage(message.data);
 		this.socket.onclose = this.handleDisconnection.bind(this);
+		this.socket.onerror = e => {
+			console.error(e);
+			this.handleDisconnection();
+		};
 	}
 
 	public disconnect(code?: number, message?: string): void {
@@ -71,25 +76,11 @@ export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 		}
 	}
 
-	protected handleDisconnection() {
-		this.events.emit(NetEvents.OnDisconnected, this.sessionEntity);
-
-		this.state.connected = false;
-		this.engine.removeEntity(this.sessionEntity);
-		this.sessionEntity = null;
-
-		console.log(`🔌 Socket disconnected`);
-		console.log(`🔌 Reconnecting...`);
-		this.reconnect();
-	}
-
 	protected reconnect() {
 		if (!this.state.connected) {
 			console.log('attempting reconnect...');
 
-			this.connect(localStorage.getItem('token'));
-
-			setTimeout(() => this.reconnect(), ReconnectInterval);
+			setTimeout(() => this.connect(localStorage.getItem('token')), ReconnectInterval);
 		}
 	}
 }
