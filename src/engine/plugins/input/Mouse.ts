@@ -38,7 +38,7 @@ export default class Mouse extends InputDevice {
 	}
 
 	static get pointerLocked() {
-		return document.pointerLockElement === document.body;
+		return InputManager.isTouchCapable || document.pointerLockElement === document.body;
 	}
 
 	static button(btn: MouseButton | MouseScroll): Control {
