@@ -3,6 +3,7 @@ const chalk = require('chalk');
 const path = require('path');
 const { project, projectPath, host, port, emoji } = require('./webpack.base.js');
 const { WebpackPluginServe: Serve } = require('webpack-plugin-serve');
+const localIp = require('../localIp')();
 const cwd = process.cwd();
 
 const hasClient = fs.existsSync(`${projectPath}src/Client.ts`);
@@ -14,7 +15,7 @@ const webpacks = [];
 if (hasClient) {
     const devServer = new Serve({
         port,
-        host: 'localhost',
+        host: localIp,
         open: true,
         static: path.join(cwd, 'bin/www'),
         hmr: false,

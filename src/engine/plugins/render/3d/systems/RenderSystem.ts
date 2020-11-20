@@ -25,6 +25,10 @@ export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	color: Color.Tomato
 };
 
+const isMac = () => {
+	return window.navigator.platform == 'MacIntel';
+};
+
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
 
@@ -61,7 +65,7 @@ export default class RenderSystem extends System {
 		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
-			antialias: false, // Bad performance on OSX. TODO optionally enable these...
+			antialias: !isMac(),
 			alpha: false
 		});
 
