@@ -37,7 +37,7 @@ const config = {
 	},
 	output: {
 		path: path.resolve(cwd, 'bin/www'),
-		filename: 'client.js'
+		filename: 'client.js?t=' + new Date().getTime()
 	},
 	plugins: [
 		new CopyPlugin({
