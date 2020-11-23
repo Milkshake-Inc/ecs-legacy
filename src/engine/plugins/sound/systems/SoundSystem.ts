@@ -41,7 +41,7 @@ export class SoundState {
 
 export default class SoundSystem extends IterativeSystem {
 	protected engine: Engine;
-	protected sounds: Map<Entity, Howl> = new Map();
+	protected sounds: Map<Entity, Howl[]> = new Map();
 	protected state = useState(this, SoundState.fromStorage());
 	protected queries = useQueries(this, {
 		listener: all(Transform, SoundListener)
@@ -65,23 +65,33 @@ export default class SoundSystem extends IterativeSystem {
 
 	protected updateEntityFixed(entity: Entity): void {
 		const sound = entity.get(Sound);
-		let howl = this.sounds.get(entity);
+		let howls = this.sounds.get(entity);
 
-		if (!howl) {
+		if (!howls) {
 			console.log('🔊 adding sound');
-			howl = new Howl({
-				html5: false,
-				onend: (id: number) => {
-					this.onSoundEnd(entity);
-				},
-				...sound
-			});
+			const srcs = Array.isArray(sound.src) ? sound.src : [sound.src];
 
-			this.sounds.set(entity, howl);
+			howls = srcs.map(
+				src =>
+					new Howl({
+						html5: false,
+						onend: (id: number) => {
+							this.onSoundEnd(entity);
+						},
+						...sound,
+						src: src,
+						loop: false
+					})
+			);
+
+			this.sounds.set(entity, howls);
 		}
+
+		const howl = howls[sound.playingSrcIndex];
 
 		if (sound.play && !sound.playing) {
 			console.log(`🔊 playing sound ${sound.src}`);
+
 			howl.play(sound.playSprite);
 			sound.playing = true;
 		}
@@ -100,9 +110,6 @@ export default class SoundSystem extends IterativeSystem {
 		}
 		if (howl.rate() != sound.rate) {
 			howl.rate(sound.rate);
-		}
-		if (howl.loop() != sound.loop) {
-			howl.loop(sound.loop);
 		}
 		if (sound.seek) {
 			howl.seek(sound.seek);
@@ -139,8 +146,22 @@ export default class SoundSystem extends IterativeSystem {
 	}
 
 	protected onSoundEnd(entity: Entity) {
-		// If looping, don't clean up yet
-		if (entity.get(Sound)?.loop) return;
+		const sound = entity.get(Sound);
+		const howls = this.sounds.get(entity);
+		sound.playing = false;
+		sound.playingSrcIndex++;
+
+		if (sound.playingSrcIndex > howls.length - 1) {
+			if (sound.loop) {
+				sound.playingSrcIndex = 0;
+			} else {
+				this.removeSound(entity);
+			}
+		}
+	}
+
+	protected removeSound(entity: Entity) {
+		console.log(`🔊 removing sound ${entity.get(Sound).src}`);
 
 		entity.remove(Sound);
 		this.sounds.delete(entity);

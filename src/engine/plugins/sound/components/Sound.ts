@@ -11,6 +11,7 @@ export class Sound {
 		public playSprite: string = undefined,
 		public sprite: SoundSprite = undefined,
 		public seek: number = null,
-		public playing = false
+		public playing = false,
+		public playingSrcIndex = 0
 	) {}
 }
