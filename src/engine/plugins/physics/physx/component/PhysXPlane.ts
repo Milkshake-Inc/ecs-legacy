@@ -1,1 +1,3 @@
-export class PhysXPlane {}
+export class PhysXPlane {
+    shapeName: string = 'Plane';
+}

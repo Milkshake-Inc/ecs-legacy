@@ -1,5 +1,5 @@
 import Quaternion from '@ecs/plugins/math/Quaternion';
-import { Vector } from '@ecs/plugins/math/Vector';
+import Vector3, { Vector } from '@ecs/plugins/math/Vector';
 import { PxActorFlag } from '../PxActorFlag';
 import { PxShapeFlag } from '../PxShapeFlags';
 
@@ -10,9 +10,11 @@ export class PhysXBody {
 	staticFriction: number = 0.1;
 	dynamicFriction: number = 0.1;
 	restitution: number = 0.2;
-	shapeFlags: any = PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE;
-	actorFlags: any = 0;
+	shapeFlags: any = PxShapeFlag.eVISUALIZATION | PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE;
+	actorFlags: any = PxActorFlag.eVISUALIZATION;
 	bodyFlags: number = 0;
+
+	private velocity: Vector3 = Vector3.ZERO;
 
 	public setPosition(value: Vector) {
 		const currentPose = this.body.getGlobalPose();
@@ -33,4 +35,10 @@ export class PhysXBody {
 	public clearVelocity() {
 		this.body.setLinearVelocity({ x: 0, y: 0, z: 0 }, true);
 	}
+
+	public getVelocity() {
+		this.velocity.setFromVector(this.body.getLinearVelocity());
+		return this.velocity;
+	}
+
 }

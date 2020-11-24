@@ -7,12 +7,12 @@ import { PhysXBox } from '../component/PhysXBox';
 import { PhysXPlane } from '../component/PhysXPlane';
 import { PhysXSphere } from '../component/PhysXSphere';
 import { PhysXState } from '../PhysXPhysicsSystem';
+import { PxShapeFlag } from '../PxShapeFlags';
 import { usePhysXCouple } from './PhysXCouple';
 
 const generateShape = (entity: Entity) => {
 	if (entity.has(PhysXPlane)) {
 		return new PhysX.PxBoxGeometry(1000, 0.001, 1000);
-		// return new PhysX.PxPlaneGeometry();
 	}
 
 	if (entity.has(PhysXSphere)) {
@@ -42,20 +42,29 @@ export const usePhysXShapeCouple = (system: System) => {
 
 			const geomatry = generateShape(entity);
 
-			const shapeFlags = new PhysX.PxShapeFlags(flags);
+			const shapeFlags = new PhysX.PxShapeFlags(flags | PxShapeFlag.eVISUALIZATION);
 
 			const material = physics.createMaterial(0.2, 0.2, 0.5);
 			const shape = physics.createShape(geomatry, material, true, shapeFlags);
 
 			shape.setContactOffset(0.0001);
 
-			const filterData = new (PhysX as any).PxFilterData(1, 1, 0, 0);
+
+			const filterData = new (PhysX as any).PxFilterData(1, 0, 0, 0);
 
 			ptrToEntity.set(shape.$$.ptr, entity);
 
 			(shape as any).setSimulationFilterData(filterData);
 
+			let name = "Unknown";
+			if (entity.has(PhysXSphere)) name = entity.get(PhysXSphere).shapeName;
+			if (entity.has(PhysXBox)) name = entity.get(PhysXBox).shapeName;
+			if (entity.has(PhysXPlane)) name = entity.get(PhysXPlane).shapeName;
+
+			shape.setName(name);
+
 			body.attachShape(shape);
+
 
 			return shape;
 		}

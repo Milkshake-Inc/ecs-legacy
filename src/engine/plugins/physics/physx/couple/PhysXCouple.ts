@@ -21,13 +21,6 @@ export const usePhysXCouple = (
 	const couple = useCouple(query.physicsObject, {
 		onCreate: entity => {
 			const createdPhysicsObject = callbacks.onCreate(entity);
-			const world = getPhysXState().scene;
-
-			// if (createdPhysicsObject instanceof PhysX.RigidDynamic) {
-			//     const body = createdPhysicsObject as PhysX.RigidDynamic;
-
-			//     console.log("I SHOULD ADD")
-			// }
 
 			return createdPhysicsObject;
 		},
@@ -38,7 +31,11 @@ export const usePhysXCouple = (
 				}
 			}
 		},
-		onDestroy: (entity, physicsObject) => {}
+		onDestroy: (entity, physicsObject) => {
+			if (callbacks.onDestroy) {
+				callbacks.onDestroy(entity, physicsObject);
+			}
+		}
 	});
 
 	return couple;

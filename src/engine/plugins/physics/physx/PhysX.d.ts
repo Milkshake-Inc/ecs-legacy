@@ -19,6 +19,21 @@ declare namespace PhysX {
 		};
 	}
 
+	interface PxPvdInstrumentationFlag {
+		eALL: {
+			value: number;
+		};
+		eDEBUG: {
+			value: number;
+		};
+		ePROFILE: {
+			value: number;
+		};
+		eMEMORY: {
+			value: number;
+		};
+	}
+
 	type Constructor<T = {}> = new (...args: any[]) => T;
 	type VoidPtr = number;
 	const NULL: {};
@@ -49,12 +64,20 @@ declare namespace PhysX {
 	}
 
 	const PX_PHYSICS_VERSION: number;
-	interface PxAllocatorCallback {}
-	class PxDefaultErrorCallback implements PxAllocatorCallback {}
-	interface PxErrorCallback {}
-	class PxDefaultAllocator implements PxErrorCallback {}
+	interface PxAllocatorCallback { }
+	class PxDefaultErrorCallback implements PxAllocatorCallback { }
+	interface PxErrorCallback { }
+	class PxDefaultAllocator implements PxErrorCallback { }
 
-	class PxFoundation {}
+	class PxPvdTransport {
+		static implement(pvdTransportImp: PxPvdTransport): PxPvdTransport;
+
+		connect: () => void;
+		isConnected: () => boolean;
+		write: (inBytesPtr: number, inLength: number) => void;
+	}
+
+	class PxFoundation { }
 	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
 
 	class PxTransform {
@@ -103,10 +126,13 @@ declare namespace PhysX {
 		constructor(x: number, y: number, z: number);
 	}
 
-	class Material extends Base {}
+	class Material extends Base { }
 
 	class PxShape extends Base {
 		setContactOffset(contactOffset: number): void;
+
+		setName(value: string): void;
+		getName(): string;
 	}
 
 	class PxActorFlags {
@@ -120,6 +146,7 @@ declare namespace PhysX {
 		getGlobalPose(): PxTransform;
 		setGlobalPose(transform: PxTransform, autoAwake: boolean): void;
 		setLinearVelocity(value: PxVec3, autoAwake: boolean): void;
+		getLinearVelocity(): PxVec3;
 		addImpulseAtLocalPos(valueA: PxVec3, valueB: PxVec3): void;
 	}
 	class RigidActor extends Actor {
@@ -127,7 +154,7 @@ declare namespace PhysX {
 		detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void;
 		addForce(force: PxVec3 | any, mode: PxForceMode | number, autowake: boolean): void;
 	}
-	enum PxForceMode {}
+	enum PxForceMode { }
 	class RigidBody extends RigidActor {
 		setRigidBodyFlag(flag: PxRigidBodyFlags, value: boolean): void;
 		setRigidBodyFlags(flags: PxRigidBodyFlags): void;
@@ -137,7 +164,7 @@ declare namespace PhysX {
 		getMass(): number;
 	}
 
-	class RigidStatic extends RigidActor {}
+	class RigidStatic extends RigidActor { }
 	class RigidDynamic extends RigidBody {
 		wakeUp(): void; //, &PxRigidDynamic::wakeUp)
 		setWakeCounter(): void; //, &PxRigidDynamic::setWakeCounter)
@@ -152,11 +179,16 @@ declare namespace PhysX {
 		setAngularVelocity(value: PxVec3, autoWake: boolean): void;
 		setAngularDamping(value: number): void;
 	}
-	class PxVec3 {}
+	class PxVec3 {
+		x: number;
+		y: number;
+		z: number;
+	}
 
-	class PxSceneDesc {}
+	class PxSceneDesc { }
 	class PxScene {
 		addActor(actor: Actor, unk: any): void;
+		removeActor(actor: Actor, unk: any): void;
 		simulate(timeStep: number, rando: boolean): void;
 		fetchResults(b: boolean): void;
 		getActiveActors(len: number): Actor[];
@@ -212,7 +244,9 @@ declare namespace PhysX {
 		length: number | 1.0;
 		speed: number | 10.0;
 	}
-	class PxPvd {}
+	class PxPvd {
+		connect(pvdTransport: PxPvdTransport): void;
+	}
 	function PxCreatePhysics(
 		a?: number,
 		b?: PxFoundation,
@@ -221,9 +255,11 @@ declare namespace PhysX {
 		e?: PxPvd
 	): PxPhysics;
 	function PxCreateCooking(version: number, foundation: PxFoundation, params: PxCookingParams): PxCooking;
+	function PxCreatePvd(foundation: PxFoundation): PxPvd;
 
 	type Type = {};
 
+	const HEAPU8: Uint8Array;
 	const HEAPU16: Uint16Array;
 	const HEAPU32: Uint32Array;
 }
