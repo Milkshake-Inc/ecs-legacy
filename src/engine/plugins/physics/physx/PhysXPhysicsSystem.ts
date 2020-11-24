@@ -66,7 +66,7 @@ export default class PhysXPhysicsSystem extends System {
 
 				// Todo: Should this be emitted both ways A,B & B,A
 				this.events.emit(PhysXEvents.COLLISION_START, entityB, entityA, shapeB, shapeA);
-				console.log(`Found Collision A: ${shapeA.getName()} B: ${shapeB.getName()}`);
+				// console.log(`Found Collision A: ${shapeA.getName()} B: ${shapeB.getName()}`);
 			},
 			onContactEnd: () => {
 			},
