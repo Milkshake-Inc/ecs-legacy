@@ -29,11 +29,6 @@ const foundation = PhysX.PxCreateFoundation(version, allocator, defaultErrorCall
 // Debug Physics
 let pvdDebug = null;
 
-if (true) { // Debug
-	pvdDebug = PhysX.PxCreatePvd(foundation);
-	pvdDebug.connect(createTCPPvdTransport());
-	console.info("Make sure PhysX is not using release build!");
-}
 
 const cookingParamas = new PhysX.PxCookingParams(new PhysX.PxTolerancesScale());
 const cooking = PhysX.PxCreateCooking(version, foundation, cookingParamas);
