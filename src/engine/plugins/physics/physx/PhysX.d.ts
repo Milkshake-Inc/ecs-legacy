@@ -78,8 +78,19 @@ declare namespace PhysX {
 	}
 
 	class PxFoundation { }
-	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
 
+	class PxSimulationEventCallback {
+		static implement(imp: PxSimulationEventCallback): PxSimulationEventCallback;
+
+		onContactBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => void;
+		onContactEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => void;
+		onContactPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => void;
+		onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => void;
+		onTriggerEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => void;
+	}
+
+	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
+	function getDefaultSceneDesc(scale: PxTolerancesScale, numThreads: number, simulationCallback: PxSimulationEventCallback)
 	class PxTransform {
 		constructor(p: number[], q: number[]);
 		constructor();
@@ -192,6 +203,7 @@ declare namespace PhysX {
 		simulate(timeStep: number, rando: boolean): void;
 		fetchResults(b: boolean): void;
 		getActiveActors(len: number): Actor[];
+		setGravity(value: PxVec3): void;
 	}
 
 	class PxCookingParams {
