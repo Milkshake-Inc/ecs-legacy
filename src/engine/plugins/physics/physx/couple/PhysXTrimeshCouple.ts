@@ -24,13 +24,16 @@ export const usePhysXTrimeshCouple = (system: System) => {
 			const { cooking, physics, ptrToEntity } = getPhysXState();
 
 			if (getObject3d(entity)) {
-				applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
+				applyToMeshesIndividually(entity, ({ mesh, geometry, position, rotation }) => {
 					const trimesh = createTrimesh(cooking, physics, geometry.vertices, geometry.faces);
 
-					const flags = new PhysX.PxShapeFlags(physXBody.shapeFlags); // const flags = new PhysX.PxShapeFlags(PhysX.PxShapeFlag..eVISUALIZATION | PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE);;
+					const flags = new PhysX.PxShapeFlags(physXBody.shapeFlags);
 					const material = physics.createMaterial(physXBody.staticFriction, physXBody.dynamicFriction, physXBody.restitution);
 					const shape = physics.createShape(trimesh as any, material, false, flags);
 
+					let materialName: string = (mesh.material as any).name || "None";
+
+					shape.setName(materialName);
 					shape.setContactOffset(0.0001);
 
 					ptrToEntity.set(shape.$$.ptr, entity);
@@ -83,8 +86,6 @@ const createTrimesh = (cooking: PhysX.PxCooking, physics: PhysX.PxPhysics, verti
 		PhysX.HEAPU32[(indicesPtr + indicesOffset) >> 2] = faces[i].c;
 		indicesOffset += 4;
 	}
-
-	// const convex = (cooking as any).createConvexMeshFromBuffer(verticesPtr, vertices.length, physics);
 
 	const trimesh = cooking.createTriMesh(verticesPtr, vertices.length, indicesPtr, faces.length, false, physics);
 

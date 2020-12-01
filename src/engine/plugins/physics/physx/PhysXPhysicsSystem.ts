@@ -20,13 +20,23 @@ const defaultErrorCallback = new PhysX.PxDefaultErrorCallback();
 const allocator = new PhysX.PxDefaultAllocator();
 const foundation = PhysX.PxCreateFoundation(version, allocator, defaultErrorCallback);
 
+// Debug Physics
+let pvdDebug = null;
+
+
 const cookingParamas = new PhysX.PxCookingParams(new PhysX.PxTolerancesScale());
+const cooking = PhysX.PxCreateCooking(version, foundation, cookingParamas);
+const physics = PhysX.PxCreatePhysics(version, foundation, new PhysX.PxTolerancesScale(), false, pvdDebug);
 
 export enum PhysXEvents {
-	Collision = 'collision'
+	COLLISION_START = 'COLLISION_START',
+	COLLISION_END = 'COLLISION_END',
+	TRIGGER_START = 'TRIGGER_START',
+	TRIGGER_END = 'TRIGGER_END'
 }
 
 export default class PhysXPhysicsSystem extends System {
+
 	protected state = useState(this, new PhysXState());
 	protected events = useEvents();
 	protected couples = [usePhysXBodyCouple(this), usePhysXShapeCouple(this), usePhysXTrimeshCouple(this)];
@@ -34,8 +44,8 @@ export default class PhysXPhysicsSystem extends System {
 	constructor() {
 		super();
 
-		this.state.cooking = PhysX.PxCreateCooking(version, foundation, cookingParamas);
-		this.state.physics = PhysX.PxCreatePhysics(version, foundation, new PhysX.PxTolerancesScale(), false, null);
+		this.state.cooking = cooking;
+		this.state.physics = physics;
 
 		const triggerCallback = {
 			onContactBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
@@ -43,33 +53,39 @@ export default class PhysXPhysicsSystem extends System {
 				const entityB = this.findEntityByPhysxObject(shapeB);
 
 				// Todo: Should this be emitted both ways A,B & B,A
-				this.events.emit(PhysXEvents.Collision, entityB, entityA);
+				this.events.emit(PhysXEvents.COLLISION_START, entityB, entityA, shapeB, shapeA);
+				// console.log(`Found Collision A: ${shapeA.getName()} B: ${shapeB.getName()}`);
 			},
-			onContactEnd: () => {},
-			onContactPersist: () => {},
+			onContactEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
+				const entityA = this.findEntityByPhysxObject(shapeA);
+				const entityB = this.findEntityByPhysxObject(shapeB);
+
+				// Todo: Should this be emitted both ways A,B & B,A
+				this.events.emit(PhysXEvents.COLLISION_END, entityB, entityA, shapeB, shapeA);
+			},
+			onContactPersist: () => { },
 			onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
 				const entityA = this.findEntityByPhysxObject(shapeA);
 				const entityB = this.findEntityByPhysxObject(shapeB);
 
-				this.events.emit(PhysXEvents.Collision, entityA, entityB);
+				this.events.emit(PhysXEvents.TRIGGER_START, entityA, entityB);
 			},
-			onTriggerEnd: () => {}
+			onTriggerEnd: () => { }
 		};
 
-		const physxSimulationCallbackInstance = (PhysX as any).PxSimulationEventCallback.implement(triggerCallback);
-
-		const sceneDesc = (PhysX as any).getDefaultSceneDesc(this.state.physics.getTolerancesScale(), 0, physxSimulationCallbackInstance);
+		const physxSimulationCallbackInstance = PhysX.PxSimulationEventCallback.implement(triggerCallback);
+		const sceneDesc = PhysX.getDefaultSceneDesc(this.state.physics.getTolerancesScale(), 0, physxSimulationCallbackInstance);
 
 		this.state.scene = this.state.physics.createScene(sceneDesc);
-		(this.state.scene as any).setGravity({ x: 0.0, y: -7, z: 0.0 });
+		this.state.scene.setGravity({ x: 0.0, y: -7, z: 0.0 });
 	}
 
 	findEntityByPhysxObject(object: PhysX.Base) {
 		return this.state.ptrToEntity.get(object.$$.ptr);
 	}
 
-	updateFixed(dt: number) {
-		super.updateFixed(dt);
+	update(dt: number) {
+		super.update(dt);
 
 		if (this.state.scene) {
 			const subSteps = 10;
@@ -84,3 +100,5 @@ export default class PhysXPhysicsSystem extends System {
 		}
 	}
 }
+
+

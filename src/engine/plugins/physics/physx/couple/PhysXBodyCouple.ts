@@ -2,13 +2,8 @@ import { useQueries } from '@ecs/core/helpers';
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
 import Transform from '@ecs/plugins/math/Transform';
-import { Vector } from '@ecs/plugins/math/Vector';
-import TrimeshShape from '@ecs/plugins/physics/3d/components/TrimeshShape';
-import { applyToMeshesIndividually } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
 import { PhysXBody } from '../component/PhysXBody';
 import { PhysXState } from '../PhysXPhysicsSystem';
-import { PxActorFlag } from '../PxActorFlag';
-import { PxRidgidBodyFlags } from '../PxRidgidBodyFlags';
 import { usePhysXCouple } from './PhysXCouple';
 
 export const usePhysXBodyCouple = (system: System) => {
@@ -46,14 +41,11 @@ export const usePhysXBodyCouple = (system: System) => {
 			} else {
 				const dynamicBody = physics.createRigidDynamic(pos);
 				dynamicBody.setMass(body.mass);
-				console.log(`🏳  Set! Mass:` + dynamicBody.getMass());
 
 				const flags = new PhysX.PxRigidBodyFlags(body.bodyFlags);
 				dynamicBody.setRigidBodyFlags(flags);
-
 				dynamicBody.setActorFlags(new PhysX.PxActorFlags(body.actorFlags));
-
-				// dynamicBody.setSolverIterationCounts(200, 5);
+				dynamicBody.setAngularDamping(0)
 
 				body.body = dynamicBody;
 			}
@@ -70,6 +62,10 @@ export const usePhysXBodyCouple = (system: System) => {
 
 			transform.position.set(translation.x, translation.y, translation.z);
 			transform.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+		},
+		onDestroy: (entity, body) => {
+			const { scene } = getPhysXState();
+			scene.removeActor(body.body, null);
 		}
 	});
 };
