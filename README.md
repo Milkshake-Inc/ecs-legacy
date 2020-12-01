@@ -29,7 +29,7 @@ yarn start
 
 ## Resources
 
-# useCouple
+# useCouple (useBindings)
 # useEntity
 # useEvents
 # useQueries
