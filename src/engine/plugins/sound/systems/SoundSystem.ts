@@ -40,6 +40,8 @@ export class SoundState {
 }
 
 export default class SoundSystem extends IterativeSystem {
+	protected debug = false;
+
 	protected engine: Engine;
 	protected sounds: Map<Entity, Howl[]> = new Map();
 	protected state = useState(this, SoundState.fromStorage());
@@ -68,7 +70,7 @@ export default class SoundSystem extends IterativeSystem {
 		let howls = this.sounds.get(entity);
 
 		if (!howls) {
-			console.log('🔊 adding sound');
+			if (this.debug) console.log('🔊 adding sound');
 			const srcs = Array.isArray(sound.src) ? sound.src : [sound.src];
 
 			howls = srcs.map(
@@ -90,14 +92,14 @@ export default class SoundSystem extends IterativeSystem {
 		const howl = howls[sound.playingSrcIndex];
 
 		if (sound.play && !sound.playing) {
-			console.log(`🔊 playing sound ${sound.src}`);
+			if (this.debug) console.log(`🔊 playing sound ${sound.src}`);
 
 			howl.play(sound.playSprite);
 			sound.playing = true;
 		}
 
 		if (!sound.play && sound.playing) {
-			console.log(`🔊 stopping sound ${sound.src}`);
+			if (this.debug) console.log(`🔊 stopping sound ${sound.src}`);
 			howl.stop();
 			sound.playing = false;
 		}
@@ -161,14 +163,16 @@ export default class SoundSystem extends IterativeSystem {
 	}
 
 	protected removeSound(entity: Entity) {
-		console.log(`🔊 removing sound ${entity.get(Sound).src}`);
+		if (this.debug) console.log(`🔊 removing sound ${entity.get(Sound).src}`);
+
+		const { autoRemoveEntity } = entity.get(Sound);
 
 		entity.remove(Sound);
 		this.sounds.delete(entity);
 
-		// Probably should do this somewhere else...
-		if (entity.components.size == 0) {
+		if (autoRemoveEntity) {
 			this.engine.removeEntity(entity);
+			if (this.debug) console.log("Removing Sound Entity")
 		}
 	}
 

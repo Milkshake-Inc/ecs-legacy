@@ -12,6 +12,7 @@ export class Sound {
 		public sprite: SoundSprite = undefined,
 		public seek: number = null,
 		public playing = false,
-		public playingSrcIndex = 0
-	) {}
+		public playingSrcIndex = 0,
+		public autoRemoveEntity = true
+	) { }
 }
