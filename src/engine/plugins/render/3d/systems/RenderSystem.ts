@@ -85,6 +85,26 @@ export default class RenderSystem extends System {
 	update(dt: number, frameDelta: number) {
 		super.update(dt, frameDelta);
 
+		this.queries.camera.forEach(entity => {
+			const camera = entity.get(Camera) || entity.get(PerspectiveCamera);
+
+			if (!camera) return;
+
+			// Update cam aspect and fov if changed
+			if (camera instanceof PerspectiveCamera) {
+				const fov = 70;
+				const aspect = window.innerWidth / window.innerHeight;
+
+				if (camera.aspect != aspect || camera.fov != fov) {
+					camera.fov = fov;
+					camera.aspect = aspect;
+					camera.updateProjectionMatrix();
+				}
+			}
+
+			this.state.renderer.render(this.state.scene, camera);
+		});
+
 		this.couples.forEach(couple => couple.update(dt, frameDelta));
 	}
 
