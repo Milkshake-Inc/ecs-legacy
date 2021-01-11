@@ -28,10 +28,11 @@ export const usePhysXTrimeshCouple = (system: System) => {
 					const trimesh = createTrimesh(cooking, physics, geometry.vertices, geometry.faces);
 
 					const flags = new PhysX.PxShapeFlags(physXBody.shapeFlags);
-					const material = physics.createMaterial(physXBody.staticFriction, physXBody.dynamicFriction, physXBody.restitution);
-					const shape = physics.createShape(trimesh as any, material, false, flags);
 
-					let materialName: string = (mesh.material as any).name || "None";
+					const material = physics.createMaterial(physXBody.staticFriction, physXBody.dynamicFriction, physXBody.restitution);
+					const shape = physics.createShape(trimesh as any, material, true, flags);
+
+					let materialName: string = (mesh.material as any).name || 'None';
 
 					shape.setName(materialName);
 					shape.setContactOffset(0.0001);

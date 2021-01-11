@@ -16,6 +16,11 @@ export default class Vector3 {
 		return { x: value.x, y: value.y, z: value.z };
 	}
 
+	public static Reflect(inDirection: Vector3, inNormal: Vector3) {
+		const factor = -2 * Vector3.Dot(inNormal, inDirection);
+		return new Vector3(factor * inNormal.x + inDirection.x, factor * inNormal.y + inDirection.y, factor * inNormal.z + inDirection.z);
+	}
+
 	public static get ZERO(): Vector3 {
 		return Vector3.EQUAL(0);
 	}
@@ -117,7 +122,18 @@ export default class Vector3 {
 	}
 
 	multiF(value: number) {
-		return new Vector3(this.x * value, this.y * value, this.z * value);
+		this.x *= value;
+		this.y *= value;
+		this.z *= value;
+
+		return this;
+	}
+
+	reflect(normal: Vector3) {
+		const factor = -2 * Vector3.Dot(normal, this);
+		this.x = factor * normal.x + this.x;
+		this.y = factor * normal.y + this.y;
+		this.z = factor * normal.z + this.z;
 	}
 
 	dev(value: Vector3 | Vector) {

@@ -19,6 +19,22 @@ declare namespace PhysX {
 		};
 	}
 
+	class PxControllerCollisionFlags {
+		isSet(flag: PxControllerCollisionFlag): boolean;
+	}
+
+	class PxControllerCollisionFlag {
+		static eCOLLISION_SIDES: {
+			value: number;
+		};
+		static eCOLLISION_UP: {
+			value: number;
+		};
+		static eCOLLISION_DOWN: {
+			value: number;
+		};
+	}
+
 	interface PxPvdInstrumentationFlag {
 		eALL: {
 			value: number;
@@ -64,10 +80,10 @@ declare namespace PhysX {
 	}
 
 	const PX_PHYSICS_VERSION: number;
-	interface PxAllocatorCallback { }
-	class PxDefaultErrorCallback implements PxAllocatorCallback { }
-	interface PxErrorCallback { }
-	class PxDefaultAllocator implements PxErrorCallback { }
+	interface PxAllocatorCallback {}
+	class PxDefaultErrorCallback implements PxAllocatorCallback {}
+	interface PxErrorCallback {}
+	class PxDefaultAllocator implements PxErrorCallback {}
 
 	class PxPvdTransport {
 		static implement(pvdTransportImp: PxPvdTransport): PxPvdTransport;
@@ -77,7 +93,7 @@ declare namespace PhysX {
 		write: (inBytesPtr: number, inLength: number) => void;
 	}
 
-	class PxFoundation { }
+	class PxFoundation {}
 
 	class PxSimulationEventCallback {
 		static implement(imp: PxSimulationEventCallback): PxSimulationEventCallback;
@@ -90,7 +106,7 @@ declare namespace PhysX {
 	}
 
 	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
-	function getDefaultSceneDesc(scale: PxTolerancesScale, numThreads: number, simulationCallback: PxSimulationEventCallback)
+	function getDefaultSceneDesc(scale: PxTolerancesScale, numThreads: number, simulationCallback: PxSimulationEventCallback);
 	class PxTransform {
 		constructor(p: number[], q: number[]);
 		constructor();
@@ -137,7 +153,7 @@ declare namespace PhysX {
 		constructor(x: number, y: number, z: number);
 	}
 
-	class Material extends Base { }
+	class Material extends Base {}
 
 	class PxShape extends Base {
 		setContactOffset(contactOffset: number): void;
@@ -165,7 +181,7 @@ declare namespace PhysX {
 		detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void;
 		addForce(force: PxVec3 | any, mode: PxForceMode | number, autowake: boolean): void;
 	}
-	enum PxForceMode { }
+	enum PxForceMode {}
 	class RigidBody extends RigidActor {
 		setRigidBodyFlag(flag: PxRigidBodyFlags, value: boolean): void;
 		setRigidBodyFlags(flags: PxRigidBodyFlags): void;
@@ -175,7 +191,7 @@ declare namespace PhysX {
 		getMass(): number;
 	}
 
-	class RigidStatic extends RigidActor { }
+	class RigidStatic extends RigidActor {}
 	class RigidDynamic extends RigidBody {
 		wakeUp(): void; //, &PxRigidDynamic::wakeUp)
 		setWakeCounter(): void; //, &PxRigidDynamic::setWakeCounter)
@@ -196,7 +212,30 @@ declare namespace PhysX {
 		z: number;
 	}
 
-	class PxSceneDesc { }
+	class PxLocationHit {
+		position: PxVec3;
+		normal: PxVec3;
+		distance: number;
+	}
+
+	class PxRaycastHit extends PxLocationHit {
+		getShape(): PxShape;
+	}
+
+	class PxRaycastCallback {
+		block: PxRaycastHit;
+		hasBlock: boolean;
+	}
+
+	class PxRaycastBuffer extends PxRaycastCallback {
+		constructor();
+		constructor();
+
+		getNbTouches(): number;
+		getTouch(index: number): PxRaycastHit;
+	}
+
+	class PxSceneDesc {}
 	class PxScene {
 		addActor(actor: Actor, unk: any): void;
 		removeActor(actor: Actor, unk: any): void;
@@ -204,6 +243,9 @@ declare namespace PhysX {
 		fetchResults(b: boolean): void;
 		getActiveActors(len: number): Actor[];
 		setGravity(value: PxVec3): void;
+
+		raycast(origin: PxVec3, unitDir: PxVec3, maxDistance: number /*PxReal*/, hit: PxRaycastBuffer): boolean;
+		sweep(geometry: PxGeometry, pose: PxTransform, unitDir: PxVec3, maxDistance: number /*PxReal*/, hit: PxRaycastBuffer): boolean;
 	}
 
 	class PxCookingParams {
@@ -269,11 +311,138 @@ declare namespace PhysX {
 	function PxCreateCooking(version: number, foundation: PxFoundation, params: PxCookingParams): PxCooking;
 	function PxCreatePvd(foundation: PxFoundation): PxPvd;
 
+	function allocateRaycastHitBuffers(size: number): PxRaycastBuffer;
+
+	function allocateSweepHitBuffers(size: number): PxRaycastBuffer;
+
 	type Type = {};
 
 	const HEAPU8: Uint8Array;
 	const HEAPU16: Uint16Array;
 	const HEAPU32: Uint32Array;
+
+	function PxCreateControllerManager(scene: PxScene, lockingEnabled: boolean): PxCreateControllerManager;
+
+	class PxCreateControllerManager {
+		createController(desc: PxControllerDesc): PxController;
+	}
+
+	class PxControllerDesc {
+		isValid(): boolean;
+		setMaterial(material: Material): void;
+	}
+
+	class PxCapsuleControllerDesc extends PxControllerDesc {
+		radius: number;
+		height: number;
+		stepOffset: number;
+		contactOffset: number;
+		slopeLimit: number;
+		setReportCallback(callbackImp: any): any;
+	}
+
+	class PxFilterData {}
+
+	class PxQueryFilterCallback {
+		static implement(queryFilterCallback: PxQueryFilterCallback): PxQueryFilterCallback;
+
+		postFilter(filterData: any, hit: any): void;
+		preFilter(filterData: any, shape: any, actor: any): void;
+	}
+
+	class PxControllerFilterCallback {}
+
+	class PxControllerFilters {
+		constructor(filterData?: PxFilterData, callbacks?: PxQueryFilterCallback, cctFilterCb?: PxControllerFilterCallback);
+	}
+
+	class PxObstacleContext {}
+
+	class PxController {
+		move(
+			displacement: PxVec3,
+			minDistance: number,
+			elapsedTime: number,
+			filters: PxControllerFilters,
+			obstacles?: PxObstacleContext
+		): PxControllerCollisionFlags;
+		setPosition(pos: PxVec3): any;
+		getPosition(): PxVec3;
+	}
+
+	class PxUserControllerHitReport {
+		static implement(userControllerHitReport: PxUserControllerHitReport): PxUserControllerHitReport;
+
+		onShapeHit(event: PxControllerShapeHit): void;
+		onControllerHit(event: unknown): void;
+		onObstacleHit(event: unknown): void;
+	}
+
+	class PxControllerShapeHit {
+		getWorldPos(): PxVec3;
+		getWorldNormal(): PxVec3;
+		getLength(): number;
+	}
 }
+
+// virtual PxController*		createController(const PxControllerDesc& desc) = 0;
+
+// function("PxCreateControllerManager", &PxCreateControllerManager, allow_raw_pointers());
+
+//   enum_<PxControllerShapeType::Enum>("PxControllerShapeType")
+//       .value("eBOX", PxControllerShapeType::Enum::eBOX)
+//       .value("eCAPSULE", PxControllerShapeType::Enum::eCAPSULE)
+//       .value("eFORCE_DWORD", PxControllerShapeType::Enum::eFORCE_DWORD);
+
+//   enum_<PxCapsuleClimbingMode::Enum>("PxCapsuleClimbingMode")
+//       .value("eEASY", PxCapsuleClimbingMode::Enum::eEASY)
+//       .value("eCONSTRAINED", PxCapsuleClimbingMode::Enum::eCONSTRAINED)
+//       .value("eLAST", PxCapsuleClimbingMode::Enum::eLAST);
+
+//   enum_<PxControllerNonWalkableMode::Enum>("PxControllerNonWalkableMode")
+//       .value("ePREVENT_CLIMBING", PxControllerNonWalkableMode::Enum::ePREVENT_CLIMBING)
+//       .value("ePREVENT_CLIMBING_AND_FORCE_SLIDING", PxControllerNonWalkableMode::Enum::ePREVENT_CLIMBING_AND_FORCE_SLIDING);
+
+//
+//   class_<PxController>("PxController")
+//       .function("release", &PxController::release)
+//       .function("move", &PxController::move, allow_raw_pointers())
+//       .function("setPosition", &PxController::setPosition)
+//       .function("getPosition", &PxController::getPosition)
+//       .function("setSimulationFilterData", optional_override(
+//                                                [](PxController &ctrl, PxFilterData &data) {
+//                                                  PxRigidDynamic *actor = ctrl.getActor();
+//                                                  PxShape *shape;
+//                                                  actor->getShapes(&shape, 1);
+//                                                  shape->setSimulationFilterData(data);
+//                                                  return;
+//                                                }));
+
+//   class_<PxControllerDesc>("PxControllerDesc")
+//       .function("isValid", &PxControllerDesc::isValid)
+//       .function("getType", &PxControllerDesc::getType)
+//       .property("position", &PxControllerDesc::position)
+//       .property("upDirection", &PxControllerDesc::upDirection)
+//       .property("slopeLimit", &PxControllerDesc::slopeLimit)
+//       .property("invisibleWallHeight", &PxControllerDesc::invisibleWallHeight)
+//       .property("maxJumpHeight", &PxControllerDesc::maxJumpHeight)
+//       .property("contactOffset", &PxControllerDesc::contactOffset)
+//       .property("stepOffset", &PxControllerDesc::stepOffset)
+//       .property("density", &PxControllerDesc::density)
+//       .property("scaleCoeff", &PxControllerDesc::scaleCoeff)
+//       .property("volumeGrowth", &PxControllerDesc::volumeGrowth)
+//       .property("nonWalkableMode", &PxControllerDesc::nonWalkableMode)
+//       // `material` property doesn't work as-is so we create a setMaterial function
+//       .function("setMaterial", optional_override([](PxControllerDesc &desc, PxMaterial *material) {
+//                   return desc.material = material;
+//                 }),
+//                 allow_raw_pointers());
+
+//   class_<PxCapsuleControllerDesc, base<PxControllerDesc>>("PxCapsuleControllerDesc")
+//       .constructor<>()
+//       .function("isValid", &PxCapsuleControllerDesc::isValid)
+//       .property("radius", &PxCapsuleControllerDesc::radius)
+//       .property("height", &PxCapsuleControllerDesc::height)
+//       .property("climbingMode", &PxCapsuleControllerDesc::climbingMode);
 
 declare function PhysX(): Promise<typeof PhysX>;
