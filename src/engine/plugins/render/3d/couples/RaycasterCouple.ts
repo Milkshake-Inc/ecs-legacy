@@ -39,6 +39,9 @@ export const useRaycastCouple = <T extends Object3D>(system: System) => {
 					raycaster.ray.origin.z += raycast.offset.z;
 				}
 
+				raycaster.near = raycast.near;
+				raycaster.far = raycast.far;
+
 				raycaster.ray.direction.set(raycast.direction.x, raycast.direction.y, raycast.direction.z);
 
 				raycast.intersects = raycaster.intersectObjects(getRenderState().scene.children, true);

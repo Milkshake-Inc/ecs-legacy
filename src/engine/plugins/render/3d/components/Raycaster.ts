@@ -8,6 +8,8 @@ class RaycastBase {
 export default class Raycast extends RaycastBase {
 	public offset?: Vector3 = Vector3.ZERO;
 	public direction: Vector3 = Vector3.ZERO;
+	public near: 0;
+	public far = Infinity;
 }
 
 export class RaycastCamera extends RaycastBase {
