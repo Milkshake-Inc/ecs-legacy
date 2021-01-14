@@ -56,7 +56,7 @@ export default class MathHelper {
 	}
 
 	public static lerp(start: number, end: number, percent: number): number {
-		return start + percent * (end - start);
+		return start + (end - start) * percent;
 	}
 
 	public static lerpVector3(start: Vector3 | Vector, end: Vector3 | Vector, percent: number) {

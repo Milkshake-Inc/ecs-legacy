@@ -77,8 +77,6 @@ export default class RenderSystem extends System {
 			settings.configure(this.state.renderer, this.state.scene);
 		}
 
-		(window as any).renderSystem = this;
-
 		document.body.appendChild(this.state.renderer.getContext().canvas as HTMLCanvasElement);
 	}
 

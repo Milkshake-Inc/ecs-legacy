@@ -1,1 +1,1 @@
-export default class TrimeshShape {}
+export class TrimeshShape {}

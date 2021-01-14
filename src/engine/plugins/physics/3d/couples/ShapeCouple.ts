@@ -31,7 +31,7 @@ import CannonInstancedBody from '../components/CannonInstancedBody';
 import GLTFShape from '../components/GLTFShape';
 import { getGeometry } from '@ecs/plugins/render/3d/utils/MeshUtils';
 import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
-import TrimeshShape from '../components/TrimeshShape';
+import { PhysXTrimesh } from '../../physx/component/shapes/TrimeshShape';
 
 export const NoMeshError = new Error('no mesh found :(');
 export const UnexpectedShapeError = new Error('should not use shape on entity');
@@ -53,7 +53,6 @@ export const useShapeCouple = (system: System) =>
 				Trimesh,
 				Heightfield,
 				MeshShape,
-				TrimeshShape,
 				BoundingSphereShape,
 				BoundingBoxShape,
 				BoundingCylinderShape,
@@ -384,7 +383,7 @@ export const useShapeCouple = (system: System) =>
 					return shapes;
 				}
 
-				if (entity.has(TrimeshShape)) {
+				if (entity.has(PhysXTrimesh)) {
 					const shapes: Trimesh[] = [];
 
 					applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {

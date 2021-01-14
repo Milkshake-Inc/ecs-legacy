@@ -7,12 +7,10 @@ export class PhysXBody {
 	body: PhysX.RigidActor;
 	static: boolean = false;
 	mass: number = 1;
-	staticFriction: number = 0.1;
-	dynamicFriction: number = 0.1;
-	restitution: number = 0.2;
-	shapeFlags: any = PxShapeFlag.eVISUALIZATION | PxShapeFlag.eSCENE_QUERY_SHAPE | PxShapeFlag.eSIMULATION_SHAPE;
 	actorFlags: any = PxActorFlag.eVISUALIZATION;
 	bodyFlags: number = 0;
+
+	// Should shape properties be moved to shape class..
 
 	private velocity: Vector3 = Vector3.ZERO;
 
@@ -40,5 +38,4 @@ export class PhysXBody {
 		this.velocity.setFromVector(this.body.getLinearVelocity());
 		return this.velocity;
 	}
-
 }

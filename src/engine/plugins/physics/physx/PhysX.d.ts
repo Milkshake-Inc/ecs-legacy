@@ -106,7 +106,7 @@ declare namespace PhysX {
 	}
 
 	function PxCreateFoundation(a: number, b: PxAllocatorCallback, c: PxErrorCallback): PxFoundation;
-	function getDefaultSceneDesc(scale: PxTolerancesScale, numThreads: number, simulationCallback: PxSimulationEventCallback);
+	function getDefaultSceneDesc(scale: PxTolerancesScale, numThreads: number, simulationCallback: PxSimulationEventCallback): PxSceneDesc;
 	class PxTransform {
 		constructor(p: number[], q: number[]);
 		constructor();
@@ -157,7 +157,7 @@ declare namespace PhysX {
 
 	class PxShape extends Base {
 		setContactOffset(contactOffset: number): void;
-
+		setSimulationFilterData(filterData: PxFilterData): void;
 		setName(value: string): void;
 		getName(): string;
 	}
@@ -235,7 +235,11 @@ declare namespace PhysX {
 		getTouch(index: number): PxRaycastHit;
 	}
 
-	class PxSceneDesc {}
+	class PxSceneDesc {
+		gravity: PxVec3;
+		flags: any;
+		bounceThresholdVelocity: number;
+	}
 	class PxScene {
 		addActor(actor: Actor, unk: any): void;
 		removeActor(actor: Actor, unk: any): void;
@@ -292,7 +296,7 @@ declare namespace PhysX {
 		createMaterial(staticFriction: number, dynamicFriction: number, restitution: number): Material;
 		//shapeFlags = PxShapeFlag:: eVISUALIZATION | PxShapeFlag:: eSCENE_QUERY_SHAPE | PxShapeFlag:: eSIMULATION_SHAPE
 		createShape(geometry: PxGeometry, material: Material, isExclusive?: boolean | false, shapeFlags?: number | PxShapeFlags): PxShape;
-		getTolerancesScale();
+		getTolerancesScale(): PxTolerancesScale;
 	}
 	class PxTolerancesScale {
 		length: number | 1.0;
@@ -341,7 +345,14 @@ declare namespace PhysX {
 		setReportCallback(callbackImp: any): any;
 	}
 
-	class PxFilterData {}
+	class PxFilterData {
+		word0: number;
+		word1: number;
+		word2: number;
+		word3: number;
+
+		constructor(word0: number, word1: number, word2: number, word3: number);
+	}
 
 	class PxQueryFilterCallback {
 		static implement(queryFilterCallback: PxQueryFilterCallback): PxQueryFilterCallback;

@@ -1,7 +1,7 @@
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
 import { BufferGeometry, Geometry } from 'three';
-import TrimeshShape from '../../3d/components/TrimeshShape';
+import PhysXTrimesh from '../../physx/component/shapes/TrimeshShape';
 import { applyToMeshesIndividually } from '../../3d/couples/ShapeCouple';
 import { AmmoInstance } from '../AmmoLoader';
 import AmmoBody from '../components/AmmoBody';
@@ -11,7 +11,7 @@ import { getObject3d } from './../../3d/couples/ShapeCouple';
 const cachedTrimeshShapes = new Map();
 
 export const useAmmoTrimeshCouple = (system: System) =>
-	useAmmoCouple(system, all(TrimeshShape), {
+	useAmmoCouple(system, all(PhysXTrimesh), {
 		onCreate: entity => {
 			const body = entity.get(AmmoBody);
 			const mesh = new AmmoInstance.btTriangleMesh();

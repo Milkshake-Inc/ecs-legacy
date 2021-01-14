@@ -45,7 +45,9 @@ export const usePhysXBodyCouple = (system: System) => {
 				const flags = new PhysX.PxRigidBodyFlags(body.bodyFlags);
 				dynamicBody.setRigidBodyFlags(flags);
 				dynamicBody.setActorFlags(new PhysX.PxActorFlags(body.actorFlags));
-				dynamicBody.setAngularDamping(0)
+				dynamicBody.setAngularDamping(1);
+				// 	const bodys = entity.get(PhysXBody).body as PhysX.RigidDynamic;
+				// bodys.setAngularDamping(0);
 
 				body.body = dynamicBody;
 			}
