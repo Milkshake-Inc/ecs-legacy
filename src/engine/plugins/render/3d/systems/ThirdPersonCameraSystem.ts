@@ -88,7 +88,7 @@ export default class ThirdPersonCameraSystem extends System {
 		this.camera.z = this.target.position.z + angleZ;
 
 		// Set Zoom
-		this.camera.position = this.camera.position.sub(this.target.position).multiF(this.zoom.value).add(this.target.position);
+		this.camera.position.sub(this.target.position).multi(this.zoom.value).add(this.target.position);
 
 		// Update Camera
 		this.acamera.position.set(this.camera.x, this.camera.y, this.camera.z);

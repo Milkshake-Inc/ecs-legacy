@@ -35,7 +35,6 @@ export class PhysXBody {
 	}
 
 	public getVelocity() {
-		this.velocity.setFromVector(this.body.getLinearVelocity());
-		return this.velocity;
+		return this.velocity.from(this.body.getLinearVelocity());
 	}
 }

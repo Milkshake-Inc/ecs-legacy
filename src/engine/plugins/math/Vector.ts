@@ -8,27 +8,14 @@ export type Vector2 = { x: number; y: number };
 // https://github.com/ManojLakshan/monogame/blob/master/MonoGame.Framework/Vector3.cs
 // https://github.com/photonstorm/phaser/blob/v2.4.4/src/geom/Point.js
 export default class Vector3 {
-	public static From(value: { x: number; y: number; z: number }): Vector3 {
-		return new Vector3(value.x, value.y, value.z);
-	}
-
-	public static To(value: Vector3) {
-		return { x: value.x, y: value.y, z: value.z };
-	}
-
-	public static Reflect(inDirection: Vector3, inNormal: Vector3) {
-		const factor = -2 * Vector3.Dot(inNormal, inDirection);
-		return new Vector3(factor * inNormal.x + inDirection.x, factor * inNormal.y + inDirection.y, factor * inNormal.z + inDirection.z);
-	}
-
 	public static get ZERO(): Vector3 {
-		return Vector3.EQUAL(0);
+		return Vector3.Equal(0);
 	}
 	public static get ONE(): Vector3 {
-		return Vector3.EQUAL(1);
+		return Vector3.Equal(1);
 	}
 	public static get HALF(): Vector3 {
-		return Vector3.EQUAL(0.5);
+		return Vector3.Equal(0.5);
 	}
 
 	public static get UP(): Vector3 {
@@ -55,12 +42,39 @@ export default class Vector3 {
 		return new Vector3(0, 0, 1);
 	}
 
-	public static EQUAL(value: number): Vector3 {
+	public static From(value: Vector): Vector3 {
+		return new Vector3(value.x, value.y, value.z);
+	}
+
+	public static To(value: Vector3) {
+		return { x: value.x, y: value.y, z: value.z };
+	}
+
+	public static Equal(value: number): Vector3 {
 		return new Vector3(value, value, value);
 	}
 
-	public static COPY(value: Vector3 | Vector): Vector3 {
-		return new Vector3(value.x, value.y);
+	public static Reflect(inDirection: Vector3, inNormal: Vector3) {
+		const factor = -2 * Vector3.Dot(inNormal, inDirection);
+		return new Vector3(factor * inNormal.x + inDirection.x, factor * inNormal.y + inDirection.y, factor * inNormal.z + inDirection.z);
+	}
+
+	public static Dot(value1: Vector3, value2: Vector3) {
+		return value1.x * value2.x + value1.y * value2.y + value1.z * value2.z;
+	}
+
+	public static Cross(value1: Vector3, value2: Vector3) {
+		const x = value1.y * value2.z - value2.y * value1.z;
+		const y = -(value1.x * value2.z - value2.x * value1.z);
+		const z = value1.x * value2.y - value2.x * value1.y;
+
+		return new Vector3(x, y, z);
+	}
+
+	public static Normalize(value: Vector3): Vector3 {
+		let factor = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
+		factor = 1 / factor;
+		return new Vector3(value.x * factor, value.y * factor, value.z * factor);
 	}
 
 	public x: number;
@@ -81,14 +95,59 @@ export default class Vector3 {
 		return this;
 	}
 
-	setFromVector({ x, y, z }: Vector) {
-		return this.set(x, y, z);
+	from(value: Vector) {
+		return this.copy(value);
 	}
 
 	copy(value: Vector) {
 		this.x = value.x;
 		this.y = value.y;
 		this.z = value.z;
+
+		return this;
+	}
+
+	add(value: Vector | number) {
+		this.x += typeof value === 'number' ? value : value.x;
+		this.y += typeof value === 'number' ? value : value.y;
+		this.z += typeof value === 'number' ? value : value.z;
+
+		return this;
+	}
+
+	sub(value: Vector | number) {
+		this.x -= typeof value === 'number' ? value : value.x;
+		this.y -= typeof value === 'number' ? value : value.y;
+		this.z -= typeof value === 'number' ? value : value.z;
+
+		return this;
+	}
+
+	multi(value: Vector | number) {
+		this.x *= typeof value === 'number' ? value : value.x;
+		this.y *= typeof value === 'number' ? value : value.y;
+		this.z *= typeof value === 'number' ? value : value.z;
+
+		return this;
+	}
+
+	dev(value: Vector3 | Vector) {
+		this.x /= typeof value === 'number' ? value : value.x;
+		this.y /= typeof value === 'number' ? value : value.y;
+		this.z /= typeof value === 'number' ? value : value.z;
+
+		return this;
+	}
+
+	reverse() {
+		return this.multi(-1);
+	}
+
+	reflect(normal: Vector3) {
+		const factor = -2 * Vector3.Dot(normal, this);
+		this.x = factor * normal.x + this.x;
+		this.y = factor * normal.y + this.y;
+		this.z = factor * normal.z + this.z;
 
 		return this;
 	}
@@ -101,60 +160,13 @@ export default class Vector3 {
 		return this;
 	}
 
-	add(value: Vector3 | Vector) {
-		return new Vector3(this.x + value.x, this.y + value.y, this.z + value.z);
-	}
-
-	addF(value: number) {
-		return new Vector3(this.x + value, this.y + value, this.z + value);
-	}
-
-	sub(value: Vector3 | Vector) {
-		return new Vector3(this.x - value.x, this.y - value.y, this.z - value.z);
-	}
-
-	subF(value: number) {
-		return new Vector3(this.x - value, this.y - value, this.z - value);
-	}
-
-	multi(value: Vector3 | Vector) {
-		return new Vector3(this.x * value.x, this.y * value.y, this.z * value.z);
-	}
-
-	multiF(value: number) {
-		this.x *= value;
-		this.y *= value;
-		this.z *= value;
-
-		return this;
-	}
-
-	reflect(normal: Vector3) {
-		const factor = -2 * Vector3.Dot(normal, this);
-		this.x = factor * normal.x + this.x;
-		this.y = factor * normal.y + this.y;
-		this.z = factor * normal.z + this.z;
-	}
-
-	dev(value: Vector3 | Vector) {
-		return new Vector3(this.x / value.x, this.y / value.y, this.z / value.z);
-	}
-
-	devf(value: number) {
-		return new Vector3(this.x / value, this.y / value, this.z / value);
-	}
-
-	reverse() {
-		return new Vector3(-this.x, -this.y, -this.z);
-	}
-
 	projectOnVector(vector: Vector3) {
 		const denom = vector.lengthSq();
 		if (denom === 0) {
 			return Vector3.ZERO;
 		}
 
-		return vector.multiF(vector.dot(this) / denom);
+		return vector.multi(vector.dot(this) / denom);
 	}
 
 	projectOnPlane(planeNormal: Vector3) {
@@ -177,12 +189,12 @@ export default class Vector3 {
 		return Math.sqrt(this.length());
 	}
 
-	equals(value: Vector3 | Vector): boolean {
+	equals(value: Vector): boolean {
 		return this.x == value.x && this.y == value.y && this.z == value.z;
 	}
 
 	clone(): Vector3 {
-		return new Vector3(this.x, this.y, this.z);
+		return Vector3.From(this);
 	}
 
 	toString(): string {
@@ -194,7 +206,7 @@ export default class Vector3 {
 	}
 
 	magnitude(): number {
-		return Math.sqrt(this.x * this.x + this.y * this.y * this.z + this.z);
+		return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
 	}
 
 	normalize() {
@@ -223,36 +235,16 @@ export default class Vector3 {
 			qw = q.w;
 
 		// calculate quat * vector
-
 		const ix = qw * x + qy * z - qz * y;
 		const iy = qw * y + qz * x - qx * z;
 		const iz = qw * z + qx * y - qy * x;
 		const iw = -qx * x - qy * y - qz * z;
 
 		// calculate result * inverse quat
-
 		return new Vector3(
 			ix * qw + iw * -qx + iy * -qz - iz * -qy,
 			iy * qw + iw * -qy + iz * -qx - ix * -qz,
 			iz * qw + iw * -qz + ix * -qy - iy * -qx
 		);
-	}
-
-	public static Dot(value1: Vector3, value2: Vector3) {
-		return value1.x * value2.x + value1.y * value2.y + value1.z * value2.z;
-	}
-
-	public static Cross(value1: Vector3, value2: Vector3) {
-		const x = value1.y * value2.z - value2.y * value1.z;
-		const y = -(value1.x * value2.z - value2.x * value1.z);
-		const z = value1.x * value2.y - value2.x * value1.y;
-
-		return new Vector3(x, y, z);
-	}
-
-	public static Normalize(value: Vector3): Vector3 {
-		let factor = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
-		factor = 1 / factor;
-		return new Vector3(value.x * factor, value.y * factor, value.z * factor);
 	}
 }
