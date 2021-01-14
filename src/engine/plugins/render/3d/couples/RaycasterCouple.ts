@@ -52,6 +52,9 @@ export const useRaycastCouple = <T extends Object3D>(system: System) => {
 					const raycast = entity.get(RaycastCamera);
 					const camera = query.camera.first.get(PerspectiveCamera);
 
+					raycaster.near = raycast.near;
+					raycaster.far = raycast.far;
+
 					raycaster.setFromCamera(raycast.position, camera);
 					raycast.intersects = raycaster.intersectObjects(getRenderState().scene.children, true);
 				}
