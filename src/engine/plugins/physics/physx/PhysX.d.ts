@@ -189,6 +189,14 @@ declare namespace PhysX {
 
 		setMass(value: number): void;
 		getMass(): number;
+
+		setAngularVelocity(value: PxVec3, autoWake: boolean): void;
+
+		setAngularDamping(value: number): void;
+		getAngularDamping(): number;
+
+		setLinearDamping(value: number): void;
+		getLinearDamping(): number;
 	}
 
 	class RigidStatic extends RigidActor {}
@@ -199,12 +207,9 @@ declare namespace PhysX {
 		getWakeCounter(): void; //, &PxRigidDynamic::getWakeCounter)
 		setSleepThreshold(value: number): void; //, &PxRigidDynamic::setSleepThreshold)
 		getSleepThreshold(): number; //, &PxRigidDynamic::getSleepThreshold)
-		setKinematicTarget(): void; //, &PxRigidDynamic::setKinematicTarget)
+		setKinematicTarget(transform: PxTransform): void; //, &PxRigidDynamic::setKinematicTarget)
 		setRigidDynamicLockFlags(): void; //, &PxRigidDynamic::setRigidDynamicLockFlags);
 		setSolverIterationCounts(minPositionIters: number, minVelocityIters: number): void;
-
-		setAngularVelocity(value: PxVec3, autoWake: boolean): void;
-		setAngularDamping(value: number): void;
 	}
 	class PxVec3 {
 		x: number;
