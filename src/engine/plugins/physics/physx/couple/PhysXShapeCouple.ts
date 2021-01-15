@@ -57,7 +57,7 @@ export const usePhysXShapeCouple = (system: System) => {
 
 			shape.shape = physics.createShape(geometry, material, true, shapeFlags);
 
-			shape.shape.setContactOffset(0.0001);
+			shape.shape.setContactOffset(0.000001);
 			shape.shape.setSimulationFilterData(new PhysX.PxFilterData(shape.collisionId, shape.collisionMask, 0, 0));
 			shape.shape.setName(ShapeType[shape.shapeType]);
 

@@ -23,7 +23,7 @@ export class PhysXBody {
 	public setRotation(value: Quaternion) {
 		const currentPose = this.body.getGlobalPose();
 		currentPose.rotation = value;
-		this.body.setGlobalPose(currentPose, true);
+		(this.body as any).setKinematicTarget(currentPose);
 	}
 
 	public getRotation() {

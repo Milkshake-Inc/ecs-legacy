@@ -1,7 +1,6 @@
 import { useQueries } from '@ecs/core/helpers';
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
-import { Vector } from '@ecs/plugins/math/Vector';
 import { applyToMeshesIndividually, getObject3d } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
 import { PhysXBody } from '../component/PhysXBody';
 import { ShapeType } from '../component/PhysXShape';
@@ -10,12 +9,6 @@ import { PhysXState } from '../PhysXPhysicsSystem';
 import { createTrimesh } from '../utils/createTrimesh';
 import { usePhysXCouple } from './PhysXCouple';
 import { getShape } from './PhysXShapeCouple';
-
-export enum CollisionFlag {
-	NONE = 1 << 0,
-	TRIMESH = 1 << 1,
-	GOLFBALL = 1 << 2
-}
 
 export const usePhysXTrimeshCouple = (system: System) => {
 	const query = useQueries(system, {
@@ -42,7 +35,7 @@ export const usePhysXTrimeshCouple = (system: System) => {
 
 					shape.shape = physics.createShape(trimesh as any, material, true, shapeFlags);
 
-					shape.shape.setContactOffset(0.0001);
+					shape.shape.setContactOffset(0.000001);
 					shape.shape.setSimulationFilterData(new PhysX.PxFilterData(shape.collisionId, shape.collisionMask, 0, 0));
 					shape.shape.setName(ShapeType[shape.shapeType]);
 
