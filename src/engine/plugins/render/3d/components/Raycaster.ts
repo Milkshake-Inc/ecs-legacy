@@ -14,10 +14,7 @@ export default class Raycast extends RaycastBase {
 
 export class RaycastCamera extends RaycastBase {
 	public position = { x: 0, y: 0 };
-<<<<<<< HEAD
 	public near: 0;
-=======
->>>>>>> Physics Update
 	public far = Infinity;
 }
 

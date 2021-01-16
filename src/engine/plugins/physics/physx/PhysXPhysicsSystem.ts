@@ -132,21 +132,21 @@ export default class PhysXPhysicsSystem extends System {
 		// };
 		const scale = this.state.physics.getTolerancesScale();
 
-		// scale.length = 0.001;
-		// scale.speed = 0.01;
+		// scale.length = 100;
+		// scale.speed /= 10;
 		const physxSimulationCallbackInstance = PhysX.PxSimulationEventCallback.implement(triggerCallback);
 		const sceneDesc = PhysX.getDefaultSceneDesc(scale, 0, physxSimulationCallbackInstance);
-		sceneDesc.bounceThresholdVelocity = 0.001;
+		// sceneDesc.bounceThresholdVelocity = 0.001;
 
 		this.state.scene = this.state.physics.createScene(sceneDesc);
-		this.state.scene.setGravity({ x: 0.0, y: -7, z: 0.0 });
+		this.state.scene.setGravity({ x: 0.0, y: -70, z: 0.0 });
 	}
 
-	update(dt: number) {
-		super.update(dt);
+	updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		if (this.state.scene) {
-			const subSteps = 15;
+			const subSteps = 10;
 			const timePerStep = dt / 1000 / subSteps;
 
 			for (let index = 0; index < subSteps; index++) {

@@ -487,7 +487,7 @@ export const applyToMeshesIndividually = (
 			mesh.matrixWorld.decompose(position, rotation, scale);
 
 			// Scale the geometry
-			mesh.geometry.scale(scale.x, scale.y, scale.z);
+			mesh.geometry.scale(scale.x * 10, scale.y * 10, scale.z * 10);
 
 			callback({ mesh, geometry: mesh.geometry, position, rotation });
 		}

@@ -23,7 +23,7 @@ export const createTCPPvdTransport = () => {
                 try {
                     socket.write(data);
                 } catch (E) {
-
+                    console.log(1)
                 }
 
             }
