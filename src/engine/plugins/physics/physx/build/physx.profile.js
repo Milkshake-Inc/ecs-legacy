@@ -782,8 +782,8 @@ var wasmMemory;
 // In the wasm backend, we polyfill the WebAssembly object,
 // so this creates a (non-native-wasm) table for us.
 var wasmTable = new WebAssembly.Table({
-  'initial': 4766,
-  'maximum': 4766 + 0,
+  'initial': 4808,
+  'maximum': 4808 + 0,
   'element': 'anyfunc'
 });
 
@@ -1402,11 +1402,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5437008,
+    STACK_BASE = 5438080,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 194128,
-    DYNAMIC_BASE = 5437008,
-    DYNAMICTOP_PTR = 193968;
+    STACK_MAX = 195200,
+    DYNAMIC_BASE = 5438080,
+    DYNAMICTOP_PTR = 195040;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1986,7 +1986,7 @@ var ASM_CONSTS = {
 
 
 
-// STATICTOP = STATIC_BASE + 193104;
+// STATICTOP = STATIC_BASE + 194176;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -4228,7 +4228,7 @@ var ASM_CONSTS = {
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 193968;
+      return 195040;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -4631,10 +4631,10 @@ var dynCall_viiii = Module["dynCall_viiii"] = createExportWrapper("dynCall_viiii
 var dynCall_viifi = Module["dynCall_viifi"] = createExportWrapper("dynCall_viifi");
 
 /** @type {function(...*):?} */
-var dynCall_iiiiifiiiii = Module["dynCall_iiiiifiiiii"] = createExportWrapper("dynCall_iiiiifiiiii");
+var dynCall_iiiiifi = Module["dynCall_iiiiifi"] = createExportWrapper("dynCall_iiiiifi");
 
 /** @type {function(...*):?} */
-var dynCall_iiiiiifiiiiif = Module["dynCall_iiiiiifiiiiif"] = createExportWrapper("dynCall_iiiiiifiiiiif");
+var dynCall_iiiiiifi = Module["dynCall_iiiiiifi"] = createExportWrapper("dynCall_iiiiiifi");
 
 /** @type {function(...*):?} */
 var dynCall_iiifff = Module["dynCall_iiifff"] = createExportWrapper("dynCall_iiifff");
@@ -4667,22 +4667,25 @@ var dynCall_iiiiffii = Module["dynCall_iiiiffii"] = createExportWrapper("dynCall
 var dynCall_vifi = Module["dynCall_vifi"] = createExportWrapper("dynCall_vifi");
 
 /** @type {function(...*):?} */
+var dynCall_iiiifi = Module["dynCall_iiiifi"] = createExportWrapper("dynCall_iiiifi");
+
+/** @type {function(...*):?} */
+var dynCall_fi = Module["dynCall_fi"] = createExportWrapper("dynCall_fi");
+
+/** @type {function(...*):?} */
 var dynCall_iiiiiiii = Module["dynCall_iiiiiiii"] = createExportWrapper("dynCall_iiiiiiii");
 
 /** @type {function(...*):?} */
-var dynCall_ji = Module["dynCall_ji"] = createExportWrapper("dynCall_ji");
+var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
 
 /** @type {function(...*):?} */
-var dynCall_v = Module["dynCall_v"] = createExportWrapper("dynCall_v");
+var dynCall_ji = Module["dynCall_ji"] = createExportWrapper("dynCall_ji");
 
 /** @type {function(...*):?} */
 var dynCall_viiifi = Module["dynCall_viiifi"] = createExportWrapper("dynCall_viiifi");
 
 /** @type {function(...*):?} */
 var dynCall_viiffi = Module["dynCall_viiffi"] = createExportWrapper("dynCall_viiffi");
-
-/** @type {function(...*):?} */
-var dynCall_fi = Module["dynCall_fi"] = createExportWrapper("dynCall_fi");
 
 /** @type {function(...*):?} */
 var dynCall_vif = Module["dynCall_vif"] = createExportWrapper("dynCall_vif");
