@@ -2,6 +2,7 @@ import { useQueries } from '@ecs/core/helpers';
 import { all } from '@ecs/core/Query';
 import { System } from '@ecs/core/System';
 import { applyToMeshesIndividually, getObject3d } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
+import { Material } from 'three';
 import { PhysXBody } from '../component/PhysXBody';
 import { ShapeType } from '../component/PhysXShape';
 import { PhysXTrimesh } from '../component/shapes/TrimeshShape';
@@ -37,7 +38,7 @@ export const usePhysXTrimeshCouple = (system: System) => {
 
 					shape.shape.setContactOffset(0.000001);
 					shape.shape.setSimulationFilterData(new PhysX.PxFilterData(shape.collisionId, shape.collisionMask, 0, 0));
-					shape.shape.setName(ShapeType[shape.shapeType]);
+					shape.shape.setName((mesh.material as Material).name);
 
 					body.attachShape(shape.shape);
 
