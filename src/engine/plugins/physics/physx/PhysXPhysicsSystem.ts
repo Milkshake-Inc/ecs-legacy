@@ -142,11 +142,11 @@ export default class PhysXPhysicsSystem extends System {
 		this.state.scene.setGravity({ x: 0.0, y: -7, z: 0.0 });
 	}
 
-	update(dt: number) {
-		super.update(dt);
+	updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		if (this.state.scene) {
-			const subSteps = 15;
+			const subSteps = 10;
 			const timePerStep = dt / 1000 / subSteps;
 
 			for (let index = 0; index < subSteps; index++) {

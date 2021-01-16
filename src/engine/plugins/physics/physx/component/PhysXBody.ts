@@ -9,6 +9,7 @@ export class PhysXBody {
 	mass: number = 1;
 	actorFlags: any = PxActorFlag.eVISUALIZATION;
 	bodyFlags: number = 0;
+	immovable = false;
 
 	// Should shape properties be moved to shape class..
 

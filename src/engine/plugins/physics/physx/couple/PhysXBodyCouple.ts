@@ -44,11 +44,18 @@ export const usePhysXBodyCouple = (system: System) => {
 
 				const flags = new PhysX.PxRigidBodyFlags(body.bodyFlags);
 				dynamicBody.setRigidBodyFlags(flags);
-				dynamicBody.setActorFlags(new PhysX.PxActorFlags(body.actorFlags));
 				dynamicBody.setAngularDamping(Infinity);
+				// dynamicBody.setSolverIterationCounts(10, 10);
+				// (dynamicBody as any).setMinCCDAdvanceCoefficient(0.0001);
+
+				if (body.immovable) {
+					dynamicBody.setMassSpaceInertiaTensor({ x: 0, y: 0, z: 0 })
+				}
 
 				body.body = dynamicBody;
 			}
+
+			(body.body as any).setActorFlags(new PhysX.PxActorFlags(body.actorFlags));
 
 			scene.addActor(body.body, null);
 
