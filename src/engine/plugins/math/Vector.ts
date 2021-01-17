@@ -112,10 +112,10 @@ export default class Vector3 {
 		return this;
 	}
 
-	add(value: Vector | number) {
-		this.x += typeof value === 'number' ? value : value.x;
-		this.y += typeof value === 'number' ? value : value.y;
-		this.z += typeof value === 'number' ? value : value.z;
+	add(value: Partial<Vector> | number) {
+		this.x += typeof value === 'number' ? value : value.x || 0;
+		this.y += typeof value === 'number' ? value : value.y || 0;
+		this.z += typeof value === 'number' ? value : value.z || 0;
 
 		return this;
 	}
