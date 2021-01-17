@@ -88,13 +88,13 @@ export default class PhysXPhysicsSystem extends System {
 		this.state.cooking = cooking;
 		this.state.physics = physics;
 
-		const emitCollisionEvents = (event: PhysXEvents, shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
+		const emitCollisionEvents = (event: PhysXEvents, shapeA: PhysX.PxShape, shapeB: PhysX.PxShape, normal?: Vector) => {
 			const entityA = this.state.findEntity(shapeA);
 			const entityB = this.state.findEntity(shapeB);
 
 			// Todo: Should this be emitted both ways A,B & B,A
 			// this.events.emit(event, entityB, entityA, shapeB, shapeA);
-			this.events.emit(event, entityA, entityB, shapeA, shapeB);
+			this.events.emit(event, entityA, entityB, shapeA, shapeB, normal);
 		};
 
 		const triggerCallback = {
@@ -134,7 +134,7 @@ export default class PhysXPhysicsSystem extends System {
 
 		// scale.length = 0.001;
 		// scale.speed = 0.01;
-		const physxSimulationCallbackInstance = PhysX.PxSimulationEventCallback.implement(triggerCallback);
+		const physxSimulationCallbackInstance = PhysX.PxSimulationEventCallback.implement(triggerCallback as any);
 		const sceneDesc = PhysX.getDefaultSceneDesc(scale, 0, physxSimulationCallbackInstance);
 		sceneDesc.bounceThresholdVelocity = 0.001;
 

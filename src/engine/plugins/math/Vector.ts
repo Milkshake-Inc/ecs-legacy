@@ -1,3 +1,4 @@
+import MathHelper from './MathHelper';
 import Quaternion from './Quaternion';
 
 export type Vector = { x: number; y: number; z: number };
@@ -75,6 +76,10 @@ export default class Vector3 {
 		let factor = Math.sqrt(value.x * value.x + value.y * value.y + value.z * value.z);
 		factor = 1 / factor;
 		return new Vector3(value.x * factor, value.y * factor, value.z * factor);
+	}
+
+	public static Angle(from: Vector3, to: Vector3): number {
+		return Math.acos(MathHelper.clamp(Vector3.Dot(from.normalize(), to.normalize()), -1, 1)) * 57.29578;
 	}
 
 	public x: number;
