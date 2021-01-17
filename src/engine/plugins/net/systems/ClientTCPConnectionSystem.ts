@@ -54,6 +54,9 @@ export default class ClientTCPConnectionSystem extends ClientConnectionSystem {
 	}
 
 	protected handleSessionUpdated({ id, token }: SessionUpdate) {
+		// persist session
+		localStorage.setItem('token', token);
+
 		this.sessionEntity = new Entity();
 		const session = new Session(id);
 		this.sessionEntity.add(session);
