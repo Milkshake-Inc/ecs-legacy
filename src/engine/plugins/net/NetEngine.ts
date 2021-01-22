@@ -10,9 +10,9 @@ export class NetEngine extends TickerEngine {
 		super(fps);
 
 		if (udp) {
-			this.addSystem(new ServerUDPConnectionSystem(this));
+			this.addSystem(new ServerUDPConnectionSystem());
 		} else {
-			this.addSystem(new ServerTCPConnectionSystem(this));
+			this.addSystem(new ServerTCPConnectionSystem());
 		}
 
 		this.addSystem(new ServerPingSystem(this.tickRate));

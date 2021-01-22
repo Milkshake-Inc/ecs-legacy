@@ -1,5 +1,5 @@
 import { createContext } from 'preact';
-import { Engine } from '@ecs/core/Engine';
+import { Engine } from 'tick-knock';
 import { useState, useEffect, useContext, EffectCallback, useRef } from 'preact/hooks';
 import { functionalSystem } from '@ecs/core/helpers';
 

@@ -1,12 +1,9 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity, System, all, QueryPattern } from 'tick-knock';
 import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, QueryPattern } from '@ecs/core/Query';
 import { DisplayObject, DisplayObject as PixiDisplayObject } from 'pixi.js';
 import PixiRenderState from '../components/RenderState';
 import { Interactable } from '../components/Interactable';
-import { Engine } from '@ecs/core/Engine';
 import UIDisplayObject from '../components/UIDisplayObject';
 
 export const genericDisplayObjectUpdate = (entity: Entity, displayObject: PixiDisplayObject) => {

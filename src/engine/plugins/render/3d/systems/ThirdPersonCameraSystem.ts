@@ -1,9 +1,8 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useQueries, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
 import { PerspectiveCamera } from 'three';
 import ThirdPersonTarget from './ThirdPersonTarget';
 import Mouse from '@ecs/plugins/input/Mouse';

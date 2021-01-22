@@ -1,7 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { makeQuery } from '@ecs/core/Query';
-import { Engine } from '@ecs/core/Engine';
+import { Engine, Entity, System } from 'tick-knock';
 import PhysicsSystem from './PhysicsSystem';
 import { Graphics } from 'pixi.js';
 import Color from '@ecs/plugins/math/Color';
@@ -23,13 +20,9 @@ export const Options = {
 	wireFrameStrokeStyle: Color.LimeGreen
 };
 
-export default class PhysicsRenderSystem extends IterativeSystem {
+export default class PhysicsRenderSystem extends System {
 	protected world: World;
 	protected graphics: Graphics;
-
-	constructor() {
-		super(makeQuery());
-	}
 
 	onAddedToEngine(engine: Engine) {
 		const physicsSystem = engine.getSystem(PhysicsSystem);
@@ -50,8 +43,6 @@ export default class PhysicsRenderSystem extends IterativeSystem {
 	}
 
 	public update(dt: number) {
-		super.update(dt);
-
 		this.graphics.clear();
 
 		for (const body of this.world.bodies) {

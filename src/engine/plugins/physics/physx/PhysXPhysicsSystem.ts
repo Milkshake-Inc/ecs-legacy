@@ -1,8 +1,7 @@
 ///<reference path="PhysX.d.ts"/>
 
-import { Entity } from '@ecs/core/Entity';
+import { Entity, System } from 'tick-knock';
 import { useEvents, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import { usePhysXBodyCouple } from './couple/PhysXBodyCouple';
 import { usePhysXShapeCouple } from './couple/PhysXShapeCouple';

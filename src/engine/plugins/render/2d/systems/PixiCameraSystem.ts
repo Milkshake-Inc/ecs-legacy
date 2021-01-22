@@ -1,45 +1,45 @@
-import { Entity, EntitySnapshot } from '@ecs/core/Entity';
+import { Entity, EntitySnapshot, System, all } from 'tick-knock';
 import { useQueries, useState } from '@ecs/core/helpers';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
 import MathHelper from '@ecs/plugins/math/MathHelper';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Transform from '@ecs/plugins/math/Transform';
 import Bounds from '@ecs/plugins/render/2d/components/Bounds';
 import PixiRenderState from '@ecs/plugins/render/2d/components/RenderState';
-import { all, makeQuery } from '@ecs/core/Query';
 import { RenderTexture, Sprite } from 'pixi.js';
 import Camera from '../components/Camera';
 import CameraRenderState from '../components/CameraRenderState';
 import CameraTarget from '../components/CameraTarget';
 
-export default class CameraRenderSystem extends IterativeSystem {
+export default class CameraRenderSystem extends System {
 	protected state = useState(this, new CameraRenderState());
 
 	protected queries = useQueries(this, {
 		rendererState: all(PixiRenderState),
-		targets: all(CameraTarget)
+		targets: all(CameraTarget),
+		cameras: all(Camera, Transform)
 	});
 
 	constructor() {
-		super(makeQuery(all(Camera, Transform)));
+		super();
+		this.queries.cameras.onEntityAdded.connect(entity => {
+			const camera = entity.get(Camera);
+			const sprite = new Sprite(RenderTexture.create({ width: camera.renderWidth, height: camera.renderHeight }));
+			this.state.renderSprites.set(camera, sprite);
+			this.renderState.application.stage.addChild(sprite);
+		});
 	}
 
-	public entityAdded = (snapshot: EntitySnapshot) => {
-		const camera = snapshot.get(Camera);
-		const sprite = new Sprite(RenderTexture.create({ width: camera.renderWidth, height: camera.renderHeight }));
-		this.state.renderSprites.set(camera, sprite);
-		this.renderState.application.stage.addChild(sprite);
-	};
+	public updateLate(dt: number) {
+		this.queries.cameras.forEach(entity => {
+			const camera = entity.get(Camera);
+			const position = entity.get(Transform);
 
-	public updateEntityLate(entity: Entity, dt: number) {
-		const camera = entity.get(Camera);
-		const position = entity.get(Transform);
+			if (camera.scrollOptions) {
+				this.scrollTargets(camera, position);
+			}
 
-		if (camera.scrollOptions) {
-			this.scrollTargets(camera, position);
-		}
-
-		this.updateCamera(camera, position);
+			this.updateCamera(camera, position);
+		});
 	}
 
 	public scrollTargets(camera: Camera, transform: Transform) {

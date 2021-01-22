@@ -1,16 +1,14 @@
 import { useState, useQueries } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
+import { System, any } from 'tick-knock';
 import { usePerspectiveCameraCouple } from '../couples/PerspectiveCameraCouple';
 import { useMeshCouple } from '../couples/MeshCouple';
 import RenderState from '../components/RenderState';
 import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor, sRGBEncoding } from 'three';
-import { any } from '@ecs/core/Query';
 import { useGroupCouple } from '../couples/GroupCouple';
 import Color from '@ecs/plugins/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
 import { useThreeCouple } from '../couples/ThreeCouple';
-import { useDebugCouple } from '../couples/DebugCouple';
 
 export type RenderSystemSettings = {
 	width: number;

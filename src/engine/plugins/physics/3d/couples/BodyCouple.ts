@@ -1,11 +1,9 @@
-import { System } from '@ecs/core/System';
+import { Entity, System, all, any } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, any } from '@ecs/core/Query';
 import { useCannonCouple } from './CannonCouple';
 import { Body, ContactEquation } from 'cannon-es';
 import CannonBody from '../components/CannonBody';
 import Collisions from '../components/Collisions';
-import { Entity } from '@ecs/core/Entity';
 
 type CollisionEvent = {
 	body: Body;

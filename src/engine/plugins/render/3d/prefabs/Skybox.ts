@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { Color, DoubleSide, Mesh, ShaderMaterial, SphereGeometry } from 'three';
 

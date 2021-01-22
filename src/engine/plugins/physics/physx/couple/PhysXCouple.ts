@@ -1,6 +1,5 @@
 import { CoupleCallbacks, useCouple, useQueries } from '@ecs/core/helpers';
-import { all, QueryPattern } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { all, QueryPattern, System } from 'tick-knock';
 import { Optional } from '@ecs/plugins/render/3d/couples/ThreeCouple';
 import { PhysXState } from './../PhysXPhysicsSystem';
 

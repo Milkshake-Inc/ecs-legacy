@@ -1,6 +1,5 @@
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
 import { Emitter, EmitterConfig, OldEmitterConfig } from 'pixi-particles';
 import { Container, Texture } from 'pixi.js';
 import ParticleEmitter from '../components/ParticleEmitter';

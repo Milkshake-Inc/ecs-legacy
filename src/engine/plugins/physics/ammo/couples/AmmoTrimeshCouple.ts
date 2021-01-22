@@ -1,6 +1,4 @@
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
-import { BufferGeometry, Geometry } from 'three';
+import { all, System } from 'tick-knock';
 import PhysXTrimesh from '../../physx/component/shapes/TrimeshShape';
 import { applyToMeshesIndividually } from '../../3d/couples/ShapeCouple';
 import { AmmoInstance } from '../AmmoLoader';

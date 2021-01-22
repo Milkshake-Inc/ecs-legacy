@@ -1,25 +1,21 @@
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { QueryBuilder } from '@ecs/core/Query';
+import { System, any } from 'tick-knock';
+import { useQueries } from '@ecs/core/helpers';
 import Input from '../components/Input';
-import { Entity } from '@ecs/core/Entity';
 import InputManager from '@ecs/plugins/input/InputManager';
 
-export class InputSystem extends IterativeSystem {
-	private inputManager: InputManager;
-
-	constructor() {
-		super(new QueryBuilder().contains(Input).build());
-
-		this.inputManager = new InputManager();
-	}
+export class InputSystem extends System {
+	protected inputManager = new InputManager();
+	protected queries = useQueries(this, {
+		inputs: any(Input)
+	});
 
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		this.inputManager.update(dt);
-	}
+		this.queries.inputs.forEach(entity => {
+			entity.get(Input).update(this.inputManager);
+		});
 
-	protected updateEntityFixed(entity: Entity, dt: number) {
-		entity.get(Input).update(this.inputManager);
+		this.inputManager.update(dt);
 	}
 }

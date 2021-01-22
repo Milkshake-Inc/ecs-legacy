@@ -1,6 +1,5 @@
 import { useQueries } from '@ecs/core/helpers';
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { PhysXBody } from '../component/PhysXBody';
 import { PhysXState } from '../PhysXPhysicsSystem';
@@ -49,7 +48,7 @@ export const usePhysXBodyCouple = (system: System) => {
 				// (dynamicBody as any).setMinCCDAdvanceCoefficient(0.0001);
 
 				if (body.immovable) {
-					dynamicBody.setMassSpaceInertiaTensor({ x: 0, y: 0, z: 0 })
+					dynamicBody.setMassSpaceInertiaTensor({ x: 0, y: 0, z: 0 });
 				}
 
 				body.body = dynamicBody;

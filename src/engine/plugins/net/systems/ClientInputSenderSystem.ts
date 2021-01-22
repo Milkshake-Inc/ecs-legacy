@@ -1,41 +1,38 @@
-import { Entity } from '@ecs/core/Entity';
+import { all, Class, System } from 'tick-knock';
 import { useQueries } from '@ecs/core/helpers';
 import Input from '@ecs/plugins/input/components/Input';
-import { all, makeQuery } from '@ecs/core/Query';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode } from '../components/Packet';
 import Session from '../components/Session';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { Class } from '@ecs/core/Class';
 import { useBaseNetworking } from '../helpers/useNetworking';
 
-export default class ClientInputSenderSystem extends IterativeSystem {
+export default class ClientInputSenderSystem extends System {
 	protected queries = useQueries(this, {
-		pingState: all(ClientPingState)
+		pingState: all(ClientPingState),
+		inputSessions: all(Session, Input)
 	});
 
 	protected networking = useBaseNetworking(this);
 
-	constructor() {
-		super(makeQuery(all(Session, Input)));
-	}
+	update(dt: number) {
+		this.queries.inputSessions.forEach(entity => {
+			const input = entity.get(Input);
+			const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-	protected updateEntityFixed(entity: Entity, deltaTime: number) {
-		const input = entity.get(Input);
-		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
-
-		this.networking.send({
-			opcode: PacketOpcode.PLAYER_INPUT,
-			input,
-			tick: serverTick
+			this.networking.send({
+				opcode: PacketOpcode.PLAYER_INPUT,
+				input,
+				tick: serverTick
+			});
 		});
 	}
 }
 
 // Make this fallback to Input if no CustomInput sent?
-export class ClientCustomInputSenderSystem<T = Input<any>> extends IterativeSystem {
+export class ClientCustomInputSenderSystem<T = Input<any>> extends System {
 	protected queries = useQueries(this, {
-		pingState: all(ClientPingState)
+		pingState: all(ClientPingState),
+		inputSessions: all(Session, Input)
 	});
 
 	protected networking = useBaseNetworking(this);
@@ -43,19 +40,20 @@ export class ClientCustomInputSenderSystem<T = Input<any>> extends IterativeSyst
 	private inputClass: Class<T>;
 
 	constructor(inputClass: Class<T>) {
-		super(makeQuery(all(Session, inputClass)));
-
+		super();
 		this.inputClass = inputClass;
 	}
 
-	protected updateEntityFixed(entity: Entity, deltaTime: number) {
-		const input = entity.get(this.inputClass);
-		const { serverTick } = this.queries.pingState.first.get(ClientPingState);
+	update(dt: number) {
+		this.queries.inputSessions.forEach(entity => {
+			const input = entity.get(this.inputClass);
+			const { serverTick } = this.queries.pingState.first.get(ClientPingState);
 
-		this.networking.send({
-			opcode: PacketOpcode.PLAYER_CUSTOM_INPUT,
-			input,
-			tick: serverTick
+			this.networking.send({
+				opcode: PacketOpcode.PLAYER_CUSTOM_INPUT,
+				input,
+				tick: serverTick
+			});
 		});
 	}
 }

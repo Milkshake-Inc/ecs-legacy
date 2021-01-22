@@ -1,20 +1,23 @@
-import { Entity } from '@ecs/core/Entity';
-import { ReactionSystem } from '@ecs/core/ReactionSystem';
-import { all, makeQuery, QueryPattern } from '@ecs/core/Query';
+import { useQueries } from '@ecs/core/helpers';
+import { Entity, System, all, QueryPattern, makeQuery } from 'tick-knock';
 import PhysicsBody from '../components/PhysicsBody';
 
 export class CollisionEvent {
 	constructor(public entityA: Entity, public entityB: Entity) {}
 }
 
-export abstract class PhysicsCollisionSystem extends ReactionSystem {
+export abstract class PhysicsCollisionSystem extends System {
+	protected queries = useQueries(this, {
+		bodies: all(PhysicsBody)
+	});
+
 	constructor(protected queryA: QueryPattern = all(), protected queryB: QueryPattern = all()) {
-		super(makeQuery(all(PhysicsBody)));
+		super();
 	}
 
 	public updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
-		const watch = this.query.entities.filter(this.queryA);
+		const watch = this.queries.bodies.filter(this.queryA);
 
 		for (const entity of watch) {
 			const { collisions } = entity.get(PhysicsBody);

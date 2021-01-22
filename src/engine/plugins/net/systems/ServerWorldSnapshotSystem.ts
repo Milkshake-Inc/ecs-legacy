@@ -1,6 +1,5 @@
 import { useQueries } from '@ecs/core/helpers';
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { all, System } from 'tick-knock';
 import { PacketOpcode } from '@ecs/plugins/net/components/Packet';
 import { encode } from '@msgpack/msgpack';
 import Session from '../components/Session';

@@ -1,17 +1,16 @@
-import { Entity, EntitySnapshot } from '@ecs/core/Entity';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
+import { Entity, System, all, EntitySnapshot } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, makeQuery } from '@ecs/core/Query';
 import { Body, Engine, Events, World } from 'matter-js';
 import PhysicsBody from '../components/PhysicsBody';
 import { CollisionEvent } from './PhysicsCollisionSystem';
 import { injectPolyDecomp } from '../utils/PhysicsUtils';
+import { useQueries } from '@ecs/core/helpers';
 
 injectPolyDecomp();
 
-export default class PhysicsSystem extends IterativeSystem {
+export default class PhysicsSystem extends System {
 	static engineUpdate(dt: number) {
-		Engine.update(this.engine, dt);
+		Engine.update(this.physicsEngine, dt);
 	}
 
 	static updateEntityFixed(entity: Entity, dt: number) {
@@ -22,23 +21,27 @@ export default class PhysicsSystem extends IterativeSystem {
 		position.y = physicsBody.body.position.y;
 	}
 
-	public static engine: Engine;
+	public static physicsEngine: Engine;
 
-	public readonly engine: Engine;
+	public readonly physicsEngine: Engine;
 	public readonly world: World;
 
-	constructor(gravity = { x: 0, y: 1, scale: 0.001 }) {
-		super(makeQuery(all(Transform, PhysicsBody)));
+	protected queries = useQueries(this, {
+		bodies: all(Transform, PhysicsBody)
+	});
 
-		this.engine = Engine.create();
+	constructor(gravity = { x: 0, y: 1, scale: 0.001 }) {
+		super();
+
+		this.physicsEngine = Engine.create();
 
 		// HACK
-		PhysicsSystem.engine = this.engine;
+		PhysicsSystem.physicsEngine = this.physicsEngine;
 
-		this.world = this.engine.world;
+		this.world = this.physicsEngine.world;
 		this.world.gravity = gravity;
 
-		Events.on(this.engine, 'collisionStart', event => {
+		Events.on(this.physicsEngine, 'collisionStart', event => {
 			event.pairs.forEach(pair => {
 				const entityA = this.entityFromBody(pair.bodyA);
 				const entityB = this.entityFromBody(pair.bodyB);
@@ -47,13 +50,16 @@ export default class PhysicsSystem extends IterativeSystem {
 				entityB.get(PhysicsBody).collisions.push(new CollisionEvent(entityB, entityA));
 			});
 		});
+
+		this.queries.bodies.onEntityAdded.connect(entity => this.onBodyAdded(entity));
+		this.queries.bodies.onEntityRemoved.connect(entity => this.onBodyRemoved(entity));
 	}
 
 	public updateFixed(dt: number) {
 		this.clearCollisions();
 
 		// console.log("update phsycis")
-		Engine.update(this.engine, dt, 1);
+		Engine.update(this.physicsEngine, dt, 1);
 
 		super.updateFixed(dt);
 	}
@@ -67,7 +73,7 @@ export default class PhysicsSystem extends IterativeSystem {
 	}
 
 	private entityFromBody(body: Body): Entity {
-		return this.entities.find(entity => {
+		return this.queries.bodies.find(entity => {
 			const physicsBody = entity.get(PhysicsBody);
 
 			return physicsBody.body == body || physicsBody.parts.includes(body);
@@ -75,12 +81,12 @@ export default class PhysicsSystem extends IterativeSystem {
 	}
 
 	private clearCollisions() {
-		this.entities.forEach(entity => {
+		this.queries.bodies.forEach(entity => {
 			entity.get(PhysicsBody).collisions = [];
 		});
 	}
 
-	entityAdded = ({ entity }: EntitySnapshot) => {
+	private onBodyAdded(entity: EntitySnapshot) {
 		const body = entity.get(PhysicsBody);
 		const position = entity.get(Transform);
 
@@ -96,9 +102,9 @@ export default class PhysicsSystem extends IterativeSystem {
 		}
 
 		World.addBody(this.world, entity.get(PhysicsBody).body);
-	};
+	}
 
-	entityRemoved = (snapshot: EntitySnapshot) => {
-		World.remove(this.world, snapshot.get(PhysicsBody).body);
-	};
+	private onBodyRemoved(entity: EntitySnapshot) {
+		World.remove(this.world, entity.get(PhysicsBody).body);
+	}
 }

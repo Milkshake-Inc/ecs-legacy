@@ -1,10 +1,8 @@
-import { Engine } from '../../../core/Engine';
-import { Entity } from '../../../core/Entity';
+import { Entity, System } from 'tick-knock';
 import { useEvents } from '../../../core/helpers';
 import { sign, verify } from 'jsonwebtoken';
 import { uuid } from 'uuidv4';
 import { Packet } from '../components/Packet';
-import { System } from '../../../core/System';
 import { NetEvents } from '../components/NetEvents';
 
 const secret = 'somethingsupersecretyo';
@@ -14,13 +12,10 @@ interface JWTData {
 }
 
 export default abstract class ServerConnectionSystem extends System {
-	protected engine: Engine;
 	protected events = useEvents();
 
-	constructor(engine: Engine) {
+	constructor() {
 		super();
-
-		this.engine = engine;
 
 		this.events = useEvents();
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));

@@ -1,12 +1,10 @@
 /* eslint-disable no-mixed-spaces-and-tabs */
 import { useQueries, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
+import { System, all, Engine } from 'tick-knock';
 import Keyboard from '@ecs/plugins/input/Keyboard';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
 import { PerspectiveCamera } from 'three';
-import { Engine } from '@ecs/core/Engine';
 import Input from '@ecs/plugins/input/components/Input';
 import { Key } from '@ecs/plugins/input/Control';
 
@@ -126,6 +124,6 @@ export default class FreeRoamCameraSystem extends System {
 			movement = movement.add(camera.quaternion.multiV(Vector3.DOWN));
 		}
 
-		camera.position = camera.position.add(movement.multiF(speed));
+		camera.position = camera.position.add(movement.multi(speed));
 	}
 }

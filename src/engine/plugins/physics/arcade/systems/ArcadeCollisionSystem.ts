@@ -1,21 +1,20 @@
-import { Entity } from '@ecs/core/Entity';
-import { ReactionSystem } from '@ecs/core/ReactionSystem';
+import { Entity, System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, makeQuery } from '@ecs/core/Query';
 import ArcadePhysics from '../components/ArcadePhysics';
 import { Circle, Polygon, Response, testCircleCircle, testPolygonPolygon, testCirclePolygon, testPolygonCircle } from 'sat';
 import { ArcadeCollisionShape } from '../components/ArcadeCollisionShape';
+import { useQueries } from '@ecs/core/helpers';
 
-export default class ArcadeCollisionSystem extends ReactionSystem {
-	constructor() {
-		super(makeQuery(all(Transform, ArcadeCollisionShape)));
-	}
+export default class ArcadeCollisionSystem extends System {
+	protected queries = useQueries(this, {
+		collisionShapes: all(Transform, ArcadeCollisionShape)
+	});
 
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
 
-		for (const entityA of this.entities) {
-			for (const entityB of this.entities) {
+		for (const entityA of this.queries.collisionShapes) {
+			for (const entityB of this.queries.collisionShapes) {
 				if (entityA != entityB) {
 					this.checkCollision(entityA, entityB);
 				}
@@ -64,12 +63,5 @@ export default class ArcadeCollisionSystem extends ReactionSystem {
 			physicsA.velocity.x = 0;
 			physicsA.velocity.y = 0;
 		}
-	}
-
-	private getEntityComponents(entity: Entity) {
-		return {
-			collision: entity.get(ArcadeCollisionShape),
-			physics: entity.get(ArcadePhysics)
-		};
 	}
 }

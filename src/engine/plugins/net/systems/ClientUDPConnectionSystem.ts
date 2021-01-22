@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 import Session from '../components/Session';
 import geckosClient, { ClientChannel } from '@geckos.io/client';
 import { NetEvents } from '../components/NetEvents';

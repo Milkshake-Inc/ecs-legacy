@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import { all, any } from '@ecs/core/Query';
+import { all, any, System, Entity } from 'tick-knock';
 import {
 	Shape,
 	Body,
@@ -14,14 +14,12 @@ import {
 	Quaternion as CannonQuaternion,
 	Trimesh
 } from 'cannon-es';
-import { System } from '@ecs/core/System';
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/math/Transform';
 import MeshShape from '../components/MeshShape';
 import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler, InstancedMesh } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import CannonBody from '../components/CannonBody';
-import { Entity } from '@ecs/core/Entity';
 import BoundingSphereShape from '../components/BoundingSphereShape';
 import BoundingCylinderShape from '../components/BoundingCylinderShape';
 import BoundingBoxShape from '../components/BoundingBoxShape';

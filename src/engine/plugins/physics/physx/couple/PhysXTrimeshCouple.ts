@@ -1,10 +1,8 @@
 import { useQueries } from '@ecs/core/helpers';
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { all, System } from 'tick-knock';
 import { applyToMeshesIndividually, getObject3d } from '@ecs/plugins/physics/3d/couples/ShapeCouple';
 import { Material } from 'three';
 import { PhysXBody } from '../component/PhysXBody';
-import { ShapeType } from '../component/PhysXShape';
 import { PhysXTrimesh } from '../component/shapes/TrimeshShape';
 import { PhysXState } from '../PhysXPhysicsSystem';
 import { createTrimesh } from '../utils/createTrimesh';

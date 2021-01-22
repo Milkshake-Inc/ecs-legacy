@@ -1,4 +1,4 @@
-import { System } from '@ecs/core/System';
+import { System } from 'tick-knock';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
 import { useBaseNetworking } from '../helpers/useNetworking';
 

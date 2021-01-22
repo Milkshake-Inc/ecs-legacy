@@ -1,6 +1,5 @@
-import { all } from '@ecs/core/Query';
+import { all, System } from 'tick-knock';
 import { Transform, Material } from 'cannon-es';
-import { System } from '@ecs/core/System';
 import { useCannonCouple } from './CannonCouple';
 
 export const useMaterialCouple = (system: System) =>

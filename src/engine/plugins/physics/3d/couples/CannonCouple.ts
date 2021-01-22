@@ -1,6 +1,5 @@
 import { CoupleCallbacks, useCouple, useQueries } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
-import { all, QueryPattern } from '@ecs/core/Query';
+import { System, all, QueryPattern } from 'tick-knock';
 import { Body, Shape, Constraint, ContactMaterial, Material } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 import CannonInstancedBody from '../components/CannonInstancedBody';

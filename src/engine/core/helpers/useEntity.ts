@@ -1,6 +1,4 @@
-import { Engine } from '@ecs/core/Engine';
-import { Entity } from '@ecs/core/Entity';
-import { System } from '@ecs/core/System';
+import { Engine, System, Entity } from 'tick-knock';
 
 export const useEntity = (system: System, create: (entity: Entity) => void) => {
 	const entity = new Entity();

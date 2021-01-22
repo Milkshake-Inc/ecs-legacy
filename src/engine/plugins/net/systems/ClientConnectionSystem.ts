@@ -1,10 +1,8 @@
-import { Entity } from '@ecs/core/Entity';
-import { Engine } from '@ecs/core/Engine';
+import { Entity, System } from 'tick-knock';
 import { useEvents, useState } from '@ecs/core/helpers';
 import { NetEvents } from '../components/NetEvents';
 import { decode } from '@msgpack/msgpack';
 import { Packet } from '../components/Packet';
-import { System } from '@ecs/core/System';
 
 export class ConnectionStatistics {
 	public connected = false;
@@ -13,15 +11,13 @@ export class ConnectionStatistics {
 }
 
 export default abstract class ClientConnectionSystem extends System {
-	protected engine: Engine;
 	protected sessionEntity: Entity;
 	protected events = useEvents();
 	protected time = 0;
 	protected state = useState(this, new ConnectionStatistics());
 
-	constructor(engine: Engine) {
+	constructor() {
 		super();
-		this.engine = engine;
 
 		this.events = useEvents();
 		this.events.on(NetEvents.Disconnect, this.disconnect.bind(this));

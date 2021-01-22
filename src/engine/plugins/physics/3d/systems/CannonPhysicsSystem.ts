@@ -1,8 +1,7 @@
 import { useQueries, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import RenderState from '@ecs/plugins/render/3d/components/RenderState';
-import { any } from '@ecs/core/Query';
+import { any, System } from 'tick-knock';
 import { GSSolver, World, SAPBroadphase } from 'cannon-es';
 import PhysicsState from '../components/PhysicsState';
 import { useBodyCouple } from '../couples/BodyCouple';

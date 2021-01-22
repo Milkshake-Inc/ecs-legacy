@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { useQueries, useSingletonQuery, useState } from '@ecs/core/helpers';
-import { useEntity } from '@ecs/core/helpers/useEntity';
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { useQueries, useSingletonQuery, useState, useEntity } from '@ecs/core/helpers';
+import { all, System } from 'tick-knock';
 import Color from '@ecs/plugins/math/Color';
 import Transform from '@ecs/plugins/math/Transform';
 import { Vector2 } from '@ecs/plugins/math/Vector';

@@ -1,7 +1,6 @@
 import AmmoBody from '../components/AmmoBody';
-import { all } from '@ecs/core/Query';
+import { all, System } from 'tick-knock';
 import { useAmmoCouple } from './AmmoCouple';
-import { System } from '@ecs/core/System';
 import Transform from '@ecs/plugins/math/Transform';
 import Collisions from '../../3d/components/Collisions';
 

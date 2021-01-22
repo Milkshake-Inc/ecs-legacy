@@ -1,8 +1,6 @@
 import { CoupleCallbacks, useCouple, useQueries } from '@ecs/core/helpers';
-import { all, QueryPattern } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { all, QueryPattern, System } from 'tick-knock';
 import Ammo from 'ammojs-typed';
-import Collisions from '../../3d/components/Collisions';
 import { Optional } from '../../3d/couples/CannonCouple';
 import { AmmoInstance } from '../AmmoLoader';
 import { AmmoState } from '../AmmoPhysicsSystem';

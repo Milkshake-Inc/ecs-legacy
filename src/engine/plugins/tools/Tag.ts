@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 
 export default class Tag {
 	public static is(entity: Entity, value: string) {

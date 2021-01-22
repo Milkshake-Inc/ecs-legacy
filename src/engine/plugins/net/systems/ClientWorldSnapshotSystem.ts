@@ -1,10 +1,8 @@
 import { useQueries, useState } from '@ecs/core/helpers';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { all, any, makeQuery } from '@ecs/core/Query';
+import { all, System } from 'tick-knock';
 import diff from 'json-diff';
 import { ClientPingState } from '../components/ClientPingState';
 import { PacketOpcode, WorldSnapshot } from '../components/Packet';
-import Session from '../components/Session';
 import { useBaseNetworking } from '../helpers/useNetworking';
 import { objectIsEqual } from '../utils/ObjectCompare';
 
@@ -23,7 +21,7 @@ export class ClientWorldSnapshotState<T> {
 	}
 }
 
-export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends IterativeSystem {
+export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends System {
 	protected queries = useQueries(this, {
 		pingState: all(ClientPingState)
 	});
@@ -33,7 +31,7 @@ export abstract class ClientWorldSnapshotSystem<TSnapshot extends {}> extends It
 	protected networking = useBaseNetworking(this);
 
 	constructor() {
-		super(makeQuery(any(Session)));
+		super();
 
 		this.networking.on(PacketOpcode.WORLD, packet => {
 			this.updateSnapshot(packet as any);

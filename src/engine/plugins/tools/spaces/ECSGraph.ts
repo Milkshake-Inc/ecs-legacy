@@ -1,6 +1,6 @@
 import Space from '@ecs/plugins/space/Space';
 import * as dat from 'dat.gui';
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 
 export class ECSGraph extends Space {
 	private gui: dat.GUI;

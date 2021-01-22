@@ -1,4 +1,4 @@
-import { System } from '../System';
+import { System } from 'tick-knock';
 
 export const useTimer = (system: System, callback: () => void, timeMs: number) => {
 	let totalElapsed = 0;

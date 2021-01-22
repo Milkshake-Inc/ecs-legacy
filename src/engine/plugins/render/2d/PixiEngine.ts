@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 import Camera from '@ecs/plugins/render/2d/components/Camera';
 import PixiCameraSystem from '@ecs/plugins/render/2d/systems/PixiCameraSystem';
 import Transform from '@ecs/plugins/math/Transform';

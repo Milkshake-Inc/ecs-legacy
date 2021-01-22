@@ -1,5 +1,4 @@
-import { Engine } from '../../../core/Engine';
-import { Entity } from '../../../core/Entity';
+import { Entity } from 'tick-knock';
 import { Packet, PacketOpcode } from '../components/Packet';
 import Session from '../components/Session';
 import { encode, decode } from '@msgpack/msgpack';
@@ -11,10 +10,9 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 	protected server: TemplatedApp;
 	protected sockets: Map<Entity, uws.WebSocket> = new Map();
 
-	constructor(engine: Engine, port = 9001) {
-		super(engine);
+	constructor(port = 9001) {
+		super();
 
-		this.engine = engine;
 		this.server = uws
 			.App({})
 			.ws('/*', {

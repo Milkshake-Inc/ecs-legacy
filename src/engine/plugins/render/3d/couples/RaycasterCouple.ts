@@ -1,6 +1,5 @@
 import { useCouple, useQueries } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
-import { all, any } from '@ecs/core/Query';
+import { System, all, any } from 'tick-knock';
 import { Object3D, Vector3, Raycaster, ArrowHelper, PerspectiveCamera } from 'three';
 import Raycast, { RaycastDebug, RaycastCamera } from '../components/Raycaster';
 import RenderState from '../components/RenderState';

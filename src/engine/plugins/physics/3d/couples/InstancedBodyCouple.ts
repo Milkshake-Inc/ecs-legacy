@@ -1,6 +1,5 @@
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
 import { useCannonCouple } from './CannonCouple';
 import CannonBody, { CannonBodyOptions } from '../components/CannonBody';
 import CannonInstancedBody from '../components/CannonInstancedBody';

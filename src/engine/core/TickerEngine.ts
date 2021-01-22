@@ -1,4 +1,4 @@
-import { Engine } from './Engine';
+import { Engine } from 'tick-knock';
 import Ticker from '@ecs/plugins/ticker/Ticker';
 import { useState } from './helpers';
 

@@ -1,8 +1,7 @@
 import { EngineContext, useBeforeMount, useECS } from '.';
 import { useContext } from 'preact/hooks';
-import { Entity } from '@ecs/core/Entity';
+import { Entity, all } from 'tick-knock';
 import { ComponentChildren, h, Fragment } from 'preact';
-import { all } from '@ecs/core/Query';
 import { useQueries } from '@ecs/core/helpers';
 
 export class Views {

@@ -1,6 +1,5 @@
-import { System } from '@ecs/core/System';
+import { System, all, any } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, any } from '@ecs/core/Query';
 import { useThreeCouple } from './ThreeCouple';
 import { Mesh, InstancedMesh } from 'three';
 

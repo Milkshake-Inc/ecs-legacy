@@ -1,6 +1,5 @@
 import { useEvents, useQueries } from '@ecs/core/helpers';
-import { all } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { PhysXController } from '../component/PhysXController';
 import { PhysXEvents, PhysXState } from '../PhysXPhysicsSystem';
@@ -32,13 +31,13 @@ export const useControllerCouple = (system: System) => {
 
 			controllerDesc.setReportCallback(
 				PhysX.PxUserControllerHitReport.implement({
-					onShapeHit: (event) => {
+					onShapeHit: event => {
 						events.emit(PhysXEvents.CONTROLLER_SHAPE_HIT, entity, event);
 					},
-					onControllerHit: (event) => {
+					onControllerHit: event => {
 						events.emit(PhysXEvents.CONTROLLER_CONTROLLER_HIT, entity, event);
 					},
-					onObstacleHit: (event) => {
+					onObstacleHit: event => {
 						events.emit(PhysXEvents.CONTROLLER_OBSTACLE_HIT, entity, event);
 					}
 				})
@@ -47,7 +46,7 @@ export const useControllerCouple = (system: System) => {
 			controllerDesc.setMaterial(getPhysXState().physics.createMaterial(0, 0, 0));
 
 			if (!controllerDesc.isValid()) {
-				console.warn("[WARN] Controller Description invalid!");
+				console.warn('[WARN] Controller Description invalid!');
 			}
 
 			controller.controller = manager.createController(controllerDesc);

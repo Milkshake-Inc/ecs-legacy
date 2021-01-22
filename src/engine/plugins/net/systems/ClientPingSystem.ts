@@ -1,18 +1,15 @@
-import { Entity, EntitySnapshot } from '@ecs/core/Entity';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { any, makeQuery } from '@ecs/core/Query';
+import { System } from 'tick-knock';
 import { ClientPingState } from '../components/ClientPingState';
-import { Packet, PacketOpcode, ServerSyncPing, ServerSyncResult } from '../components/Packet';
-import Session from '../components/Session';
+import { PacketOpcode, ServerSyncPing, ServerSyncResult } from '../components/Packet';
 import { useState } from '@ecs/core/helpers';
 import { useBaseNetworking } from '../helpers/useNetworking';
 
-export default class ClientPingSystem extends IterativeSystem {
+export default class ClientPingSystem extends System {
 	protected state = useState(this, new ClientPingState());
 	protected networking = useBaseNetworking(this);
 
 	constructor() {
-		super(makeQuery(any(Session)));
+		super();
 
 		this.state.serverTime = 0;
 		this.state.serverTick = 0;

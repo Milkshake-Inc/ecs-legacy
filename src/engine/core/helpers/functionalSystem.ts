@@ -1,7 +1,4 @@
-import { makeQuery, QueryPattern } from '@ecs/core/Query';
-import { Entity, EntitySnapshot } from '../Entity';
-import { IterativeSystem } from '../IterativeSystem';
-import { System } from '../System';
+import { makeQuery, QueryPattern, Entity, EntitySnapshot, IterativeSystem, System } from 'tick-knock';
 import { useQueries, ToQueries } from './useQueries';
 
 export type FunctionalSystemCallbacks = {

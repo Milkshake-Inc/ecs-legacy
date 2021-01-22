@@ -1,5 +1,4 @@
-import { Entity, EntitySnapshot } from '../Entity';
-import { Query } from '../Query';
+import { Entity, EntitySnapshot, Query } from 'tick-knock';
 
 export type CoupleCallbacks<T> = {
 	onCreate: (entity: Entity) => T;

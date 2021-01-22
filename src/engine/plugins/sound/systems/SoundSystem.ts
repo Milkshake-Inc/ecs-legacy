@@ -1,9 +1,6 @@
 import { Sound } from '../components/Sound';
-import { all, makeQuery } from '@ecs/core/Query';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { Entity } from '@ecs/core/Entity';
+import { all, Entity, makeQuery, System } from 'tick-knock';
 import { Howl, Howler } from 'howler';
-import { Engine } from '@ecs/core/Engine';
 import Transform from '@ecs/plugins/math/Transform';
 import { useState, useQueries } from '@ecs/core/helpers';
 import SoundListener from '../components/SoundListener';
@@ -39,33 +36,31 @@ export class SoundState {
 	}
 }
 
-export default class SoundSystem extends IterativeSystem {
+export default class SoundSystem extends System {
 	protected debug = false;
 
-	protected engine: Engine;
 	protected sounds: Map<Entity, Howl[]> = new Map();
 	protected state = useState(this, SoundState.fromStorage());
 	protected queries = useQueries(this, {
-		listener: all(Transform, SoundListener)
+		listener: all(Transform, SoundListener),
+		sounds: all(Sound)
 	});
 
-	constructor() {
-		super(makeQuery(all(Sound)));
-	}
-
 	public updateFixed(dt: number) {
-		Howler.volume(this.state.volume);
-
 		super.updateFixed(dt);
+
+		Howler.volume(this.state.volume);
 
 		if (this.listener) {
 			const listenerPos = this.listener.get(Transform);
 			if (isNaN(listenerPos.x)) return;
 			Howler.pos(listenerPos.x, listenerPos.y, listenerPos.z);
 		}
+
+		this.queries.sounds.forEach(entity => this.updateSound(entity));
 	}
 
-	protected updateEntityFixed(entity: Entity): void {
+	protected updateSound(entity: Entity): void {
 		const sound = entity.get(Sound);
 		let howls = this.sounds.get(entity);
 
@@ -172,12 +167,7 @@ export default class SoundSystem extends IterativeSystem {
 
 		if (autoRemoveEntity) {
 			this.engine.removeEntity(entity);
-			if (this.debug) console.log("Removing Sound Entity")
+			if (this.debug) console.log('Removing Sound Entity');
 		}
-	}
-
-	public onAddedToEngine(engine: Engine) {
-		super.onAddedToEngine(engine);
-		this.engine = engine;
 	}
 }

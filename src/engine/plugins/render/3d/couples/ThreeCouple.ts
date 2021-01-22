@@ -1,8 +1,6 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity, System, all, QueryPattern } from 'tick-knock';
 import { CoupleCallbacks, useCouple, useQueries, useEvents } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
 import Transform from '@ecs/plugins/math/Transform';
-import { all, QueryPattern } from '@ecs/core/Query';
 import { Object3D } from 'three';
 import RenderState from '../components/RenderState';
 

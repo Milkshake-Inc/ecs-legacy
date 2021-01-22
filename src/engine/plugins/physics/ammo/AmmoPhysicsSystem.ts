@@ -1,9 +1,7 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity, System } from 'tick-knock';
 import { useEvents, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
 import Vector3 from '@ecs/plugins/math/Vector';
 import Ammo from 'ammojs-typed';
-import Collisions from '../3d/components/Collisions';
 import { useAmmoBodyCouple } from './couples/AmmoBodyCouple';
 import { useAmmoShapeCouple } from './couples/AmmoShapeCouple';
 import { useAmmoTrimeshCouple } from './couples/AmmoTrimeshCouple';
@@ -81,9 +79,5 @@ export default class AmmoPhysicsSystem extends System {
 
 	updateLate(dt: number) {
 		this.couples.forEach(couple => couple.lateUpdate(dt));
-	}
-
-	update(dt: number) {
-		super.update(dt);
 	}
 }

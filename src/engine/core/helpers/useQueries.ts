@@ -1,8 +1,4 @@
-import { makeQuery, QueryPattern, all } from '@ecs/core/Query';
-import { Engine } from '../Engine';
-import { Query } from '../Query';
-import { System } from '../System';
-import { Class } from '@ecs/core/Class';
+import { makeQuery, QueryPattern, all, Engine, Query, System, Class } from 'tick-knock';
 
 export type Queries = { [index: string]: Query };
 

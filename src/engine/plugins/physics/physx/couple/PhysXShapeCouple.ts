@@ -1,7 +1,5 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity, all, any, System } from 'tick-knock';
 import { useQueries } from '@ecs/core/helpers';
-import { all, any } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
 import { PhysXBody } from '../component/PhysXBody';
 import { ShapeType } from '../component/PhysXShape';
 import { PhysXBox } from '../component/shapes/PhysXBox';

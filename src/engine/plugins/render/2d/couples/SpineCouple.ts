@@ -1,6 +1,5 @@
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
 import { usePixiCouple } from './PixiCouple';
 import * as PIXI from 'pixi.js';
 window.PIXI = PIXI;

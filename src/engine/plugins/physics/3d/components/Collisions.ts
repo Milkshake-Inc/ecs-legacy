@@ -1,4 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
+import { Entity } from 'tick-knock';
 
 export default class Collisions {
 	public contacts: Set<Entity> = new Set();

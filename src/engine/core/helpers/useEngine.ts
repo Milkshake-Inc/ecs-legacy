@@ -1,5 +1,4 @@
-import { Engine } from '@ecs/core/Engine';
-import { System } from '@ecs/core/System';
+import { Engine, System } from 'tick-knock';
 
 export const useEngine = (systemOrEngine: System | Engine) => {
 	let engineInstance: Engine = undefined;

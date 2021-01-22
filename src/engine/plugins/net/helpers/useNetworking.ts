@@ -1,11 +1,8 @@
-import { Engine } from '@ecs/core/Engine';
-import { Entity } from '@ecs/core/Entity';
-import { System } from '@ecs/core/System';
-import { Packet, PacketOpcode } from '../components/Packet';
+import { Engine, Entity, System, all } from 'tick-knock';
 import { useQueries, useEvents } from '@ecs/core/helpers';
+import { Packet, PacketOpcode } from '../components/Packet';
 import { NetEvents } from '@ecs/plugins/net/components/NetEvents';
 import Session from '../components/Session';
-import { all, makeQuery } from '@ecs/core/Query';
 
 export type NetworkingCallbacks = {
 	connect?: (entity: Entity) => void;

@@ -1,5 +1,5 @@
 import Transform from '@ecs/plugins/math/Transform';
-import { all } from '@ecs/core/Query';
+import { all } from 'tick-knock';
 import { useThreeCouple } from './ThreeCouple';
 import { PerspectiveCamera } from 'three';
 import RenderSystem from '../systems/RenderSystem';

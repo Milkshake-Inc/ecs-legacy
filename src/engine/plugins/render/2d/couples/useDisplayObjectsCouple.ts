@@ -1,6 +1,4 @@
-import { Entity } from '@ecs/core/Entity';
-import { all, any } from '@ecs/core/Query';
-import { System } from '@ecs/core/System';
+import { Entity, all, any, System } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { AnimatedSprite, BitmapText, Container, Graphics, Sprite, Text, TilingSprite } from 'pixi.js';
 import { usePixiCouple } from './PixiCouple';

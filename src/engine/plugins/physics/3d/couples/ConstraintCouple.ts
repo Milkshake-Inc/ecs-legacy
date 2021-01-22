@@ -1,4 +1,4 @@
-import { all, any } from '@ecs/core/Query';
+import { System, all, any } from 'tick-knock';
 import {
 	Transform,
 	Constraint,
@@ -8,7 +8,6 @@ import {
 	LockConstraint,
 	PointToPointConstraint
 } from 'cannon-es';
-import { System } from '@ecs/core/System';
 import { useCannonCouple } from './CannonCouple';
 
 export const useConstraintCouple = (system: System) =>

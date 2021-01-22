@@ -1,7 +1,6 @@
 import { useQueries, useState } from '@ecs/core/helpers';
-import { System } from '@ecs/core/System';
+import { System, all } from 'tick-knock';
 import CameraRenderState from '@ecs/plugins/render/2d/components/CameraRenderState';
-import { all } from '@ecs/core/Query';
 import { Application, Container, RenderTexture, Sprite as PixiSprite, Graphics, spine } from 'pixi.js';
 import PixiRenderState from '../components/RenderState';
 import { useParticleCouple } from '../couples/ParticleCouple';
@@ -95,8 +94,6 @@ export default class PixiRenderSystem extends System {
 	}
 
 	update(dt: number) {
-		super.update(dt);
-
 		this.couples.forEach(couple => couple.update(dt));
 
 		this.render();

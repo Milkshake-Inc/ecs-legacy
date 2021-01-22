@@ -1,14 +1,12 @@
-import { Entity, EntitySnapshot } from '@ecs/core/Entity';
+import { Entity, System, all } from 'tick-knock';
 import { useQueries } from '@ecs/core/helpers';
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
 import { InputHistory } from '@ecs/plugins/input/components/InputHistory';
 import { PacketOpcode, PlayerInput, PlayerCustomInput } from '@ecs/plugins/net/components/Packet';
 import { ServerPingState } from '@ecs/plugins/net/components/ServerPingState';
 import Session from '@ecs/plugins/net/components/Session';
-import { all, makeQuery } from '@ecs/core/Query';
 import { useBaseNetworking } from '../helpers/useNetworking';
 
-export class ServerAddInputToHistory extends IterativeSystem {
+export class ServerAddInputToHistory extends System {
 	protected queries = useQueries(this, {
 		serverPing: all(ServerPingState)
 	});
@@ -16,7 +14,7 @@ export class ServerAddInputToHistory extends IterativeSystem {
 	protected networking = useBaseNetworking(this);
 
 	constructor() {
-		super(makeQuery(all(Session, InputHistory)));
+		super();
 
 		this.networking.on(PacketOpcode.PLAYER_INPUT, this.handleInputPacket.bind(this));
 	}
@@ -41,7 +39,7 @@ export class ServerAddInputToHistory extends IterativeSystem {
 	}
 }
 
-export class ServerCustomAddInputToHistory extends IterativeSystem {
+export class ServerCustomAddInputToHistory extends System {
 	protected queries = useQueries(this, {
 		serverPing: all(ServerPingState)
 	});
@@ -49,7 +47,7 @@ export class ServerCustomAddInputToHistory extends IterativeSystem {
 	protected networking = useBaseNetworking(this);
 
 	constructor() {
-		super(makeQuery(all(Session, InputHistory)));
+		super();
 
 		this.networking.on(PacketOpcode.PLAYER_CUSTOM_INPUT, this.handleInputPacket.bind(this));
 	}

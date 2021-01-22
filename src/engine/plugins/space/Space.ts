@@ -1,8 +1,5 @@
-import { Engine } from '@ecs/core/Engine';
-import { Entity } from '@ecs/core/Entity';
+import { Engine, System, Query, Entity } from 'tick-knock';
 import SpaceTag from './components/SpaceTag';
-import { System } from '@ecs/core/System';
-import { Query } from '@ecs/core/Query';
 
 export default class Space {
 	public readonly name: string;

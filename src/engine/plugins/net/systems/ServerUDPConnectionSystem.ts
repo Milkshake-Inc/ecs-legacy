@@ -1,5 +1,4 @@
-import { Engine } from '../../../core/Engine';
-import { Entity } from '../../../core/Entity';
+import { Engine, Entity } from 'tick-knock';
 import { GeckosServer, ServerChannel } from '@geckos.io/server';
 import geckosServer from '@geckos.io/server/lib/geckos/server';
 import { Packet } from '../components/Packet';
@@ -14,10 +13,9 @@ export default class ServerUDPConnectionSystem extends ServerConnectionSystem {
 	protected server: GeckosServer;
 	protected sockets: Map<Entity, ServerChannel> = new Map();
 
-	constructor(engine: Engine) {
-		super(engine);
+	constructor() {
+		super();
 
-		this.engine = engine;
 		this.server = geckosServer({
 			authorization: this.authorization
 		});

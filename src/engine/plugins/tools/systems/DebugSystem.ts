@@ -1,7 +1,4 @@
-import { IterativeSystem } from '@ecs/core/IterativeSystem';
-import { Entity } from '@ecs/core/Entity';
-import { makeQuery } from '@ecs/core/Query';
-import { Engine } from '@ecs/core/Engine';
+import { Entity, System, Engine } from 'tick-knock';
 import { ECSGraph } from '../spaces/ECSGraph';
 import { Key } from '@ecs/plugins/input/Control';
 import Keyboard from '@ecs/plugins/input/Keyboard';
@@ -12,20 +9,13 @@ const DebugControls = {
 	toggle: Keyboard.key(Key.BackwardTick)
 };
 
-export class DebugSystem extends IterativeSystem {
-	protected keyboard: Keyboard;
-	protected engine: Engine;
+export class DebugSystem extends System {
+	protected keyboard = new Keyboard();
 	protected ecsGraph: ECSGraph;
 
 	private open: boolean;
 
 	protected inputs = useState(this, new Input(DebugControls));
-
-	constructor() {
-		super(makeQuery());
-
-		this.keyboard = new Keyboard();
-	}
 
 	public updateFixed(dt: number) {
 		super.updateFixed(dt);
@@ -39,7 +29,6 @@ export class DebugSystem extends IterativeSystem {
 	}
 
 	public onAddedToEngine(engine: Engine) {
-		this.engine = engine;
 		this.ecsGraph = new ECSGraph(engine, false);
 		this.engine.onEntityAdded.connect(this.onEntityAdded.bind(this));
 		this.engine.onEntityRemoved.connect(this.onEntityRemoved.bind(this));

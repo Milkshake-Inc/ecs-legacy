@@ -1,11 +1,8 @@
-import { System } from '../System';
-import { Entity } from '../Entity';
-import { Engine } from '../Engine';
+import { System, Entity, Engine } from 'tick-knock';
 
-// export type StateComponent = { [index: string]: {} } | {};
 export const useState = <TStateComponent>(
 	systemOrEngine: System | Engine,
-	state: TStateComponent,
+	state: NonNullable<TStateComponent>,
 	defaultState?: Partial<TStateComponent>
 ) => {
 	const entity = new Entity();

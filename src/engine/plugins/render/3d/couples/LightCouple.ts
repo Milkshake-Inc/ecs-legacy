@@ -1,5 +1,5 @@
 import Transform from '@ecs/plugins/math/Transform';
-import { all, any } from '@ecs/core/Query';
+import { all, any } from 'tick-knock';
 import { useThreeCouple } from './ThreeCouple';
 import { AmbientLight, Light, PointLight, DirectionalLight, Group } from 'three';
 import RenderSystem from '../systems/RenderSystem';
