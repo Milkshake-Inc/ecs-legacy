@@ -8971,7 +8971,7 @@ thunky@^1.0.2:
 
 "tick-knock@https://github.com/Milkshake-Inc/tick-knock.git":
   version "2.2.0"
-  resolved "https://github.com/Milkshake-Inc/tick-knock.git#4cb3c1d068787a3229f47173ac0ecc9048da5e4f"
+  resolved "https://github.com/Milkshake-Inc/tick-knock.git#52582e0b8772815d370d4f7f1d4291027c9d4c6f"
   dependencies:
     tslib "^2.0.1"
     typed-signals "^2.0.0"
