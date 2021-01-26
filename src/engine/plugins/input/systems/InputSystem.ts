@@ -9,8 +9,8 @@ export class InputSystem extends System {
 		inputs: any(Input)
 	});
 
-	public update(dt: number, fd) {
-		super.update(dt, fd);
+	public updateFixed(dt: number) {
+		super.updateFixed(dt);
 
 		this.queries.inputs.forEach(entity => {
 			entity.get(Input).update(this.inputManager);

@@ -1,4 +1,4 @@
 export default class ThirdPersonTarget {
-	public distance = 2;
-	public angle = 6;
+	public distance = 4;
+	public angle = 1;
 }
