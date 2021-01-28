@@ -21,7 +21,7 @@ const generateShape = (entity: Entity) => {
 
 	if (entity.has(PhysXBox)) {
 		const box = entity.get(PhysXBox);
-		return new PhysX.PxBoxGeometry(box.size, box.size, box.size);
+		return new PhysX.PxBoxGeometry(box.size.x, box.size.y, box.size.z);
 	}
 };
 
