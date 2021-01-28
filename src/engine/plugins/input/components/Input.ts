@@ -2,10 +2,16 @@ import { InputActions, InputBindings, InputStateEmpty } from '@ecs/plugins/input
 import InputManager from '@ecs/plugins/input/InputManager';
 
 export default class Input<B extends InputBindings> {
-	private bindings: B;
-	private inputs: InputActions<B>;
+	public enabled = true;
+	protected bindings: B;
+	protected inputs: InputActions<B>;
 
-	constructor(bindings: B) {
+	constructor(
+		bindings: B,
+		protected enabledFunc = () => {
+			return this.enabled;
+		}
+	) {
 		this.bindings = bindings;
 
 		// Set initial inputs to empty
@@ -24,7 +30,7 @@ export default class Input<B extends InputBindings> {
 		const inputs = {};
 
 		Object.keys(this.bindings).forEach(key => {
-			inputs[key] = this.bindings[key](inputManager);
+			inputs[key] = this.enabledFunc() && this.bindings[key](inputManager);
 		});
 
 		this.inputs = inputs;
