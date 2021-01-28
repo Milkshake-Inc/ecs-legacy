@@ -43,6 +43,7 @@ export const generateGradientSkybox = (bottomColor = 0xffffff, topColor = 0x5ea9
 
     const sky = new Entity();
     sky.add(Transform);
+    sky.add("SKY_BOX")
     sky.add(
         new Mesh(
             new SphereGeometry(500, 32, 15),
