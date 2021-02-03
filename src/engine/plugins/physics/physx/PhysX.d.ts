@@ -80,10 +80,10 @@ declare namespace PhysX {
 	}
 
 	const PX_PHYSICS_VERSION: number;
-	interface PxAllocatorCallback { }
-	class PxDefaultErrorCallback implements PxAllocatorCallback { }
-	interface PxErrorCallback { }
-	class PxDefaultAllocator implements PxErrorCallback { }
+	interface PxAllocatorCallback {}
+	class PxDefaultErrorCallback implements PxAllocatorCallback {}
+	interface PxErrorCallback {}
+	class PxDefaultAllocator implements PxErrorCallback {}
 
 	class PxPvdTransport {
 		static implement(pvdTransportImp: PxPvdTransport): PxPvdTransport;
@@ -93,7 +93,7 @@ declare namespace PhysX {
 		write: (inBytesPtr: number, inLength: number) => void;
 	}
 
-	class PxFoundation { }
+	class PxFoundation {}
 
 	class PxSimulationEventCallback {
 		static implement(imp: PxSimulationEventCallback): PxSimulationEventCallback;
@@ -153,7 +153,7 @@ declare namespace PhysX {
 		constructor(x: number, y: number, z: number);
 	}
 
-	class Material extends Base { }
+	class Material extends Base {}
 
 	class PxShape extends Base {
 		setContactOffset(contactOffset: number): void;
@@ -174,6 +174,8 @@ declare namespace PhysX {
 		setGlobalPose(transform: PxTransform, autoAwake: boolean): void;
 		setLinearVelocity(value: PxVec3, autoAwake: boolean): void;
 		getLinearVelocity(): PxVec3;
+		setAngularVelocity(value: PxVec3, autoAwake: boolean): void;
+		getAngularVelocity(): PxVec3;
 		addImpulseAtLocalPos(valueA: PxVec3, valueB: PxVec3): void;
 	}
 	class RigidActor extends Actor {
@@ -181,7 +183,7 @@ declare namespace PhysX {
 		detachShape(shape: PxShape, wakeOnLostTouch?: boolean | true): void;
 		addForce(force: PxVec3 | any, mode: PxForceMode | number, autowake: boolean): void;
 	}
-	enum PxForceMode { }
+	enum PxForceMode {}
 	class RigidBody extends RigidActor {
 		setRigidBodyFlag(flag: PxRigidBodyFlags, value: boolean): void;
 		setRigidBodyFlags(flags: PxRigidBodyFlags): void;
@@ -201,7 +203,7 @@ declare namespace PhysX {
 		setMassSpaceInertiaTensor(value: PxVec3): void;
 	}
 
-	class RigidStatic extends RigidActor { }
+	class RigidStatic extends RigidActor {}
 	class RigidDynamic extends RigidBody {
 		wakeUp(): void; //, &PxRigidDynamic::wakeUp)
 		setWakeCounter(): void; //, &PxRigidDynamic::setWakeCounter)
@@ -368,13 +370,13 @@ declare namespace PhysX {
 		preFilter(filterData: any, shape: any, actor: any): void;
 	}
 
-	class PxControllerFilterCallback { }
+	class PxControllerFilterCallback {}
 
 	class PxControllerFilters {
 		constructor(filterData?: PxFilterData, callbacks?: PxQueryFilterCallback, cctFilterCb?: PxControllerFilterCallback);
 	}
 
-	class PxObstacleContext { }
+	class PxObstacleContext {}
 
 	class PxController {
 		move(

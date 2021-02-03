@@ -9,6 +9,7 @@ import { usePhysXTrimeshCouple } from './couple/PhysXTrimeshCouple';
 import { useControllerCouple } from './couple/PhysXControllerCouple';
 import { createTCPPvdTransport } from './utils/TCPPvdTransport';
 import { Vector } from 'sat';
+import Transform from '@ecs/plugins/math/Transform';
 
 export class PhysXState {
 	scene: PhysX.PxScene;
@@ -25,10 +26,27 @@ export class PhysXState {
 		origin: Vector3,
 		direction: Vector3,
 		maxDistance: number,
-		buffer: PhysX.PxRaycastBuffer = new PhysX.PxRaycastBuffer()
+		buffer: PhysX.PxRaycastBuffer = PhysX.allocateRaycastHitBuffers(5)
 	): PhysX.PxRaycastBuffer | null {
 		const result = this.scene.raycast(origin, direction, maxDistance, buffer);
 		return result ? buffer : null;
+	}
+
+	findClosest(entity: Entity, direction: Vector3, maxDistance: number) {
+		const result = this.raycast(entity.get(Transform).position, direction, maxDistance);
+		let closestCollision: PhysX.PxRaycastHit = null;
+		for (let index = 0; index < result.getNbTouches(); index++) {
+			const touch = result.getTouch(index);
+			const touchEntity = this.findEntity(touch.getShape());
+
+			if (touchEntity != entity) {
+				if (!closestCollision || touch.distance < closestCollision.distance) {
+					closestCollision = touch;
+				}
+			}
+		}
+
+		return closestCollision ? this.findEntity(closestCollision.getShape()) : null;
 	}
 
 	sweep(origin: Vector3, direction: Vector3, maxDistance: number, buffer: PhysX.PxRaycastBuffer): PhysX.PxRaycastBuffer | null {

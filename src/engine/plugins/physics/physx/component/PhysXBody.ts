@@ -5,20 +5,26 @@ import { PxShapeFlag } from '../PxShapeFlags';
 
 export class PhysXBody {
 	body: PhysX.RigidActor;
-	static: boolean = false;
-	mass: number = 1;
+	static = false;
+	mass = 1;
 	actorFlags: any = PxActorFlag.eVISUALIZATION;
-	bodyFlags: number = 0;
+	bodyFlags = 0;
 	immovable = false;
 
 	// Should shape properties be moved to shape class..
 
 	private velocity: Vector3 = Vector3.ZERO;
+	private angularVelocity: Vector3 = Vector3.ZERO;
 
 	public setPosition(value: Vector) {
 		const currentPose = this.body.getGlobalPose();
 		currentPose.translation = value;
 		this.body.setGlobalPose(currentPose, true);
+	}
+
+	public getPosition() {
+		const [x, y, z] = this.body.getGlobalPose().getPosition();
+		return new Vector3(x, y, z);
 	}
 
 	public setRotation(value: Quaternion) {
@@ -36,6 +42,10 @@ export class PhysXBody {
 	}
 
 	public getVelocity() {
-		return this.velocity.from(this.body.getLinearVelocity());
+		return Vector3.From(this.body.getLinearVelocity());
+	}
+
+	public getAngularVelocity() {
+		return Vector3.From(this.body.getAngularVelocity());
 	}
 }
