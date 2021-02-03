@@ -13,9 +13,13 @@ export class InputSystem extends System {
 		super.updateFixed(dt);
 
 		this.queries.inputs.forEach(entity => {
-			entity.get(Input).update(this.inputManager);
+			entity.get(Input).updateFixed(this.inputManager);
 		});
 
-		this.inputManager.update(dt);
+		this.inputManager.updateFixed(dt);
+	}
+
+	update(deltaTime: number) {
+		this.inputManager.update(deltaTime);
 	}
 }

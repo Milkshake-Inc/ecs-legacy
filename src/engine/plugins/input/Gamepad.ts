@@ -50,8 +50,8 @@ export default class Gamepad extends InputDevice {
 		};
 	}
 
-	public update(deltaTime: number) {
-		super.update(deltaTime);
+	public updateFixed(deltaTime: number) {
+		super.updateFixed(deltaTime);
 
 		if (!this.pad) return;
 

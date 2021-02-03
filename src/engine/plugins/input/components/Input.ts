@@ -26,7 +26,7 @@ export default class Input<B extends InputBindings> {
 		return this.inputs;
 	}
 
-	update(inputManager: InputManager) {
+	updateFixed(inputManager: InputManager) {
 		const inputs = {};
 
 		Object.keys(this.bindings).forEach(key => {

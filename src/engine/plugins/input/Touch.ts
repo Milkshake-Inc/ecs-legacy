@@ -73,8 +73,8 @@ export default class Touch extends InputDevice {
 		}
 	}
 
-	public update(deltaTime: number) {
-		super.update(deltaTime);
+	public updateFixed(deltaTime: number) {
+		super.updateFixed(deltaTime);
 
 		// These gestures have no up event, so got to clear it manually...
 		[Gesture.Tap, Gesture.SwipeDown, Gesture.SwipeLeft, Gesture.SwipeRight, Gesture.SwipeUp, Gesture.PinchIn, Gesture.PinchOut].forEach(

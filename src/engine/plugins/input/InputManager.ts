@@ -67,14 +67,18 @@ export default class InputManager {
 		}
 	}
 
-	public update(deltaTime: number) {
-		this.keyboard.update(deltaTime);
-		this.mouse.update(deltaTime);
-		this.touch.update(deltaTime);
+	public updateFixed(deltaTime: number) {
+		this.keyboard.updateFixed(deltaTime);
+		this.mouse.updateFixed(deltaTime);
+		this.touch.updateFixed(deltaTime);
 
 		for (const input of this.gamepads) {
-			if (input) input.update(deltaTime);
+			if (input) input.updateFixed(deltaTime);
 		}
+	}
+
+	public update(deltaTime: number) {
+		this.mouse.update(deltaTime);
 	}
 
 	public destroy() {

@@ -69,7 +69,12 @@ export default class Mouse extends InputDevice {
 	}
 
 	public update(deltaTime: number) {
-		super.update(deltaTime);
+		this.position = this.eventPosition;
+		this.eventPosition = { x: 0, y: 0 };
+	}
+
+	public updateFixed(deltaTime: number) {
+		super.updateFixed(deltaTime);
 
 		for (const btn of Array.from(this.pressed.keys())) {
 			// Reset scroll wheel
@@ -78,9 +83,6 @@ export default class Mouse extends InputDevice {
 				if (this.isDown(btn)) this.pressed.set(btn, PressedState.Up); // Show as down for one tick, then trigger keyup
 			}
 		}
-
-		this.position = this.eventPosition;
-		this.eventPosition = { x: 0, y: 0 };
 	}
 
 	private handleMouseWheel(event: any) {

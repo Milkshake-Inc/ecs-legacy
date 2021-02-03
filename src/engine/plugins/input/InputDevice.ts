@@ -11,13 +11,15 @@ export default abstract class InputDevice {
 
 	public active: boolean;
 
-	public update(deltaTime: number) {
+	public updateFixed(deltaTime: number) {
 		this._lastFramePressed = this.pressed;
 		for (const [key] of this.pressed) {
 			if (this.isDownOnce(key)) this.pressed.set(key, null);
 			if (this.isUpOnce(key)) this.pressed.delete(key);
 		}
 	}
+
+	public update(deltaTime: number) {}
 
 	public isDown(btn: any) {
 		return this._lastFramePressed.has(btn);
