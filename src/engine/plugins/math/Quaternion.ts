@@ -34,6 +34,15 @@ export default class Quaternion {
 		return this;
 	}
 
+	from(value: { x: number, y: number, z: number, w: number }) {
+		this.x = value.x;
+		this.y = value.y;
+		this.z = value.z;
+		this.w = value.w;
+
+		return this;
+	}
+
 	clone() {
 		return new Quaternion(this.x, this.y, this.z, this.w);
 	}
