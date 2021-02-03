@@ -13,7 +13,7 @@ import Input from '@ecs/plugins/input/components/Input';
 import { MouseScroll, Controls, Stick, Gesture } from '@ecs/plugins/input/Control';
 import { ToQuaternion } from '@ecs/plugins/tools/Conversions';
 
-const CameraInput = {
+export const CameraInput = {
 	zoomIn: Controls.or(Mouse.button(MouseScroll.Up), Touch.gesture(Gesture.PinchOut)),
 	zoomOut: Controls.or(Mouse.button(MouseScroll.Down), Touch.gesture(Gesture.PinchIn)),
 	move: Controls.or(
@@ -27,21 +27,21 @@ const CameraInput = {
 };
 
 export default class ThirdPersonCameraSystem extends System {
-	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
+	protected cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
-	private zoom = {
+	protected zoom = {
 		value: 1,
 		min: 0.1,
 		max: 5,
 		speed: 0.1
 	};
 
-	private queries = useQueries(this, {
+	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera),
 		target: all(Transform, ThirdPersonTarget)
 	});
 
-	private inputs = useState(this, new Input(CameraInput));
+	protected inputs = useState(this, new Input(CameraInput));
 
 	get target() {
 		return this.queries.target.first?.get(Transform);
@@ -55,13 +55,7 @@ export default class ThirdPersonCameraSystem extends System {
 		return this.queries.camera.first?.get(PerspectiveCamera);
 	}
 
-	public updateLate(dt: number) {
-		super.updateLate(dt);
-
-		if (!this.target || this.target.position.x == undefined || !this.acamera) {
-			return;
-		}
-
+	public calculateZoom() {
 		if (this.inputs.state.zoomIn.down) {
 			this.zoom.value = MathHelper.clamp((this.zoom.value -= this.zoom.speed), this.zoom.min, this.zoom.max);
 		}
@@ -69,12 +63,26 @@ export default class ThirdPersonCameraSystem extends System {
 		if (this.inputs.state.zoomOut.down) {
 			this.zoom.value = MathHelper.clamp((this.zoom.value += this.zoom.speed), this.zoom.min, this.zoom.max);
 		}
+	}
 
+	public calculateAngle() {
 		if (this.inputs.state.move.down) {
 			this.cameraAngle.x += this.inputs.state.move.x;
 			this.cameraAngle.y -= this.inputs.state.move.y;
 			this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, 0.01, Math.PI);
 		}
+	}
+
+	public updateLate(dt: number) {
+		super.updateLate(dt);
+
+		if (!this.target || this.target.position.x == undefined || !this.acamera) {
+			return;
+		}
+
+		this.calculateZoom();
+
+		this.calculateAngle();
 
 		// NEED TO FIGURE OUT THIS MATH....
 		const xAngle = -this.cameraAngle.x;
