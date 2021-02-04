@@ -6,6 +6,7 @@ import { useState, useQueries } from '@ecs/core/helpers';
 import SoundListener from '../components/SoundListener';
 import SoundFollowTarget from '../components/SoundFollowTarget';
 import { BoxGeometry, Mesh, MeshBasicMaterial, Group } from 'three';
+import { snap } from 'gsap';
 
 export class SoundState {
 	static fromStorage(): SoundState {
@@ -58,6 +59,13 @@ export default class SoundSystem extends System {
 		}
 
 		this.queries.sounds.forEach(entity => this.updateSound(entity));
+		this.queries.sounds.onEntityRemoved.connect(snapshot => {
+			const sounds = this.sounds.get(snapshot.entity);
+			if (sounds) {
+				sounds.forEach(s => s.stop());
+				this.sounds.delete(snapshot.entity);
+			}
+		});
 	}
 
 	protected updateSound(entity: Entity): void {
