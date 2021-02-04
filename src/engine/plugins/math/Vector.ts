@@ -120,26 +120,26 @@ export default class Vector3 {
 		return this;
 	}
 
-	sub(value: Vector | number) {
-		this.x -= typeof value === 'number' ? value : value.x;
-		this.y -= typeof value === 'number' ? value : value.y;
-		this.z -= typeof value === 'number' ? value : value.z;
+	sub(value: Partial<Vector> | number) {
+		this.x -= typeof value === 'number' ? value : value.x || 0;
+		this.y -= typeof value === 'number' ? value : value.y || 0;
+		this.z -= typeof value === 'number' ? value : value.z || 0;
 
 		return this;
 	}
 
-	multi(value: Vector | number) {
-		this.x *= typeof value === 'number' ? value : value.x;
-		this.y *= typeof value === 'number' ? value : value.y;
-		this.z *= typeof value === 'number' ? value : value.z;
+	multi(value: Partial<Vector> | number) {
+		this.x *= typeof value === 'number' ? value : value.x || 1;
+		this.y *= typeof value === 'number' ? value : value.y || 1;
+		this.z *= typeof value === 'number' ? value : value.z || 1;
 
 		return this;
 	}
 
-	dev(value: Vector3 | Vector) {
-		this.x /= typeof value === 'number' ? value : value.x;
-		this.y /= typeof value === 'number' ? value : value.y;
-		this.z /= typeof value === 'number' ? value : value.z;
+	dev(value: Partial<Vector> | number) {
+		this.x /= typeof value === 'number' ? value : value.x || 1;
+		this.y /= typeof value === 'number' ? value : value.y || 1;
+		this.z /= typeof value === 'number' ? value : value.z || 1;
 
 		return this;
 	}
