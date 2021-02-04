@@ -15,6 +15,9 @@ export default class ServerTCPConnectionSystem extends ServerConnectionSystem {
 
 		this.server = uws
 			.App({})
+			.get('/', (res, req) => {
+				res.writeStatus('200 OK').writeHeader('Access-Control-Allow-Origin', '*').end(`{"status": "ok"}`);
+			})
 			.ws('/*', {
 				compression: uws.SHARED_COMPRESSOR,
 				maxPayloadLength: 16 * 1024 * 1024,
