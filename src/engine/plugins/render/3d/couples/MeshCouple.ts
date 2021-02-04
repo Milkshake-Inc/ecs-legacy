@@ -1,7 +1,7 @@
 import { System, all, any } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { useThreeCouple } from './ThreeCouple';
-import { Mesh, InstancedMesh } from 'three';
+import { Mesh, InstancedMesh, ArrowHelper } from 'three';
 
 export const useMeshCouple = (system: System) =>
 	useThreeCouple<Mesh>(system, [all(Transform), any(Mesh, InstancedMesh)], {
@@ -11,5 +11,12 @@ export const useMeshCouple = (system: System) =>
 			}
 
 			return entity.get(Mesh);
+		}
+	});
+
+export const useArrowHelperCouple = (system: System) =>
+	useThreeCouple<ArrowHelper>(system, [all(Transform), any(ArrowHelper)], {
+		onCreate: entity => {
+			return entity.get(ArrowHelper);
 		}
 	});

@@ -1,7 +1,7 @@
 import { useState, useQueries } from '@ecs/core/helpers';
 import { System, any } from 'tick-knock';
 import { usePerspectiveCameraCouple } from '../couples/PerspectiveCameraCouple';
-import { useMeshCouple } from '../couples/MeshCouple';
+import { useArrowHelperCouple, useMeshCouple } from '../couples/MeshCouple';
 import RenderState from '../components/RenderState';
 import { Scene, WebGLRenderer, PerspectiveCamera, Camera, Color as ThreeColor, sRGBEncoding } from 'three';
 import { useGroupCouple } from '../couples/GroupCouple';
@@ -41,7 +41,8 @@ export default class RenderSystem extends System {
 		useGroupCouple(this),
 		useLightCouple(this),
 		useRaycastCouple(this),
-		useRaycastDebugCouple(this)
+		useRaycastDebugCouple(this),
+		useArrowHelperCouple(this)
 	];
 
 	constructor(
