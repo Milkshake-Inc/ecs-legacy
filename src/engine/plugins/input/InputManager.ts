@@ -79,6 +79,7 @@ export default class InputManager {
 
 	public update(deltaTime: number) {
 		this.mouse.update(deltaTime);
+		this.touch.update(deltaTime);
 	}
 
 	public destroy() {

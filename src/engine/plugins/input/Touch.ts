@@ -73,6 +73,13 @@ export default class Touch extends InputDevice {
 		}
 	}
 
+	public update(deltaTime: number) {
+		this.lastEvent.forEach(g => {
+			g.velocityX = 0;
+			g.velocityY = 0;
+		});
+	}
+
 	public updateFixed(deltaTime: number) {
 		super.updateFixed(deltaTime);
 
