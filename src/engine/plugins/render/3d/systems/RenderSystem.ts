@@ -68,7 +68,7 @@ export default class RenderSystem extends System {
 			alpha: false
 		});
 
-		this.state.renderer.outputEncoding = sRGBEncoding;
+		// this.state.renderer.outputEncoding = sRGBEncoding;
 		this.state.renderer.setSize(settings.width, settings.height);
 		this.state.renderer.setClearAlpha(1.0);
 
