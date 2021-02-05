@@ -9,10 +9,13 @@ import {
 	InstancedBufferAttribute,
 	InstancedBufferGeometry,
 	MeshBasicMaterial,
-	Material
+	Material,
+	Box3,
+	Vector3 as ThreeVector3
 } from 'three';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils';
 import Random from '@ecs/plugins/math/Random';
+import { ToVector3 } from '@ecs/plugins/tools/Conversions';
 
 const dummyColor = new ThreeColor();
 
@@ -132,9 +135,20 @@ export const getMeshByMaterialName = (group: Group, name: string): Mesh => {
 				if (child.material.map(m => m.name).includes(name)) mesh = child;
 			}
 
-			if ((child.material as Material).name == name) mesh = child;
+			if ((child.material as Material).name.includes(name)) mesh = child;
 		}
 	});
 
 	return mesh;
+};
+
+export const getBounds = (mesh: Mesh) => {
+	const box3 = new Box3();
+	box3.setFromObject(mesh);
+
+	// Get bounds size
+	const size = new ThreeVector3();
+	box3.getSize(size);
+
+	return ToVector3(size);
 };
