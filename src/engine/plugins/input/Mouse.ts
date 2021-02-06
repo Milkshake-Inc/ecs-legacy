@@ -28,6 +28,8 @@ export default class Mouse extends InputDevice {
 	private eventPosition = { x: 0, y: 0 };
 	private position = { x: 0, y: 0 };
 
+	static moveWithoutLock = false;
+
 	static startPointerLock() {
 		if (Mouse.pointerLocked || InputManager.isTouchCapable) return;
 		document.body.requestPointerLock();
@@ -99,23 +101,24 @@ export default class Mouse extends InputDevice {
 	private handleMouseMove(event: MouseEvent) {
 		const mouse = Mouse.pointerLocked
 			? {
-					x: event.movementX / 500,
-					y: -event.movementY / 500
-			  }
+				x: event.movementX / 500,
+				y: -event.movementY / 500
+			}
 			: {
-					x: (event.clientX / window.innerWidth) * 2 - 1,
-					y: -(event.clientY / window.innerHeight) * 2 + 1
-			  };
+				x: Mouse.moveWithoutLock ? (event.clientX / window.innerWidth) * 2 - 1 : 0,
+				y: Mouse.moveWithoutLock ? -(event.clientY / window.innerHeight) * 2 + 1 : 0
+			};
 
 		const delta = Mouse.pointerLocked
 			? {
-					x: mouse.x,
-					y: mouse.y
-			  }
+				x: mouse.x,
+				y: mouse.y
+			}
 			: {
-					x: mouse.x - this.lastEventPosition.x,
-					y: mouse.y - this.lastEventPosition.y
-			  };
+				x: Mouse.moveWithoutLock ? mouse.x - this.lastEventPosition.x : 0,
+				y: Mouse.moveWithoutLock ? mouse.y - this.lastEventPosition.y : 0
+			};
+
 
 		this.eventPosition.x += delta.x;
 		this.eventPosition.y += delta.y;
