@@ -45,7 +45,7 @@ export default class ThirdPersonCameraPanSystem extends System {
 		this.zoom.value = MathHelper.clamp(this.queries.target.first.get(ThirdPersonTarget).distance, this.zoom.min, this.zoom.max);
 
 		this.cameraAngle.x -= 0.001;
-		this.cameraAngle.y = MathHelper.clamp(this.queries.target.first.get(ThirdPersonTarget).angle, 0.01, Math.PI);
+		this.cameraAngle.y = 0.5;
 
 		// NEED TO FIGURE OUT THIS MATH....
 		const xAngle = -this.cameraAngle.x;
