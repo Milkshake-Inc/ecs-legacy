@@ -2,13 +2,11 @@
 
 import { Entity, System } from 'tick-knock';
 import { useEvents, useState } from '@ecs/core/helpers';
-import Vector3 from '@ecs/plugins/math/Vector';
+import Vector3, { Vector } from '@ecs/plugins/math/Vector';
 import { usePhysXBodyCouple } from './couple/PhysXBodyCouple';
 import { usePhysXShapeCouple } from './couple/PhysXShapeCouple';
 import { usePhysXTrimeshCouple } from './couple/PhysXTrimeshCouple';
 import { useControllerCouple } from './couple/PhysXControllerCouple';
-import { createTCPPvdTransport } from './utils/TCPPvdTransport';
-import { Vector } from 'sat';
 import Transform from '@ecs/plugins/math/Transform';
 
 export class PhysXState {
