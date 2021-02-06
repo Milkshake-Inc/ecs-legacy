@@ -5,7 +5,7 @@ import CannonBody, { CannonBodyOptions } from '../components/CannonBody';
 import CannonInstancedBody from '../components/CannonInstancedBody';
 import { InstancedMesh } from 'three';
 import Vector3 from '@ecs/plugins/math/Vector';
-import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
+import { ToCannonVector3 } from '../utils/Conversions';
 
 export const useInstancedBodyCouple = (system: System) =>
 	useCannonCouple<CannonInstancedBody>(system, [all(Transform, InstancedMesh, CannonInstancedBody)], {
@@ -33,5 +33,5 @@ export const useInstancedBodyCouple = (system: System) =>
 
 			return instancedBody;
 		},
-		onUpdate: (entity, body, dt) => {}
+		onUpdate: (entity, body, dt) => { }
 	});

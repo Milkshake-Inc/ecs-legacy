@@ -1,7 +1,7 @@
 import { Body, Quaternion, Vec3, BodyOptions } from 'cannon-es';
 import Vector3, { Vector } from '@ecs/plugins/math/Vector';
 import MathHelper from '@ecs/plugins/math/MathHelper';
-import { ToCannonVector3 } from '@ecs/plugins/tools/Conversions';
+import { ToCannonVector3 } from '../utils/Conversions';
 
 export interface CannonBodyOptions extends BodyOptions {
 	interpolation?: boolean;
