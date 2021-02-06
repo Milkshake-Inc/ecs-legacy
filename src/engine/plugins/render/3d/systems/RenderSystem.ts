@@ -9,6 +9,7 @@ import Color from '@ecs/plugins/math/Color';
 import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
 import { useThreeCouple } from '../couples/ThreeCouple';
+import { useFogCouple } from '../couples/FogCouple';
 
 export type RenderSystemSettings = {
 	width: number;
@@ -42,7 +43,8 @@ export default class RenderSystem extends System {
 		useLightCouple(this),
 		useRaycastCouple(this),
 		useRaycastDebugCouple(this),
-		useArrowHelperCouple(this)
+		useArrowHelperCouple(this),
+		useFogCouple(this)
 	];
 
 	constructor(
@@ -99,10 +101,14 @@ export default class RenderSystem extends System {
 				}
 			}
 
-			this.state.renderer.render(this.state.scene, camera);
+			this.render(this.state.scene, camera);
 		});
 
 		this.couples.forEach(couple => couple.update(dt, frameDelta));
+	}
+
+	render(scene: Scene, camera: Camera) {
+		this.state.renderer.render(this.state.scene, camera);
 	}
 
 	updateLate(dt: number) {
