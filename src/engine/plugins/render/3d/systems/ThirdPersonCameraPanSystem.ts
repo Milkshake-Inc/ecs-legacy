@@ -12,7 +12,7 @@ export default class ThirdPersonCameraPanSystem extends System {
 	private cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
 	private zoom = {
-		value: 1,
+		value: 10,
 		min: 0.1,
 		max: 5,
 		speed: 0.1
@@ -42,7 +42,7 @@ export default class ThirdPersonCameraPanSystem extends System {
 			return;
 		}
 
-		this.zoom.value = MathHelper.clamp(this.queries.target.first.get(ThirdPersonTarget).distance, this.zoom.min, this.zoom.max);
+		this.zoom.value = 50;
 
 		this.cameraAngle.x -= 0.001;
 		this.cameraAngle.y = 0.5;

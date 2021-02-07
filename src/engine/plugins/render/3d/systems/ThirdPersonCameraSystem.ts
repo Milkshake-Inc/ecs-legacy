@@ -30,10 +30,10 @@ export default class ThirdPersonCameraSystem extends System {
 	protected cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
 	protected zoom = {
-		value: 1,
-		min: 0.1,
-		max: 5,
-		speed: 0.1
+		value: 10,
+		min: 1,
+		max: 50,
+		speed: 1
 	};
 
 	protected queries = useQueries(this, {

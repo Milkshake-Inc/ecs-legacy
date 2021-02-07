@@ -11,8 +11,8 @@ export const treeGenerator = (
 	models: GLTF[],
 	config = {
 		count: 300,
-		minScale: 2,
-		maxScale: 3,
+		minScale: 20,
+		maxScale: 30,
 		leafColors: [0x29c9ab, 0x2ba6aa, 0x6e925c],
 		woodColors: [0xb56845, 0x723434, 0xc96152]
 	}

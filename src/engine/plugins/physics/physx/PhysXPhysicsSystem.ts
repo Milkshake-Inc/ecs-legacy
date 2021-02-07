@@ -154,7 +154,7 @@ export default class PhysXPhysicsSystem extends System {
 		sceneDesc.bounceThresholdVelocity = 0.001;
 
 		this.state.scene = this.state.physics.createScene(sceneDesc);
-		this.state.scene.setGravity({ x: 0.0, y: -7, z: 0.0 });
+		this.state.scene.setGravity({ x: 0.0, y: -70, z: 0.0 });
 	}
 
 	updateFixed(dt: number) {
