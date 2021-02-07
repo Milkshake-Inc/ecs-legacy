@@ -43,6 +43,8 @@ export const treeGenerator = (
 
 		treeVariety.leafMesh.setMatrixAt(treeVariety.index, dummy.matrix);
 		treeVariety.woodMesh.setMatrixAt(treeVariety.index, dummy.matrix);
+		treeVariety.leafMesh.castShadow = treeVariety.woodMesh.castShadow = true;
+		treeVariety.leafMesh.receiveShadow = treeVariety.woodMesh.receiveShadow = true;
 		treeVariety.index++;
 	}
 
