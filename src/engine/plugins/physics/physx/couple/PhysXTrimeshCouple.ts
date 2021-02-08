@@ -34,7 +34,7 @@ export const usePhysXTrimeshCouple = (system: System) => {
 
 					shape.shape = physics.createShape(trimesh as any, material, true, shapeFlags);
 
-					shape.shape.setContactOffset(0.000001);
+					shape.shape.setContactOffset(0.0000001);
 					shape.shape.setSimulationFilterData(new PhysX.PxFilterData(shape.collisionId, shape.collisionMask, 0, 0));
 					shape.shape.setName((mesh.material as Material).name);
 
