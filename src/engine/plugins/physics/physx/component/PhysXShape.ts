@@ -14,6 +14,8 @@ export abstract class PhysXShape {
 	public collisionId: number = 1;
 	public collisionMask: number = 1;
 
+	public filterData: PhysX.PxFilterData;
+
 	public staticFriction: number = 0.2;
 	public dynamicFriction: number = 0.2;
 	public restitution: number = 0.8;
