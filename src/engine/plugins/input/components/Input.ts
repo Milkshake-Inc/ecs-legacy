@@ -26,6 +26,10 @@ export default class Input<B extends InputBindings> {
 		return this.inputs;
 	}
 
+	static get IsTyping() {
+		return document?.activeElement?.tagName === 'INPUT';
+	}
+
 	updateFixed(inputManager: InputManager) {
 		const inputs = {};
 
