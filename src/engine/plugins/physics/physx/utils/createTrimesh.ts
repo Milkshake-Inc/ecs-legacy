@@ -33,7 +33,7 @@ export const createTrimesh = (cooking: PhysX.PxCooking, physics: PhysX.PxPhysics
 
 	const trimesh = cooking.createTriMesh(verticesPtr, vertices.length, indicesPtr, faces.length, false, physics);
 
-	const meshScale = new PhysX.PxMeshScale({ x: 10, y: 10, z: 10 }, { x: 0, y: 0, z: 0, w: 1 });
+	const meshScale = new PhysX.PxMeshScale({ x: 1, y: 1, z: 1 }, { x: 0, y: 0, z: 0, w: 1 });
 	const geometry = new PhysX.PxTriangleMeshGeometry(trimesh, meshScale, new PhysX.PxMeshGeometryFlags(0));
 
 	PhysX._free(verticesPtr);

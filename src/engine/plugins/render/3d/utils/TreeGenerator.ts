@@ -10,7 +10,7 @@ export const treeGenerator = (
 	bounds: Vector,
 	models: GLTF[],
 	config = {
-		count: 300,
+		count: 250,
 		minScale: 20,
 		maxScale: 30,
 		leafColors: [0x29c9ab, 0x2ba6aa, 0x6e925c],

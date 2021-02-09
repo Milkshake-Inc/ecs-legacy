@@ -150,6 +150,5 @@ export const getBounds = (mesh: Mesh) => {
 	const size = new ThreeVector3();
 	box3.getSize(size);
 
-
 	return ToVector3(size);
 };
