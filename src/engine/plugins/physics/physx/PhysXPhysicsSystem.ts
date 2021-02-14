@@ -97,7 +97,7 @@ export default class PhysXPhysicsSystem extends System {
 	protected events = useEvents();
 	protected couples = [usePhysXBodyCouple(this), usePhysXShapeCouple(this), usePhysXTrimeshCouple(this), useControllerCouple(this)];
 
-	constructor() {
+	constructor(gravity: Vector = { x: 0.0, y: -70, z: 0.0 }) {
 		super();
 
 		this.state.cooking = cooking;
@@ -154,7 +154,7 @@ export default class PhysXPhysicsSystem extends System {
 		sceneDesc.bounceThresholdVelocity = 0.001;
 
 		this.state.scene = this.state.physics.createScene(sceneDesc);
-		this.state.scene.setGravity({ x: 0.0, y: -70, z: 0.0 });
+		this.state.scene.setGravity(gravity);
 	}
 
 	updateFixed(dt: number) {

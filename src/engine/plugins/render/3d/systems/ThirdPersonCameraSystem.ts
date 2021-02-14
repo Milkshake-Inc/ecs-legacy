@@ -29,13 +29,6 @@ export const CameraInput = {
 export default class ThirdPersonCameraSystem extends System {
 	protected cameraAngle: Vector3 = new Vector3(0.76, 0.3);
 
-	protected zoom = {
-		value: 10,
-		min: 1,
-		max: 50,
-		speed: 1
-	};
-
 	protected queries = useQueries(this, {
 		camera: all(Transform, PerspectiveCamera),
 		target: all(Transform, ThirdPersonTarget)
@@ -55,6 +48,17 @@ export default class ThirdPersonCameraSystem extends System {
 		return this.queries.camera.first?.get(PerspectiveCamera);
 	}
 
+	constructor(
+		protected zoom = {
+			value: 10,
+			min: 1,
+			max: 50,
+			speed: 1
+		}
+	) {
+		super();
+	}
+
 	public calculateZoom() {
 		if (this.inputs.state.zoomIn.down) {
 			this.zoom.value = MathHelper.clamp((this.zoom.value -= this.zoom.speed), this.zoom.min, this.zoom.max);
@@ -66,6 +70,7 @@ export default class ThirdPersonCameraSystem extends System {
 	}
 
 	public calculateAngle() {
+		// console.log('MOVE', this.inputs.state.move.x, this.inputs.state.move.y);
 		if (this.inputs.state.move.down) {
 			this.cameraAngle.x += this.inputs.state.move.x;
 			this.cameraAngle.y -= this.inputs.state.move.y;

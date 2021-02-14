@@ -8,6 +8,7 @@ import { PhysXState } from '../PhysXPhysicsSystem';
 import { createTrimesh } from '../utils/createTrimesh';
 import { usePhysXCouple } from './PhysXCouple';
 import { getShape } from './PhysXShapeCouple';
+import { Vector } from '@ecs/plugins/math/Vector';
 
 export const usePhysXTrimeshCouple = (system: System) => {
 	const query = useQueries(system, {
@@ -28,7 +29,8 @@ export const usePhysXTrimeshCouple = (system: System) => {
 					const { body } = entity.get(PhysXBody);
 
 					// This is copy paste from ShapeCouple
-					const trimesh = createTrimesh(cooking, physics, geometry.vertices, geometry.faces);
+					const trimesh = createTrimesh(cooking, physics, geometry.attributes.position.array, geometry.index.array);
+
 					const material = physics.createMaterial(shape.staticFriction, shape.dynamicFriction, shape.restitution);
 					const shapeFlags = new PhysX.PxShapeFlags(shape.flags);
 
