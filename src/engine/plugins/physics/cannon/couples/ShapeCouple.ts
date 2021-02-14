@@ -17,7 +17,7 @@ import {
 import { useCannonCouple } from './CannonCouple';
 import Transform from '@ecs/plugins/math/Transform';
 import MeshShape from '../components/MeshShape';
-import { Mesh, Geometry, BufferGeometry, Group, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler, InstancedMesh } from 'three';
+import { Mesh, Vector3 as ThreeVector3, Quaternion as ThreeQuaternion, Euler, BufferGeometry } from 'three';
 import { ConvexGeometry } from 'three/examples/jsm/geometries/ConvexGeometry';
 import CannonBody from '../components/CannonBody';
 import BoundingSphereShape from '../components/BoundingSphereShape';
@@ -29,8 +29,7 @@ import CannonInstancedBody from '../components/CannonInstancedBody';
 import GLTFShape from '../components/GLTFShape';
 import { getGeometry } from '@ecs/plugins/render/3d/utils/MeshUtils';
 import { ToCannonVector3 } from '../utils/Conversions';
-import { PhysXTrimesh } from '../../physx/component/shapes/TrimeshShape';
-
+import { applyToMeshesIndividually, getMesh } from '../../utils/PhysicsUtils';
 
 export const UnexpectedShapeError = new Error('should not use shape on entity');
 
@@ -381,29 +380,6 @@ export const useShapeCouple = (system: System) =>
 					return shapes;
 				}
 
-				if (entity.has(PhysXTrimesh)) {
-					const shapes: Trimesh[] = [];
-
-					applyToMeshesIndividually(entity, ({ geometry, position, rotation }) => {
-						// console.log(`generating MeshShape for ${mesh.name}`);
-
-						const shape = new Trimesh(
-							geometry.vertices.flatMap(v => [v.x, v.y, v.z]),
-							geometry.faces.flatMap(f => [f.a, f.b, f.c])
-						);
-
-						body.addShape(
-							shape,
-							new Vec3(position.x, position.y, position.z),
-							new CannonQuaternion(rotation.x, rotation.y, rotation.z, rotation.w)
-						);
-						shapes.push(shape);
-					});
-
-					entity.add(shapes);
-					return shapes;
-				}
-
 				if (entity.has(MeshShape)) {
 					const shapes: ConvexPolyhedron[] = [];
 
@@ -445,15 +421,35 @@ export const generateBoundingBox = (mesh: Mesh) => {
 	return { shape: new Box(new Vec3(size.x, size.y, size.z)), position };
 };
 
-export const generateConvexPolyhedron = (geometry: Geometry) => {
-	const convexGeometry = new ConvexGeometry(geometry.vertices);
+export const generateConvexPolyhedron = (geometry: BufferGeometry) => {
+	let vertices = [];
+	let attribute = geometry.attributes.position;
+	for (let i = 0; i < attribute.count; i++) {
+		const v = new ThreeVector3();
+		v.fromBufferAttribute(attribute, i);
+		vertices.push(v);
+	}
 
-	const vertices = convexGeometry.vertices.map(v => new Vec3(v.x, v.y, v.z));
-	const faces = convexGeometry.faces.map(f => [f.a, f.b, f.c]);
+	const convexGeometry = new ConvexGeometry(vertices);
+
+	vertices = [];
+	attribute = convexGeometry.attributes.position;
+	for (let i = 0; i < attribute.count; i++) {
+		const v = new ThreeVector3();
+		v.fromBufferAttribute(attribute, i);
+		vertices.push(new Vec3(v.x, v.y, v.z));
+	}
+
+	const faces = [];
+	attribute = convexGeometry.index;
+	for (let i = 0; i < attribute.count; i++) {
+		const v = new ThreeVector3();
+		v.fromBufferAttribute(attribute, i);
+		faces.push([v.x, v.y, v.z]);
+	}
 
 	return new ConvexPolyhedron({ vertices, faces });
 };
-
 
 export const getBody = (entity: Entity) => {
 	return entity.get(CannonBody) || entity.get(CannonInstancedBody) || entity.get(Body);

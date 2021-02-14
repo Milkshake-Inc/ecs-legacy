@@ -1,7 +1,6 @@
 import {
 	Mesh,
 	BufferGeometry,
-	Geometry,
 	InstancedMesh,
 	Group,
 	MeshPhongMaterial,
@@ -24,7 +23,7 @@ export const generateInstancedMesh = (mesh: Mesh | Group, count = 50, colorPalet
 		mesh = getGroupMesh(mesh);
 	}
 
-	const instancedMesh = new InstancedMesh(getBufferedGeometry(mesh.geometry), mesh.material, count);
+	const instancedMesh = new InstancedMesh(getGeometry(mesh.geometry), mesh.material, count);
 
 	if (colorPalette && colorPalette.length > 0) {
 		// Override the material otherwise colors dont come out well. Maybe this could be improved.
@@ -55,15 +54,11 @@ export const instancedMeshForEach = (mesh: InstancedMesh, each: (i: number) => v
 	}
 };
 
-export const getBufferedGeometry = (mesh: Mesh | Geometry | BufferGeometry) => {
+export const getGeometry = (mesh: Mesh | BufferGeometry) => {
 	if (!mesh) return null;
 
 	if (mesh instanceof BufferGeometry) {
 		return mesh;
-	}
-
-	if (mesh instanceof Geometry) {
-		return new BufferGeometry().fromGeometry(mesh);
 	}
 
 	if (!mesh.geometry) return null;
@@ -71,26 +66,8 @@ export const getBufferedGeometry = (mesh: Mesh | Geometry | BufferGeometry) => {
 	if (mesh.geometry instanceof BufferGeometry) {
 		return mesh.geometry;
 	}
-	return new BufferGeometry().fromGeometry(mesh.geometry);
-};
 
-export const getGeometry = (mesh: Mesh | Geometry | BufferGeometry) => {
-	if (!mesh) return null;
-
-	if (mesh instanceof Geometry) {
-		return mesh;
-	}
-
-	if (mesh instanceof BufferGeometry) {
-		return new Geometry().fromBufferGeometry(mesh);
-	}
-
-	if (!mesh.geometry) return null;
-
-	if (mesh.geometry instanceof Geometry) {
-		return mesh.geometry;
-	}
-	return new Geometry().fromBufferGeometry(mesh.geometry);
+	return null;
 };
 
 export const getGroupMesh = (group: Group) => {
@@ -99,7 +76,7 @@ export const getGroupMesh = (group: Group) => {
 
 	group.traverse((child: Mesh) => {
 		if (child.isMesh) {
-			geometries.push(getBufferedGeometry(child));
+			geometries.push(getGeometry(child));
 			materials.push(child.material);
 		}
 	});
