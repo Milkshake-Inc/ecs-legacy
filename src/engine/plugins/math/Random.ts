@@ -9,6 +9,7 @@ export class Random {
 
 	public seed(seed: string | number = Date.now()) {
 		this.rng = SeedRandom(seed.toString());
+		return this;
 	}
 
 	public random() {

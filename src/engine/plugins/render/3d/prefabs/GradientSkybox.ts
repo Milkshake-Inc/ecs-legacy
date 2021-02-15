@@ -1,8 +1,17 @@
 import { Entity } from 'tick-knock';
 import Transform from '@ecs/plugins/math/Transform';
 import { LoadTexture } from '@ecs/plugins/tools/ThreeHelper';
-import { BoxGeometry, Color, DoubleSide, Mesh, MeshBasicMaterial, RepeatWrapping, ShaderMaterial, SphereGeometry, sRGBEncoding } from 'three';
-
+import {
+	BoxGeometry,
+	Color,
+	DoubleSide,
+	Mesh,
+	MeshBasicMaterial,
+	RepeatWrapping,
+	ShaderMaterial,
+	SphereGeometry,
+	sRGBEncoding
+} from 'three';
 
 const vertexShader = `
 varying vec3 vWorldPosition;
@@ -33,28 +42,28 @@ void main() {
 }
 `;
 
-export const generateGradientSkybox = (bottomColor = 0xffffff, topColor = 0x5ea9ff, offset = 400, exponent = 0.6) => {
-    const uniforms = {
-        bottomColor: { value: new Color(bottomColor) },
-        topColor: { value: new Color(topColor) },
-        offset: { value: offset },
-        exponent: { value: exponent }
-    };
+export const generateGradientSkybox = (radius = 500, bottomColor = 0xffffff, topColor = 0x5ea9ff, offset = 400, exponent = 0.6) => {
+	const uniforms = {
+		bottomColor: { value: new Color(bottomColor) },
+		topColor: { value: new Color(topColor) },
+		offset: { value: offset },
+		exponent: { value: exponent }
+	};
 
-    const sky = new Entity();
-    sky.add(Transform);
-    sky.add("SKY_BOX")
-    sky.add(
-        new Mesh(
-            new SphereGeometry(500, 32, 15),
-            new ShaderMaterial({
-                uniforms: uniforms,
-                vertexShader: vertexShader,
-                fragmentShader: fragmentShader,
-                side: DoubleSide
-            })
-        )
-    );
+	const sky = new Entity();
+	sky.add(Transform);
+	sky.add('SKY_BOX');
+	sky.add(
+		new Mesh(
+			new SphereGeometry(radius, 32, 15),
+			new ShaderMaterial({
+				uniforms: uniforms,
+				vertexShader: vertexShader,
+				fragmentShader: fragmentShader,
+				side: DoubleSide
+			})
+		)
+	);
 
-    return sky;
+	return sky;
 };
