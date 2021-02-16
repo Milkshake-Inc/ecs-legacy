@@ -236,8 +236,6 @@ export type Control = (input: InputManager) => InputState;
 
 export class Controls {
 	static and(...controls: Array<Control>): Control {
-		if (controls.length < 2) throw new Error('Less than two controls specified!');
-
 		return (inputManager: InputManager) => {
 			return {
 				down: controls.every(c => c(inputManager).down),
@@ -248,8 +246,6 @@ export class Controls {
 	}
 
 	static or(...controls: Array<Control>): Control {
-		if (controls.length < 2) throw new Error('Less than two controls specified!');
-
 		return (inputManager: InputManager) => {
 			const first = controls.find(c => c(inputManager).down);
 			if (!first) {

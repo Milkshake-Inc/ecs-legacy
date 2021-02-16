@@ -13,6 +13,8 @@ export class PhysXState {
 	scene: PhysX.PxScene;
 	physics: PhysX.PxPhysics;
 	cooking: PhysX.PxCooking;
+	gravity: Vector;
+	frameTime: number;
 
 	ptrToEntity: Map<number, Entity> = new Map();
 
@@ -102,6 +104,7 @@ export default class PhysXPhysicsSystem extends System {
 
 		this.state.cooking = cooking;
 		this.state.physics = physics;
+		this.state.gravity = gravity;
 
 		const emitCollisionEvents = (event: PhysXEvents, shapeA: PhysX.PxShape, shapeB: PhysX.PxShape, normal?: Vector) => {
 			const entityA = this.state.findEntity(shapeA);
@@ -154,15 +157,17 @@ export default class PhysXPhysicsSystem extends System {
 		sceneDesc.bounceThresholdVelocity = 0.001;
 
 		this.state.scene = this.state.physics.createScene(sceneDesc);
-		this.state.scene.setGravity(gravity);
 	}
 
 	updateFixed(dt: number) {
 		super.updateFixed(dt);
 
+		this.state.scene.setGravity(this.state.gravity);
+		this.state.frameTime = dt / 1000;
+
 		if (this.state.scene) {
 			const subSteps = 10;
-			const timePerStep = dt / 1000 / subSteps;
+			const timePerStep = this.state.frameTime / subSteps;
 
 			for (let index = 0; index < subSteps; index++) {
 				this.state.scene.simulate(timePerStep, true);

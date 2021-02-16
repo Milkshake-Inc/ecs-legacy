@@ -1,12 +1,11 @@
 import { Sound } from '../components/Sound';
-import { all, Entity, makeQuery, System } from 'tick-knock';
+import { all, Entity, System } from 'tick-knock';
 import { Howl, Howler } from 'howler';
 import Transform from '@ecs/plugins/math/Transform';
 import { useState, useQueries } from '@ecs/core/helpers';
 import SoundListener from '../components/SoundListener';
 import SoundFollowTarget from '../components/SoundFollowTarget';
 import { BoxGeometry, Mesh, MeshBasicMaterial, Group } from 'three';
-import { snap } from 'gsap';
 
 export class SoundState {
 	static fromStorage(): SoundState {
