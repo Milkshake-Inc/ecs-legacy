@@ -10,6 +10,7 @@ import { useLightCouple } from '../couples/LightCouple';
 import { useRaycastDebugCouple, useRaycastCouple } from '../couples/RaycasterCouple';
 import { useThreeCouple } from '../couples/ThreeCouple';
 import { useFogCouple } from '../couples/FogCouple';
+import { PlatformHelper } from '@ecs/plugins/tools/Platform';
 
 export type RenderSystemSettings = {
 	width: number;
@@ -24,9 +25,7 @@ export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	color: Color.Tomato
 };
 
-const isMac = () => {
-	return window.navigator.platform == 'MacIntel';
-};
+export const isLowPerformanceDevice = PlatformHelper.IsMac || PlatformHelper.IsMobile;
 
 export default class RenderSystem extends System {
 	protected state = useState(this, new RenderState());
@@ -68,11 +67,11 @@ export default class RenderSystem extends System {
 		this.state.scene.background = new ThreeColor(settings.color);
 
 		this.state.renderer = new WebGLRenderer({
-			antialias: !isMac(),
+			antialias: !isLowPerformanceDevice,
 			alpha: false
 		});
 
-		// this.state.renderer.outputEncoding = sRGBEncoding;
+		this.state.renderer.setPixelRatio(window.devicePixelRatio);
 		this.state.renderer.setSize(settings.width, settings.height);
 		this.state.renderer.setClearAlpha(1.0);
 
@@ -114,8 +113,8 @@ export default class RenderSystem extends System {
 			this.state.renderer.render(this.state.scene, camera);
 		}
 
-		// Halve renders on mac.
-		if (isMac()) {
+		// Halve renders on low performance devices.
+		if (isLowPerformanceDevice) {
 			this.skipFrame = !this.skipFrame;
 		}
 	}
