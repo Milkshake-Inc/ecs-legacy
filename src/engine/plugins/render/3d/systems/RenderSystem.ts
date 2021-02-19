@@ -47,6 +47,8 @@ export default class RenderSystem extends System {
 		useFogCouple(this)
 	];
 
+	protected skipFrame = false;
+
 	constructor(
 		customSettings?: Partial<RenderSystemSettings>,
 		customCouples?: (system: RenderSystem) => ReturnType<typeof useThreeCouple>[]
@@ -108,7 +110,14 @@ export default class RenderSystem extends System {
 	}
 
 	render(scene: Scene, camera: Camera) {
-		this.state.renderer.render(this.state.scene, camera);
+		if (!this.skipFrame) {
+			this.state.renderer.render(this.state.scene, camera);
+		}
+
+		// Halve renders on mac.
+		if (isMac()) {
+			this.skipFrame = !this.skipFrame;
+		}
 	}
 
 	updateLate(dt: number) {
