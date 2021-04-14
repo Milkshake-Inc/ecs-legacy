@@ -7,6 +7,7 @@ import Transform from '@ecs/plugins/math/Transform';
 import { PerspectiveCamera } from 'three';
 import Input from '@ecs/plugins/input/components/Input';
 import { Key } from '@ecs/plugins/input/Control';
+import MathHelper from '../../../math/MathHelper';
 
 export default class FreeRoamCameraSystem extends System {
 	private lastPosition = { x: 0, y: 0 };
@@ -87,6 +88,8 @@ export default class FreeRoamCameraSystem extends System {
 		this.cameraAngle.x += delta.x * 2;
 		this.cameraAngle.y -= delta.y * 2;
 
+		this.cameraAngle.y = MathHelper.clamp(this.cameraAngle.y, -Math.PI / 2, Math.PI / 2);
+
 		this.camera.quaternion.setFromAxisAngle(Vector3.UP, -this.cameraAngle.x);
 		this.camera.quaternion.multiplyFromAxisAngle(Vector3.LEFT, this.cameraAngle.y);
 
@@ -95,35 +98,41 @@ export default class FreeRoamCameraSystem extends System {
 
 	public updateLate(dt: number) {
 		super.updateLate(dt);
-		const camera = this.queries.camera.first.get(Transform);
+
+		if (!this.queries.camera.first) return;
+
+		const cameraTransform = this.queries.camera.first.get(Transform);
+		const perspectivCamera = this.queries.camera.first.get(PerspectiveCamera);
 
 		const speed = this.inputs.state.boost.down ? 1 : 0.1;
 		let movement = Vector3.ZERO;
 
 		if (this.inputs.state.forward.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.FORWARD));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.FORWARD));
 		}
 
 		if (this.inputs.state.back.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.BACKWARD));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.BACKWARD));
 		}
 
 		if (this.inputs.state.left.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.LEFT));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.LEFT));
 		}
 
 		if (this.inputs.state.right.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.RIGHT));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.RIGHT));
 		}
 
 		if (this.inputs.state.up.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.UP));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.UP));
 		}
 
 		if (this.inputs.state.down.down) {
-			movement = movement.add(camera.quaternion.multiV(Vector3.DOWN));
+			movement = movement.add(cameraTransform.quaternion.multiV(Vector3.DOWN));
 		}
 
-		camera.position = camera.position.add(movement.multi(speed));
+		cameraTransform.position = cameraTransform.position.add(movement.multi(speed));
+
+		cameraTransform.position.y = Math.max(perspectivCamera.near, cameraTransform.position.y);
 	}
 }

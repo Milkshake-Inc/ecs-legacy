@@ -16,12 +16,14 @@ export type RenderSystemSettings = {
 	width: number;
 	height: number;
 	color: number;
+	autoResize: boolean;
 	configure?: (renderer: WebGLRenderer, scene: Scene) => void;
 };
 
 export const DefaultRenderSystemSettings: RenderSystemSettings = {
 	width: 1280,
 	height: 720,
+	autoResize: true,
 	color: Color.Tomato
 };
 
@@ -80,6 +82,18 @@ export default class RenderSystem extends System {
 		}
 
 		document.body.appendChild(this.state.renderer.getContext().canvas as HTMLCanvasElement);
+
+		if (settings.autoResize) {
+			const resize = () => {
+				this.state.renderer.setSize(window.innerWidth, window.innerHeight, true);
+			};
+
+			// Resize events to make fullscreen
+			window.addEventListener('orientationchange', () => resize());
+			window.addEventListener('resize', () => resize());
+
+			resize();
+		}
 	}
 
 	update(dt: number, frameDelta: number) {
